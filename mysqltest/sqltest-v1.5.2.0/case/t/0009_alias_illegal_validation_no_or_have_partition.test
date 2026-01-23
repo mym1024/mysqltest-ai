@@ -1,0 +1,281 @@
+####################################必填######################################################
+###1.测试功能点：
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：96s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-9-30
+###8.其他（选填）：case格式标准化修改 
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1：在无分区规则下，测试别名的非法使用
+##do sql 
+--disable_warnings
+DROP TABLE IF EXISTS a1,a2;
+--enable_warnings
+
+create table a1(rowkey_suffix int primary key, price int);
+insert into a1(rowkey_suffix, price) values(1334555, 1000);
+insert into a1(rowkey_suffix, price) values(1334556, 1001);
+insert into a1(rowkey_suffix, price) values(1334557, 1002);
+insert into a1(rowkey_suffix, price) values(1334558, 1003);
+
+create table a2(rowkey_suffix2 int primary key, price2 int);
+insert into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+
+--error 5001
+select a1.* as 'with_alias' from a1;
+--error 5001
+select a1.*, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* as 'alias2' from a1;
+--error 5001
+select a1.* as 'with_alias', price, a1.* as 'alias2' from a1;
+
+# other fields without alias
+--error 5001
+select price, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias',price from a1;
+--error 5001
+select price, a1.* as 'with_alias', rowkey_suffix from t1;
+--error 5001
+select (select price2 from a2 where 1000 > price2), a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', price as 'x' from t1;
+--error 5001
+select price as 'x', a1.* as 'with_alias', rowkey_suffix as 'x' from a1;
+--error 5001
+select (select price from a2 where 1000 > price) as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) as 'x' from a1;
+
+# some more subquery
+--error 5001
+select (select a2.* as 'x' from a2) from a1;
+--error 5001
+select price, (select a2.* as 'x' from a2) from a1;
+--error 5001
+select a1.*, (select a2.* as 'x' from a2) from a1;
+
+# insert 
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias', rowkey_suffix as 'x', price as 'z' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+
+select a1.* from a1;
+select a2.* from a2;
+select a1.*, a1.* from a1;
+select a1.*, price, a1.* from a1;
+
+# other fields without alias
+select price, a1.* from a1;
+select a1.*, price from a1;
+select price, a1.*, rowkey_suffix from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* from a1;
+drop table a1;
+drop table a2;
+
+###2-2：在hash分区规则下，测试别名的非法使用
+##do sql 
+--disable_warnings
+DROP TABLE IF EXISTS a1,a2;
+--error 5077
+drop partition function h1,h2;
+--enable_warnings
+create hash partition function h1(x)'x-3';
+
+create table a1(rowkey_suffix int primary key, price int) partition by(p1,h1,rowkey_suffix);
+insert into a1(rowkey_suffix, price) values(1334555, 1000);
+insert into a1(rowkey_suffix, price) values(1334556, 1001);
+insert into a1(rowkey_suffix, price) values(1334557, 1002);
+insert into a1(rowkey_suffix, price) values(1334558, 1003);
+
+create hash partition function h2(x)'x+5';
+create table a2(rowkey_suffix2 int primary key, price2 int) partition by(w1,h2,rowkey_suffix2);
+insert into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+
+# Invalid queries with on wild
+--error 5001
+select a1.* as 'with_alias' from a1;
+--error 5001
+select a1.*, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* as 'alias2' from a1;
+--error 5001
+select a1.* as 'with_alias', price, a1.* as 'alias2' from a1;
+
+# other fields without alias
+--error 5001
+select price, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias',price from a1;
+--error 5001
+select price, a1.* as 'with_alias', rowkey_suffix from t1;
+--error 5001
+select (select price2 from a2 where 1000 > price2), a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', price as 'x' from a1;
+--error 5001
+select price as 'x', a1.* as 'with_alias', rowkey_suffix as 'x' from a1;
+--error 5001
+select (select price from a2 where 1000 > price) as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) as 'x' from a1;
+
+# some more subquery
+--error 5001
+select (select a2.* as 'x' from a2) from a1;
+--error 5001
+select price, (select a2.* as 'x' from a2) from a1;
+--error 5001
+select a1.*, (select a2.* as 'x' from a2) from a1;
+
+# insert 
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias', rowkey_suffix as 'x', price as 'z' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+
+select a1.* from a1;
+select a2.* from a2;
+select a1.*, a1.* from a1;
+select a1.*, price, a1.* from a1;
+
+# other fields without alias
+select price, a1.* from a1;
+select a1.*, price from a1;
+select price, a1.*, rowkey_suffix from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* from a1;
+drop table a1;
+drop table a2;
+drop partition function h1,h2;
+
+###2-3：在分区range规则下，测试别名的非法使用
+##do sql 
+--disable_warnings
+DROP TABLE IF EXISTS a1,a2;
+--enable_warnings
+
+create table a1(rowkey_suffix int primary key, price int) partition by range(rowkey_suffix)(partition r0 values less than(1334556),partition r1 values less than maxvalue);
+insert into a1(rowkey_suffix, price) values(1334555, 1000);
+insert into a1(rowkey_suffix, price) values(1334556, 1001);
+insert into a1(rowkey_suffix, price) values(1334557, 1002);
+insert into a1(rowkey_suffix, price) values(1334558, 1003);
+
+create table a2(rowkey_suffix2 int primary key, price2 int) partition by list(rowkey_suffix2)(partition c1 values in(1334558,1334559));
+insert into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+replace into a2(rowkey_suffix2, price2) values(1334558, 1003);
+
+# Invalid queries with on wild
+--error 5001
+select a1.* as 'with_alias' from a1;
+--error 5001
+select a1.*, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* from a1;
+--error 5001
+select a1.* as 'with_alias', a1.* as 'alias2' from a1;
+--error 5001
+select a1.* as 'with_alias', price, a1.* as 'alias2' from a1;
+
+# other fields without alias
+--error 5001
+select price, a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias',price from a1;
+--error 5001
+select price, a1.* as 'with_alias', rowkey_suffix from t1;
+--error 5001
+select (select price2 from a2 where 1000 > price2), a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', price as 'x' from t1;
+--error 5001
+select price as 'x', a1.* as 'with_alias', rowkey_suffix as 'x' from a1;
+--error 5001
+select (select price from a2 where 1000 > price) as 'x', a1.* as 'with_alias' from a1;
+--error 5001
+select a1.* as 'with_alias', (select price2 from a2 where 1000 > price2) as 'x' from a1;
+
+# some more subquery
+--error 5001
+select (select a2.* as 'x' from a2) from a1;
+--error 5001
+select price, (select a2.* as 'x' from a2) from a1;
+--error 5001
+select a1.*, (select a2.* as 'x' from a2) from a1;
+
+# insert 
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias', rowkey_suffix as 'x', price as 'z' from a1;
+--error 5001
+insert into a2 select a1.* as 'with_alias' from a1;
+
+select a1.* from a1;
+select a2.* from a2;
+select a1.*, a1.* from a1;
+select a1.*, price, a1.* from a1;
+select price, a1.* from a1;
+select a1.*, price from a1;
+select price, a1.*, rowkey_suffix from a1;
+
+# other fields with alias
+--error 5001
+select price as 'x', a1.* from a1;
+drop table a1;
+drop table a2;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

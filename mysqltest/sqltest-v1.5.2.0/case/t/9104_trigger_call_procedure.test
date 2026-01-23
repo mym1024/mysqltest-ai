@@ -1,0 +1,1912 @@
+####################################必填######################################################
+###1.测试功能点：触发器功能
+###1.1-触发器调用存储过程
+###1.2-存储过程调用触发器
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：104.202251 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-01-23
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1-触发器调用存储过程
+
+#1.1DDL语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	create table tbl(a int); 
+end;|
+delimiter ;|
+insert into a values(0);
+--error 5019
+desc tbl;
+call p();
+desc tbl;
+
+#1.2DML语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.3DML语句-1
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1);
+	insert into b values(2); 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+
+#1.4delete where精确	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	delete from b where a=33; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.5delete where范围
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	delete from b where a>33;
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.6delete 无where	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	delete from b; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.7update where精确
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	update b set a=8 where a=33; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.8update where范围
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	update b set a=8 where a>33; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.9update 无where
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	update b set a=8; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.10row_count函数 --报错
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	update b set a=66; 
+	insert into b values(row_count()); 
+end|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+
+#1.11while语句	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	while @a<10 do set @a=@a+1;
+	end while;
+	insert into b values(@a);
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.12while语句-insert
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	while @a<10 do insert into b values(@a);
+	set @a=@a+1;
+	end while; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+	
+#1.13while语句-update	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=33;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	while @a<50 do update b set a=@a-2 where a=@a;
+	set @a=@a+1;
+	end while; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.14while语句-delete
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=33;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	while @a<50 do delete from b where a=@a;
+	set @a=@a+1;
+	end while; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.15while语句-变量	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	b:while @a < 10 do if @a > 5 then leave b;
+	end if;
+	set @a=@a+1;
+	end while;
+end|
+delimiter ;|
+insert into a values(0);
+select @a;
+call p();
+select @a;
+
+#1.16 repeat语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	repeat set @a=@a+1;
+	until @a>10 end repeat;
+	insert into b values(@a); 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+
+#1.17 if语句	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create procedure p()
+begin 
+	if @a>60 then insert into b values(@a);
+	end if; 
+end;|
+delimiter ;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+call p();
+select * from b;
+
+#1.18 if语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	if @a>80 then insert into b values(81);
+	else insert into b values(1);
+	end if; 
+end;|
+delimiter ;|
+set @a=90;
+insert into a values(0);
+set @a=70;
+insert into a values(1);
+select * from b;
+call p();
+select * from b;
+
+#1.19row_count函数
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	update b set a=66 where a=55;
+	if row_count()=0 then insert into b values(row_count());
+	end if; 
+end|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.20 if语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @str='hello';
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	if char_length(@str) = 5 then insert into b values(5); 
+	else insert into b values(88); 
+	end if;
+end|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.21 if语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+	begin if @a>40 then delete from b where a=@a;
+	end if; 
+end;|
+delimiter ;|
+set @a=33;
+insert into a values(0);
+set @a=44;
+insert into a values(1);
+select * from b;
+call p();
+select * from b;
+
+#1.22case语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin case @a when 1 then insert into b values(1); 
+	when 2 then insert into b values(2);
+	else insert into b values(8);
+	end case;	
+end;|
+delimiter ;|
+set @a=1;
+insert into a values(0);
+set @a=2;
+insert into a values(1);
+set @a=3;
+insert into a values(2);
+select * from b;
+call p();
+select * from b;
+
+#1.23case语句
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin case (select count(1) from a) 
+	when 1 then insert into b values(1);
+	when 2 then insert into b values(2); 
+	else insert into b values(8);
+	end case; 
+end;|
+delimiter ;|
+insert into a values(0);
+insert into a values(1);
+insert into a values(2);
+select * from b;
+call p();
+select * from b;
+
+#1.24 loop语句	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	label1: LOOP set @a=@a+1;
+	if @a<10 then iterate label1;
+	end if;
+	leave label1;
+	end loop label1;
+	insert into b values(@a);	
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+
+#1.25 repeat语句	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	repeat set @a=@a+1;
+	until @a>10 end repeat;
+	insert into b values(@a);	
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+call p();
+select * from b;
+
+#1.26带参数		
+drop procedure if exists p;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	call p(78);
+end|
+create procedure p(in i int) 
+begin 
+	insert into b values(i);
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+
+#1.27触发器if中call	
+drop procedure if exists p;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+	if @a>60 then call p();
+	end if; 
+end;|
+delimiter ;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+
+
+#1.28多call	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	call p();
+	call pp();
+end|
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+	insert into b values(2); 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+
+#1.29多call
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	call p();
+	insert into b values(2);
+	call pp();
+end|
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+	insert into b values(3); 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+
+#1.30if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+	insert into b values(2); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+	if @a>60 then call p(); 
+	else call pp();
+	end if; 
+end;|
+delimiter ;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+
+#1.31case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+	insert into b values(2); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+	case @a when 1 then call p(); 
+	when 2 then call pp(); 
+	else insert into b values(8);
+	end case;
+end;|
+delimiter ;|
+set @a=1;
+insert into a values(0);
+set @a=2;
+insert into a values(1);
+set @a=3;
+insert into a values(2);
+select * from b;
+
+#1.32loop中 --报错	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+	label1: LOOP set @a=@a+1;
+	call p();
+	if @a<5 then iterate label1;
+	end if;
+	leave label1;
+	end loop label1;
+end;|
+delimiter ;|
+set @a=1;
+insert into a values(0);
+select * from b;
+
+#1.33repeat中 --报错	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+	repeat set @a=@a+1;
+	call p();
+	until @a>5 end repeat; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+
+#1.34while中	---报错，结果不一致
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() 
+begin 
+	insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+	while @a<5 do set @a=@a+1;
+	call p();
+	end while; 
+end;|
+delimiter ;|
+insert into a values(0);
+select * from b;
+
+
+#2-存储过程调用触发器
+
+#1.35insert触发器改new值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a before insert on b for each row 
+begin 
+	set new.a=8;
+end|
+create procedure p() 
+begin 
+	insert into b values(7);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.36insert触发器if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create trigger a before insert on b for each row 
+begin 
+	if new.a=7 then set new.a=8;
+	end if;
+end|
+create procedure p() 
+begin 
+	insert into b values(7);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.37insert触发器if中-1	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a before insert on b for each row 
+begin 
+	if new.a=7 then set new.a=8;
+	end if;
+end|
+create procedure p() 
+begin 
+	insert into b values(9);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.38insert触发器while中	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a after insert on a for each row 
+begin 
+	set @a=new.a; 
+	while @a >0 do set @a=@a-1;
+	insert into b values(new.a);
+	end while;
+end|
+create procedure p() 
+begin 
+	insert into a values(7);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.39insert触发器case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	case when new.a=1 then insert into b values(1+2);
+	when new.a=2 then insert into b values(2*3);
+	end case; 
+end|
+create procedure p() 
+begin 
+	insert into a values(1);
+end|
+create procedure pp() 
+begin 
+	insert into a values(2);
+end|
+delimiter ;|
+call p();
+call pp();
+select * from b;
+
+#1.40insert触发器case中-1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	case when new.a=1 then insert into b values(1+2);
+	else insert into b values(2*3);
+	end case;
+end|
+create procedure p() 
+begin 
+	insert into a values(1);
+end|
+create procedure pp() 
+begin 
+	insert into a values(2);
+end|
+delimiter ;|
+call p();
+call pp();
+select * from b;
+
+#1.41insert触发器loop中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	set @a=new.a;
+	label1: LOOP set @a=@a+1;
+	if @a<10 then insert into b values(new.a); 
+	iterate label1;
+	end if;
+	leave label1;
+	end loop label1; 
+end|
+create procedure p() 
+begin 
+	insert into a values(7);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.42insert触发器repeat中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	set @a=new.a;
+	repeat set @a=@a+1; 
+	insert into b values(new.a); 
+	until @a>10 end repeat;
+end|
+create procedure p() 
+begin 
+	insert into a values(7);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.43insert触发器、存储过程激活多次	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	insert into b values(new.a);
+end|
+create procedure p() 
+begin 
+	insert into a values(7);
+	insert into a values(8);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+#1.44insert触发器、存储过程激活多次	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after insert on a for each row 
+begin 
+	case when new.a=1 
+	then insert into b values(1+2);
+	else insert into b values(2*3);
+	end case; 
+end|
+create procedure p() 
+begin 
+	insert into a values(1);
+	insert into a values(2);
+end|
+delimiter ;|
+call p();
+select * from b;
+
+
+#1.45update触发器读old值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	insert into b values(old.a);
+end|
+create procedure p() 
+begin 
+	update a set a=9;
+end|
+delimiter ;|
+insert into a values(8);
+call p();
+select * from b;
+
+#1.46update触发器读old值-1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	insert into b values(old.a);
+end|
+create procedure p() 
+begin 
+	update a set a=9 where a <9;
+end|
+delimiter ;|
+insert into a values(7);
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from b;
+
+#1.47update触发器读old值-2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	set @a = (old.a);
+end|
+create procedure p() 
+begin 
+	update a set a=9;
+end|
+delimiter ;|
+insert into a values(8);
+call p();
+select @a;
+
+#1.48update触发器读new值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	set @a = (new.a);
+end|
+create procedure p() 
+begin 
+	update a set a=9;
+end|
+delimiter ;|
+insert into a values(8);
+call p();
+select @a;
+
+#1.49update触发器读new值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	set @a = (new.a);
+end|
+create procedure p() begin update a set a=9;end|
+delimiter ;|
+insert into a values(8);
+call p();
+select @a;
+
+#1.50update触发器写new值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row begin set new.a = (new.a)+1;end|
+create procedure p() begin update a set a=9;end|
+delimiter ;|
+insert into a values(8);
+call p();
+select * from a;
+
+#1.51update触发器写new值
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row begin set new.a = (new.a)*2;end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from a;
+
+#1.52update触发器if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	if new.a=7 then set new.a=8;
+	end if;
+end|
+create procedure p() begin update a set a=7;end|
+delimiter ;|
+insert into a values(5);
+call p();
+select * from a;
+
+	
+#1.53update触发器if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	if new.a=7 then set new.a=8;
+	end if;
+end|
+create procedure p() begin update a set a=9;end|
+delimiter ;|
+insert into a values(5);
+call p();
+select * from a;
+
+#1.54update触发器while中	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a after update on a for each row
+begin 
+	set @a=new.a; 
+	while @a >0 do set @a=@a-1;
+	insert into b values(@a);
+	end while;
+end|
+create procedure p() begin update a set a=8;end|
+delimiter ;|
+insert into a values(7);
+call p();
+select * from b;
+
+#1.55update触发器while中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a after update on a for each row 
+begin 
+	set @a=old.a; 
+	while @a >3 do set @a=@a-1;
+	insert into b values(@a);
+	end while;
+end|
+create procedure p() begin update a set a=8;end|
+delimiter ;|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from b;
+
+#1.56update触发器while中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a; 
+	while @a >3 do set @a=@a-1;
+	end while;
+	set new.a=@a;
+end|
+create procedure p() begin update a set a=8;end|
+delimiter ;|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from a;
+
+#1.57update触发器case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	case when new.a=1 then set @a=1+1;
+	when new.a=2 then set @a=(2*3);
+	end case;		
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(0);
+call p();
+select @a;
+
+#1.58update触发器case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	case when new.a=1 then set @a=1+1;
+	when new.a=2 then set @a=(2*3);
+	end case;
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(0);
+call p();
+select @a;
+
+#1.59update触发器loop中	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	set @a=new.a;
+	label1: LOOP set @a=@a+1;
+	if @a<10 then insert into b values(new.a); 
+	iterate label1;
+	end if;
+	leave label1;
+	end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(6);
+call p();
+select * from b;
+
+#1.60update触发器loop中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a;
+	label1: LOOP set @a=@a+1;
+	if @a<10 then set new.a=@a; 
+	iterate label1;
+	end if;
+	leave label1;
+	end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(6);
+call p();
+select * from a;
+
+#1.61update触发器repeat中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+drop trigger if exists a;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() begin update a set a=a+1;end;|
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a; 
+	repeat set @a=@a+1;set new.a=@a;
+	until @a>5 end repeat; 
+end;|
+delimiter ;|
+insert into a values(0);
+call p();
+select * from a;
+
+#1.62delete触发器读old值
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after delete on a for each row 
+begin 
+	insert into b values(old.a);
+end|
+create procedure p() begin delete from a where a=8;end|
+delimiter ;|
+insert into a values(8);
+call p();
+select * from b;
+
+#1.63delete触发器读old值	
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a after delete on a for each row 
+begin 
+	insert into b values(old.a);
+end|
+create procedure p() begin delete from a where a <9;end|
+delimiter ;|
+insert into a values(7);
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from b;
+
+#1.64delete触发器读old值
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before delete on a for each row 
+begin 
+	set @a = (old.a);
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(8);
+call p();
+select @a;
+
+#1.65delete触发器读old值
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before delete on a for each row 
+begin 
+	set @a = @a + (old.a);
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(8);
+insert into a values(9);
+insert into a values(10);
+call p();
+select @a;
+
+#1.66delete触发器if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before delete on a for each row 
+begin 
+	if old.a=7 then set @a=old.a;
+	end if;
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(7);
+call p();
+select @a;
+
+#1.67delete触发器if中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before delete on a for each row 
+begin 
+	if old.a=7 then set @a=old.a;
+	end if;
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(8);
+call p();
+select @a;
+
+#1.68delete触发器while中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a after delete on a for each row 
+begin 
+	set @a=old.a;
+	while @a >0 do set @a=@a-1;
+	insert into b values(@a);
+	end while;
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(7);
+call p();
+select * from b;
+
+#1.69delete触发器while中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a after delete on a for each row 
+begin 
+	set @a=old.a; 
+	while @a >3 do set @a=@a-1;
+	insert into b values(@a);
+	end while;
+end|
+create procedure p() begin delete from a;end|
+delimiter ;|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from b;
+
+#1.70delete触发器while中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+set @a=1|
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a; 
+	while @a >3 do set @a=@a-1;
+	end while;
+	set new.a=@a;
+end|
+create procedure p() begin update a set a=8;end|
+delimiter ;|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from a;
+
+#1.71update触发器case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	case when new.a=1 then set @a=1+1;
+	when new.a=2 then set @a=(2*3);
+	end case; end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(0);
+call p();
+select @a;
+
+#1.72update触发器case中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	case when new.a=1 then set @a=1+1;
+	when new.a=2 then set @a=(2*3);
+	end case; 
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(0);
+call p();
+select @a;
+
+#1.73update触发器loop中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1,@b=1;
+delimiter |;
+create trigger a after update on a for each row 
+begin 
+	set @a=new.a;
+	label1: LOOP set @a=@a+1;
+	if @a<10 then insert into b values(new.a); 
+	iterate label1;
+	end if;
+	leave label1;
+	end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(6);
+call p();
+select * from b;
+
+#1.74update触发器loop中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+delimiter |;
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a;
+	label1: LOOP set @a=@a+1;
+	if @a<10 then set new.a=@a; 
+	iterate label1;
+	end if;
+	leave label1;
+	end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+delimiter ;|
+insert into a values(6);
+call p();
+select * from a;
+
+#1.75update触发器repeat中
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);	
+set @a=1;
+drop trigger if exists a;
+set @a=1,@b=1;
+delimiter |;
+create procedure p() begin update a set a=a+1;end;|
+create trigger a before update on a for each row 
+begin 
+	set @a=new.a; 
+	repeat set @a=@a+1;
+	set new.a=@a;
+	until @a>5 end repeat; 
+end;|
+delimiter ;|
+insert into a values(0);
+call p();
+select * from a;

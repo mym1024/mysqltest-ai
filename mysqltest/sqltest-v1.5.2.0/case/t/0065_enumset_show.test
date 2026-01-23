@@ -1,0 +1,85 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 Test Metadata Queries (SHOW/DESC) for ENUM and SET types
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+
+#Setup: Create a table with ENUM and SET for metadata testing
+CREATE TABLE t_metadata_enum_set (
+  id INT,
+  status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'pending',
+  tags SET('tag1', 'tag2', 'tag3', 'tag4') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  KEY idx_status (status),
+  KEY idx_tags (tags)
+);
+
+# 1. DESCRIBE / DESC table_name
+# Tests: desc语句
+
+# 1.1. DESC command showing ENUM and SET columns
+DESC t_metadata_enum_set;
+
+# 1.2. DESCRIBE command (alias for DESC)
+DESCRIBE t_metadata_enum_set;
+
+# 2. SHOW COLUMNS FROM table_name
+# Tests: show columns语句
+
+# 2.1. SHOW COLUMNS command showing ENUM and SET columns
+SHOW COLUMNS FROM t_metadata_enum_set;
+
+# 2.2. SHOW COLUMNS with LIKE pattern for ENUM
+SHOW COLUMNS FROM t_metadata_enum_set LIKE 'status';
+
+# 2.3. SHOW COLUMNS with LIKE pattern for SET
+SHOW COLUMNS FROM t_metadata_enum_set LIKE 'tags';
+
+# 2.4. SHOW FULL COLUMNS (includes Collation, Privileges, Comment)
+SHOW FULL COLUMNS FROM t_metadata_enum_set;
+
+SHOW CREATE TABLE t_metadata_enum_set;
+
+# 3. Additional Metadata Tests with More Complex Structures
+DROP TABLE IF EXISTS t_metadata_complex_enum_set;
+
+# 3.1. Create a more complex table for richer metadata
+CREATE TABLE t_metadata_complex_enum_set (
+  pk_enum ENUM('type_a', 'type_b') PRIMARY KEY,
+  complex_set SET('opt_x', 'opt_y', 'opt_z') NOT NULL DEFAULT 'opt_x,opt_z',
+  nullable_enum ENUM('val_1', 'val_2', 'val_3') NULL,
+  indexed_enum ENUM('state_on', 'state_off'),
+  unique_set SET('u_flag1', 'u_flag2') UNIQUE KEY,
+  description VARCHAR(255),
+  KEY idx_complex_enum (indexed_enum)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+# 3.2. DESC on complex table
+DESC t_metadata_complex_enum_set;
+
+# 3.3. SHOW COLUMNS on complex table
+SHOW COLUMNS FROM t_metadata_complex_enum_set;
+
+# 3.4. SHOW FULL COLUMNS on complex table (shows collation etc.)
+SHOW FULL COLUMNS FROM t_metadata_complex_enum_set;
+
+# 3.5. SHOW CREATE TABLE on complex table
+SHOW CREATE TABLE t_metadata_complex_enum_set;
+
+# Cleanup
+DROP TABLE t_metadata_enum_set;
+DROP TABLE t_metadata_complex_enum_set;
+
+
+############################################ end sql ###################################################

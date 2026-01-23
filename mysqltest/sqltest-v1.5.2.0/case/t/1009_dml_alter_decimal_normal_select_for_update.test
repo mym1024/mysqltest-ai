@@ -1,0 +1,170 @@
+####################################必填######################################################
+###1.测试功能点：测试decimal类型列，修改decimal范围，select for update操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database test_alter;
+using database test_alter;
+sleep 5;
+
+
+###2-1：修改decimal范围，select for update操作
+#do sql
+create table if not exists t1(c1 int primary key, c2 decimal(5,2), c3 decimal(10,2),c4 varchar(10));
+desc t1;
+insert into t1 values(1, 1, 2.65, '5.96');
+insert into t1 values(2, 1.2, 2.63, '8.65');
+insert into t1 values(3, 1.23, 3.21, '4.56');
+insert into t1 values(4, 123.234, 3.21, '78.as');
+select * from t1;
+select * from t1 where c1=3 for update;
+select *,c1+c2 from t1 where c1=4 for update;
+
+select c2*c3 from t1;
+select c2*c3 from t1 where c1=2 for update;
+select c2/c3 from t1;
+select c2/c3 from t1 where c1=2 for update;
+select c2-c3 from t1;
+select c2-c3 from t1 where c1=2 for update;
+select c2+c3 from t1;
+select c2+c3 from t1 where c1=2 for update;
+
+#--error 153
+select c4*c3 from t1;
+select c4*c3 from t1 where c1=2 for update;
+select c1*c3 from t1;
+select c1*c3 from t1 where c1=2 for update;
+#--error 153
+select c4/c3 from t1;
+select c4/c3 from t1 where c1=2 for update;
+select c1/c3 from t1;
+select c1/c3 from t1 where c1=2 for update;
+#--error 153
+select c4+c3 from t1;
+select c4+c3 from t1 where c1=2 for update;
+select c1+c3 from t1;
+select c1+c3 from t1 where c1=2 for update;
+#--error 153
+select c4-c3 from t1;
+select c4-c3 from t1 where c1=2 for update;
+select c1-c3 from t1;
+select c1-c3 from t1 where c1=2 for update;
+select sum(c2) from t1;
+select avg(c2) from t1;
+
+
+--error 58
+insert into t1 values(5, 1234.12, 12.36, '12.65');
+create index testindex on t1(c2);
+alter table t1 alter column c2 set data type decimal(8,3);
+desc t1;
+
+insert into t1 values(6, 1234.12, 2.36, '1.54');
+insert into t1 values(7, 12345.123, 3.21, '4.65');
+--error 58
+insert into t1 values(8, 123456.123, 4.65, '1.236');
+
+select * from t1;
+select *,c1+c2 from t1 where c1=7 for update;
+select *,c1+c2 from t1 where c1=4 for update;
+
+select c2*c3 from t1;
+select c2*c3 from t1 where c1=2 for update;
+select c2/c3 from t1;
+select c2/c3 from t1 where c1=2 for update;
+select c2-c3 from t1;
+select c2-c3 from t1 where c1=2 for update;
+select c2+c3 from t1;
+select c2+c3 from t1 where c1=2 for update;
+
+#--error 153
+select c4*c3 from t1;
+select c4*c3 from t1 where c1=2 for update;
+select c1*c3 from t1;
+select c1*c3 from t1 where c1=2 for update;
+#--error 153
+select c4/c3 from t1;
+select c4/c3 from t1 where c1=2 for update;
+select c1/c3 from t1;
+select c1/c3 from t1 where c1=2 for update;
+#--error 153
+select c4+c3 from t1;
+select c4+c3 from t1 where c1=2 for update;
+select c1+c3 from t1;
+select c1+c3 from t1 where c1=2 for update;
+#--error 153
+select c4-c3 from t1;
+select c4-c3 from t1 where c1=2 for update;
+select c1-c3 from t1;
+select c1-c3 from t1 where c1=2 for update;
+select sum(c2) from t1;
+select avg(c2) from t1;
+
+
+--error 58
+insert into t1 values(9, 1234567.12, 12.365, '45.21');
+alter table t1 alter column c2 set data type decimal(12,4);
+desc t1;
+
+insert into t1 values(10, 1234567.1123, 21.36, '45.21');
+insert into t1 values(11, 12345678.1234, 21.65, '4788.52');
+
+select * from t1;
+select *,c1+c2 from t1 where c1=11 for update;
+select *,c1+c2 from t1 where c1=4 for update;
+
+select c2*c3 from t1;
+select c2*c3 from t1 where c1=2 for update;
+select c2/c3 from t1;
+select c2/c3 from t1 where c1=2 for update;
+select c2-c3 from t1;
+select c2-c3 from t1 where c1=2 for update;
+select c2+c3 from t1;
+select c2+c3 from t1 where c1=2 for update;
+
+#--error 153
+select c4*c3 from t1;
+select c4*c3 from t1 where c1=2 for update;
+select c1*c3 from t1;
+select c1*c3 from t1 where c1=2 for update;
+#--error 153
+select c4/c3 from t1;
+select c4/c3 from t1 where c1=2 for update;
+select c1/c3 from t1;
+select c1/c3 from t1 where c1=2 for update;
+#--error 153
+select c4+c3 from t1;
+select c4+c3 from t1 where c1=2 for update;
+select c1+c3 from t1;
+select c1+c3 from t1 where c1=2 for update;
+#--error 153
+select c4-c3 from t1;
+select c4-c3 from t1 where c1=2 for update;
+select c1-c3 from t1;
+select c1-c3 from t1 where c1=2 for update;
+select sum(c2) from t1;
+select avg(c2) from t1;
+
+--error 58
+insert into t1 values(12, 123456789.1, 12.36, '142.35');
+
+drop table if exists t1;
+drop database test_alter;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

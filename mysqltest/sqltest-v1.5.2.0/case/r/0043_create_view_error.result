@@ -1,0 +1,78 @@
+create view vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv as select 1+1;
+ERROR HY000: YAO-2: view name is invalid.
+create view 1v as select 1+1;
+create view #__ as select 1+1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create view dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.v1 as select 1+1;
+ERROR HY000: YAO-5602: database  not exist, may have not been sychronize to schema manager,try it again.
+create view %.v1 as select 1+1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create user 'user' identified by 'Abc@12345';
+create view v1 as select 1+1;
+drop view if exists v1;
+drop user 'user';
+create user 'user' identified by 'Abc@12345';
+grant create on *.* to 'user';
+create database db;
+using database db;
+create view v1 as select c1 from t1;
+ERROR 42S02: YAO-5019: table 'db.t1' does not exist
+drop database db;
+drop user 'user';
+using database "yao";
+drop table if exists t1;
+drop view if exists v1;
+create user 'user' identified by 'Abc@12345';
+grant create on *.* to 'user';
+create view v1 as select c1 from t1;
+ERROR 42S02: YAO-5019: table 'yao.t1' does not exist
+drop view if exists v1;
+drop user 'user';
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v1 as select c2 from t2;
+ERROR 42S01: YAO-5025: table 'yao.v1' already exists
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+create view db.v1 as select c1 from t1;
+ERROR HY000: YAO-5602: database db not exist, may have not been sychronize to schema manager,try it again.
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+create view int as select c1 from t1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop view if exists v1;
+drop table if exists t1;
+create view __all as select now();
+ERROR HY000: YAO-5036: invalid view name to create, view_name=[__all]
+create view v1 (cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc) as select 1+1;
+ERROR HY000: YAO-5085: column name is too long
+create view v1(c1,c1) as select 1,2;
+ERROR 42S21: YAO-5008: duplicate column name 'c1'
+create view v1(c$1,c%2) as select 1,2;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create view v1(v1) as select 1,2;
+ERROR HY000: YAO-5007: view's SELECT and view's field list have different column counts
+create view v1(c1) as select 1,2;
+ERROR HY000: YAO-5007: view's SELECT and view's field list have different column counts
+create view v1(c1) as select 1 with none check option;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+show create view v1;
+ERROR 42S02: YAO-5019: Unknown table "yao.v1"
+show create view t1;
+ERROR HY000: YAO-5854: "yao.t1" is not view
+create view 1v as select c1 from t1;
+show create view 1v;
+View	Create View	character_set_client	collation_connection
+yao.1v	create view `yao`.`1v` as select "yao"."t1"."c1" as "c1" from "yao"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1;

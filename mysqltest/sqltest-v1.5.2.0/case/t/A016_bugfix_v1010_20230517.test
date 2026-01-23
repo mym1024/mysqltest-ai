@@ -1,0 +1,155 @@
+####################################必填######################################################
+###1.测试功能点：HotRelease-V1.0.2.0-202305分支合并相关issue
+###（参考：svn://192.168.16.200/YaoBaseDoc/10-运维测试管理/BugList/YaoBase分布式数据库BugList问题确认.xlsx）
+###共计：25个issue,形成case：13个：issue29,35,41,42,46,60,65,67,70,74,76,78,84
+###未形成case：11个：issue54,59,68,69,72,77,79,81,82,83,86
+###issue85在其他case中有对应案例
+###
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：950 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2023-05-18
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+	
+
+#####################################Do sql###################################################
+--source merge.sql
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+#issue78:BugFix-1.0.1.0-无主键表结构未隐藏虚拟主键列
+create table test78(c1 int, c2 int);
+desc test78;
+show create table test78;
+create table test_auto(c1 int primary key auto_increment,c2 int);
+desc test_auto;
+show create  table test_auto;
+create table test78_1(c1 int primary key,c2 int );
+show create table test78_1;
+desc test78_1;
+
+
+
+#issue76：BugFix-1.0.1.0-监控指标inc_query_get_count无效
+insert into test78_1 values(1,1);
+select name,value from (select * from  __all_server_stat where name ='inc_query_get_count');
+select * from test78_1 where c1=1;
+select name,value from (select * from  __all_server_stat where name ='inc_query_get_count');
+
+
+#issue29：增加ds统计项old_ver_dropped_tablets_num
+#issue35：BugFix-1.0.0.0-删除索引的执行期间遇到系统合并，导致合并不结束(841)
+
+create table test35(c1 int primary key,c2 int);
+create index index_test35 on test35(c2);
+insert into test35  values(1,1),(2,2);
+create table test29(c1 int primary key,c2 int);
+#创建此表为issue84创建测试条件
+create table test84(c1 int primary key,c2 int);
+create index index_test84 on test84(c2);
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge| tail -1;
+insert into test35  values(3,3);
+select name,value from (select * from  __all_server_stat where name ='old_ver_dropped_tablets_num');
+drop table test29;
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+delete from __first_tablet_entry where table_name='__3004__idx__index_test35';
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge| tail -1;
+select name,value from (select * from  __all_server_stat where name ='old_ver_dropped_tablets_num');
+
+#issue41：BugFix-1.0.0.0-删除列至仅主键列报错
+create table test41(a int,b int,c char,primary key(a,b));
+alter table test41 drop column c;
+show create table test41;
+desc test41;
+
+
+#issue42：BugFix-1.0.0.0-DML语句where子句主键列赋值出错
+create table test42(id int primary key, age int);
+insert into test42 values(1,1),(2,2);
+set @a = 1;
+delete from test42 where id = @a;
+select * from test42;
+
+#issue46：BugFix-1.0.0.0-update语句set子句不支持变量赋值
+create table test46(id int primary key, age int);
+insert into test46 values(1,1);
+set @a = 2;
+update test46 set id = @a where id = 1;
+select * from test46;
+
+#issue60：BugFix-1.0.0.0-INSERT语句主键列无法插入表达式
+create table test60(c1 int,c2 int);
+insert into test60 values(1+1,1);
+insert into test60 values(8+2*3,1);
+insert into test60 values((8+2)*3,1);
+select * from test60;
+#支持函数插入
+create table test60_1(c1 varchar(999) primary key,c2 int);
+insert into test60_1 values(concat('hello ', 'YaoBase'),1);
+select * from test60_1;
+
+
+#issue65：Devbug-1.0.1.0-insert主键列表达式result set设置问题
+create table test65(a int primary key,b int);
+set @a=2;
+insert into test65 values(@a,@a);
+insert into test65 values(@a+1,@a+1);
+insert into test65 values(@a*2,@a*2);
+select * from test65;
+
+
+#issue67：BugFix-1.0.1.0-条件表达式对子查询运算报5023
+#无数据情况
+create table test67(c1 int primary key,c2 int);
+select * from test67 where c1= (select c1 from test67) +1;
+select * from test67 where c1= (select c1 from test67 where c1=1) +1;
+--error  5007
+select * from test67 where c1= (select * from test67 where c1=1) +1;
+#有数据情况
+insert into test67 values(1,1),(2,2);
+--error  5601
+select * from test67 where c1= (select c1 from test67) +1;
+select * from test67 where c1= (select c1 from test67 where c1=1) +1;
+--error  5007
+select * from test67 where c1= (select * from test67 where c1=1) +1;
+
+
+#issue70：Bugfix-1.0.1.0-JOIN执行结果不一致
+create table test70_1(c1 int primary key,c2 int);
+create table test70_2(c1 int primary key,c2 int);
+insert into test70_1 values(1,1),(2,2);
+insert into test70_2 values(1,1),(2,2);
+--real_sleep 1
+select /*+join(bloomfilter_join)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+select /*+join(hash_join_single)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+select /*+join(merge_join)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+select /*+join(si)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+select /*+join(sib)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+select * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+
+
+#issue74：BugFix-1.0.1.0-缺少系统变量net_buffer_length
+show variables like 'net_buffer_length';
+set @@net_buffer_length=10000;
+show variables like 'net_buffer_length';
+
+#issue84：BugFix-1.0.2.0-二次合并超时
+create table test84_1(c1 int primary key,c2 int);
+create index index_test84_1 on test84_1(c2);
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge| tail -1;

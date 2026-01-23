@@ -1,0 +1,362 @@
+using database test;
+create table t1(c1 int,c2 int, c3 int,primary key(c1));
+show tables;
+table_name_in_test
+t1
+insert into t1 values(1,2,3);
+select * from t1;
+c1	c2	c3
+1	2	3
+alter table t1 add column c4 int;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	int(10)	YES		NULL	
+c4	int(10)	YES		NULL	
+rename table t1 to t11;
+show tables;
+table_name_in_test
+t11
+drop table t11;
+show tables;
+table_name_in_test
+create table t1(c1 int, c2 int, primary key(c1));
+create table t2(c1 int, c2 int, primary key(c1));
+set autocommit=0;
+insert into t1 values(1,1);
+create table t3(c1 int, c2 int,c3 int,primary key(c1,c2));
+ERROR HY000: YAO-5060: Transaction already started
+commit;
+select * from t1;
+c1	c2
+1	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=0;
+insert into t1 values(2,1);
+create table t3(c1 int, c2 int, primary key(c1));
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+select * from t1;
+c1	c2
+1	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=0;
+insert into t1 values(3,1);
+alter table t2 add column c3 int;
+ERROR HY000: YAO-5060: Transaction already started
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+set autocommit=0;
+insert into t1 values(4,1);
+alter table t2 add column c3 int;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+set autocommit=0;
+insert into t1 values(5,1);
+rename table t2 to t22;
+ERROR HY000: YAO-5060: Transaction already started
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=0;
+insert into t1 values(6,1);
+rename table t2 to t22;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=0;
+insert into t1 values(7,1);
+drop table t2;
+ERROR HY000: YAO-5060: Transaction already started
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=0;
+insert into t1 values(8,1);
+drop table t2;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2
+set autocommit=1;
+drop table t1;
+drop table t2;
+create table t1(c1 int, c2 int, primary key(c1));
+create table t2(c1 int, c2 int, primary key(c1));
+insert into t2 values(1,1),(2,1),(3,1);
+begin;
+create table t3(c1 int, c2 int,c3 int,primary key(c1,c2));
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(1,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+show tables;
+table_name_in_test
+t1
+t2
+begin;
+create table t3(c1 int, c2 int, primary key(c1));
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(2,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+show tables;
+table_name_in_test
+t1
+t2
+begin;
+alter table t2 add column c3 int;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(3,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+begin;
+alter table t2 add column c3 int;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(4,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+begin;
+rename table t2 to t22;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(5,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t2
+begin;
+rename table t2 to t22;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(6,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t2
+begin;
+drop table t2;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(7,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2
+begin;
+drop table t2;
+ERROR HY000: YAO-5060: Transaction already started
+insert into t1 values(8,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2
+drop table t1;
+drop table t2;
+create table t1(c1 int, c2 int, primary key(c1));
+create table t2(c1 int, c2 int, primary key(c1));
+set autocommit=0;
+create table t3(c1 int, c2 int,primary key(c1));
+insert into t1 values(1,1);
+commit;
+show tables;
+table_name_in_test
+t1
+t2
+t3
+select * from t1;
+c1	c2
+1	1
+set autocommit=0;
+create table t4(c1 int, c2 int,primary key(c1));
+insert into t1 values(2,1);
+rollback;
+show tables;
+table_name_in_test
+t1
+t2
+t3
+t4
+select * from t1;
+c1	c2
+1	1
+set autocommit=0;
+alter table t2 add column c3 int;
+insert into t1 values(3,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	int(10)	YES		NULL	
+set autocommit=0;
+alter table t2 add column c4 int;
+insert into t1 values(4,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	int(10)	YES		NULL	
+c4	int(10)	YES		NULL	
+set autocommit=0;
+rename table t2 to t22;
+insert into t1 values(5,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t22
+t3
+t4
+set autocommit=0;
+rename table t22 to t2;
+insert into t1 values(6,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+show tables;
+table_name_in_test
+t1
+t2
+t3
+t4
+set autocommit=0;
+drop table t3;
+insert into t1 values(7,1);
+commit;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2
+t4
+set autocommit=0;
+drop table t4;
+insert into t1 values(8,1);
+rollback;
+select * from t1;
+c1	c2
+1	1
+3	1
+5	1
+7	1
+show tables;
+table_name_in_test
+t1
+t2

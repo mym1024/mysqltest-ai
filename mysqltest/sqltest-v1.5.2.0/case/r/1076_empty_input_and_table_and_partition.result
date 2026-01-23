@@ -1,0 +1,26 @@
+/*!40101 SET SQL_MODE='' */;
+drop table if exists t1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+3';
+create table t1(nr int,b char(30),str char(10),primary key(nr)) partition by(ta1,h1,nr);
+select count(*) from t1;
+count(*)
+0
+select * from t1;
+nr	b	str
+select * from t1 limit 0;
+nr	b	str
+drop table t1;
+drop partition function h1;
+drop table if exists t1;
+create hash partition function h1(x)'x+3';
+create table t1(nr int,b char(30),str char(10),primary key(nr));
+select count(*) from t1;
+count(*)
+0
+select * from t1;
+nr	b	str
+select * from t1 limit 0;
+nr	b	str
+drop table t1;

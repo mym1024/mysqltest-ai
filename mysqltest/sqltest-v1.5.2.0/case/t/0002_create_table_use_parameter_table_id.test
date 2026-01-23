@@ -1,0 +1,195 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：建表时使用table_id参数的规则
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：4min
+###6.编写/修改人：liuchangyuan
+###7.编写/修改日期：2019-10-17
+###8.其他（选填）：xxx 
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+set @@session.yao_disable_create_sys_table=false;
+drop table if exists t1,t2,t3,t4,ttt1,__ttt1,__ttt2,__ttt3,___ttt4;
+set @@session.yao_disable_create_sys_table=true;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+
+###2-1：(创建表时不能指定已经存在的表的table_id)
+##do sql 
+#table_id 1
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+let $n=query_get_value(select value from __all_sys_stat where name='yao_max_used_table_id',value,1);
+--error 5020
+eval create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=$n;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2;
+
+###2-2：(建表时指定table_id不能大于‘yao_max_used_table_id’的值)
+##do sql 
+#table_id 2
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+let $n=query_get_value(select value from __all_sys_stat where name='yao_max_used_table_id',value,1);
+inc $n;
+--error 65535
+eval create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=$n;
+drop table t1,t2;
+
+###2-3：(创建表时指定被删除的表的table_id,必须要在表被删除后进行合并)
+##do sql 
+#table_id 3
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+let $id=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+drop table t2;
+--error 54
+eval create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=$id;
+exec  $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+eval create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=$id;
+insert into t2 values(1,2,3,'a');
+select * from t2;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2,t3;
+
+###2-4：(建表时指定table_id不能大于‘yao_max_used_table_id’的值)
+##do sql 
+#table_id 4
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+let $n=query_get_value(select value from __all_sys_stat where name='yao_max_used_table_id',value,1);
+inc $n;
+--error 65535
+eval create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=$n;
+create table t4(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+insert into t4 values(1,2,3,'a');
+select * from t4;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2,t4;
+
+###2-5：(建表时可以指定table_id不大于‘yao_max_used_table_id’的值而且大于1000而且table_id尚未被使用的值)
+##do sql 
+#table_id 5
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2000;
+insert into t3 values(1,2,3,'a');
+select * from t3;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2,t3;
+
+###2-6：(创建表时不能指定table_id已经被使用的值)
+##do sql 
+#table_id 6
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+--error 5020
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=10;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2;
+
+###2-7：(创建表时table_id不能取负值)
+##do sql 
+#table_id 7
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+--error 5001
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=-1;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2;
+
+###2-8：(创建表时table_id不能为0)
+##do sql 
+#table_id 8
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+--real_sleep 5
+--error 2
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=0;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+
+###2-9：(设置'ddl_system_table_switch'为'true'后，创建表时可以指定table_id为未被使用的'1~1000'的值)
+##do sql 
+#table_id 9
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+--error 5020
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=105;
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+--real_sleep 5
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=107;
+insert into t3 values(1,2,3,'a');
+select * from t3;
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+drop table t1,t2,t3;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+
+###2-10：('yao_disable_create_sys_table'参数为false时才可以创建以"__"开头的表)
+##do sql 
+#table_id 10
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+create table ttt1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+--error 5036
+create table __ttt2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+--error 5036
+create table __ttt3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2001;
+set @@session.yao_disable_create_sys_table=false;
+create table __ttt2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table __ttt3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2001;
+insert into __ttt2 values(1,2,3,'a');
+insert into __ttt3 values(1,2,3,'a');
+select * from __ttt2;
+select * from __ttt3;
+select table_name,table_id from __first_tablet_entry where table_name like '%ttt%';
+drop table ttt1,__ttt2,__ttt3;
+set @@session.yao_disable_create_sys_table=true;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+
+###2-11：(创建以"__"开头的表且指定在'1~1000'未被使用的table_id的值，需要同时设置"yao_disable_create_sys_table"为false,"ddl_system_table_switch"为true)
+##do sql
+#table_id 11
+create table ttt1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+set @@session.yao_disable_create_sys_table=false;
+--error 4007
+create table __ttt4(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=200;
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+--real_sleep 5
+create table __ttt4(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=200;
+insert into __ttt4 values(1,2,3,'a');
+select * from __ttt4;
+select table_name,table_id from __first_tablet_entry where table_name like '%ttt%';
+drop table ttt1,__ttt4;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

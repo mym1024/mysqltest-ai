@@ -1,0 +1,346 @@
+##############################################################################################
+###1.测试功能点：测试存储过程DDL、DML功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-03-22
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+set yao_query_timeout=2147483647;
+connection conn1;
+--disable_warnings
+
+###2-1、DDL语句
+#创建表
+delimiter //;
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int); 
+end;//
+call p()//
+drop procedure p//
+DROP PROCEDURE IF EXISTS test.p//
+
+#增加列
+create procedure p() 
+begin 
+alter table proc_test add column name varchar(20); 
+end;//
+call p()//
+drop procedure p//
+
+#添加索引
+--error 5001
+create procedure p() 
+begin 
+create index proc_test_index on proc_test(age,name);
+end;//
+#call p()//
+#drop procedure p//
+
+#删除表
+create procedure p() 
+begin 
+drop table proc_test; 
+end;//
+call p()//
+drop procedure p//
+--real_sleep 1
+#创建视图
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int);
+create view proc_view as select * from proc_test; 
+end;//
+call p()//
+drop procedure p//
+
+#删除视图
+create procedure p() 
+begin 
+drop view proc_view; 
+end;//
+call p()//
+drop procedure p//
+
+#创建无主键表
+create procedure p() 
+begin 
+create table proc_nopk(id int,age int); 
+end;//
+call p()//
+drop procedure p//
+
+#创建全主键表
+create procedure p() 
+begin 
+create table proc_pk(id int primary key);
+end//
+call p()//
+drop procedure p//
+
+#创建分区表
+--error 5001
+create procedure p() 
+begin
+create hash partition function h(x) 'x%4'; 
+create table bmsql_new_order ( no_w_id integer not null,no_d_id integer not null,no_o_id integer not null,redundancy varchar(4),primary key (no_w_id, no_d_id, no_o_id)) use_block_cache=true partition by (hs, h, no_w_id);
+desc bmsql_new_order; 
+show table rules;
+end//
+#call p()//
+#drop procedure p//
+
+#显示存储过程的创建状态
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int); 
+end;//
+create procedure p1() 
+begin 
+create table proc_test1(id int  primary key, age int); 
+end;//
+--replace_column 5 '2024-03-01 15:47:46.943088' 6 '2024-03-01 15:47:46.943088'
+show procedure status like 'p'//
+show procedure status like 'd'//
+--replace_column 5 '2024-03-01 15:47:46.943088' 6 '2024-03-01 15:47:46.943088'
+show procedure status //
+
+#显示存储过程体的内容
+--error 5001
+show create procedure //
+show create procedure d//
+show create procedure p//
+show create procedure p1//
+show create procedure test.p1//
+
+select db,name from __all_procedure//
+
+#删除存储过程
+--error 5727
+drop procedure d//
+drop procedure p//
+--error 5001
+drop procedure  //
+delete from __all_procedure where name='p1'//
+select * from __all_procedure//
+
+###2-2、DML语句
+#简单insert语句
+create procedure p() 
+begin 
+alter table proc_test add column name varchar(20); 
+insert into proc_test(id,age) values(1,1);
+select * from proc_test;
+end;//
+call p()//
+#drop procedure p//
+drop procedure test.p//
+
+create procedure p() 
+begin 
+insert into proc_test values(2,2,'a');
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#批量insert语句
+create procedure p() 
+begin 
+insert into proc_test values(3,3,'a'),(4,4,'a');
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#简单update语句,update语句修改非主键列
+create procedure p() 
+begin 
+update proc_test set age = 18 where id = 1; 
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#简单update语句,update语句修改主键列
+create procedure p() 
+begin 
+declare a int default 9;
+update proc_test set id = a where id = a-8; 
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#delete语句
+create procedure p() 
+begin 
+declare a int default 9;
+delete from proc_test where id = a; 
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#简单select语句
+create procedure p() 
+begin 
+declare a int default 10;
+select * from proc_test where id < a;
+end;//
+call p()//
+drop procedure p//
+
+#select语句where子句简单子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where id = (select age from proc_test where id = 2);
+end;//
+call p()//
+drop procedure p//
+
+#select语句where子句in子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age = a-6 and id in (select age from proc_test where id < 5);
+end;//
+call p()//
+drop procedure p//
+
+#select语句where子句and条件与in子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+drop procedure p//
+
+#select语句where子句join连接子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+drop procedure p//
+
+#select语句from子句简单子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from (select * from proc_test where id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+drop procedure p//
+
+#select语句from子句嵌套子查询
+create procedure p() 
+begin 
+declare a int default 9;
+select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+drop procedure p//
+
+#select语句from子句嵌套子查询,group by
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id;
+end;//
+call p()//
+drop procedure p//
+
+#select语句from子句嵌套子查询,group by,order by
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc;
+end;//
+call p()//
+drop procedure p//
+
+#select语句from子句嵌套子查询,group by,order by,limit
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 2 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+end;//
+call p()//
+drop procedure p//
+
+#select语句union
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test union select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#select语句union all
+create procedure p() 
+begin 
+declare a int default 10;
+select * from proc_test union all select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+###2-3、bit、json数据类型
+create procedure p() 
+begin
+create table test (id int primary key ,bit_1 bit(1),bit_3 bit(3) default b'001',bit_7 bit(7));
+insert into test (id,bit_1,bit_7) values(1,b'0',b'1111111');
+end;//
+call p()//
+drop procedure p//
+
+create procedure p1()
+begin
+insert into test values(2,b'1',b'001',b'1000001');
+end;//
+call p1()//
+drop procedure p1//
+
+create procedure p2()
+begin
+select * from test;
+end;//
+call p2()//
+drop procedure p2//
+
+create procedure p3() 
+begin
+create table lc(b json);
+insert into lc values('1'),('null'),('true'),('false'),('"abc"'),('1.1');
+select * from lc;
+end;//
+call p3()//
+drop procedure p3//
+
+create procedure p4() 
+begin
+insert into lc values('[true,{"array":[1,null,[1,2,3]],"object":{"abc":{"true":1}}}]');
+end;//
+call p4()//
+drop procedure p4//
+
+create procedure p5() 
+begin
+select * from lc;
+end;//
+call p5()//
+drop procedure p5//

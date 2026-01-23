@@ -1,0 +1,55 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：永假的过期条件相关测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：4 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-10-16
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+###2-1 建表时创建永假过期条件
+create table test1(c1 int primary key, c2 int, c3 modifytime)expire_info='1=0';
+
+###创建索引表后，不会冗余其他列
+create index t1_1 on test1(c2);
+
+###2-2 索引表中不包含设置的过期列，拒绝修改
+--error 152
+alter table test1 alter current expire_info='$SYS_DATE>c3';
+
+###2-3 建表时创建永假过期条件
+create table test2(c1 int primary key, c2 int, c3 modifytime)expire_info='1=0';
+
+###创建索引表后，冗余某列
+create index t2_1 on test2(c2) storing(c3);
+
+###2-4 索引表中包含设置的过期列，允许修改
+alter table test2 alter current expire_info='$SYS_DATE>c3';
+
+alter table test2 alter current expire_info='1=0';
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+--enable_query_log
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,239 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 Test DML - SELECT with ENUM and SET types on complex indexed tables
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+
+# Setup: Create tables with various index structures for SELECT testing
+CREATE TABLE t_select_parent (
+    parent_id INT PRIMARY KEY,
+    parent_name VARCHAR(30)
+);
+INSERT INTO t_select_parent VALUES (1, 'Parent_A'), (2, 'Parent_B'), (3, 'Parent_C');
+
+CREATE TABLE t_select_complex_enum_set (
+    id INT AUTO_INCREMENT,
+    category ENUM('cat1', 'cat2', 'cat3') NOT NULL,
+    status_flags SET('active', 'verified', 'premium', 'banned') NOT NULL,
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    description VARCHAR(100),
+    related_id INT,
+    PRIMARY KEY (id),
+    KEY idx_category (category), 
+    KEY idx_status_flags (status_flags),
+    UNIQUE KEY uk_priority_desc (priority, description), 
+    KEY idx_related_id (related_id), 
+    KEY idx_enum_set_composite (category, status_flags), 
+    CONSTRAINT fk_select_parent FOREIGN KEY (related_id) REFERENCES t_select_parent(parent_id)
+);
+
+INSERT INTO t_select_complex_enum_set (category, status_flags, priority, description, related_id) VALUES
+('cat1', 'active,verified', 'high', 'High priority item 1', 1),
+('cat2', 'premium', 'medium', 'Medium priority item 2', 2),
+('cat1', 'active,banned', 'low', 'Low priority item 3', 1),
+('cat3', 'verified,premium', 'high', 'High priority item 4', 3),
+('cat2', 'active', 'medium', 'Medium priority item 5', 2),
+('cat1', '', 'low', 'Low priority item 6', 1), 
+('cat3', 'active,verified,premium', 'high', 'High priority item 7', 3),
+('cat2', 'banned', 'low', 'Low priority item 8', 2);
+
+CREATE TABLE t_select_child (
+    child_id INT PRIMARY KEY,
+    parent_ref_id INT,
+    child_status ENUM('child_ok', 'child_err'),
+    KEY idx_parent_ref (parent_ref_id),
+    CONSTRAINT fk_child_to_main FOREIGN KEY (parent_ref_id) REFERENCES t_select_complex_enum_set(id)
+);
+INSERT INTO t_select_child VALUES (101, 1, 'child_ok'), (102, 3, 'child_err'), (103, 5, 'child_ok');
+CREATE TABLE t_lookup (
+    lookup_key VARCHAR(20),
+    lookup_value ENUM('lookup_a', 'lookup_b')
+);
+INSERT INTO t_lookup VALUES ('key1', 'lookup_a'), ('key2', 'lookup_b');
+
+#1.Basic Queries
+SELECT id, category, status_flags, priority FROM t_select_complex_enum_set;
+SELECT * FROM t_select_complex_enum_set WHERE category = 'cat2';
+SELECT * FROM t_select_complex_enum_set WHERE status_flags = 'active,verified';
+SELECT * FROM t_select_complex_enum_set WHERE FIND_IN_SET('premium', status_flags) > 0;
+SELECT * FROM t_select_complex_enum_set WHERE status_flags LIKE '%banned%';
+
+# 2. Operations and Functions
+#
+# 2.1. Complex projections on ENUM/SET columns
+SELECT
+    id,
+    CONCAT('Category: ', category) AS cat_info,
+    status_flags AS original_flags,
+    CASE
+        WHEN priority = 'high' THEN 'Urgent'
+        WHEN priority = 'medium' THEN 'Normal'
+        ELSE 'Low'
+    END AS priority_label,
+    CHAR_LENGTH(status_flags) AS flag_length 
+FROM t_select_complex_enum_set
+WHERE category IN ('cat1', 'cat3');
+
+# 2.2. String functions on ENUM/SET columns
+SELECT
+    id,
+    UPPER(category) AS upper_category,
+    SUBSTRING(status_flags, 1, 5) AS short_flags, 
+    priority
+FROM t_select_complex_enum_set
+WHERE priority != 'low';
+
+# 2.3. Aggregate functions on ENUM/SET columns
+SELECT
+    category,
+    COUNT(*) AS item_count,
+    GROUP_CONCAT(description SEPARATOR ' | ') AS descriptions 
+FROM t_select_complex_enum_set
+GROUP BY category;
+
+SELECT
+    COUNT(*) AS total_items,
+    MIN(priority) AS min_priority, 
+    MAX(priority) AS max_priority
+FROM t_select_complex_enum_set;
+
+SELECT
+    SUM(IF(FIND_IN_SET('active', status_flags) > 0, 1, 0)) AS active_count,
+    SUM(IF(FIND_IN_SET('premium', status_flags) > 0, 1, 0)) AS premium_count
+FROM t_select_complex_enum_set;
+
+# 2.4. Window functions on ENUM/SET columns
+SELECT
+    id,
+    category,
+    status_flags,
+    priority,
+    ROW_NUMBER() OVER (PARTITION BY category ORDER BY id) AS row_num_in_cat,
+    RANK() OVER (ORDER BY priority DESC) AS priority_rank
+FROM t_select_complex_enum_set
+ORDER BY category, id;
+
+# 3. Advanced Query Structures
+#
+# 3.1. Subquery using ENUM/SET columns
+SELECT * FROM t_select_complex_enum_set
+WHERE category = (SELECT category FROM t_select_complex_enum_set WHERE id = 4);
+
+SELECT
+    id,
+    description,
+    (SELECT COUNT(*) FROM t_select_child WHERE parent_ref_id = t_select_complex_enum_set.id) AS child_count
+FROM t_select_complex_enum_set
+WHERE status_flags LIKE '%verified%';
+
+# 3.2. JOIN operations using ENUM/SET columns as join conditions
+SELECT
+    m.id,
+    m.category,
+    m.status_flags,
+    p.parent_name
+FROM t_select_complex_enum_set m
+JOIN t_select_parent p ON m.related_id = p.parent_id
+WHERE m.priority = 'high';
+
+SELECT
+    m.id,
+    m.description,
+    c.child_status
+FROM t_select_complex_enum_set m
+JOIN t_select_child c ON m.id = c.parent_ref_id
+WHERE m.category = 'cat1';
+
+SELECT
+    m1.id AS high_id,
+    m1.description AS high_desc,
+    m2.id AS low_id,
+    m2.description AS low_desc
+FROM t_select_complex_enum_set m1
+JOIN t_select_complex_enum_set m2 ON m1.related_id = m2.related_id
+WHERE m1.priority = 'high' AND m2.priority = 'low';
+
+# 3.3. Set operations (UNION etc.) involving ENUM/SET columns
+(SELECT id, category, status_flags, 'High_Items' AS source FROM t_select_complex_enum_set WHERE priority = 'high')
+UNION ALL
+(SELECT id, category, status_flags, 'Active_Items' AS source FROM t_select_complex_enum_set WHERE FIND_IN_SET('active', status_flags) > 0)
+ORDER BY id;
+
+# 3.4. Common Table Expression (CTE) using ENUM/SET columns
+
+WITH HighPriorityItems AS (
+    SELECT id, category, status_flags, description
+    FROM t_select_complex_enum_set
+    WHERE priority = 'high'
+),
+ItemSummary AS (
+    SELECT
+        category,
+        COUNT(*) as high_count,
+        GROUP_CONCAT(description SEPARATOR '; ') as high_descriptions
+    FROM HighPriorityItems
+    GROUP BY category
+)
+SELECT
+    h.id,
+    h.category,
+    h.status_flags,
+    h.description,
+    s.high_count
+FROM HighPriorityItems h
+JOIN ItemSummary s ON h.category = s.category
+ORDER BY h.id;
+
+# 4. Views containing ENUM/SET queries
+#
+# 4.1. View with query on ENUM column
+CREATE VIEW v_enum_select AS
+SELECT id, category, priority, description
+FROM t_select_complex_enum_set
+WHERE category IN ('cat1', 'cat2');
+SELECT * FROM v_enum_select ORDER BY id;
+DROP VIEW v_enum_select;
+
+# 4.2. View with query on SET column
+CREATE VIEW v_set_select AS
+SELECT id, status_flags, description
+FROM t_select_complex_enum_set
+WHERE FIND_IN_SET('premium', status_flags) > 0 OR status_flags = '';
+SELECT * FROM v_set_select ORDER BY id;
+DROP VIEW v_set_select;
+
+# 5. Edge Cases and Specific Conditions
+#
+# 5.1. Querying with ENUM numeric index
+SELECT * FROM t_select_complex_enum_set WHERE category = 1;
+SELECT * FROM t_select_complex_enum_set WHERE priority = 3;
+
+# 5.2. Querying empty SET
+SELECT * FROM t_select_complex_enum_set WHERE status_flags = '';
+
+# 5.3. Querying using composite indexes
+SELECT * FROM t_select_complex_enum_set WHERE category = 'cat1' AND status_flags = 'active,banned';
+SELECT * FROM t_select_complex_enum_set WHERE priority = 'high' AND description = 'High priority item 4';
+
+# 5.4. Sorting by ENUM/SET columns
+SELECT * FROM t_select_complex_enum_set ORDER BY category, priority DESC;
+SELECT * FROM t_select_complex_enum_set ORDER BY status_flags;
+DROP TABLE t_select_child;
+DROP TABLE t_select_complex_enum_set;
+DROP TABLE t_select_parent;
+DROP TABLE t_lookup;
+
+
+############################################ end sql ###################################################

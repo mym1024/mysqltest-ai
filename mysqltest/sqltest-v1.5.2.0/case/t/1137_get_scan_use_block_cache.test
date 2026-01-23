@@ -1,0 +1,218 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：查询的get和scan请求使用block cache
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/466
+###4.问题号：466
+###5.预计运行时间：404s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2020-06-08
+###8.其他（选填）：测试集群要求必须有一台cs
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+alter system set min_drop_cache_wait_time='2s' server_type=yaodatasvr;
+
+create table t1(c1 int primary key, c2 varchar(8), c3 varchar(8));
+create index i1 on t1(c2);
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 560 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+#原表
+##原表get
+###非回表get
+alter table t1 alter current use_block_cache=true;
+select * from t1 where c1=1;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select * from t1 where c1=2;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+select * from t1 where c1=3;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+###回表get（原表使用block cache，索引不适用）
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+select * from t1 where c2='b1';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select * from t1 where c2='b2';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+select * from t1 where c2='b3';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+##原表scan
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 40 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+select * from t1;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select * from t1;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+select * from t1;
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+#索引表
+##索引表scan回表（原表索引都使用block cache）
+###使用hint
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 40 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b1';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b2';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b3';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+###未使用hint
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 40 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select  * from t1 where c2='b1';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select * from t1 where c2='b2';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select * from t1 where c2='b3';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+##索引表scan不回表
+###使用hint
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 40 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b1';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b2';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b3';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+
+###未使用hint
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 40 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select   c1 from t1 where c2='b1';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+select   c1 from t1 where c2='b2';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select   c1 from t1 where c2='b3';
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_hit',value,1)
+--echo $n
+--let $n=query_get_value(select value from (select * from __all_server_stat) where svr_type='yaodatasvr' and name='block_cache_miss',value,1)
+--echo $n

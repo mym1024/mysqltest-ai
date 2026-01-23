@@ -1,0 +1,107 @@
+##############################################################################################
+###1.测试功能点：不指定分区规则下，简单的group by
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2019-12-27
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5;
+--enable_warnings
+
+
+create table t1(a double primary key,b double);
+insert into t1(a) values (12345678901234567890);
+select count(a) from t1;
+select count(distinct a) from t1;
+drop table t1;
+
+create table t1(a int,b int primary key);
+insert into t1 values (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8);
+select a,count(distinct b) as cnt from t1 group by a having cnt > 50;
+select a,sum(distinct b) as sumation from t1 group by a having sumation > 50;
+select a,avg(distinct b) as average from t1 group by a having average > 50;
+drop table t1;
+
+create table t1(a int,b int primary key);
+insert into t1 values (null,1),(null,2);
+select min(a),min(b) from t1;
+
+create table t2(pk int primary key,a int,b int,c int);
+insert into t2 (pk,a,b,c) values (1,1,null,2),(2,1,3,4),(3,1,4,4);
+select min(b),min(c) from t2 where a = 1;
+
+create table t3(pk int primary key,a int,b int,c int);
+insert into t3  values (1,1,null,1),(2,2,null,2),(3,3,null,3);
+select min(a),min(b) from t3 where a = 2;
+
+create table t4(a int,b int,c int,primary key(a,c));
+insert into t4  values (1,1,1),(2,null,2),(3,1,3);
+select min(a),min(b) from t4 where a = 2;
+select min(b),min(c) from t4 where a = 2;
+
+create table t5(a int,b int,primary key(a,b),c int);
+insert into t5(a,b) values (1,1),(1,2);
+select min(a),min(b) from t5 where a = 1;
+select min(a),min(b) from t5 where a = 1 and b > 1;
+
+drop table t1,t2,t3,t4,t5;
+
+
+create table t1(a int,b datetime,primary key(a,b),c int);
+select min(b) from t1 where a = 1 and b > '2007-08-01';
+drop table t1;
+
+create table t1(a int primary key,b int);
+insert into t1(a) values (1),(2),(3),(4);
+select a from t1 having count(*) > 2;
+select count(*),a from t1;
+drop table t1;
+
+create table t1(a int ,b int primary key);
+insert into t1 values (1,1),(1,2),(1,3);
+select count(*) from t1;
+select count(*) from t1 where a = 1;
+select count(*),a from t1;
+select count(*) from t1 a join t1 b on a.a=b.a;
+drop table t1;
+
+create table t1(pk int not null,i int,primary key(pk));
+insert into t1 values (1,11),(2,12),(3,13);
+select max(pk) as max,i from t1 order by max;
+select max(pk) as max,i from t1 where pk < 2 order by max;
+drop table t1;
+
+create table t1(a int, primary key(a),b int);
+insert into t1(a) values (1),(2);
+select 1 from t1 order by avg(distinct a);
+drop table t1;
+
+create table t1(pk int primary key,col_int_nokey int);
+insert into t1 values (1,7),(2,8),(3,null);
+select avg(distinct col_int_nokey) from t1;
+select avg(distinct outr.col_int_nokey) from t1 as outr left join t1 as outr2 on outr.col_int_nokey = outr2.col_int_nokey;
+drop table t1;
+
+create table t1 (pk int primary key ,b int);
+insert into t1 values (1,null),(2,2),(3,4);
+select * from t1;
+select count(b),min(b),max(b),sum(b),avg(b) from t1;
+drop table t1;
+	
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

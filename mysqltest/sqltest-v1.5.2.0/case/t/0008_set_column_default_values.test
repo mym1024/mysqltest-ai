@@ -1,0 +1,110 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：设置列的默认值
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：34min
+###6.编写/修改人：liuchangyuan
+###7.编写/修改日期：2019-10-18
+###8.其他（选填）：xxx 
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+###2-1：(添加各种数据类型列的默认值)
+##do sql 
+create table t3(c1 int primary key, c2 int, c3 bigint, c4 float, c5 double,
+	c6 datetime, c7 timestamp,
+	c8 date, c9 time, c10 timestamp,
+	c11 varchar(20), c12 bool, c13 bool, c14 decimal(20,2),
+	c15 tinyint, c16 smallint, c17 mediumint,
+	c19 real, c20 char(5), c21 binary(4), c22 varbinary(4));
+
+desc t3;
+insert into t3(c1,c2,c3,c4) values(11, 9, 10, 4.6);
+alter table t3 alter column c2 set default 10;
+alter table t3 alter column c3 set default 100;
+alter table t3 alter column c4 set default 1.11;
+alter table t3 alter column c5 set default 2.22;
+desc t3;
+
+insert into t3(c1, c2, c3, c4, c5) values(1, default, default, default, default);
+select * from t3;
+insert into t3(c1) values(2);
+select * from t3;
+alter table t3 alter column c6 set default '2017-09-11 15:36:01';
+alter table t3 alter column c7 set default '2016-08-12 11:36:01';
+alter table t3 alter column c8 set default '2017-09-11';
+alter table t3 alter column c9 set default '15:36:01';
+alter table t3 alter column c10 set default 1503799330000000;
+alter table t3 alter column c11 set default 'aaa';
+alter table t3 alter column c12 set default true;
+alter table t3 alter column c13 set default 1;
+alter table t3 alter column c14 set default 3;
+alter table t3 alter column c15 set default 2;
+alter table t3 alter column c16 set default 134;
+alter table t3 alter column c17 set default 178;
+alter table t3 alter column c19 set default 5.55;
+alter table t3 alter column c20 set default 'bbb';
+alter table t3 alter column c21 set default '1111';
+alter table t3 alter column c22 set default '0000';
+desc t3;
+insert into t3(c1) values(3);
+select * from t3;
+
+
+###2-2：(删除各种数据类型列的默认值)
+##do sql 
+alter table t3 alter column c2 drop default;
+alter table t3 alter column c3 drop default;
+alter table t3 alter column c4 drop default;
+alter table t3 alter column c5 drop default;
+alter table t3 alter column c5 drop default;
+desc t3;
+select * from t3;
+insert into t3(c1) values(4);
+select * from t3;
+
+
+alter table t3 alter column c6 drop default;
+alter table t3 alter column c7 drop default;
+alter table t3 alter column c8 drop default;
+alter table t3 alter column c9 drop default;
+alter table t3 alter column c10 drop default;
+alter table t3 alter column c11 drop default;
+alter table t3 alter column c12 drop default;
+alter table t3 alter column c13 drop default;
+alter table t3 alter column c14 drop default;
+alter table t3 alter column c15 drop default;
+alter table t3 alter column c16 drop default;
+alter table t3 alter column c17 drop default;
+alter table t3 alter column c19 drop default;
+alter table t3 alter column c20 drop default;
+alter table t3 alter column c21 drop default;
+alter table t3 alter column c22 drop default;
+
+desc t3;
+select * from t3;
+insert into t3(c1) values(5);
+select * from t3;
+alter table t3 alter column c2 set default 10;
+desc t3;
+insert into t3(c1) values(6);
+select * from t3;
+
+select * from t3;
+drop table t3;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

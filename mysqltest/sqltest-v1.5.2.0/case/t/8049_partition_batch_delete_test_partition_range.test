@@ -1,0 +1,476 @@
+##############################################################################################
+###1.测试功能点：range分区函数下的批量删除，包含prepare/execute/explain
+##
+#
+###2.测试项：（每新添一测试项，需在添加前注明测试项，注释填在新添sql前，不填在此处，如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：41 s
+###5.编写/修改人：hexiangsong
+###6.编写/修改日期：2019-12-05
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+#
+--disable_warnings
+drop table if exists tb1,t1,t2,t3,t;
+--enable_warnings
+create table tb1(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint,c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(6,6),partition rr1 values less than (maxvalue,maxvalue));
+create table t1(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint,c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(6,6),partition rr1 values less than (maxvalue,maxvalue));
+create table t(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint,c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(6,6),partition rr1 values less than (maxvalue,maxvalue));
+show table rules;
+--real_sleep 5
+replace into tb1(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-30 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 3
+replace into t1(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-30 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 3
+replace into t(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-30 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 3
+create table t2(c1 int primary key,c2 int) partition by range columns(c1) (partition r0 values less than(3),partition r1 values less than maxvalue);
+create table t3(c1 int primary key,c2 int) partition by range columns(c1) (partition r0 values less than(3),partition r1 values less than maxvalue);
+show table rules;
+--sleep 3
+insert into t2 values(0,10),(1,11),(12,12);
+--real_sleep 3
+show partition groups;
+
+select * from tb1;
+select * from t1;
+select * from t2;
+select * from t3;
+select * from t;
+
+###2-1:prepare与execute
+prepare stmt from delete from tb1 where c3 mod 0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 <= 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 <= 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 != 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 <> 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 between 2 and 4;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c6 in(2,3,4,5,6,7,8);
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7=1;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7>1;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 >= 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 < 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 <= 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 != 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 <> 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 between 2 and 4;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c7 in(2,3,4,5,6,7,8);
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 >= 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 < 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 <= 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 != 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 <> 3;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 between 2 and 4;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c8 in(2,3,4,5,6,7,8);
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c9 = 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c10 = 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c11 = 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 = 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 = 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 > 'a';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 >= 'b';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 < 'b';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 <= 'b';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 != 'c';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 <> 'c';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 between 'a' and 'c';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 in('a','ab');
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 is null;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 is not unknown;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 like '%b';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c12 || 'b'='ab';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is true;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is false;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is unknown;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is not true;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is not false;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c13 is not unknown;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where not c13 is true;
+execute stmt;drop prepare stmt;
+prepare stmt from delete from tb1 where not c13 is false;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14>'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14>='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14<'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14<='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14!='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c14<>'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15>'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15>='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15<'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15<='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15!='2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c15<>'2015-9-30 00:00:00';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16='100.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16>'50.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16>='50.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16<'50.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16<='50.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16!='50.023';
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c16<>'50.023';
+execute stmt;
+drop prepare stmt;
+#--error 5001
+prepare stmt from delete from t1 where c2=2 limit 2;
+#execute stmt;
+#drop prepare stmt;
+
+--error 5001
+prepare stmt from delete from t1 where c2=2 limit 2 offsetd;
+#execute stmt;
+#drop prepare stmt;
+--error 5001
+prepare stmt from delete from t1 where c2=2 order by c1;
+#execute stmt;
+#drop prepare stmt;
+--error 5001
+prepare stmt from delete from t1 where c2=2 order by c1 desc limit;
+#execute stmt;
+#drop prepare stmt;
+prepare stmt from delete from t1 where c2 < 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from t1 where c2 = 1;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from t1 where c2 = 2 and c3 = 1;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from t1 where c2 = 2 or c3 = 1;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from t2 where c2 = (select c2 from t3 where c1=0);
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from t2 where c2 = (select c2 from t3 where c1=0);
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c1 >= 2;
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c1=3 when row_count(insert into tb1 values(3,3,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1; 
+--real_sleep 3
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c1=4 when row_count(insert into tb1 values(4,4,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1; 
+--real_sleep 3
+execute stmt;
+drop prepare stmt;
+prepare stmt from delete from tb1 where c1=5 when row_count(insert into tb1 values(5,5,2,1,11,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1; 
+--real_sleep 3
+execute stmt;
+drop prepare stmt;
+#
+--error 163
+prepare stmt from delete from t1 where c1=5 when row_count(update t1 set c2='k' where c1=4 when row_count(update t1 set c2='t' where c1=4))=1;
+#
+#
+#
+--error 163
+prepare stmt from delete from t1 where c1=2 when row_count(update t1 set c2='u' where c1=2 when row_count(delete from t1 where c1=4))=1;
+#
+#
+#
+ prepare stmt from delete from tb1;
+#execute stmt;
+drop prepare stmt;
+ prepare stmt1 from delete from tb1 where c1=?;
+set @c1=3;
+execute stmt1 using @c1;
+deallocate prepare stmt1;
+ prepare stmt1 from delete from tb1 where c1=?;
+set @c1=1;
+execute stmt1 using @c1;
+deallocate prepare stmt1;
+#
+
+###2-2:explain
+explain delete from tb1 where c1=1 and c2=1;
+explain delete from tb1 where c1=1;
+explain delete from tb1 where c1>1;
+explain delete from tb1 where c3=1;
+explain delete from tb1 where c3>2;
+explain delete from tb1 where c3<2;
+explain delete from tb1 where c3<=3;
+explain delete from tb1 where c3!=3;
+explain delete from tb1 where c3<>3;
+explain delete from tb1 where c3 between 2 and 4;
+explain delete from tb1 where c3 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c3+0>1;
+explain delete from tb1 where c3-0>1;
+explain delete from tb1 where c3*1>1;
+explain delete from tb1 where c3/1>1;
+explain delete from tb1 where c3%1>1;
+explain delete from tb1 where c3%2=1;
+explain delete from tb1 where c3 mod 2=1;
+explain delete from tb1 where c3/0 is null;
+explain delete from tb1 where c3%0 is null;
+explain delete from tb1 where c3 mod 0 is null;
+explain delete from tb1 where c3 is not unknown;
+explain delete from tb1 where c3 is not null;
+explain delete from tb1 where not c3=0;
+explain delete from tb1 where c4=1;
+explain delete from tb1 where c4>1;
+explain delete from tb1 where c4 >= 2;
+explain delete from tb1 where c4 < 2;
+explain delete from tb1 where c4<=3;
+explain delete from tb1 where c4!=3;
+explain delete from tb1 where c4<>3;
+explain delete from tb1 where c4 between 2 and 4;
+explain delete from tb1 where c4 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c5=1;
+explain delete from tb1 where c5>1;
+explain delete from tb1 where c5 >= 2;
+explain delete from tb1 where c5 < 2;
+explain delete from tb1 where c5<=3;
+explain delete from tb1 where c5!=3;
+explain delete from tb1 where c5<>3;
+explain delete from tb1 where c5 between 2 and 4;
+explain delete from tb1 where c5 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c6=1;
+explain delete from tb1 where c6>1;
+explain delete from tb1 where c6 >= 2;
+explain delete from tb1 where c6 < 2;
+explain delete from tb1 where c6<=3;
+explain delete from tb1 where c6!=3;
+explain delete from tb1 where c6<>3;
+explain delete from tb1 where c6 between 2 and 4;
+explain delete from tb1 where c6 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c7=1;
+explain delete from tb1 where c7>1;
+explain delete from tb1 where c7 >= 2;
+explain delete from tb1 where c7 < 2;
+explain delete from tb1 where c7<=3;
+explain delete from tb1 where c7!=3;
+explain delete from tb1 where c7<>3;
+explain delete from tb1 where c7 between 2 and 4;
+explain delete from tb1 where c7 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c8 >= 2;
+explain delete from tb1 where c8 < 2;
+explain delete from tb1 where c8<=3;
+explain delete from tb1 where c8!=3;
+explain delete from tb1 where c8<>3;
+explain delete from tb1 where c8 between 2 and 4;
+explain delete from tb1 where c8 in(2,3,4,5,6,7,8);
+explain delete from tb1 where c9='a';
+explain delete from tb1 where c10='a';
+explain delete from tb1 where c11='a';
+explain delete from tb1 where c12='a';
+explain delete from tb1 where c12>'a';
+explain delete from tb1 where c12>='b';
+explain delete from tb1 where c12<'b';
+explain delete from tb1 where c12<='b';
+explain delete from tb1 where c12!='c';
+explain delete from tb1 where c12<>'c';
+explain delete from tb1 where c12 between 'a' and 'c';
+explain delete from tb1 where c12 in('a','ab');
+explain delete from tb1 where c12 is null;
+explain delete from tb1 where c12 is not unknown;
+explain delete from tb1 where c12 like '%b';
+explain delete from tb1 where c12 || 'b'='ab';
+explain delete from tb1 where c13 is true;
+explain delete from tb1 where c13 is false;
+explain delete from tb1 where c13 is unknown;
+explain delete from tb1 where c13 is not true;
+explain delete from tb1 where c13 is not false;
+explain delete from tb1 where c13 is not unknown;
+explain delete from tb1 where not c13 is true;
+explain delete from tb1 where not c13 is false;
+explain delete from tb1 where not c14='2015-9-30 00:00:00';
+explain delete from tb1 where not c14>'2015-9-30 00:00:00';
+explain delete from tb1 where not c14>='2015-9-30 00:00:00';
+explain delete from tb1 where not c14<'2015-9-30 00:00:00';
+explain delete from tb1 where not c14<='2015-9-30 00:00:00';
+explain delete from tb1 where not c14!='2015-9-30 00:00:00';
+explain delete from tb1 where not c14<>'2015-9-30 00:00:00';
+explain delete from tb1 where not c15='2015-9-30 00:00:00';
+explain delete from tb1 where not c15>'2015-9-30 00:00:00';
+explain delete from tb1 where not c15>='2015-9-30 00:00:00';
+explain delete from tb1 where not c15<'2015-9-30 00:00:00';
+explain delete from tb1 where not c15<='2015-9-30 00:00:00';
+explain delete from tb1 where not c15!='2015-9-30 00:00:00';
+explain delete from tb1 where not c15<>'2015-9-30 00:00:00';
+explain delete from tb1 where not c16='100.023';
+explain delete from tb1 where not c16>'50.023';
+explain delete from tb1 where not c16>='50.023';
+explain delete from tb1 where not c16<'50.023';
+explain delete from tb1 where not c16<='50.023';
+explain delete from tb1 where not c16!='50.023';
+explain delete from tb1 where not c16<>'50.023';
+#--error 5001
+explain delete from t1 where c2=2 limit 2;
+--error 5001
+explain delete from t1 where c2=2 limit 2 offset;
+--error 5001
+explain delete from t1 where c2=2 order by c1;
+--error 5001
+explain delete from t1 where c2=2 order by c1 desc limit;
+explain delete from t1 where c1<2;
+explain delete from t1 where c1=1;
+explain delete from t1 where c2=2 and c3=1;
+explain delete from t1 where c2=2 or c3=1;
+#
+#--error 5001
+explain delete tb1 from t1 as tb1 where tb1.c2=2;
+--error 5001
+explain delete tb1 from t,t1 as tb1 where t.c2=tb1.c2 and t.c3<tb1.c3;
+--error 5001
+explain delete t2 *,t3 * from t2,t3 where t2.c1=t3.c1;
+explain delete from t2 where c2=(select c2 from t3 where c1=0);
+explain delete from tb1 where c1>=2;
+explain delete from tb1 where c1=3 when row_count(insert into tb1 values(3,3,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1;
+--real_sleep 3
+explain delete from tb1 where c1=4 when row_count(insert into tb1 values(4,4,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1;
+--real_sleep 3
+explain delete from tb1 where c1=5 when row_count(insert into tb1 values(5,5,2,1,11,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.023))=1;
+--real_sleep 3
+#
+--error 163
+explain delete from t1 where c1=5 when row_count(update t1 set c2='k' where c1=4 when row_count(update t1 set c2='t' where c1=4))=1;
+#
+--error 163
+explain delete from t1 where c1=2 when row_count(update t1 set c2='u' where c1=2 when row_count(delete from t1 where c1=4))=1;
+explain delete from tb1;
+drop table if exists t1,t2,t3,test1;

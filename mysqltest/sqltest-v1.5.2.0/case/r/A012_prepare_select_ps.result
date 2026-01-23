@@ -1,0 +1,136 @@
+drop table if exists t1,t2,t3,t4;
+create table t1 (a varchar(20) primary key,b int);
+insert into t1 values ('foo',1);
+prepare stmt from select length(a) from t1;
+prepare stmt2 from 'select not_a_function (a) from t1';
+drop table t1;
+create table t1 (a int primary key,b int);
+insert into t1(a,b) values (1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(7,0),(8,0),(9,0),(10,0);
+prepare stmt from select * from t1 limit ?,?;
+set @offset=0;
+set @limit=1;
+execute stmt using @offset,@limit;
+a	b
+1	0
+select * from  t1 limit 0,1;
+a	b
+1	0
+set @offset=3;
+set @limit=2;
+execute stmt using @offset,@limit;
+a	b
+4	0
+5	0
+select * from  t1 limit 3,2;
+a	b
+4	0
+5	0
+prepare stmt from select * from t1 limit ?;
+execute stmt using @limit;
+a	b
+1	0
+2	0
+prepare stmt from select * from t1 union all select * from t1 limit ?,?;
+set @offset=9;
+set @limit=2;
+execute stmt using @offset,@limit;
+a	b
+10	0
+1	0
+prepare stmt from (select * from t1 limit ?,?) union all (select * from t1 limit ?,?) order by a limit ?;
+execute stmt using @offset,@limit,@offset,@limit,@limit;
+a	b
+10	0
+10	0
+drop table t1;
+deallocate prepare stmt;
+create table t1 (a int primary key,b int);
+insert into t1(a,b) values (2,8),(1,9),(3,7);
+prepare stmt from select * from t1 order by ?;
+set @a=null;
+execute stmt using @a;
+a	b
+1	9
+2	8
+3	7
+set @a=1;
+execute stmt using @a;
+a	b
+1	9
+2	8
+3	7
+set @a=2;
+execute stmt using @a;
+a	b
+1	9
+2	8
+3	7
+deallocate prepare stmt;
+select * from t1 order by 1;
+a	b
+1	9
+2	8
+3	7
+prepare stmt from select * from t1 order by ?+1;
+set @a=0;
+execute stmt using @a;
+a	b
+1	9
+2	8
+3	7
+set @a=1;
+execute stmt using @a;
+a	b
+1	9
+2	8
+3	7
+deallocate prepare stmt;
+select * from t1 order by 1+1;
+a	b
+1	9
+2	8
+3	7
+drop table t1;
+drop table if exists t1,t2,t3;
+create table t1 (i int primary key,j int);
+create table t2 (i int primary key,j int);
+create table t3 (i int primary key,j int);
+prepare stmt from select * from t1 join t2 on (t2.i=t1.i) left join t3 on t3.i = t1.i where t1.i = ?;
+set @a=1;
+execute stmt using @a;
+i	j	i	j	i	j
+execute stmt using @a;
+i	j	i	j	i	j
+deallocate prepare stmt;
+drop table if exists t1,t2,t3;
+drop table if exists t1,t2;
+create table t1 (i int primary key,j int);
+create table t2 (i int primary key,j int);
+insert into t1 values (1,0),(2,0);
+insert into t2 values (1,0);
+prepare stmt from select t2.i from t1  left join t2 on t2.i = t1.i where t1.i = ?;
+set @arg=1;
+execute stmt using @arg;
+i
+1
+set @arg=2;
+execute stmt using @arg;
+i
+NULL
+set @arg=1;
+execute stmt using @arg;
+i
+1
+deallocate prepare stmt;
+drop table t1,t2;
+drop table if exists t1;
+create table t1 (a bigint primary key,b bigint);
+prepare stmt from insert into t1 values(?,?);
+set @a= 9999999999999999;
+set @b= 14632475938453979136;
+execute stmt using @a,@b;
+select * from t1;
+a	b
+9999999999999999	9223372036854775807
+deallocate prepare stmt;
+drop table  t1;

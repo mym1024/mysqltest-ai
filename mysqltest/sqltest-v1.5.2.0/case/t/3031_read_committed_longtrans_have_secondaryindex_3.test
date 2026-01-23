@@ -1,0 +1,169 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：有索引表的数据表，单个长事务多次insert,join
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1224s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists c,d,e,f,g,h;
+--enable_warnings
+
+--disable_query_log
+--enable_query_log
+
+
+create table c (c1 int primary key,c2 varchar(8)) ;
+create table d (d1 int primary key,d2 varchar(8)) ;
+create table e (e1 int primary key,e2 varchar(8),e3 varchar(8)) ;
+create table f (f1 int primary key,f2 varchar(8)) ;
+create table g (g1 int primary key,g2 varchar(8)) ;
+create table h (h1 int primary key,h2 varchar(8)) ;
+
+
+create index c_index on c(c2);
+create index d_index on d(d2);
+create index e_index on e(e2);
+create index f_index on f(f2);
+create index g_index on g(g2);
+create index h_index on h(h2);
+
+show index on c;
+show index on d;
+show index on e;
+show index on f;
+show index on g;
+show index on h;
+
+###2-1：insert
+begin;
+let $i=1001;
+while($i < 4001)
+{
+eval insert into c(c1,c2) values($i,'1');
+inc $i;
+}
+let $i=1001;
+while($i < 4001)
+{
+eval insert into d(d1,d2) values($i,'1');
+inc $i;
+}
+let $i=1001;
+while($i < 4001)
+{
+eval insert into e(e1,e2,e3) values($i,'1','1');
+inc $i;
+}
+let $i=1001;
+while($i < 4001)
+{
+eval insert into f(f1,f2) values($i,'1');
+inc $i;
+}
+let $i=1001;
+while($i < 4001)
+{
+eval insert into g(g1,g2) values($i,'1');
+inc $i;
+}
+let $i=1001;
+while($i < 4001)
+{
+eval insert into h(h1,h2) values($i,'1');
+inc $i;
+}
+
+insert into c values(1,'c');
+insert into c values(2,1);
+insert into c values(3,1);
+insert into c values(4,1);
+insert into c values(5,1);
+insert into c values(6,1);
+insert into c values(7,1);
+insert into c values(8,1);
+insert into d values(1,1);
+insert into d values(2,'d');
+insert into d values(3,1);
+insert into d values(4,1);
+insert into d values(5,1);
+insert into d values(6,1);
+insert into e values(1,1,1);
+insert into e values(2,1,1);
+insert into e values(3,'e','e');
+insert into e values(4,1,1);
+insert into e values(5,1,1);
+insert into e values(6,1,1);
+insert into f values(1,1);
+insert into f values(2,1);
+insert into f values(3,1);
+insert into f values(4,'f');
+insert into f values(5,1);
+insert into f values(6,1);
+insert into g values(1,1);
+insert into g values(2,1);
+insert into g values(3,1);
+insert into g values(4,1);
+insert into g values(5,'g');
+insert into g values(6,1);
+insert into h values(1,1);
+insert into h values(2,1);
+insert into h values(3,1);
+insert into h values(4,1);
+insert into h values(5,1);
+insert into h values(6,'h');
+
+###2-2:join
+select * from c 
+left join e on c.c1=e.e1 order by c.c1;
+--real_sleep 1
+select * from c 
+left join e on c.c1=e.e1
+inner join f on e.e1=f.f1
+right join g on c.c1=g.g1
+left join h on c.c1=h.h1,d
+where c.c1=d.d1 and c.c2='c';
+--real_sleep 1
+select * from c
+left join e on c.c1=e.e1 and c.c2='c'
+inner join f on e.e1 =f.f1
+right join g on c.c1=g.g1
+left join h on c.c1=h.h1,d
+where c.c1=d.d1 ;
+--real_sleep 1
+select /*+join(si,si,si,si)*/* from c
+left join e on c.c1=e.e1
+inner join f on e.e1=f.f1
+left join g on e.e1=g.g1
+left join h on c.c1=h.h1,d
+where c.c1=d.d1 and c.c1=1001;
+--real_sleep 1
+select /*+join(bloomfilter_join,bloomfilter_join,bloomfilter_join,bloomfilter_join)*/* from c
+left join e on c.c1=e.e1
+inner join f on e.e1=f.f1
+left join g on e.e1=g.g1
+left join h on c.c1=h.h1,d
+where c.c1=d.d1 and c.c1=1001;
+commit;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

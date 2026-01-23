@@ -1,0 +1,451 @@
+####################################必填######################################################
+###1.测试功能点：序列基本功能操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database d1;
+using database d1;
+sleep 3;
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+--echo create table
+create table t1(id int primary key,age int,name varchar(20));
+create table t2(id int,age int,name varchar(20));
+
+--real_sleep 1
+--echo insert data
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a'),(11,-99,'a'),(12,-99,'a');
+insert into t2 values(0,-99,'a'),(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+--real_sleep 1
+###2-1:不同起始值创建序列
+create or replace sequence seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 18 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as integer start with 0 increment by -4 minvalue 0 maxvalue 20 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as integer start with -1 increment by 1 minvalue 0 maxvalue 5 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as integer start with -1 increment by -2 minvalue 0 maxvalue 18 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as smallint increment by -2 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as smallint increment by 0 cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as bigint start with -1 increment by 4 minvalue 0 maxvalue 500 no cycle;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+create or replace sequence seq1 as integer start with 2 increment by 1 minvalue 2 maxvalue 400;
+select nextval for seq1 from t1;
+select prevval for seq1 from t1;
+drop sequence seq1;
+
+#无主键表创建序列
+create or replace sequence seq1 as integer start with 0 increment by 3 minvalue 0 maxvalue 24 cycle;
+update t2 set age=nextval for seq1 where id=1;
+select * from t2;
+select nextval for seq1 from t2;
+select prevval for seq1 from t2;
+drop sequence seq1;
+
+drop table t1,t2;
+
+#创建不同数据类型的序列
+create or replace sequence seq1 as bigint start with -1 increment by -2 minvalue 0 maxvalue 4 cycle;
+create or replace sequence seq2 as smallint increment by 2 cycle;
+create or replace sequence seq3 as integer start with 2 increment by 2 minvalue 2 maxvalue 20 cycle;
+create or replace sequence seq4 as int;
+create or replace sequence seq5 as decimal(5,0) start with 0 increment by 3 minvalue 101 maxvalue 105 cycle;
+
+###2-2:range分区
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than(13),partition a4 values less than maxvalue);
+sleep 2;
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+--real_sleep 1
+#bigint
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+#smallint
+update t1 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t1;
+select * from t1;
+update t1 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq2 where id=nextval for seq2;
+--error 5006
+update t1 set age=prevval for seq2 where id=nextval for seq2;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+#integer
+update t1 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t1;
+select * from t1;
+update t1 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t1;
+select * from t1;
+update t1 set age=(nextval for seq3+prevval for seq3)*nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq3 where id=nextval for seq3;
+--error 5006
+update t1 set age=prevval for seq3 where id=nextval for seq3;
+update t1 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t1;
+select * from t1;
+
+#int
+update t1 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t1;
+select * from t1;
+update t1 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+select * from t1;
+update t1 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq4 where id=nextval for seq4;
+--error 5006
+update t1 set age=prevval for seq4 where id=nextval for seq4;
+update t1 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+select * from t1;
+
+#decimal
+update t1 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t1;
+select * from t1;
+update t1 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t1;
+select * from t1;
+update t1 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq5 where id=nextval for seq5;
+--error 5006
+update t1 set age=prevval for seq5 where id=nextval for seq5;
+
+###2-3:list分区
+create table t2(id int primary key,age int,name varchar(20)) partition by list(id)(partition b1 values in(1,3,5,7,9),partition b2 values in(2,4,6,8,10));
+--real_sleep 1
+insert into t2 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+--real_sleep 1
+#bigint
+update t2 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t2;
+select * from t2;
+update t2 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+update t2 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+--error 5006
+update t2 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t2 set age=prevval for seq1 where id=nextval for seq1;
+update t2 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+
+#smallint
+update t2 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t2;
+select * from t2;
+update t2 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t2;
+select * from t2;
+update t2 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+--error 5702
+update t2 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+--error 5006
+update t2 set age=nextval for seq2 where id=nextval for seq2;
+--error 5006
+update t2 set age=prevval for seq2 where id=nextval for seq2;
+update t2 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t2;
+select * from t2;
+
+#integer
+update t2 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t2;
+select * from t2;
+update t2 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t2;
+select * from t2;
+--error 5006
+update t2 set age=nextval for seq3 where id=nextval for seq3;
+--error 5006
+update t2 set age=prevval for seq3 where id=nextval for seq3;
+update t2 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t2;
+select * from t2;
+
+#int
+update t2 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t2;
+select * from t2;
+update t2 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+select * from t2;
+update t2 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+select * from t2;
+--error 5006
+update t2 set age=nextval for seq4 where id=nextval for seq4;
+--error 5006
+update t2 set age=prevval for seq4 where id=nextval for seq4;
+update t2 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+select * from t2;
+
+#decimal
+update t2 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t2;
+select * from t2;
+update t2 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t2;
+select * from t2;
+update t2 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t2;
+select * from t2;
+--error 5006
+update t2 set age=nextval for seq5 where id=nextval for seq5;
+--error 5006
+update t2 set age=prevval for seq5 where id=nextval for seq5;
+
+###2-4:hash分区
+create hash partition function h1(x) 'x*2-1';
+create table t3(id int primary key,age int,name varchar(20)) partition by(h1t,h1,id);
+insert into t3 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+--real_sleep 1
+#bigint
+update t3 set age=nextval for seq1 where id=4;
+--real_sleep 1
+select prevval for seq1 from t3;
+select * from t3;
+update t3 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+update t3 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+--error 5006
+update t3 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t3 set age=prevval for seq1 where id=nextval for seq1;
+update t3 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+
+#smallint
+update t3 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t3;
+select * from t3;
+update t3 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t3;
+select * from t3;
+update t3 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+update t3 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+--error 5006
+update t3 set age=nextval for seq2 where id=nextval for seq2;
+--error 5006
+update t3 set age=prevval for seq2 where id=nextval for seq2;
+update t3 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t3;
+select * from t3;
+
+#integer
+update t3 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t3;
+select * from t3;
+update t3 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t3;
+select * from t3;
+--error 5006
+update t3 set age=nextval for seq3 where id=nextval for seq3;
+--error 5006
+update t3 set age=prevval for seq3 where id=nextval for seq3;
+update t3 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t3;
+select * from t3;
+
+#int
+update t3 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t3;
+select * from t3;
+update t3 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+select * from t3;
+update t3 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+select * from t3;
+--error 5006
+update t3 set age=nextval for seq4 where id=nextval for seq4;
+--error 5006
+update t3 set age=prevval for seq4 where id=nextval for seq4;
+update t3 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+select * from t3;
+
+#decimal
+update t3 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t3;
+select * from t3;
+update t3 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t3;
+select * from t3;
+update t3 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t3;
+select * from t3;
+--error 5006
+update t3 set age=nextval for seq5 where id=nextval for seq5;
+--error 5006
+update t3 set age=prevval for seq5 where id=nextval for seq5;
+
+###2-5:enum分区
+create enum partition function e(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)]';
+create table t4(id int primary key,age int,name varchar(20)) partition by(em,e,id);
+sleep 2;
+insert into t4 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+
+#bigint
+update t4 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t4;
+select * from t4;
+update t4 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+select * from t4;
+update t4 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+select * from t4;
+--error 5006
+update t4 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t4 set age=prevval for seq1 where id=nextval for seq1;
+update t4 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+select * from t4;
+
+#smallint
+update t4 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t4;
+select * from t4;
+--error 5006
+update t4 set age=nextval for seq2 where id=nextval for seq2;
+--error 5006
+update t4 set age=prevval for seq2 where id=nextval for seq2;
+update t4 set age=nextval for seq2+nextval for seq2 where id=prevval for seq2+prevval for seq2;
+select prevval for seq2 from t4;
+select * from t4;
+
+#integer
+update t4 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t4;
+select * from t4;
+update t4 set age=prevval for seq3 where id=1;
+select prevval for seq3 from t4;
+select * from t4;
+--error 5702
+update t4 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t4;
+select * from t4;
+--error 5006
+update t4 set age=nextval for seq3 where id=nextval for seq3;
+--error 5006
+update t4 set age=prevval for seq3 where id=nextval for seq3;
+
+#int
+update t4 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t4;
+select * from t4;
+update t4 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t4;
+select * from t4;
+update t4 set age=prevval for seq4 where id=2;
+select prevval for seq4 from t4;
+select * from t4;
+--error 5006
+update t4 set age=nextval for seq4 where id=nextval for seq4;
+--error 5006
+update t4 set age=prevval for seq4 where id=nextval for seq4;
+update t4 set age=nextval for seq4+nextval for seq4 where id=prevval for seq4+prevval for seq4;
+select prevval for seq4 from t4;
+select * from t4;
+
+#decimal
+update t4 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t4;
+select * from t4;
+update t4 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t4;
+select * from t4;
+--error 5006
+update t4 set age=nextval for seq5 where id=nextval for seq5;
+--error 5006
+update t4 set age=prevval for seq5 where id=nextval for seq5;
+update t4 set age=nextval for seq5+nextval for seq5 where id=prevval for seq5+prevval for seq5;
+select prevval for seq5 from t4;
+select * from t4;
+
+drop table t1,t2,t3,t4;
+drop database d1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,91 @@
+####################################必填######################################################
+###1.测试功能点：测试插入修改数据时是否有精度问题
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:作用于主键rowkey 
+drop table if exists tt;
+create table tt(k decimal(10,5) primary key,c1 decimal(5,4));
+insert into tt values(12.1,1.1);
+insert into tt values(12.12,1.1);
+insert into tt values(12.123,1.1);
+insert into tt values(12.1234,1.1);
+insert into tt values(12.12345,1.1);
+--error 5024
+insert into tt values(12.123456,1.1);
+select * from tt;
+
+
+###2-1:作用于非主键not rowkey 
+drop table if exists tt;
+create table tt(c1 decimal(5,4),k decimal(10,5) primary key);
+replace into tt values(1.12,12.1);
+select * from tt;
+replace into tt values(1.123,12.1);
+select * from tt;
+replace into tt values(1.1234,12.1);
+select * from tt;
+replace into tt values(1.12345,12.1);
+select * from tt;
+
+
+# rowkey
+drop table if exists tt;
+create table tt(k decimal(5,4) primary key,c1 decimal(5,4));
+insert into tt values(1.1,1.1);
+insert into tt values(1.12,1.1);
+insert into tt values(1.123,1.1);
+insert into tt values(1.1234,1.1);
+--error 5024
+insert into tt values(1.12345,1.1);
+select * from tt;
+
+
+drop table if exists t1;
+create table t1(c1 int,c2 decimal(5,3),c3 decimal(3,2), primary key(c1));
+insert into t1 values(2,9.345,2.4);
+# here 出现过bug
+update t1 set c3=c2 where c1=2;
+select * from t1;
+replace into t1 values (3,9.300,2.4);
+select * from t1;
+update t1 set c3=c2 where c1=3;
+select * from t1;
+
+# rowkey
+drop table if exists t1;
+create table t1(c1 int,c2 decimal(5,3),c3 decimal(3,2), primary key(c2));
+insert into t1 values(2,9.345,2.4);
+select * from t1;
+update t1 set c3=c2;
+select * from t1;
+
+drop table if exists t1;
+create table t1(c1 int,c2 decimal(5,3),c3 decimal(3,2), primary key(c1));
+insert into t1 values(1,26.345,2.4);
+insert into t1 values(2,9.345,2.4);
+select * from t1;
+--error 58
+update t1 set c3=c2 where c1=1;
+select * from t1;
+update t1 set c3=c2 where c1=2;
+select * from t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

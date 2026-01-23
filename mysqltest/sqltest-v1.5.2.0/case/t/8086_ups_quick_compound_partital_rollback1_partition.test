@@ -1,0 +1,63 @@
+####################################必填######################################################
+###1.测试功能点：range分区，事务失败后回滚，再次提交成功事务
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：70 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-11-7
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+# 建表
+create table t1(pk int primary key,c1 int) partition by range(pk)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+--echo "refresh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+#
+# 2-1:事务开始，提交失败事务，事务回滚
+#
+begin;
+commit;
+
+
+#
+# 2-1:事务回滚后，提交成功事务
+--real_sleep 5
+--echo insert into 100 rows to ups
+--let $count=1
+while($count<101)
+{
+	--let $stmt=INSERT INTO t1 VALUES($count,$count)
+	eval $stmt;
+	inc $count;
+}
+
+--real_sleep 10
+
+--let $i=0
+while($i<101)
+{
+	eval select * from t1;
+	inc $i;
+}
+commit;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,111 @@
+ALTER SYSTEM SET enable_cgroup = true server_type=yaosqlsvr;
+SELECT * FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit	disk_size	connect_list
+	1	4	8589934592	137438953472	NULL
+create tenant t1 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+create tenant t2 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit_GB	disk_size_GB	connect_list
+	1	4	8	128	NULL
+t1	2	1	4	128	
+t2	3	1	4	128	
+create database t1;
+CREATE TABLE t1.users (
+user_id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50) NOT NULL,
+email VARCHAR(100),
+tenant_id VARCHAR(50) DEFAULT 'tenant_t1'
+);
+INSERT INTO t1.users (username, email) VALUES
+('user_a1', 'user_a1@example.com'),
+('user_a2', 'user_a2@example.com');
+select * from t1.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t1
+2	user_a2	user_a2@example.com	tenant_t1
+CREATE USER 't1_user' IDENTIFIED BY 't1@password';
+CREATE USER 't1_reader' IDENTIFIED BY 't1@password';
+GRANT ALL PRIVILEGES,GRANT OPTION ON t1.* TO 't1_user';
+GRANT SELECT ON t1.* TO 't1_reader';
+show grants for t1_user;
+grants
+GRANT SELECT ON yao.* TO 't1_user'
+GRANT ALL PRIVILEGES,GRANT OPTION ON t1.* TO 't1_user'
+GRANT ALL PRIVILEGES,GRANT OPTION ON t1.users TO 't1_user'
+show grants for t1_reader;
+grants
+GRANT SELECT ON yao.* TO 't1_reader'
+GRANT SELECT ON t1.* TO 't1_reader'
+GRANT SELECT ON t1.users TO 't1_reader'
+create database t2;
+CREATE TABLE t2.users (
+user_id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50) NOT NULL,
+email VARCHAR(100),
+tenant_id VARCHAR(50) DEFAULT 'tenant_t2'
+);
+INSERT INTO t2.users (username, email) VALUES
+('user_a1', 'user_a1@example.com'),
+('user_a2', 'user_a2@example.com');
+select * from t2.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t2
+2	user_a2	user_a2@example.com	tenant_t2
+CREATE USER 't2_user' IDENTIFIED BY 't2@password';
+CREATE USER 't2_reader' IDENTIFIED BY 't2@password';
+GRANT ALL PRIVILEGES,GRANT OPTION ON t2.* TO 't2_user';
+GRANT SELECT ON t2.* TO 't2_reader';
+show grants for t2_user;
+grants
+GRANT SELECT ON yao.* TO 't2_user'
+GRANT ALL PRIVILEGES,GRANT OPTION ON t2.* TO 't2_user'
+GRANT ALL PRIVILEGES,GRANT OPTION ON t2.users TO 't2_user'
+show grants for t2_reader;
+grants
+GRANT SELECT ON yao.* TO 't2_reader'
+GRANT SELECT ON t2.* TO 't2_reader'
+GRANT SELECT ON t2.users TO 't2_reader'
+select * from t1.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t1
+2	user_a2	user_a2@example.com	tenant_t1
+use t2;
+ERROR HY000: YAO-5603: no privilege
+select * from t2.users;
+ERROR HY000: YAO-5603: no privilege
+select * from t1.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t1
+2	user_a2	user_a2@example.com	tenant_t1
+INSERT INTO t1.users (username, email) VALUES ('test', 'test@test.com');
+ERROR HY000: YAO-5036: no privilege
+INSERT INTO t1.users (username, email) VALUES ('new_user_t1', 'new_t1@example.com');
+select * from t1.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t1
+2	user_a2	user_a2@example.com	tenant_t1
+3	new_user_t1	new_t1@example.com	tenant_t1
+INSERT INTO t2.users (username, email) VALUES ('new_user_t2', 'new_t1@example.com');
+select * from t2.users;
+user_id	username	email	tenant_id
+1	user_a1	user_a1@example.com	tenant_t2
+2	user_a2	user_a2@example.com	tenant_t2
+3	new_user_t2	new_t1@example.com	tenant_t2
+drop user t1_user;
+drop user t1_reader;
+drop table t1.users;
+drop database t1;
+drop user t2_user;
+drop user t2_reader;
+drop table t2.users;
+drop database t2;
+SELECT * FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit	disk_size	connect_list
+	1	4	8589934592	137438953472	NULL
+t1	2	1	4294967296	137438953472	
+t2	3	1	4294967296	137438953472	
+drop tenant t1;
+drop tenant t2;
+SELECT * FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit	disk_size	connect_list
+	1	4	8589934592	137438953472	NULL

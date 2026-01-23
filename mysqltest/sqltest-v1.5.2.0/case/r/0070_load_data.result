@@ -1,0 +1,297 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+set names utf8mb4;
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10), c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t01.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.3	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:23
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t02.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.3	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10), c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t000.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+ERROR HY000: YAO-27: File not exist
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t04.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t05.csv' INTO TABLE t2 FIELDS TERMINATED BY ',';
+ERROR 42S02: YAO-5019: table 'test.t2' does not exist
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t06.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+ERROR HY000: YAO-82: Data format error
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t07.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+ERROR HY000: YAO-82: Data format error
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t08.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t09.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(2) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t10.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+ERROR HY000: YAO-5611: Varchar is too long
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t11;
+create table t11(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t11.csv' INTO TABLE t11 FIELDS TERMINATED BY ',' IGNORE 1 ROWS;
+select * from t11;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t12.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' IGNORE 4 ROWS;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t13.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' IGNORE 0 ROWS;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t14.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t15.csv' INTO TABLE t1 FIELDS TERMINATED BY ',,';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t16.csv' INTO TABLE t1 FIELDS TERMINATED BY '分';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t17.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t18.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '\'\'';
+ERROR HY000: YAO-5871: Field separator argument is not what is expected; check the manual
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t19.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '分';
+ERROR HY000: YAO-5871: Field separator argument is not what is expected; check the manual
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t20.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t21.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '\\';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	abc
+你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t22.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY 'aa';
+ERROR HY000: YAO-5871: Field separator argument is not what is expected; check the manual
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t23.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '在';
+ERROR HY000: YAO-5871: Field separator argument is not what is expected; check the manual
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t24.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '\\';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t25.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t26.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t27.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY 'END';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t28.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '结束';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t29.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY 'S';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t30.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY 'Start';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t31.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t32.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始';
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t33.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t34.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c3,c2,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.2211	1.32	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.334	4.24	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t35.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3);
+ERROR 0A000: YAO-7: Not supported feature or function
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t36.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c3,c2,c4,c5,c6,c7,c80,c9);
+ERROR 42S22: YAO-5009: Unknown column
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ PARALLEL(50) */ INFILE '/home/yaotest/load_data_test/t37.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ PARALLEL(-1) */ INFILE '/home/yaotest/load_data_test/t38.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ LOAD_BATCH_SIZE(50) */ INFILE '/home/yaotest/load_data_test/t39.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ LOAD_BATCH_SIZE(-1) */ INFILE '/home/yaotest/load_data_test/t40.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\n你好	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	谢\\\\n谢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t41.csv' INTO TABLE t1 CHARACTER SET latin1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\nä½ å¥½	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	è°¢\\\\nè°¢	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t42.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+ERROR HY000: YAO-5103: Format of a DATE value is incorrect
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t43.csv' INTO TABLE t1 CHARACTER SET latin1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1.324	1.22	a\\\\nÄãºÃ	[2]	1	1992-01-04 23:21:45.000000	2024-09-03	02:34:23
+2	4.249	4.33	Ð»\\\\nÐ»	{"name": "duyd"}	0	2002-10-24 13:31:47.000000	1984-12-13	22:34:24
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t44.csv' INTO TABLE t1 CHARACTER SET latin2 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+ERROR HY000: YAO-5142: Unknown Error
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9

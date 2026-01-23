@@ -1,0 +1,2939 @@
+####################################必填######################################################
+###1.测试功能点：udf2期
+###新增自定义函数内部支持游标（cursor）
+###新增udf中ddl相关语句支持。
+###新增udf支持异常处理逻辑，且支持自定义异常处理条件
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：20.246193 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2024-12-23
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1.udf支持异常处理逻辑，且支持自定义异常处理条件
+##1.1定义条件condition，关键字for sqlstate长度为5的字符串
+delimiter //;
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '23000'; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.2定义条件condition，关键字for sqlstate长度为4的字符串
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '42S2'; 
+	return 1;
+	return 1; 
+end;//
+--error 2
+select p()//
+
+#1.3定义条件condition，关键字for sqlstate长度为6的字符串
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '230001';
+	return 1;
+	return 1; 
+end;//
+--error 2
+select p()//
+
+#1.4定义条件condition，关键字for sqlstate字符串不加单引号
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 23000; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.5定义条件condition，关键字for sqlstate长度为5的字符串
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate  '23000';
+	return 1; 
+	return 1; 
+end;//
+select p()//
+
+
+#1.6定义条件condition，关键字for sqlstate长度为4的字符串
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '42S2'; 
+	return 1; 
+	return 1; 
+end;//
+--error 2
+select p()//
+
+#1.7定义条件condition，关键字for sqlstate长度为5的字符串，不加单引号
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '230001'; 
+	return 1; 
+	return 1; 
+end;//
+--error 2
+select p()//
+
+
+#1.8定义条件condition，关键字for长度为5的字符串，不加单引号
+drop function if exists p// 
+create function p() returns int
+begin 
+	declare cond_p1 condition for 23000; 
+	return 1; 
+	return 1;
+end;//
+select p()//
+
+#1.9定义条件condition，关键字for整型数值错误码，范围在0-10000
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 10000; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.10定义条件condition，关键字for整型数值错误码，为 10000
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 10000; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.11定义条件condition，关键字for整型数值错误码，为1
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 1; 
+	return 1; 
+	return 1; 
+end;//
+select p()//
+
+#1.12定义条件condition，关键字for整型数值错误码，为9999
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 9999; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.13定义条件condition，关键字for整型数值错误码，为10001
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 10001; 
+	return 1;
+	return 1; 
+end;//
+select p()//
+
+#1.14定义多个条件condition，各condition名称一样，关键字for不同的sqlstate值
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p1 condition for sqlstate 'HY000';
+	return 1; 
+end;//
+--error 16
+select p()//
+
+#1.15定义多个条件condition，各condition名称不一样，关键字for不同的sqlstate值
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	return 1; 
+end;//
+select p()//
+
+#1.16定义多个条件condition，各condition名称不一样，关键字for同样的sqlstate值
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate '23000';
+	return 1; 
+end;//
+select p()//
+
+#1.17定义多个条件condition，各condition名称不一样，关键字for同样的错误码值
+drop function if exists p// 
+create function p() returns int 
+begin 
+	declare cond_p1 condition for 5024;
+	declare cond_p2 condition for 5024;
+	return 1; 
+end;//
+select p()//
+
+#1.18定义handler类型为continue，for条件condition名称，condition语句定义长度为5的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+create table func_test(c1 int)//
+create function p() returns int
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.19定义handler类型为continue，for条件condition名称，condition语句定义为范围在0-10000的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+truncate table func_test//
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5024;
+	declare continue handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.20定义handler类型为continue，for条件condition名称，condition语句定义为0的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+truncate table func_test//
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 0;
+	declare continue handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 2
+select p()//
+
+#1.21定义handler类型为continue，for条件多个不同的condition名称，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+truncate table func_test//
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare continue handler for cond_p1,cond_p2 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()//
+select * from func_test//
+
+#1.22多个相同的handler语句，定义handler类型为continue，for条件condition名称，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p//
+truncate table func_test//
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1 insert into func_test values(1);
+	declare continue handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()//
+select * from func_test//
+
+#1.23多个相同的handler语句，定义handler类型为continue，for条件sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlstate '42S22' insert into func_test values(1);
+	declare continue handler for sqlstate '42S22' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.24定义handler类型为continue，for条件存在的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for 5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.25定义handler类型为continue，for条件多个相同的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for 5024,5024,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.26定义handler类型为continue，for条件多个不相同的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for 5022,5023,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.27多个相同的handler语句，定义handler类型为continue，for条件为错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for 5024 insert into func_test values(1);
+	declare continue handler for 5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.28定义handler类型为continue，for条件为condition和错误码值，其中condition定义的错误码值和for条件错误码值不同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5023;
+	declare continue handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.29定义handler类型为continue，for条件为condition和错误码值，其中condition定义的错误码值和for条件错误码值相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5024;
+	declare continue handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.30定义handler类型为continue，for条件为condition和错误码值值，其中condition定义的是sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.31定义handler类型为continue，for条件为错误码和sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlstate '23000',5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.32多个handler语句，定义handler类型均为continue，第一个handler语句的for条件为sqlstate值，第二个handler语句的for条件为condition，condition定义的sqlstate值和第一个handler语句的sqlstate值相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1 insert into func_test values(1);
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.33多个handler语句，定义handler类型均为continue，第一个handler语句的for条件为sqlstate值，第二个handler语句的for条件为condition，condition定义的sqlstate值和第一个handler语句的sqlstate值不相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1 insert into func_test values(1);
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.34定义handler类型为continue，for条件存在的错误码值，handler的过程体语句非空，存储过程的过程体语句出错	drop function if exists p// 
+drop table if exists t0,t1,t2,t3//
+drop function if exists p//
+create table t0(id int primary key,age int)//
+create table t1(id int primary key,age int)//
+create table t2(id int primary key,age int)//
+create table t3(id int primary key,age int)//
+insert into t0 values(1,1)//
+insert into t1 values(1,1),(2,2),(3,3)//
+insert into t3 values(1,1),(2,2),(3,3)//
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.35定义handler类型为continue，for条件存在的sqlstate值，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlstate '23000' insert into func_test values(33);
+	set a=1;
+	insert into t1 values(1,22);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.36定义handler类型为continue，for条件存在的条件，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare continue handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.37定义handler类型为continue，for条件多个不同的存在的条件名称，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare continue handler for cond_p1,cond_p2 insert into func_test values(1);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.38多个handler语句，定义handler类型为continue，for条件不同，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare csr cursor for select * from t1;
+	declare continue handler for cond_p1 insert into func_test values(1);
+	declare continue handler for cond_p1 insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	open csr;
+	open csr;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.39定义handler类型为continue，for条件sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlexception insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.40定义handler类型为continue，for条件sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlwarning insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test//
+
+#1.41定义handler类型为continue，for条件not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for not found insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test//
+
+#1.42定义handler类型为continue，for条件多个sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlexception,sqlexception,sqlexception insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.43定义handler类型为continue，for条件多个sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlwarning,sqlwarning,sqlwarning insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.44定义handler类型为continue，for条件多个not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for not found,not found,not found insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.45定义handler类型为continue，for条件sqlexception,sqlwarning,not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlexception,sqlwarning,not found insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.46多个相同的handler语句，定义handler类型为continue，for条件sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlexception insert into func_test values(2);
+	declare continue handler for sqlexception insert into func_test values(2);
+	declare continue handler for sqlexception insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.47多个相同的handler语句，定义handler类型为continue，for条件sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlwarning insert into func_test values(2);
+	declare continue handler for sqlwarning insert into func_test values(2);
+	declare continue handler for sqlwarning insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.48多个相同的handler语句，定义handler类型为continue，for条件not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for not found insert into func_test values(2);
+	declare continue handler for not found insert into func_test values(2);
+	declare continue handler for not found insert into func_test values(2);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.49多个不同的handler语句，定义handler类型为continue，for条件分别为sqlexception,sqlwarning,not found，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare continue handler for sqlexception insert into func_test values(1);
+	declare continue handler for sqlwarning insert into func_test values(2);
+	declare continue handler for not found insert into func_test values(3);
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.50定义handler类型为exit，for条件condition名称，condition语句定义长度为5的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.51定义handler类型为exit，for条件condition名称，condition语句定义为范围在0-10000的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5024;
+	declare exit handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.52定义handler类型为exit，for条件多个不同的condition名称，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare exit handler for cond_p1,cond_p2 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.53多个相同的handler语句，定义handler类型为exit，for条件condition名称，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1 insert into func_test values(1);
+	declare exit handler for cond_p1 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.54定义handler类型为exit，for条件存在的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.55定义handler类型为exit，for条件不存在的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '42S22' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.56定义handler类型为exit，for条件多个相同的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '42S22',sqlstate '42S22' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.57定义handler类型为exit，for条件多个不相同的sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '42S22',sqlstate 'HY000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.58多个相同的handler语句，定义handler类型为exit，for条件sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '42S22' insert into func_test values(1);
+	declare exit handler for sqlstate '42S22' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.59定义handler类型为exit，for条件存在的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for 5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.60定义handler类型为exit，for条件多个相同的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for 5024,5024,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.61定义handler类型为exit，for条件多个不相同的错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for 5022,5023,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.62多个相同的handler语句，定义handler类型为exit，for条件为错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int
+begin 
+	declare a int;
+	declare exit handler for 5024 insert into func_test values(1);
+	declare exit handler for 5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.63定义handler类型为exit，for条件为condition和错误码值，其中condition定义的错误码值和for条件错误码值不同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5023;
+	declare exit handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.64定义handler类型为exit，for条件为condition和错误码值，其中condition定义的错误码值和for条件错误码值相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5024;
+	declare exit handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()//
+select * from func_test//
+
+#1.65定义handler类型为exit，for条件为condition和sqlstate值，其中condition定义的sqlstate值和for条件sqlstate不同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1, sqlstate 'HY000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.66定义handler类型为exit，for条件为condition和错误码值，其中condition定义的sqlstate值和for条件sqlstate值相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1, sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.67定义handler类型为exit，for条件为condition和sqlstate值，其中condition定义的是错误码值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for 5024;
+	declare exit handler for cond_p1, sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.68定义handler类型为exit，for条件为condition和错误码值值，其中condition定义的是sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1,5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.69定义handler类型为exit，for条件为错误码和sqlstate值，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int
+begin 
+	declare a int;
+	declare exit handler for sqlstate '23000',5024 insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.70定义handler类型为exit，for条件为condition、sqlstate值和错误码值，其中condition定义的和for中错误码和sqlstate值均不一样，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1, 5024 , sqlstate 'HY000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()//
+select * from func_test//
+
+#1.71多个handler语句，定义handler类型均为exit，第一个handler语句的for条件为sqlstate值，第二个handler语句的for条件为condition，condition定义的sqlstate值和第一个handler语句的sqlstate值相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1 insert into func_test values(1);
+	declare exit handler for sqlstate '23000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.72多个handler语句，定义handler类型均为exit，第一个handler语句的for条件为sqlstate值，第二个handler语句的for条件为condition，condition定义的sqlstate值和第一个handler语句的sqlstate值不相同，handler的过程体语句非空，存储过程的过程体语句没有出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1 insert into func_test values(1);
+	declare exit handler for sqlstate 'HY000' insert into func_test values(1);
+	set a=1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.73定义handler类型为exit，for条件存在的错误码值，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '23000' begin insert into func_test values(1); 
+	return 2; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.74定义handler类型为exit，for条件存在的sqlstate值，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '23000' begin insert into func_test values(1); 
+	return 2; 
+	end;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()//
+select * from func_test//
+
+#1.75定义handler类型为exit，for条件存在的条件，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare exit handler for cond_p1 begin insert into func_test values(1); 
+	return 2; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.76定义handler类型为exit，for条件多个不同的存在的sqlstate值，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test//
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlstate '23000', sqlstate 'HY000' begin insert into func_test values(1);
+	return 2; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.77定义handler类型为exit，for条件多个不同的存在的错误码值，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for 5023,sqlstate '23000' begin insert into func_test values(1); 
+	return 2; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.78定义handler类型为exit，for条件多个不同的存在的条件名称，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare exit handler for cond_p1,cond_p2 begin insert into func_test values(1); 
+	return 2; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.79多个handler语句，定义handler类型为exit，for条件不同，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cond_p1 condition for sqlstate '23000';
+	declare cond_p2 condition for sqlstate 'HY000';
+	declare csr cursor for select * from t1;
+	declare exit handler for cond_p1 begin insert into func_test values(1);
+	return 2; end; 
+	declare exit handler for cond_p2 begin insert into func_test values(2); 
+	return 3; 
+	end; 
+	set a=1;
+	insert into t1 values(1,1);
+	open csr;
+	open csr;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.80定义handler类型为exit，for条件sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlexception return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.81定义handler类型为exit，for条件sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlwarning return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test//
+
+#1.82定义handler类型为exit，for条件not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for not found return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test//
+
+#1.83定义handler类型为exit，for条件多个sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlexception,sqlexception,sqlexception return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.84定义handler类型为exit，for条件多个sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlwarning,sqlwarning,sqlwarning return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.85定义handler类型为exit，for条件多个not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for not found,not found,not found return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.86定义handler类型为exit，for条件sqlexception,sqlwarning,not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlexception,sqlwarning,not found return 2;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.87多个相同的handler语句，定义handler类型为exit，for条件sqlexception，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlexception return 2;
+	declare exit handler for sqlexception return 3;
+	declare exit handler for sqlexception return 4;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.88多个相同的handler语句，定义handler类型为exit，for条件sqlwarning，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlwarning return 2;
+	declare exit handler for sqlwarning return 3;
+	declare exit handler for sqlwarning return 4;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.89多个相同的handler语句，定义handler类型为exit，for条件not found，handler的过程体语句非空，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for not found return 2;
+	declare exit handler for not found return 3;
+	declare exit handler for not found return 4;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.90多个不同的handler语句，定义handler类型为exit，for条件分别为sqlexception,sqlwarning,notfound，handler的过程体语句非空，存储过程的过程体多个语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare exit handler for sqlexception return 2;
+	declare exit handler for sqlwarning return 3;
+	declare exit handler for not found return 4;
+	set a=1;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.91定义handler类型为continue，for条件sqlstate值，handler的过程体语句为open，fetch，close游标语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare csr1 cursor for select id from t1;
+	declare continue handler for sqlstate '23000' begin open csr1;
+	fetch csr1 into a;
+	close csr1; 
+	end; 
+	insert into t1 values(1,1);  
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.92定义handler类型为continue，for条件sqlstate值，handler的过程体语句为select语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' return 2;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.93定义handler类型为continue，for条件sqlstate值，handler的过程体语句为insert语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' insert into t1 values(0,0);
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.94定义handler类型为continue，for条件sqlstate值，handler的过程体语句为update语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' update t1 set age=-1 where id=0;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.95定义handler类型为continue，for条件sqlstate值，handler的过程体语句为delete语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' delete from t1 where id=0;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.96定义handler类型为continue，for条件sqlstate值，handler的过程体语句为replace语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' replace into t1 values(0,0);
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.97定义handler类型为continue，for条件sqlstate值，handler的过程体语句为set变量语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' set a=2;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.98定义handler类型为continue，for条件sqlstate值，handler的过程体语句为case语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' case when 1=1 then insert into func_test values(1);
+	end case;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.99定义handler类型为continue，for条件sqlstate值，handler的过程体语句为if..then语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' if 1=1 then insert into func_test values(1);
+	end if;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.100定义handler类型为continue，for条件sqlstate值，handler的过程体语句为while语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' while a<3 do set a=a+1;
+	end while;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.101定义handler类型为continue，for条件sqlstate值，handler的过程体语句为loop语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop set a=a+1;
+	if a=3 then leave lp;
+	end if;
+	end loop;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.102定义handler类型为continue，for条件sqlstate值，handler的过程体语句为repeat语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' repeat set a=a+1;
+	until a=3 end repeat;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.103定义handler类型为continue，for条件sqlstate值，handler的过程体语句为iterate语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:while a<3 do set a=a+1;
+	iterate lp;
+	end while;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.104定义handler类型为continue，for条件sqlstate值，handler的过程体语句为leave语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000'  lp:loop set a=a+1;
+	if a=3 then leave lp;
+	end if;
+	end loop;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.105定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' begin set a=a+1;
+	delete from t1 where id=0;
+	return 2;
+	end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from t1//
+
+#1.106定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为open，fetch，close游标语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare csr1 cursor for select id from t1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1); 
+	open csr1; 
+	fetch csr1 into a;
+	close csr1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.107定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为insert语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.108定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为update语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	update t1 set age=-1 where id=0;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.109定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为delete语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	delete from t1 where id=0;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.110定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为case语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	case when 1=1 then insert into func_test values(1);
+	end case;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.111定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为if..then语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	if 1=1 then insert into func_test values(1);
+	end if;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.112定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为while语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	while a<3 do set a=a+1;
+	insert into t1 values(1,1);
+	delete from t2 where id=a;
+	insert into t2 values(a,1);
+	end while;
+	return 1;
+end;//
+select p()// 
+select * from func_test// 
+select * from t2//
+
+#1.113定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为loop语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	lp:loop set a=a+1;
+	insert into t1 values(1,1);
+	if a=3 then leave lp;end if;
+	end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.114定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为repeat语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+truncate table t2//
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	repeat set a=a+1;
+	delete from t2 where id=a;
+	insert into t1 values(1,1);
+	insert into t2 values(a,1);
+	until a=3 end repeat;
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test// 
+select * from t2//
+
+#1.115定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为iterate语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate 'HY000' insert into func_test values(1);
+	lp:loop set a=a+1;
+	if a=3 then leave lp;
+	else iterate lp;
+	end if;
+	end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.116定义handler类型为continue，for条件sqlstate值，存储过程的过程体语句为leave语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' insert into func_test values(1);
+	lp:loop set a=a+1;
+	insert into t1 values(1,1);
+	if a=3 then leave lp;
+	end if;
+	end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.117定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为open，fetch，close游标语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare csr1 cursor for select id from t1;
+	declare exit handler for sqlstate 'HY000' return 2; 
+	open csr1;
+	fetch csr1 into a;
+	close csr1;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.118定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为insert语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate '23000' return 2;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.119定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为update语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	update t1 set age=-1 where id=0;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.120定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为delete语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	delete from t1 where id=0;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.121定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为case语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	case when 1=1 then insert into func_test values(1);
+	end case;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.122定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为if..then语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	if 1=1 then insert into func_test values(1);
+	end if;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.123定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为while语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+truncate table t2//
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate '23000' return 2;
+	while a<3 do set a=a+1;
+	insert into t1 values(1,1);
+	delete from t2 where id=a;
+	insert into t2 values(a,1);
+	end while;
+	return 1;
+end;//
+select p()// 
+select * from func_test// 
+select * from t2//
+
+#1.124定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为loop语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate '23000' return 2;
+	lp:loop set a=a+1;
+	insert into t1 values(1,1);
+	if a=3 then leave lp;end if;end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.125定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为repeat语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	repeat set a=a+1;
+	delete from t2 where id=a;
+	insert into t1 values(1,1);
+	insert into t2 values(a,1);
+	until a=3 end repeat;
+	return 1;
+end;//
+--error 5024
+select p()// 
+select * from func_test// 
+select * from t2//
+
+#1.126定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为iterate语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate 'HY000' return 2;
+	lp:loop set a=a+1;
+	if a=3 then leave lp;
+	else iterate lp;
+	end if;
+	end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.127定义handler类型为exit，for条件sqlstate值，存储过程的过程体语句为leave语句且出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare exit handler for sqlstate '23000' return 2;
+	lp:loop set a=a+1;
+	insert into t1 values(1,1);
+	if a=3 then leave lp;
+	end if;
+	end loop;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.128定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无begin end且无标签，存储过程的过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns char 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' return 'a'; 
+	insert into t1 values(1,1);
+	return 'b';
+end;//
+select p()// 
+select * from func_test//
+
+#1.129定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无beginend且有标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop leave lp;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.130定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无beginend且有和存储过程begin前同名的标签，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p()returns int  lp0:
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop leave lp;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.131定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无begin end且有和存储过程begin前不同名的标签，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int lb:
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop leave lp;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.132定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无begin end且有多个同名的标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb:loop lp:while a<3 do set a=a+1;
+	end while;
+	leave lb;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.133定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句无begin end且有多个不同名的标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop lp1:while a<3 do set a=a+1;
+	end while;
+	leave lp;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.134定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns char 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	begin return 'a';
+	end;
+	insert into t1 values(1,1);
+	return b'';
+end;//
+select p()// 
+select * from func_test//
+
+#1.135定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end有多个不同的标签且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' begin lp:loop lp1:while a<3 do set a=a+1;
+	end while;
+	leave lp;
+	end loop;
+	return 1;
+	end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.136定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end有多个相同的标签且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	begin lb:loop lp:while a<3 do set a=a+1;
+	end while;
+	leave lb;
+	end loop;
+	return 1;
+	end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.137定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb1:begin return 1;end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.138定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名相同，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int lb:
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb:begin return 2;end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.139定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int lb:
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb1:begin return 2;end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.140定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有beginend且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int lb:
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb1:begin lp:loop lp1:while a<3 do set a=a+1;
+	end while;
+	leave lp;
+	end loop;
+	return 1;
+	end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.141定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签同名，存储过程的begin前有标签且过程体语句出错
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb1:begin lc:loop lp:while a<3 do set a=a+1;
+	end while;
+	leave lc;
+	end loop;
+	return 1;
+	end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.142定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名但存在与handler的begin前标签相同的，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb:begin lp:loop lb1:while a<3 do set a=a+1;
+	end while;
+	leave lp;
+	end loop;
+	return 1;end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.143定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名且不存在与handler的begin前标签相同的，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb1:begin lp:loop 
+	lp1:while a<3 do set a=a+1;
+	end while;
+	leave lp;end loop;
+	return 1;end; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.144定义handler类型为continue，for条件sqlstate值，handler的过程体语句为单条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名且不存在与handler的begin前标签相同的，存在与存储过程过程体语句相同的标签，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin lp:loop lp1:while a<3 
+	do set a=a+1;
+	end while;
+	leave lp;end loop;
+	return 1;end;lc:loop leave lc;
+	end loop; 
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.145定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' begin set a=2; 
+	insert into func_test values(a); 
+	end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()//
+select * from func_test//
+
+#1.146定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end有多个不同的标签且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' begin lp:loop leave lp;
+	end loop; 
+	lp1:while a<3 do set a=a+1; 
+	end while;end; 
+	insert into t1 values(1,1);
+	return 1; 
+end;//
+select p()// 
+select * from func_test//
+
+#1.147定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end有多个相同的标签且begin前无标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' begin lp:loop leave lp;
+	end loop;
+	lp:while a<3 do set a=a+1; 
+	end while;
+	return 1;end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 6000
+select p()// 
+select * from func_test//
+
+#1.148定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，存储过程的begin前无标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb:begin set a=2;
+	insert into func_test values(a); 
+	end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.149定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，标签和存储过程begin前的标签名相同，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb:begin set a=2;
+	insert into func_test values(a); end;insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.150定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin set a=2;
+	insert into func_test values(a);
+	end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.151定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有beginend且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin lp:loop leave lp;
+	end loop;
+	lp1:while a<3 do set a=a+1; 
+	end while;
+	return 1;end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.152定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签同名，存储过程的begin前有标签且过程体语句出错
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin lp:loop leave lp;
+	end loop;
+	lp:while a<3 do set a=a+1; 
+	end while;
+	return 1;end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+--error 6000
+select p()// 
+select * from func_test//
+
+#1.153定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名且不存在与handler的begin前标签相同的，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin lp:loop leave lp;
+	end loop;
+	lp1:while a<3 do set a=a+1;end while;
+	insert into func_test values(1);
+	end;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.154定义handler类型为continue，for条件sqlstate值，handler的过程体语句为多条语句有begin end且begin前有标签，标签和存储过程begin前的标签名不相同，handler的过程体语句多个标签不同名且不存在与handler的begin前标签相同的，存在与存储过程过程体语句相同的标签，存储过程的begin前有标签且过程体语句出错	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+lb:begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' 
+	lb1:begin lp:loop leave lp;
+	end loop;
+	lp1:while a<3 do set a=a+1; end while;
+	insert into func_test values(1);
+	end;lp:loop leave lp;end loop;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.155多个除sqlstate码相同的handler语句，定义handler类型为continue，for条件sqlstate值，handler的过程体语句无begin end且有标签	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop leave lp;
+	end loop;
+	declare continue handler for sqlstate 'HY000' lp:loop leave lp;
+	end loop;
+	insert into t1 values(1,1);
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.156多个除sqlstate码相同的handler语句，定义handler类型为continue，for条件sqlstate值，handler的过程体语句有begin end且begin前有标签	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lb:begin lp:loop leave lp;
+	end loop;
+	insert into func_test values(1);end;
+	declare continue handler for sqlstate 'HY000' lb:begin lp:loop leave lp;
+	end loop;
+	insert into t1 values(1,1);
+	end;
+	return 1;
+end;//
+select p()// 
+select * from func_test//
+
+#1.157多个不同的handler语句，定义handler类型为continue，for条件sqlstate值，一个handler的过程体语句有begin end且begin前有标签，另一个handler的过程体语句无begin end且有标签，多个handler中的标签相同	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int default 1;
+	declare continue handler for sqlstate '23000' lp:loop leave lp;
+	end loop;
+	declare continue handler for sqlstate 'HY000' lp:begin 
+	insert into t1 values(1,1);
+	end;
+	return 1; 
+end;//
+select p()// 
+select * from func_test//
+
+#1.158declare，open，fetch,close同一游标按顺序执行，看结果是否正确	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.159declare游标后，open游标名称不正确，fetch及close正确游标名	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur;
+	fetch cur1 into a,b;
+	close cur1;
+	return 1; 
+end//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.160declare游标后，open正确游标名，fetch游标名称不正确，close正确游标名称	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur into a,b;
+	close cur1;
+	return 1; 
+end//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.161declare游标后，open正确游标名，fetch正确游标名称，close游标名称不正确	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur;
+	return 1; 
+end//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.162无declare进行声明，直接open一个任意游标名，进行fetch，close正确游标名	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	return 1; 
+end//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.163declare，没有open该游标，进行fetch及close该游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	fetch cur1 into a,b;
+	close cur1;
+	return 1; 
+end//
+--error 5720
+select p()// 
+select * from func_test//
+
+#1.164declare，open游标，没有进行fetch，直接close游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	close cur1;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.165declare，open，fetch后，没有close该游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.166declare游标，未进行open、fetch及close该游标，再声明同名游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	declare cur1 cursor for select * from t1;
+	return 1;
+end//
+--error 55
+select p()// 
+select * from func_test//
+
+#1.167declare游标，未进行open、fetch及close该游标，再声明不同名游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	declare cur2 cursor for select * from t1;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.168declare后声明的游标查询语句的查询结果集为空，open，fetch一次该游标看结果是否正常	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1 where id=-1;
+	open cur1;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+--error 5734
+select p()// 
+select * from func_test//
+
+#1.169结果集为小数据量，declare,open,fetch次数等于结果集数目	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.170结果集为小数据量，declare,open,fetch次数大于结果集数目	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+--error 5734
+select p()// 
+select * from func_test//
+
+#1.171结果集为小数据量，declare,open,fetch次数小于结果集数目	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	return 1;
+end//
+select p()// 
+select * from func_test//
+
+#1.172declare，open连续执行两次，fetch，close该游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	return 1; 
+end//
+--error 5719
+select p()// 
+select * from func_test//
+
+#1.173declare，open，fetch，close关闭游标连续执行两次	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	close cur1;
+	return 1; 
+end//
+--error 5720
+select p()// 
+select * from func_test//
+
+#1.174两个declare语句声明两个不同的游标，open两个游标	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	declare cur2 cursor for select * from t1;
+	open cur1;
+	open cur2;
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.175顺序问题，顺序为declare、fetch、open、close时的结果	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	fetch cur1 into a,b;
+	open cur1;
+	close cur1;
+	return 1; 
+end//
+--error 5720
+select p()// 
+select * from func_test//
+
+#1.176顺序问题，顺序为declare、open、close、fetch时的结果	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	close cur1;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+--error 5720
+select p()// 
+select * from func_test//
+
+#1.177顺序问题，顺序为declare、close、open、fetch时的结果	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	close cur1;
+	open cur1;
+	fetch cur1 into a,b;
+	return 1; 
+end//
+--error 5720
+select p()// 
+select * from func_test//
+
+#1.178fetch into用户变量，游标查询语句select 结果集为一列，列类型为整型，declare,open游标后，fetch into 变量，变量个数与结果集列数相等，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int; 
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.179fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为整型，declare,open游标后，fetch into 变量，变量个数与结果集列数相等，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.180fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为整型，declare,open游标后，fetch into 变量，变量为set语句已定义的变量，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.181fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为整型，declare,open游标后，fetch into 同一变量多次，变量个数等于结果集列数，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	fetch cur1 into a;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.182fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为字符型，declare,open游标后，fetch into 变量，变量个数与结果集列数相等，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.183fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为字符型，declare,open游标后，fetch into 变量，变量为set语句已定义的变量，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.184fetch into存储过程变量，游标查询语句select 结果集为一列，列类型为字符型，declare,open游标后，fetch into 同一变量多次，变量个数等于结果集列数，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	fetch cur1 into a;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.185fetch into存储过程变量，游标查询语句select 结果集为多列，declare,open游标后，fetch into 变量，变量名称不同，变量个数与结果集列数相等，close，select查看多个变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b,c int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	insert into func_test values(a);
+	insert into func_test values(b);
+	insert into func_test values(c);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.186fetch into存储过程变量，游标查询语句select 结果集为多列，declare,open游标后，fetch into 变量，变量名称不同，变量个数与结果集列数相等，执行多次上述fetch语句，close，select查看多个变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b,c int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	fetch cur1 into a,b;
+	close cur1;
+	insert into func_test values(a);
+	insert into func_test values(b);
+	insert into func_test values(c);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.187fetch into存储过程变量，游标查询语句select 结果集为多列，declare,open游标后，fetch into 变量，变量名称相同，变量个数小于结果集列数，close，select查看多个变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,a;
+	close cur1;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.188fetch into存储过程变量，多个游标，第一个游标declare,open游标后，fetch into 变量，close后，第二个游标fetch into相同变量，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin declare a int;
+	declare cur1 cursor for select id from t1;
+	declare cur2 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;close cur1;
+	insert into func_test values(a);
+	open cur2;
+	fetch cur2 into a;
+	close cur2;
+	insert into func_test values(a);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+#1.189fetch into存储过程变量，多个游标，select结果集为单列，第一个游标declare,open游标后，fetch into 变量一，close，后，第二个游标fetch into与变量一变量名称字符相同但大小写不同的变量二，select查看变量一和变量二	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int; 
+	declare a,A int;
+	declare cur1 cursor for select id from t1;
+	declare cur2 cursor for select age from t1;
+	open cur1;
+	fetch cur1 into a;
+	close cur1;
+	insert into func_test values(a);
+	open cur2;
+	fetch cur2 into A;
+	close cur2;
+	insert into func_test values(a);
+	return 1; 
+end//
+--error 5724
+select p()// 
+select * from func_test//
+
+#1.190fetch into存储过程变量，游标查询语句select 结果集为多列，declare,open游标后，fetch into 多个变量，变量名称字符相同大小写不同，变量个数与结果集列数相等，close，select查看多个变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int; 
+	declare a,A int;
+	declare cur1 cursor for select id,age from t1;
+	open cur1;
+	fetch cur1 into a,A;
+	close cur1;
+	insert into func_test values(a); 
+	insert into func_test values(A);
+	return 1; 
+end//
+--error 5724
+select p()// 
+select * from func_test//
+
+#1.191fetch into存储过程变量，游标查询语句select结果集为空。declare,open游标后，fetch into 变量，close，select查看变量	
+drop function if exists p// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a int; 
+	declare a,A int;
+	declare cur1 cursor for select id,age from t1 where id<0;
+	open cur1;
+	fetch cur1 into a,A;
+	close cur1;
+	insert into func_test values(a); 
+	insert into func_test values(A);
+	return 1; 
+end//
+--error 5724
+select p()// 
+select * from func_test//
+
+#1.192多个存储过程，fetch into存储过程变量，相同的declare,open游标，fetch into 变量，close，select查看变量	
+drop function if exists p//
+drop table if exists t0,t1,t2,t3,func_test//
+create table t1(id int primary key,age int)//
+insert into t1 values(1,1),(2,2),(3,3)//
+create table func_test(c1 int)// 
+truncate table func_test// 
+create function p() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	insert into func_test values(a); 
+	insert into func_test values(b);
+	return 1; 
+end//
+select p()// 
+select * from func_test//
+
+create function p1() returns int 
+begin 
+	declare a,b int;
+	declare cur1 cursor for select * from t1;
+	open cur1;
+	fetch cur1 into a,b;
+	close cur1;
+	insert into func_test values(a); 
+	insert into func_test values(b);
+	return 1; 
+end//
+select p1()// 
+select * from func_test//
+show create function p//
+show create function p1//
+#show function status like 'p'//
+#show function status like 'p1';
+

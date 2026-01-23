@@ -1,0 +1,88 @@
+###########################################################################################
+###1.测试功能点：hint指定join算法是否正常，指定的join类型和join算法是否生效
+##
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：xxx
+###5.编写/修改人：zhuyiying
+###6.编写/修改日期：2020-01-03
+###7.其它（选填）：case格式规范化修改
+###
+##
+#
+###########################################################################################
+
+##########################################################################################
+###打开查询优化器开关
+set yao_enable_query_optimizer=true;
+
+###建表插数据
+create table t1(id int primary key, col1 int, col2 int, col3 int);
+create table t2(id int primary key, col1 int);
+
+insert into t1 values(1, 2, 3, 4);
+insert into t1 values(2, 3, 4, 5);
+insert into t2 values(1, 2);
+insert into t2 values(2, 3);
+
+###2-1:测试不支持的join类型
+--error 5001
+select * from t1 semi join t2 on t1.col1 = t2.col1;
+
+--error 5001
+select * from t1 left semi join t2 on t1.col1 = t2.col1;
+
+--error 5001
+select * from t1 right semi join t2 on t1.col1 = t2.col1;
+
+--error 5001
+select * from t1 merge join t2 on t1.col1 = t2.col1;
+
+#--error 5001
+select * from t1 bloomfilter join t2 on t1.col1 = t2.col1;
+
+#--error 5001
+select * from t1 hash join t2 on t1.col1 = t2.col1;
+
+###2-2:测试支持的join类型
+select * from t1 inner join t2 on t1.col1 = t2.col1;
+
+select * from t1 left join t2 on t1.col1 = t2.col1;
+
+select * from t1 right join t2 on t1.col1 = t2.col1;
+
+select * from t1 full join t2 on t1.col1 = t2.col1;
+
+###2-3:测试未声明的join类型是否默认为inner join，join前的字段被当做表别名
+explain select * from t1 join t2 on t1.col1 = t2.col1;
+
+explain select * from t1 a join t2 on t1.col1 = t2.col1;
+
+explain select * from t1 a join t2 on a.col1 = t2.col1;
+
+explain select a.* from t1 a join t2 on t1.col1 = t2.col1;
+
+###2-4:测试指定join算法是否生效
+select /*+ join(merge_join) */ * from t1 inner join t2 on t1.col1 = t2.col1;
+
+select /*+ join(bloomfilter_join) */ * from t1 full join t2 on t1.col1 = t2.col1;
+
+select /*+ join(hash_join_single) */ * from t1 right join t2 on t1.col1 = t2.col1;
+
+select /*+ join(si) */ * from t1 left join t2 on t1.col1 = t2.col1;
+
+explain select /*+ join(merge_join) */ * from t1 inner join t2 on t1.col1 = t2.col1;
+
+explain select /*+ join(bloomfilter_join) */ * from t1 full join t2 on t1.col1 = t2.col1;
+
+explain select /*+ join(hash_join_single) */ * from t1 right join t2 on t1.col1 = t2.col1;
+
+explain select /*+ join(si) */ * from t1 left join t2 on t1.col1 = t2.col1;
+
+###删表删库
+drop table if exists t1;
+drop table if exists t2;
+
+##########################################################################################

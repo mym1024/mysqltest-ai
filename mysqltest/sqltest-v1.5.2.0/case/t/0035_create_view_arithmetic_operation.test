@@ -1,0 +1,2005 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210201
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+###2-1:基于基本表的列，列属性为基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用算术符，+,-,*,/,%,mod
+drop table if exists t1;
+drop view if exists v1;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(12321112147483647,2,3,5,7,11),(-12321112147483647,-2,-3,-5,-7,-11);
+create view v1 as select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+select * from v1;
+select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1;
+drop view if exists v1;
+
+###2-2:基于基本表的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11);
+create view v1 as select c1+(c2-c1)*1000/23,(c1-c2)*c2,(c1-10)/(c2-1),c1*2-c2+10,c1%ceil(c2) from t1;
+select * from v1;
+select c1+(c2-c1)*1000/23,(c1-c2)*c2,(c1-10)/(c2-1),c1*2-c2+10,c1%ceil(c2) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-3:基于基本表的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bigint primary key,c2 int);
+create table t2 (c1 int primary key,c2 float,c3 double);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11);
+insert into t2 values(1,1.1111,1.111111111),(2,2.2222,22.2222222);
+create view v1 as select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2,t2.c1%t2.c2 from t1,t2;
+select * from v1;
+select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2,t2.c1%t2.c2 from t1,t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-4:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bigint primary key,c2 int);
+create table t2 (c1 int primary key,c2 float,c3 double);
+create table t3 (c1 float primary key,c2 double);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11);
+insert into t2 values(1,1.1111,1.111111111),(2,2.2222,22.2222222);
+insert into t3 values(55555.55555,55.5555555555),(777777777.77777777777,77777777777777.777777777777777);
+create view v1 as select t1.c1*t3.c1+t2.c1,t1.c1*t2.c1*t3.c2,t1.c1*t2.c3*t3.c1 from t1,t2,t3;
+select * from v1;
+select t1.c1*t3.c1+t2.c1,t1.c1*t2.c1*t3.c2,t1.c1*t2.c3*t3.c1 from t1,t2,t3;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-5:基于基本表的列，列属性为基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(12321112147483647,2,3,5,7,11),(-12321112147483647,-2,-3,-5,-7,-11);
+create view v1(c1,c2,c3,c4,c5) as select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+create view v2 as select c1*c2,c1/c2,c1-c2,c2-c3,c3+c4+c5,c5%c1 from t1;
+select * from v1;
+select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+select * from v2;
+select c1*c2,c1/c2,c1-c2,c2-c3,c3+c4+c5,c5%c1 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 is null or c1>=17;
+create view v2 as select c1,c2 from t1 where (c1 is not null and c1<17) or c1>11111;
+select * from v1;
+select c1,c2 from t1 where c1 is null or c1>=17;
+select * from v2;
+select c1,c2 from t1 where (c1 is not null and c1<17) or c1>11111;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-7:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 >=17;
+create view v2 as select c1,c2 from t1 where c1 >117;
+create view v3 as select c1,c2 from t1 where c1 <=27;
+create view v4 as select c1,c2 from t1 where c1 <27;
+create view v5 as select c1,c2 from t1 where c1 <>27;
+create view v6 as select c1,c2 from t1 where c1 =27;
+create view v7 as select c1,c2 from t1 where c1 !=27;
+select *from v1;
+select c1,c2 from t1 where c1 >=17;
+select *from v2;
+select c1,c2 from t1 where c1 >117;
+select *from v3;
+select c1,c2 from t1 where c1 <=27;
+select *from v4;
+select c1,c2 from t1 where c1 <27;
+select *from v5;
+select c1,c2 from t1 where c1 <>27;
+select *from v6;
+select c1,c2 from t1 where c1 =27;
+select *from v7;
+select c1,c2 from t1 where c1 !=27;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-8:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 >=17;
+create view v2 as select c1,c2 from t1 where c1 >117;
+create view v3 as select c1,c2 from t1 where c1 <=27;
+create view v4 as select c1,c2 from t1 where c1 <27;
+create view v5 as select c1,c2 from t1 where c1 <>27;
+create view v6 as select c1,c2 from t1 where c1 =27;
+create view v7 as select c1,c2 from t1 where c1 !=27;
+select *from v1;
+select c1,c2 from t1 where c1 >=17;
+select *from v2;
+select c1,c2 from t1 where c1 >117;
+select *from v3;
+select c1,c2 from t1 where c1 <=27;
+select *from v4;
+select c1,c2 from t1 where c1 <27;
+select *from v5;
+select c1,c2 from t1 where c1 <>27;
+select *from v6;
+select c1,c2 from t1 where c1 =27;
+select *from v7;
+select c1,c2 from t1 where c1 !=27;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-9:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 is true;
+create view v2 as select c1,c2 from t1 where c1 is false;
+create view v3 as select c1,c2 from t1 where c1 is unknown;
+create view v4 as select c1,c2 from t1 where c1 is null;
+create view v5 as select c1,c2 from t1 where c1 is not true;
+create view v6 as select c1,c2 from t1 where c1 is not false;
+create view v7 as select c1,c2 from t1 where c1 is not unknown;
+create view v8 as select c1,c2 from t1 where c1 is not null;
+select *from v1;
+select c1,c2 from t1 where c1 is true;
+select *from v2;
+select c1,c2 from t1 where c1 is false;
+select *from v3;
+select c1,c2 from t1 where c1 is unknown;
+select *from v4;
+select c1,c2 from t1 where c1 is null;
+select *from v5;
+select c1,c2 from t1 where c1 is not true;
+select *from v6;
+select c1,c2 from t1 where c1 is not false;
+select *from v7;
+select c1,c2 from t1 where c1 is not unknown;
+select *from v8;
+select c1,c2 from t1 where c1 is not null;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+show create view v8;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-10:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 in(1,17,27);
+create view v2 as select c1,c2 from t1 where c1 not in(11,17,27);
+create view v3 as select c1,c2 from t1 where c1 between 11 and 11111111;
+create view v4 as select c1,c2 from t1 where c1 not between 11 and 11111111;
+select *from v1;
+select c1,c2 from t1 where c1 in(1,17,27);
+select *from v2;
+select c1,c2 from t1 where c1 not in(11,17,27);
+select *from v3;
+select c1,c2 from t1 where c1 between 11 and 11111111;
+select *from v4;
+select c1,c2 from t1 where c1 not between 11 and 11111111;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-11:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1,c2 from t1 where c1 >0 and c1<11111;
+create view v2 as select c1,c2 from t1 where not(c1 <100);
+create view v3 as select c1,c2 from t1 where c1 <0 or c1>100000000;
+create view v4 as select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select *from v1;
+select c1,c2 from t1 where c1 >0 and c1<11111;
+select *from v2;
+select c1,c2 from t1 where not(c1 <100);
+select *from v3;
+select c1,c2 from t1 where c1 <0 or c1>100000000;
+select *from v4;
+select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-12:基于基本表/视图的列，列属性为bigint/int/integer/mediumint/smallint/tinyint,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 int);
+insert into t1 values(171717117171717171,2),(-1313131313131313,-11),(17,17),(27,27),(117,117),(11117,11117),(null,null);
+create view v1 as select c1 || c2 from t1 ;
+create view v2 as select c1 || c2 || c1 from t1 ;
+create view v3 as select c1 || c2 ||'length' from t1 ;
+create view v4 as select c1 || '_' || c2 || 'E' from t1 ;
+select *from v1;
+select c1 || c2 from t1 ;
+select *from v2;
+select c1 || c2 || c1 from t1 ;
+select *from v3;
+select c1 || c2 ||'length' from t1 ;
+select *from v4;
+select c1 || '_' || c2 || 'E' from t1 ;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-13:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,0.000000009,1111111111111111111111111111.9999999999);
+create view v1 as select c1+c1,c1+c2,c2+c3,c3+c4,c3+c5,c3+c6,c4+c5,c4+c6,c5+c6 from t1;
+create view v2 as select c1/c1,c1/c2,c2/c3,c3/c4,c3/c5,c3/c6,c4/c5,c4/c6,c5/c6 from t1;
+create view v3 as select c1*c1,c1*c2,c2*c3,c3*c4,c3*c5,c3*c6,c4*c5 from t1;
+create view v4 as select c1-c1,c1-c2,c2-c3,c3-c4,c3-c5,c3-c6,c4-c5,c4-c6,c5-c6 from t1;
+create view v5 as select c3 mod c2,c4 mod c2,c5 mod c2 from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select *from v1;
+select c1+c1,c1+c2,c2+c3,c3+c4,c3+c5,c3+c6,c4+c5,c4+c6,c5+c6 from t1;
+select *from v2;
+select c1/c1,c1/c2,c2/c3,c3/c4,c3/c5,c3/c6,c4/c5,c4/c6,c5/c6 from t1;
+select *from v3;
+select c1*c1,c1*c2,c2*c3,c3*c4,c3*c5,c3*c6,c4*c5 from t1;
+select *from v4;
+select c1-c1,c1-c2,c2-c3,c3-c4,c3-c5,c3-c6,c4-c5,c4-c6,c5-c6 from t1;
+select *from v5;
+select c3 mod c2,c4 mod c2,c5 mod c2 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-14:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+create table t2 (c1 int primary key,c2 double,c3 float,c4 bool);
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,9990.000000009,1111111111111111111111111111.9999999999);
+insert into t2 values(1,3.1415926535897,15.325,true);
+create view v1 as select t1.c1+t2.c1, t1.c2+t2.c2 ,t1.c3+t2.c3,t1.c5+t2.c2 from t1,t2;
+create view v2 as select t1.c1*t2.c1, t1.c2*t2.c2 ,t1.c3*t2.c3,t1.c5*t2.c2 from t1,t2;
+create view v3 as select t1.c1-t2.c1, t1.c2-t2.c2 ,t1.c3-t2.c3,t1.c5-t2.c2 from t1,t2;
+create view v4 as select t1.c1/t2.c1, t1.c2/t2.c2 ,t1.c3/t2.c3,t1.c5/t2.c2 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select *from v1;
+select t1.c1+t2.c1, t1.c2+t2.c2 ,t1.c3+t2.c3,t1.c5+t2.c2 from t1,t2;
+select *from v2;
+select t1.c1*t2.c1, t1.c2*t2.c2 ,t1.c3*t2.c3,t1.c5*t2.c2 from t1,t2;
+select *from v3;
+select t1.c1-t2.c1, t1.c2-t2.c2 ,t1.c3-t2.c3,t1.c5-t2.c2 from t1,t2;
+select *from v4;
+select t1.c1/t2.c1, t1.c2/t2.c2 ,t1.c3/t2.c3,t1.c5/t2.c2 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-15:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+create table t2 (c1 bigint primary key,c2 varchar(10),c3 varchar(32));
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,9990.000000009,1111111111111111111111111111.9999999999);
+insert into t2 values(2147483647,123.1417,'1111111111111111111111111111');
+create view v1 as select t1.c1+t2.c1, t1.c2+t2.c2 ,t1.c3+t2.c3,t1.c5+t2.c2 from t1,t2;
+create view v2 as select t1.c1*t2.c1, t1.c2*t2.c2 ,t1.c3*t2.c3,t1.c5*t2.c2 from t1,t2;
+create view v3 as select t1.c1-t2.c1, t1.c2-t2.c2 ,t1.c3-t2.c3,t1.c5-t2.c2 from t1,t2;
+create view v4 as select t1.c1/t2.c1, t1.c2/t2.c2 ,t1.c3/t2.c3,t1.c5/t2.c2 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select *from v1;
+select t1.c1+t2.c1, t1.c2+t2.c2 ,t1.c3+t2.c3,t1.c5+t2.c2 from t1,t2;
+select *from v2;
+select t1.c1*t2.c1, t1.c2*t2.c2 ,t1.c3*t2.c3,t1.c5*t2.c2 from t1,t2;
+select *from v3;
+select t1.c1-t2.c1, t1.c2-t2.c2 ,t1.c3-t2.c3,t1.c5-t2.c2 from t1,t2;
+select *from v4;
+select t1.c1/t2.c1, t1.c2/t2.c2 ,t1.c3/t2.c3,t1.c5/t2.c2 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-16:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,=,>,<,>=,<=,<>,!=,between...and...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,7) primary key,c2 decimal(11,5));
+insert into t1 values(17171771.77777,222),(-13133113.1313,-11.1313),(17.13579,17131),(27.272727727,27.2727),(117.117,117.117),(11117.111117,11117.11111),(null,null);
+create view v1 as select c1,c2 from t1 where c1 >=17;
+create view v2 as select c1,c2 from t1 where c1 >117;
+create view v3 as select c1,c2 from t1 where c1 <=27;
+create view v4 as select c1,c2 from t1 where c1 <27;
+create view v5 as select c1,c2 from t1 where c1 <>27;
+create view v6 as select c1,c2 from t1 where c1 =27;
+create view v7 as select c1,c2 from t1 where c1 !=27;
+select *from v1;
+select c1,c2 from t1 where c1 >=17;
+select *from v2;
+select c1,c2 from t1 where c1 >117;
+select *from v3;
+select c1,c2 from t1 where c1 <=27;
+select *from v4;
+select c1,c2 from t1 where c1 <27;
+select *from v5;
+select c1,c2 from t1 where c1 <>27;
+select *from v6;
+select c1,c2 from t1 where c1 =27.272727727;
+select *from v7;
+select c1,c2 from t1 where c1 !=27;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-17:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,=,>,<,>=,<=,<>,!=,between...and...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,7) primary key,c2 decimal(11,5));
+insert into t1 values(17171771.77777,222),(-13133113.1313,-11.1313),(17.13579,17131),(27.272727727,27.2727),(117.117,117.117),(11117.111117,11117.11111),(null,null);
+create view v1 as select c1,c2 from t1 where c1 is true;
+create view v2 as select c1,c2 from t1 where c1 is false;
+create view v3 as select c1,c2 from t1 where c1 is unknown;
+create view v4 as select c1,c2 from t1 where c1 is null;
+create view v5 as select c1,c2 from t1 where c1 is not true;
+create view v6 as select c1,c2 from t1 where c1 is not false;
+create view v7 as select c1,c2 from t1 where c1 is not unknown;
+create view v8 as select c1,c2 from t1 where c1 is not null;
+select *from v1;
+select c1,c2 from t1 where c1 is true;
+select *from v2;
+select c1,c2 from t1 where c1 is false;
+select *from v3;
+select c1,c2 from t1 where c1 is unknown;
+select *from v4;
+select c1,c2 from t1 where c1 is null;
+select *from v5;
+select c1,c2 from t1 where c1 is not true;
+select *from v6;
+select c1,c2 from t1 where c1 is not false;
+select *from v7;
+select c1,c2 from t1 where c1 is not unknown;
+select *from v8;
+select c1,c2 from t1 where c1 is not null;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+show create view v8;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-18:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用算术运算符,=,>,<,>=,<=,<>,!=,between...and...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,7) primary key,c2 decimal(11,5));
+insert into t1 values(17171771.77777,222),(-13133113.1313,-11.1313),(17.13579,17131),(27.272727727,27.2727),(117.117,117.117),(11117.111117,11117.11111),(null,null);
+create view v1 as select c1,c2 from t1 where c1 in(1,17,27);
+create view v2 as select c1,c2 from t1 where c1 not in(11,17,27);
+create view v3 as select c1,c2 from t1 where c1 between 11 and 11111111;
+create view v4 as select c1,c2 from t1 where c1 not between 11 and 11111111;
+select *from v1;
+select c1,c2 from t1 where c1 in(1,17,27);
+select *from v2;
+select c1,c2 from t1 where c1 not in(11,17,27);
+select *from v3;
+select c1,c2 from t1 where c1 between 11 and 11111111;
+select *from v4;
+select c1,c2 from t1 where c1 not between 11 and 11111111;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-19:基于基本表/视图的列，列属性为decimal，精度和有效长度值为任意普通值，边界值,使用逻辑运算符,not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,7) primary key,c2 decimal(11,5));
+insert into t1 values(17171771.77777,222),(-13133113.1313,-11.1313),(17.13579,17131),(27.272727727,27.2727),(117.117,117.117),(11117.111117,11117.11111),(null,null);
+create view v1 as select c1,c2 from t1 where c1 >0 and c1<11111;
+create view v2 as select c1,c2 from t1 where not(c1 <100);
+create view v3 as select c1,c2 from t1 where c1 <0 or c1>100000000;
+create view v4 as select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select *from v1;
+select c1,c2 from t1 where c1 >0 and c1<11111;
+select *from v2;
+select c1,c2 from t1 where not(c1 <100);
+select *from v3;
+select c1,c2 from t1 where c1 <0 or c1>100000000;
+select *from v4;
+select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-20:基于基本表/视图的列，列属性为decimal,精度和有效长度值为任意普通值，边界值,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,7) primary key,c2 decimal(11,5));
+insert into t1 values(17171771.77777,222),(-13133113.1313,-11.1313),(17.13579,17131),(27.272727727,27.2727),(117.117,117.117),(11117.111117,11117.11111),(null,null);
+create view v1 as select c1 || c2 from t1 ;
+create view v2 as select c1 || c2 || c1 from t1 ;
+create view v3 as select c1 || c2 ||'length' from t1 ;
+create view v4 as select c1 || '_' || c2 || 'E' from t1 ;
+select *from v1;
+select c1 || c2 from t1 ;
+select *from v2;
+select c1 || c2 || c1 from t1 ;
+select *from v3;
+select c1 || c2 ||'length' from t1 ;
+select *from v4;
+select c1 || '_' || c2 || 'E' from t1 ;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-21:基于基本表/视图的列，列属性为decimal,精度和有效长度值为任意普通值，边界值,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,9990.0000000009,1111111111111111111111111111.9999999999);
+create view v1 as select c1 || c2,c1||c3,c1||c4,c1||c5 from t1 ;
+create view v2 as select c2 || c3,c2||c4,c2 ||c5 from t1 ;
+create view v3 as select c3 || c4,c3 ||c5 from t1 ;
+create view v4 as select c4 || c5,c5 || c4 from t1 ;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select c1 || c2,c1||c3,c1||c4,c1||c5 from t1 ;
+select * from v2;
+select c2 || c3,c2||c4,c2 ||c5 from t1 ;
+select * from v3;
+select c3 || c4,c3 ||c5 from t1 ;
+select * from v4;
+select c4 || c5,c5 || c4 from t1 ;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-22:基于基本表/视图的列，列属性为decimal,精度和有效长度值为任意普通值，边界值,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+create table t2(c1 int primary key,c2 double,c3 float,c4 bool);
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,9990.0000000009,1111111111111111111111111111.9999999999);
+insert into t2 values(1,3.1415926535897,15.325,true);
+create view v1 as select t1.c1||t2.c2, t1.c1||t2.c3 ,t1.c1||t2.c4,t1.c1||t1.c5 from t1,t2;
+create view v2 as select t2.c2||t1.c3, t2.c2||t1.c4 ,t2.c2||t1.c5 from t1,t2;
+create view v3 as select t2.c3||t2.c4, t2.c3||t1.c5  from t1,t2;
+create view v4 as select t2.c4||t1.c5, t1.c5||t2.c4  from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1||t2.c2, t1.c1||t2.c3 ,t1.c1||t2.c4,t1.c1||t1.c5 from t1,t2;
+select * from v2;
+select t2.c2||t1.c3, t2.c2||t1.c4 ,t2.c2||t1.c5 from t1,t2;
+select * from v3;
+select t2.c3||t2.c4, t2.c3||t1.c5  from t1,t2;
+select * from v4;
+select t2.c4||t1.c5, t1.c5||t2.c4  from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-23:基于基本表/视图的列，列属性为decimal,精度和有效长度值为任意普通值，边界值,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(10,5),c3 decimal(11,7),c4 decimal(13,8),c5 decimal(23,9),c6 decimal(38,10));
+create table t2(c1 date primary key,c2 time,c3 timestamp,c4 varchar(100));
+insert into t1 values(1,11111.11111,1111.1111111,11111.11111111,9990.0000000009,1111111111111111111111111111.9999999999);
+insert into t2 values('2021-01-20','15:52:52','2021-01-22 15:53:19.670063','varchar');
+create view v1 as select t1.c1||t2.c2, t1.c1||t2.c3 ,t1.c1||t2.c4,t1.c1||t1.c5 from t1,t2;
+create view v2 as select t2.c2||t1.c3, t2.c2||t1.c4 ,t2.c2||t1.c5 from t1,t2;
+create view v3 as select t2.c3||t2.c4, t2.c3||t1.c5  from t1,t2;
+create view v4 as select t2.c4||t1.c5, t1.c5||t2.c4  from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1||t2.c2, t1.c1||t2.c3 ,t1.c1||t2.c4,t1.c1||t1.c5 from t1,t2;
+select * from v2;
+select t2.c2||t1.c3, t2.c2||t1.c4 ,t2.c2||t1.c5 from t1,t2;
+select * from v3;
+select t2.c3||t2.c4, t2.c3||t1.c5  from t1,t2;
+select * from v4;
+select t2.c4||t1.c5, t1.c5||t2.c4  from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-24:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values('10000000000000000000','-10000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1-10,c1-c1 from t1;
+create view v2 as select c2+c2,c2*c2,c2/c2,c2-c2 from t1;
+create view v3 as select c1+c2,c1*c2,c1/c2,c1-c2 from t1;
+create view v4 as select c2+c1,c2*c1,c2/c1,c2-c1 from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select c1-10,c1-c1 from t1;
+select * from v2;
+select c2+c2,c2*c2,c2/c2,c2-c2 from t1;
+select * from v3;
+select c1+c2,c1*c2,c1/c2,c1-c2 from t1;
+select * from v4;
+select c2+c1,c2*c1,c2/c1,c2-c1 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-25:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+create table t2(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000','-100000000000'),('2147483647','-12321112147483647');
+insert into t2 values ('100','20'),('-100','-20');
+create view v1 as select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+create view v2 as select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+create view v3 as select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+create view v4 as select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+select * from v2;
+select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+select * from v3;
+select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+select * from v4;
+select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-26:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+create table t2(c1 bool,c2 int primary key);
+insert into t1 values ('10000000','-10000000'),('2147647','-1233647');
+insert into t2 values (true,123),(true,-123123);
+create view v1 as select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+create view v2 as select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+create view v3 as select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+create view v4 as select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+select * from v2;
+select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+select * from v3;
+select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+select * from v4;
+select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-27:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用算术符，+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+create table t2(c1 double,c2 decimal(23,5) primary key);
+insert into t1 values ('10000000','-10000000'),('2147647','-1233647');
+insert into t2 values (567.567,123.2356789),(123789656.3528588778,-123123.2372);
+create view v1 as select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+create view v2 as select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+create view v3 as select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+create view v4 as select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1-t2.c2,t1.c1+10,t1.c1-t2.c1 from t1,t2;
+select * from v2;
+select t1.c2+t2.c2,t1.c2*t2.c2,t1.c2/t2.c2,t1.c2-t2.c2 from t1,t2;
+select * from v3;
+select t1.c1+t2.c2,t1.c1*t2.c2,t1.c1/t2.c2,t1.c1-t2.c2 from t1,t2;
+select * from v4;
+select t1.c2+t2.c1,t1.c2*t2.c1,t1.c2/t2.c1,t1.c2-t2.c1 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-28:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1,c2 from t1 where c1 >=17;
+create view v2 as select c1,c2 from t1 where c1 >117;
+create view v3 as select c1,c2 from t1 where c1 <=27;
+create view v4 as select c1,c2 from t1 where c1 <27;
+create view v5 as select c1,c2 from t1 where c1 <>27;
+create view v6 as select c1,c2 from t1 where c1 =27;
+create view v7 as select c1,c2 from t1 where c1 !=27;
+select *from v1;
+select c1,c2 from t1 where c1 >=17;
+select *from v2;
+select c1,c2 from t1 where c1 >117;
+select *from v3;
+select c1,c2 from t1 where c1 <=27;
+select *from v4;
+select c1,c2 from t1 where c1 <27;
+select *from v5;
+select c1,c2 from t1 where c1 <>27;
+select *from v6;
+select c1,c2 from t1 where c1 =27.272727727;
+select *from v7;
+select c1,c2 from t1 where c1 !=27;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+show create view v7;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-29:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1,c2 from t1 where c1 is true;
+create view v2 as select c1,c2 from t1 where c1 is false;
+create view v3 as select c1,c2 from t1 where c1 is unknown;
+create view v4 as select c1,c2 from t1 where c1 is null;
+create view v5 as select c1,c2 from t1 where c1 is not true;
+create view v6 as select c1,c2 from t1 where c1 is not false;
+create view v7 as select c1,c2 from t1 where c1 is not unknown;
+create view v8 as select c1,c2 from t1 where c1 is not null;
+select *from v1;
+select c1,c2 from t1 where c1 is true;
+select *from v2;
+select c1,c2 from t1 where c1 is false;
+select *from v3;
+select c1,c2 from t1 where c1 is unknown;
+select *from v4;
+select c1,c2 from t1 where c1 is null;
+select *from v5;
+select c1,c2 from t1 where c1 is not true;
+select *from v6;
+select c1,c2 from t1 where c1 is not false;
+select *from v7;
+select c1,c2 from t1 where c1 is not unknown;
+select *from v8;
+select c1,c2 from t1 where c1 is not null;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-30:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1,c2 from t1 where c1 in(1,17,27);
+create view v2 as select c1,c2 from t1 where c1 not in(11,17,27);
+create view v3 as select c1,c2 from t1 where c1 between 11 and 11111111;
+create view v4 as select c1,c2 from t1 where c1 not between 11 and 11111111;
+select *from v1;
+select c1,c2 from t1 where c1 in(1,17,27);
+select *from v2;
+select c1,c2 from t1 where c1 not in(11,17,27);
+select *from v3;
+select c1,c2 from t1 where c1 between 11 and 11111111;
+select *from v4;
+select c1,c2 from t1 where c1 not between 11 and 11111111;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-31:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1,c2 from t1 where c1 >0 and c1<11111;
+create view v2 as select c1,c2 from t1 where not(c1 <100);
+create view v3 as select c1,c2 from t1 where c1 <0 or c1>100000000;
+create view v4 as select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select *from v1;
+select c1,c2 from t1 where c1 >0 and c1<11111;
+select *from v2;
+select c1,c2 from t1 where not(c1 <100);
+select *from v3;
+select c1,c2 from t1 where c1 <0 or c1>100000000;
+select *from v4;
+select c1,c2 from t1 where not (c1 between 11 and 11111111) or c1=117;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-33:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度值为任意普通值，边界值,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(9223372036854775807) primary key,c2 varchar(9223372036854775807));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1,c2,c1 and c2,c1 or c2,not c1,not c2 from t1;
+desc v1;
+select * from v1;
+select c1,c2,c1 and c2,c1 or c2,not c1,not c2 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-34:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,长度为任意普通值，边界值,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(100) primary key,c2 varchar(200));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647'),(null,null);
+create view v1 as select c1,c2 from t1 where c1 in (select c1 from t1 where c1 is not null) or 10>1;
+desc v1;
+select * from v1;
+select c1,c2 from t1 where c1 in (select c1 from t1 where c1 is not null) or 10>1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-35:基于基本表/视图的列，列属性为bigint/char/varchar/varbinary,精度和有效长度值为任意普通值，边界值，使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 varchar(100) primary key,c2 varchar(200));
+insert into t1 values ('10000000000000000000','-100000000000000000000'),('2147483647','-12321112147483647');
+create view v1 as select c1 || (c2 is not null) as c2 from t1;
+create view v2(c1,c2) as select t1.c2 ,t1.c1 ||v1.c2 from t1,v1;
+create view v3 as select v1.c2 || v2.c2 from v1,v2;
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select c1 || (c2 is not null) as c2 from t1;
+select * from v2;
+select t1.c2 ,t1.c1 ||v1.c2 from t1,v1;
+select * from v3;
+select v1.c2 || v2.c2 from v1,v2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-35:基于基本表/视图的列，列属性为bool,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+insert into t1 values(1,true,true),(2,true,true),(3,false,false),(4,false,true);
+create view v1 as select c2+c3,c2-c3,c2*c3,c2 mod c3,c2%c3,c2/c3 from t1 where c3>0;
+create view v2 as select c2+c3,c2-c3,c2*c3,c2 mod c3,c2%c3,c2/c3 from t1 where c2>0;
+desc v1;
+desc v2;
+--error 78
+select * from v1;
+select c2+c3,c2-c3,c2*c3,c2 mod c3,c2%c3,c2/c3 from t1 where c3>0;
+--error 78
+select * from v2;
+select c2+c3,c2-c3,c2*c3,c2 mod c3,c2%c3,c2/c3 from t1 where c2>0;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-36:基于基本表/视图的列，列属性为bool,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values(1,true,true),(2,true,true),(3,false,false),(4,false,true);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+create view v2 as select t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+create view v3 as select t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+create view v4 as select t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+select * from v2;
+select t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+select * from v3;
+select t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+select * from v4;
+select t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-37:基于基本表/视图的列，列属性为bool,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+insert into t1 values(1,true,true),(2,true,false),(3,false,true),(4,false,true);
+create view v1 as select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+create view v2 as select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+select * from v2;
+select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-38:基于基本表/视图的列，列属性为bool,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values(1,true,true),(2,true,false),(3,false,true),(4,false,true);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2<t2.c2,t1.c2<t2.c3,t1.c2<=t2.c4,t1.c2>t2.c5,t1.c2 <> t2.c5 from t1,t2;
+create view v2 as select t1.c2<t2.c2,t1.c2<t2.c3,t1.c2<=t2.c4,t1.c2>t2.c5,t1.c2 <> t2.c5 from t1,t2;
+desc v1;
+desc v2;
+select * from v1;
+select t1.c2<t2.c2,t1.c2<t2.c3,t1.c2<=t2.c4,t1.c2>t2.c5,t1.c2 <> t2.c5 from t1,t2;
+select * from v2;
+select t1.c2<t2.c2,t1.c2<t2.c3,t1.c2<=t2.c4,t1.c2>t2.c5,t1.c2 <> t2.c5 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-37:基于基本表/视图的列，列属性为bool,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+insert into t1 values(1,true,true),(2,true,false),(3,false,true),(4,false,true),(null,null,null);
+create view v1 as select c2,c2 in(true,false,true) from t1;
+create view v2 as select c3,c3 in(true,false,true) from t1;
+create view v3 as select c2,c2 between false and true from t1;
+create view v4 as select c3,c3 between false and true from t1;
+create view v5 as select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+create view v6 as select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c2,c2 in(true,false,true) from t1;
+select * from v2;
+select c3,c3 in(true,false,true) from t1;
+select * from v3;
+select c2,c2 between false and true from t1;
+select * from v4;
+select c3,c3 between false and true from t1;
+select * from v5;
+select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+select * from v6;
+select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-38:基于基本表/视图的列，列属性为bool,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+insert into t1 values(1,true,true),(2,true,false),(3,false,true),(4,false,true),(null,null,null);
+create view v1 as select c2 || c3,c2,'c2=[' || c2 || ']' from t1;
+create view v2 as select c3 || c2,c3,'c3=[' || c3 || ']' from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2 || c3,c2,'c2=[' || c2 || ']' from t1;
+select * from v2;
+select c3 || c2,c3,'c3=[' || c3 || ']' from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-39:基于基本表/视图的列，列属性为bool,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 bool,c3 bool);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values(1,true,true),(2,true,false),(3,false,true),(4,false,true);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+create view v2 as select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+desc v1;
+desc v2;
+select * from v1;
+select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+select * from v2;
+select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-40:基于基本表/视图的列，列属性为createtime/modifytime,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+insert into t1(c1) values (1),(2);
+create view v1 as select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+create view v2 as select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+select * from v2;
+select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-41:基于基本表/视图的列，列属性为createtime/modifytime,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+create table t2(c1 int primary key,c2 timestamp,c3 varchar(100));
+insert into t1(c1) values (1),(2);
+insert into t2 values (1,'2021-01-26 14:12:30.879809','2021-01-26 14:12:30.879809'),(2,'2021-01-26 23:12:30.879809','2021-01-26 14:17:30.879809');
+create view v1 as select t1.c2<t2.c2,  t1.c2<t2.c3 ,  t1.c2<=t2.c2, t1.c2>t2.c3,t1.c2>=t2.c3, t1.c2 <> t2.c2 from t1,t2;
+create view v2 as select t1.c3<t2.c2,  t1.c3<t2.c3 ,  t1.c3<=t2.c2, t1.c3>t2.c3,t1.c3>=t2.c3, t1.c3 <> t2.c2 from t1,t2;
+desc v1;
+desc v2;
+select * from v1;
+select t1.c2<t2.c2,  t1.c2<t2.c3 ,  t1.c2<=t2.c2, t1.c2>t2.c3,t1.c2>=t2.c3, t1.c2 <> t2.c2 from t1,t2;
+select * from v2;
+select t1.c3<t2.c2,  t1.c3<t2.c3 ,  t1.c3<=t2.c2, t1.c3>t2.c3,t1.c3>=t2.c3, t1.c3 <> t2.c2 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-42:基于基本表/视图的列，列属性为createtime/modifytime,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+insert into t1(c1) values (1),(2);
+create view v1 as select c2,c2 not in (select current_timestamp()) from t1;
+create view v2 as select c3,c3 not in (select current_timestamp()) from t1;
+create view v3 as select c2,c2 between '2021-01-26 14:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+create view v4 as select c3,c3 between '2021-01-26 13:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+create view v5 as select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+create view v6 as select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 not in (select current_timestamp()) from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v2;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 not in (select current_timestamp()) from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v3;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 between '2021-01-26 14:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v4;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 between '2021-01-26 13:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v5;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v6;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-43:基于基本表/视图的列，列属性为createtime/modifytime,使用逻辑运算符,not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+insert into t1(c1) values (1),(2);
+create view v1 as select c2<c3 and (c2<=c3 or (c2>c3 or (c2>=c3 and c2<>c3))) from t1;
+create view v2 as select not(c2<c3) and (c2<=c3 or (c2>c3 or (c2>=c3 and c2<>c3))) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2<c3 and (c2<=c3 or (c2>c3 or (c2>=c3 and c2<>c3))) from t1;
+select * from v2;
+select not(c2<c3) and (c2<=c3 or (c2>c3 or (c2>=c3 and c2<>c3))) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-44:基于基本表/视图的列，列属性为createtime/modifytime,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+insert into t1(c1) values (1),(2);
+create view v1 as select c2 || c3,c2,'c2=[' || c2 || ']' from t1;
+create view v2 as select c3 || c2,c3,'c3=[' || c3 || ']' from t1;
+desc v1;
+desc v2;
+--replace_column 1 '2021-03-24 09:05:07.4386412021-03-24 09:05:07.438641' 2 '2021-03-24 09:05:07.438641' 3 'c2=[2021-03-24 09:05:07.438641]
+select * from v1;
+--replace_column 1 '2021-03-24 09:05:07.4386412021-03-24 09:05:07.438641' 2 '2021-03-24 09:05:07.438641' 3 'c2=[2021-03-24 09:05:07.438641]
+select c2 || c3,c2,'c2=[' || c2 || ']' from t1;
+--replace_column 1 '2021-03-24 09:05:07.4386412021-03-24 09:05:07.438641' 2 '2021-03-24 09:05:07.438641' 3 'c2=[2021-03-24 09:05:07.438641]
+select * from v2;
+--replace_column 1 '2021-03-24 09:05:07.4386412021-03-24 09:05:07.438641' 2 '2021-03-24 09:05:07.438641' 3 'c2=[2021-03-24 09:05:07.438641]
+select c3 || c2,c3,'c3=[' || c3 || ']' from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-45:基于基本表/视图的列，列属性为createtime/modifytime,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 createtime,c3 modifytime);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1(c1) values (1),(2);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+create view v2 as select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+desc v1;
+desc v2;
+--replace_column 1 '2021-03-24 14:06:43.4737751.100000' 2 '2021-03-24 14:06:43.4737751.100000' 3 '2021-03-24 14:06:43.4737751.11111' 4 '2021-03-24 14:06:43.473775111111'
+select * from v1;
+--replace_column 1 '2021-03-24 14:06:43.4737751.100000' 2 '2021-03-24 14:06:43.4737751.100000' 3 '2021-03-24 14:06:43.4737751.11111' 4 '2021-03-24 14:06:43.473775111111'
+select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+--replace_column 1 '2021-03-24 14:06:43.4737751.100000' 2 '2021-03-24 14:06:43.4737751.100000' 3 '2021-03-24 14:06:43.4737751.11111' 4 '2021-03-24 14:06:43.473775111111'
+select * from v2;
+--replace_column 1 '2021-03-24 14:06:43.4737751.100000' 2 '2021-03-24 14:06:43.4737751.100000' 3 '2021-03-24 14:06:43.4737751.11111' 4 '2021-03-24 14:06:43.473775111111'
+select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-46:基于基本表/视图的列，列属性为datetime/timestamp,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+create view v1 as select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+create view v2 as select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2<c3,c2<=c3,c2>c3,c2>=c3,c2<>c3 from t1;
+select * from v2;
+select c3<c2,c3<=c2,c3>c2,c3>=c2,c3<>c2 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-47:基于基本表/视图的列，列属性为datetime/timestamp,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+create table t2(c1 int primary key,c2 timestamp,c3 varchar(100));
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+insert into t2 values (1,'2021-01-26 14:12:30.879809','2021-01-26 14:12:30.879809'),(2,'2021-01-26 23:12:30.879809','2021-01-26 14:17:30.879809');
+create view v1 as select t1.c2<t2.c2,  t1.c2<t2.c3 ,  t1.c2<=t2.c2, t1.c2>t2.c3,t1.c2>=t2.c3, t1.c2 <> t2.c2 from t1,t2;
+create view v2 as select t1.c3<t2.c2,  t1.c3<t2.c3 ,  t1.c3<=t2.c2, t1.c3>t2.c3,t1.c3>=t2.c3, t1.c3 <> t2.c2 from t1,t2;
+desc v1;
+desc v2;
+select * from v1;
+select t1.c2<t2.c2,  t1.c2<t2.c3 ,  t1.c2<=t2.c2, t1.c2>t2.c3,t1.c2>=t2.c3, t1.c2 <> t2.c2 from t1,t2;
+select * from v2;
+select t1.c3<t2.c2,  t1.c3<t2.c3 ,  t1.c3<=t2.c2, t1.c3>t2.c3,t1.c3>=t2.c3, t1.c3 <> t2.c2 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-48:基于基本表/视图的列，列属性为datetime/timestamp,使用比较运算符，=,>,<,>=,<=,<>,!=,between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+create view v1 as select c2,c2 not in (select current_timestamp()) from t1;
+create view v2 as select c3,c3 not in (select current_timestamp()) from t1;
+create view v3 as select c2,c2 between '2021-01-26 14:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+create view v4 as select c3,c3 between '2021-01-26 13:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+create view v5 as select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+create view v6 as select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 not in (select current_timestamp()) from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v2;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 not in (select current_timestamp()) from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v3;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 between '2021-01-26 14:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v4;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 between '2021-01-26 13:12:30.879809' and '2021-01-26 23:12:30.879809' from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v5;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c2,c2 is null,c2 is true,c2 is false,c2 is unknown from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select * from v6;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+select c3,c3 is null,c3 is true,c3 is false,c3 is unknown from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-49:基于基本表/视图的列，列属性为datetime/timestamp,使用逻辑运算符,not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+create view v1 as select c2 and c3,c2 or c3 ,not c2 from t1;
+create view v2 as select not(c3<c2),c3<=c2 or c3>c2,c3>=c2 and c3<>c2 from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c2 and c3,c2 or c3 ,not c2 from t1;
+select * from v2;
+select not(c3<c2),c3<=c2 or c3>c2,c3>=c2 and c3<>c2 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-50:基于基本表/视图的列，列属性为datetime/timestamp,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+create view v1 as select c2 as c1,(c2 || c3) as c2,c2 as c3,'c2=[' || c2 || ']' as c4 from t1;
+create view v2 as select c3 as c1,(c3 || c2) as c2,c3 as c3,'c3=[' || c3 || ']' as c4 from t1;
+desc v1;
+desc v2;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+--replace_column 2 '2021-01-26 14:30:23.7580212021-01-26 14:30:23.758021'
+--replace_column 3 '2021-01-26 14:30:23.758021'
+--replace_column 4 'c2 = [2021-01-26 14:30:23.758021]'
+select * from v1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+--replace_column 2 '2021-01-26 14:30:23.7580212021-01-26 14:30:23.758021'
+--replace_column 3 '2021-01-26 14:30:23.758021'
+--replace_column 4 'c2 = [2021-01-26 14:30:23.758021]'
+select c2 as c1,(c2 || c3) as c2,c2 as c3,'c2=[' || c2 || ']' as c4 from t1;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+--replace_column 2 '2021-01-26 14:30:23.7580212021-01-26 14:30:23.758021'
+--replace_column 3 '2021-01-26 14:30:23.758021'
+--replace_column 4 'c2 = [2021-01-26 14:30:23.758021]'
+select * from v2;
+--replace_column 1 '2021-03-24 09:05:07.438641'
+--replace_column 2 '2021-01-26 14:30:23.7580212021-01-26 14:30:23.758021'
+--replace_column 3 '2021-01-26 14:30:23.758021'
+--replace_column 4 'c2 = [2021-01-26 14:30:23.758021]'
+select c3 as c1,(c3 || c2) as c2,c3 as c3,'c3=[' || c3 || ']' as c4 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-51:基于基本表/视图的列，列属性为datetime/timestamp,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 int primary key,c2 timestamp,c3 datetime);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values (1,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021'),(2,'2021-01-26 14:30:23.758021','2021-01-26 14:30:23.758021');
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+create view v2 as select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+desc v1;
+desc v2;
+--replace_column 1 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 2 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 3 '2021-01-26 14:30:23.758021.11111'
+--replace_column 4 '2021-01-26 14:30:23.7580211111111'
+select * from v1;
+--replace_column 1 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 2 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 3 '2021-01-26 14:30:23.758021.11111'
+--replace_column 4 '2021-01-26 14:30:23.7580211111111'
+select t1.c2||t2.c2,t1.c2||t2.c3,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+--replace_column 1 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 2 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 3 '2021-01-26 14:30:23.758021.11111'
+--replace_column 4 '2021-01-26 14:30:23.7580211111111'
+select * from v2;
+--replace_column 1 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 2 '2021-01-26 14:30:23.7580211.100000'
+--replace_column 3 '2021-01-26 14:30:23.758021.11111'
+--replace_column 4 '2021-01-26 14:30:23.7580211111111'
+select t1.c3||t2.c2,t1.c3||t2.c3,t1.c3||t2.c4,t1.c3||t2.c5 from t1,t2;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-52:基于基本表/视图的列，列属性为date,使用比较运算符，=,>,<,>=,<=,<>,!=
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 date);
+insert into t1 values (1,'2021-01-20'),(2,'2021-06-20'),(3,'2021-12-26'),(null,null);
+create view v1 as select c1,c2 from t1 where c2 <'2021-07-01';
+create view v2 as select c1,c2 from t1 where c2 >'2021-01-21';
+create view v3 as select c1,c2 from t1 where c2 >='2021-01-20';
+create view v4 as select c1,c2 from t1 where c2 <='2021-01-21';
+create view v5 as select c1,c2 from t1 where c2 ='2021-01-20';
+create view v6 as select c1,c2 from t1 where c2 <>'2021-01-20';
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 <'2021-07-01';
+select * from v2;
+select c1,c2 from t1 where c2 >'2021-01-21';
+select * from v3;
+select c1,c2 from t1 where c2 >='2021-01-20';
+select * from v4;
+select c1,c2 from t1 where c2 <='2021-01-21';
+select * from v5;
+select c1,c2 from t1 where c2 ='2021-01-20';
+select * from v6;
+select c1,c2 from t1 where c2 <>'2021-01-20';
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-53:基于基本表/视图的列，列属性为date,使用比较运算符，between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 date);
+insert into t1 values (1,'2021-01-20'),(2,'2021-06-20'),(3,'2021-12-26'),(null,null);
+create view v1 as select c1,c2 from t1 where c2 between '2021-07-01' and '2022-01-01';
+create view v2 as select c1,c2 from t1 where c2 in ('2021-07-01','2021-01-20','2022-01-01');
+create view v3 as select c1,c2 from t1 where c2 is null;
+create view v4 as select c1,c2 from t1 where c2 is true;
+create view v5 as select c1,c2 from t1 where c2 is false;
+create view v6 as select c1,c2 from t1 where c2 is unknown;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 between '2021-07-01' and '2022-01-01';
+select * from v2;
+select c1,c2 from t1 where c2 in ('2021-07-01','2021-01-20','2022-01-01');
+select * from v3;
+select c1,c2 from t1 where c2 is null;
+select * from v4;
+select c1,c2 from t1 where c2 is true;
+select * from v5;
+select c1,c2 from t1 where c2 is false;
+select * from v6;
+select c1,c2 from t1 where c2 is unknown;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-54:基于基本表/视图的列，列属性为date,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 date);
+insert into t1 values (1,'2021-01-20'),(2,'2021-06-20'),(3,'2021-12-26'),(null,null);
+create view v1 as select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+desc v1;
+select * from v1;
+select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-55:基于基本表/视图的列，列属性为date,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 date);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values (1,'2021-01-20'),(2,'2021-06-20'),(3,'2021-12-26'),(null,null);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+desc v1;
+select * from v1;
+select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-56:基于基本表/视图的列，列属性为time,使用比较运算符，=,>,<,>=,<=,<>,!=
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 time);
+insert into t1 values (1,'11:11:11'),(2,'12:12:21'),(3,'23:59:26'),(null,null);
+create view v1 as select c1,c2 from t1 where c2 <'15:00:00';
+create view v2 as select c1,c2 from t1 where c2 >'15:00:00';
+create view v3 as select c1,c2 from t1 where c2 >='12:12:21';
+create view v4 as select c1,c2 from t1 where c2 <='23:59:26';
+create view v5 as select c1,c2 from t1 where c2 ='11:11:11';
+create view v6 as select c1,c2 from t1 where c2 <>'11:11:11';
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 <'15:00:00';
+select * from v2;
+select c1,c2 from t1 where c2 >'15:00:00';
+select * from v3;
+select c1,c2 from t1 where c2 >='12:12:21';
+select * from v4;
+select c1,c2 from t1 where c2 <='23:59:26';
+select * from v5;
+select c1,c2 from t1 where c2 ='11:11:11';
+select * from v6;
+select c1,c2 from t1 where c2 <>'11:11:11';
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-57:基于基本表/视图的列，列属性为time,使用比较运算符，between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 time);
+insert into t1 values (1,'11:11:11'),(2,'12:12:21'),(3,'23:59:26'),(null,null);
+create view v1 as select c1,c2 from t1 where c2 between '11:11:11' and '12:12:22';
+create view v2 as select c1,c2 from t1 where c2 in ('12:12:21','12:12:21','11:11:11');
+create view v3 as select c1,c2 from t1 where c2 is null;
+create view v4 as select c1,c2 from t1 where c2 is true;
+create view v5 as select c1,c2 from t1 where c2 is false;
+create view v6 as select c1,c2 from t1 where c2 is unknown;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 between '11:11:11' and '12:12:22';
+select * from v2;
+select c1,c2 from t1 where c2 in ('12:12:21','12:12:21','11:11:11');
+select * from v3;
+select c1,c2 from t1 where c2 is null;
+select * from v4;
+select c1,c2 from t1 where c2 is true;
+select * from v5;
+select c1,c2 from t1 where c2 is false;
+select * from v6;
+select c1,c2 from t1 where c2 is unknown;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-58:基于基本表/视图的列，列属性为time,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 time);
+insert into t1 values (1,'11:11:11'),(2,'12:12:21'),(3,'23:59:26'),(null,null);
+create view v1 as select c1,c2 from t1 where c2 < '15:00:00' or c2>= '12:12:21';
+create view v2 as select c1,c2 from t1 where c2 > '15:00:00' or c2 is null;
+create view v3 as select c1,c2 from t1 where not(c2 >'15:00:00');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select c1,c2 from t1 where c2 < '15:00:00' or c2>= '12:12:21';
+select * from v2;
+select c1,c2 from t1 where c2 > '15:00:00' or c2 is null;
+select * from v3;
+select c1,c2 from t1 where not(c2 >'15:00:00');
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-59:基于基本表/视图的列，列属性为time,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 time);
+insert into t1 values (1,'11:11:11'),(2,'12:12:21'),(3,'23:59:26'),(null,null);
+create view v1 as select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+desc v1;
+select * from v1;
+select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-60:基于基本表/视图的列，列属性为time,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 bigint primary key,c2 time);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values (1,'11:11:11'),(2,'12:12:21'),(3,'23:59:26'),(null,null);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+desc v1;
+select * from v1;
+select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-61:基于基本表/视图的列，列属性为double/real,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555);
+create view v1 as select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+desc v1;
+select * from v1;
+select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-62:基于基本表/视图的列，列属性为double/real,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+create table t2(c1 int primary key,c2 bigint,c3 float,c4 decimal(10,5),c5 varchar(32),c6 bool);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555);
+insert into t2 values(2,3,5.555,15.33333,7777.7777,true);
+create view v1 as select t1.c1+t2.c1,t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+create view v2 as select t1.c1*t2.c1,t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+create view v3 as select t1.c1-t2.c1,t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+create view v4 as select t1.c1/t2.c1,t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+create view v5 as select t1.c1 mod t2.c1,t1.c2 mod t2.c2,t1.c2 mod t2.c3,t1.c2 mod t2.c4,t1.c2 mod t2.c5 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+select * from v1;
+select t1.c1+t2.c1,t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+select * from v2;
+select t1.c1*t2.c1,t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+select * from v3;
+select t1.c1-t2.c1,t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+select * from v4;
+select t1.c1/t2.c1,t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+select * from v5;
+select t1.c1 mod t2.c1,t1.c2 mod t2.c2,t1.c2 mod t2.c3,t1.c2 mod t2.c4,t1.c2 mod t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-63:基于基本表/视图的列，列属性为double/real,比较运算符，=,>,<,>=,<=,<>,!=
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c2 < 15*35*285;
+create view v2 as select c1,c2 from t1 where c2 >578.35689;
+create view v3 as select c1,c2 from t1 where c2 >=33.333333333333;
+create view v4 as select c1,c2 from t1 where c2 <=null;
+create view v5 as select c1,c2 from t1 where c2 =22.2222222222222222;
+create view v6 as select c1,c2 from t1 where c2 <>22.2222222222222222;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 < 15*35*285;
+select * from v2;
+select c1,c2 from t1 where c2 >578.35689;
+select * from v3;
+select c1,c2 from t1 where c2 >=33.333333333333;
+select * from v4;
+select c1,c2 from t1 where c2 <=null;
+select * from v5;
+select c1,c2 from t1 where c2 =22.2222222222222222;
+select * from v6;
+select c1,c2 from t1 where c2 <>22.2222222222222222;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-64:基于基本表/视图的列，列属性为double/real,使用比较运算符，between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c2 in (select c1 from t1 where c1 >=35);
+create view v2 as select c1,c2 from t1 where c2 between (10+17) and 180*100000;
+create view v3 as select c1,c2 from t1 where c2 is null;
+create view v4 as select c1,c2 from t1 where c2 is true;
+create view v5 as select c1,c2 from t1 where c2 is false;
+create view v6 as select c1,c2 from t1 where c2 is unknown;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 in (select c1 from t1 where c1 >=35);
+select * from v2;
+select c1,c2 from t1 where c2 between (10+17) and 180*100000;
+select * from v3;
+select c1,c2 from t1 where c2 is null;
+select * from v4;
+select c1,c2 from t1 where c2 is true;
+select * from v5;
+select c1,c2 from t1 where c2 is false;
+select * from v6;
+select c1,c2 from t1 where c2 is unknown;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-65:基于基本表/视图的列，列属性为double/real,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c2 < 287878 or c2>= -1587878;
+create view v2 as select c1,c2 from t1 where c2 > -10 * 3.145 * 0.25787 and c2 is not null;
+create view v3 as select c1,c2 from t1 where not(c2 >1.267898);
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select c1,c2 from t1 where c2 < 287878 or c2>= -1587878;
+select * from v2;
+select c1,c2 from t1 where c2 > -10 * 3.145 * 0.25787 and c2 is not null;
+select * from v3;
+select c1,c2 from t1 where not(c2 >1.267898);
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-66:基于基本表/视图的列，列属性为double/real,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+desc v1;
+select * from v1;
+select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-67:基于基本表/视图的列，列属性为double/real,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 double primary key,c2 double);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+desc v1;
+select * from v1;
+select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-68:基于基本表/视图的列，列属性为float,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555);
+create view v1 as select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+desc v1;
+select * from v1;
+select c1+c2,c1*c2,c1/c2,c1-c2,c1%c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-69:基于基本表/视图的列，列属性为float,+,-,*,/,%,mod
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+create table t2(c1 int primary key,c2 bigint,c3 float,c4 decimal(10,5),c5 varchar(32),c6 bool);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555);
+insert into t2 values(2,3,5.555,15.33333,7777.7777,true);
+create view v1 as select t1.c1+t2.c1,t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+create view v2 as select t1.c1*t2.c1,t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+create view v3 as select t1.c1-t2.c1,t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+create view v4 as select t1.c1/t2.c1,t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+create view v5 as select t1.c1 mod t2.c1,t1.c2 mod t2.c2,t1.c2 mod t2.c3,t1.c2 mod t2.c4,t1.c2 mod t2.c5 from t1,t2;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+select * from v1;
+select t1.c1+t2.c1,t1.c2+t2.c2,t1.c2+t2.c3,t1.c2+t2.c4,t1.c2+t2.c5 from t1,t2;
+select * from v2;
+select t1.c1*t2.c1,t1.c2*t2.c2,t1.c2*t2.c3,t1.c2*t2.c4,t1.c2*t2.c5 from t1,t2;
+select * from v3;
+select t1.c1-t2.c1,t1.c2-t2.c2,t1.c2-t2.c3,t1.c2-t2.c4,t1.c2-t2.c5 from t1,t2;
+select * from v4;
+select t1.c1/t2.c1,t1.c2/t2.c2,t1.c2/t2.c3,t1.c2/t2.c4,t1.c2/t2.c5 from t1,t2;
+select * from v5;
+select t1.c1 mod t2.c1,t1.c2 mod t2.c2,t1.c2 mod t2.c3,t1.c2 mod t2.c4,t1.c2 mod t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-70:基于基本表/视图的列，列属性为float,比较运算符，=,>,<,>=,<=,<>,!=
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c1 <c2* 1.12579;
+create view v2 as select c1,c2 from t1 where c2 >578.35689 + c1*0.001;
+create view v3 as select c1,c2 from t1 where c2 >=33.333333333333;
+create view v4 as select c1,c2 from t1 where c2 <=null;
+create view v5 as select c1,c2 from t1 where c2 =22.2222222222222222;
+create view v6 as select c1,c2 from t1 where c2 <>'22.2222222222222222';
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c1 <c2* 1.12579;
+select * from v2;
+select c1,c2 from t1 where c2 >578.35689 + c1*0.001;
+select * from v3;
+select c1,c2 from t1 where c2 >=33.333333333333;
+select * from v4;
+select c1,c2 from t1 where c2 <=null;
+select * from v5;
+select c1,c2 from t1 where c2 =22.2222222222222222;
+select * from v6;
+select c1,c2 from t1 where c2 <>'22.2222222222222222';
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-71:基于基本表/视图的列，列属性为float,使用比较运算符，between ...and ...,in,is null/true/false/unknown
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c2 in (select c2 from t1 where c1 in (33.333333333333+1,33.333333333333*1));
+create view v2 as select c1,c2 from t1 where c2 between c1 and c2 *101;
+create view v3 as select c1,c2 from t1 where c2 is null;
+create view v4 as select c1,c2 from t1 where c2 is true;
+create view v5 as select c1,c2 from t1 where c2 is false;
+create view v6 as select c1,c2 from t1 where c2 is unknown;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+desc v6;
+select * from v1;
+select c1,c2 from t1 where c2 in (select c2 from t1 where c1 in (33.333333333333+1,33.333333333333*1));
+select * from v2;
+select c1,c2 from t1 where c2 between c1 and c2 *101;
+select * from v3;
+select c1,c2 from t1 where c2 is null;
+select * from v4;
+select c1,c2 from t1 where c2 is true;
+select * from v5;
+select c1,c2 from t1 where c2 is false;
+select * from v6;
+select c1,c2 from t1 where c2 is unknown;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+show create view v5;
+show create view v6;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-72:基于基本表/视图的列，列属性为float,使用逻辑运算符，not,and,or
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c1,c2 from t1 where c2 < 1.785 or c2>= -c1;
+create view v2 as select c1,c2 from t1 where c2 > -10 * 3.145 * 0.25787 * c1 and c2 is not null;
+create view v3 as select c1,c2 from t1 where not(c2 >1.267898);
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select c1,c2 from t1 where c2 < 1.785 or c2>= -c1;
+select * from v2;
+select c1,c2 from t1 where c2 > -10 * 3.145 * 0.25787 * c1 and c2 is not null;
+select * from v3;
+select c1,c2 from t1 where not(c2 >1.267898);
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+
+###2-73:基于基本表/视图的列，列属性为float,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+create view v1 as select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+desc v1;
+select * from v1;
+select c2 as c1,(c2 || c2) as c2,'c2 = [' || c2 || ']' as c3 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+
+###2-74:基于基本表/视图的列，列属性为float,使用拼接运算符，||
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1(c1 float primary key,c2 float);
+create table t2(c1 int primary key,c2 double,c3 float,c4 decimal(10,5),c5 varchar(100));
+insert into t1 values (11111111111.11,22.2222222222222222),(33.333333333333,55.5555555555555),(null,null);
+insert into t2 values(1,1.1,1.11,1.11111,'11111111');
+create view v1 as select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+desc v1;
+select * from v1;
+select t1.c2 || t2.c2,t1.c2||t2.c3 ,t1.c2||t2.c4,t1.c2||t2.c5 from t1,t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;

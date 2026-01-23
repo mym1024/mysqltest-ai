@@ -1,0 +1,248 @@
+drop table if exists t1,t2,t3;
+create hash partition function h1(x,y)'x+y';
+create table t1(spID int,userID int,score int,lsg char(40),dete1 datetime,primary key(spID,userID)) partition by (ta1,h1,spID,userID);
+insert into t1 values (1,1,1,'','0001-01-01');
+insert into t1 values (2,2,2,'','0001-01-01');
+insert into t1 values (2,1,1,'','0001-01-01');
+insert into t1 values (3,3,3,'','0001-01-01');
+create table t2(userID int,niName char(15),passwd char(8),mail char(50),isAukt char(1),vName char(30),nName char(40),adr char(60),plz char(5),ort char(35),land char(20),primary key (userID)) partition by list(userID)(partition a1 values in(1,2,3),partition a2 values in(4,5));
+insert into t2 values (1,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (2,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (3,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (4,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (5,'name','pass','mail','Y','v','n','adr','1','1','1');
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID;
+userID	min(t1.score)
+1	1
+2	2
+3	3
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID;
+userID	min(t1.score)
+1	1
+2	2
+3	3
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID order by null;
+userID	min(t1.score)
+1	1
+2	2
+3	3
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+userID	min(t1.score)
+1	1
+2	2
+select t2.userID,min(t1.score+0.0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+userID	min(t1.score+0.0)
+1	1
+2	2
+select t2.userID,min(t1.score+0.0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID order by null;
+userID	min(t1.score+0.0)
+1	1
+2	2
+select t2.userID,min(t1.score+0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+userID	min(t1.score+0)
+1	1
+2	2
+select t2.userID,min(t1.score+0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID order by null;
+userID	min(t1.score+0)
+1	1
+2	2
+drop table t1,t2;
+drop partition function h1;
+create hash partition function h1(x,y,z)'x+y+z-1';
+create table t1(One int,Two int,Three int,Four int,primary key(One,Two,Three))partition by (ta1,h1,One,Two,Three);
+insert into t1 values (1,2,1,4),(1,2,2,4),(1,2,3,4),(1,2,4,4),(1,1,1,4),(1,1,2,4),(1,1,3,4),(1,1,4,4),(1,3,1,4),(1,3,2,4),(1,3,3,4),(1,3,4,4);
+select One,Two,sum(Four) from t1 group by One,Two;
+One	Two	sum(Four)
+1	1	16
+1	2	16
+1	3	16
+drop table t1;
+drop partition function h1;
+create table t1(id int primary key,gender char(1)) partition by range(id)(partition b1 values less than(3),partition b2 values less than(6),partition b3 values less than maxvalue);
+insert into t1 values (1,'M'),(2,'F'),(3,'F'),(4,'F');
+create table t2 (pk int primary key,user_id int not null,date1 datetime)partition by list(pk)(partition c1 values in(1,3,5),partition c2 values in(2,4,6));
+insert into t2 values (1,1,'2002-06-09'),(2,2,'2002-06-09'),(3,1,'2002-06-09'),(4,3,'2002-06-09'),(5,4,'2002-06-09'),(6,4,'2002-06-09');
+select u.gender as gender,count(distinct u.id) as dist_count,(count(distinct u.id)/5*100) as percentage from t1 u,t2 l where l.user_id=u.id group by u.gender;
+gender	dist_count	percentage
+F	3	60
+M	1	20
+select u.gender as gender,count(distinct u.id) as dist_count,(count(distinct u.id)/5*100) as percentage from t1 u,t2 l where l.user_id=u.id group by u.gender order by percentage;
+gender	dist_count	percentage
+M	1	20
+F	3	60
+drop table t1,t2;
+create enum partition function e1(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1(ID1 int,ID2 int,ID int,primary key(ID))partition by (ta3,e1,ID);
+insert into t1 values (1,244,1),(2,243,2),(134,223,3),(185,186,4);
+drop table t1;
+drop partition function e1;
+create table t1(pid int,c1id int,c2id int,value int,primary key(value))partition by range(value) (partition d1 values less than(3),partition d2 values less than(6),partition d3 values less than maxvalue);
+insert into t1 values (1,1,null,1),(1,2,null,2),(1,null,3,3),(1,4,null,4),(1,5,null,5);
+create table t2 (id int,active varchar(3),primary key(id)) partition by list(id)(partition f1 values in(1,3,5),partition f2 values in(2,4,6));
+insert into t2 values (1,'yes'),(2,'No'),(4,'yes'),(5,'No');
+create enum partition function e1(x)'[(3)]';
+create table t3 (id int,active varchar(3),primary key(id)) partition by(ta4,e1,id);
+insert into t3 values (3,'yes');
+drop table t1,t2,t3;
+drop partition function e1;
+create table t1(a int,b int,primary key(a,b),c int)partition by range columns(a,b) (partition p1 values less than(1,2),partition p2 values less than(2,3),partition p3 values less than (maxvalue,maxvalue));
+insert into t1(a,b) values (1,1),(1,2),(2,1),(2,2);
+select * from t1;
+a	b	c
+1	1	NULL
+1	2	NULL
+2	1	NULL
+2	2	NULL
+drop table t1;
+create table t1(pk int primary key,a int not null,b int not null) partition by list(pk)(partition r1 values in(1,3,5),partition r2 values in(2,4,6));
+insert into t1 values (1,1,1),(2,1,2),(3,3,1),(4,3,2),(5,2,2),(6,2,1);
+create hash partition function h1(x)'x+4';
+create table t2(pk int primary key,a int not null,b int not null) partition by (ta5,h1,pk);
+insert into t2 values (1,1,3),(2,3,1),(3,2,2),(4,1,1);
+select t1.a,t2.b from t1,t2 where t1.a=t2.a group by t1.a,t2.b;
+a	b
+1	1
+1	3
+2	2
+3	1
+drop table t1,t2;
+drop partition function h1;
+create table t1(pk int primary key,a int,b int)partition by range (pk) (partition z1 values less than(5),partition z2 values less than(10),partition z3 values less than maxvalue);
+insert into t1 values (1,1,4),(2,10,40),(3,1,4),(4,10,43),(5,1,4),(6,10,41),(7,1,4),(8,10,43),(9,1,4);
+select a,max(b),case max(b) when 4 then 4 when 43 then 43 else 0 end from t1 group by a;
+a	max(b)	case max(b) when 4 then 4 when 43 then 43 else 0 end
+1	4	4
+10	43	43
+drop table t1;
+create table t1(id int not null,qty int not null,primary key(id,qty),extra int) partition by range columns(id,qty)(partition w1 values less than(2,2),partition w2 values less than(5,5),partition w3 values less than (maxvalue,maxvalue));
+insert into t1(id,qty) values (1,2),(1,3),(2,4),(2,5);
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having sum(qty)>2 and cqty>1;
+id	sqty	cqty
+1	5	2
+2	9	2
+select id,sum(qty) as sqty from t1 group by id having sqty>2 and count(qty)>1;
+id	sqty
+1	5
+2	9
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having cqty>2 and cqty>1;
+id	sqty	cqty
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having sum(qty)>2 and count(qty)>1;
+id	sqty	cqty
+1	5	2
+2	9	2
+drop table t1;
+create hash partition function h1(x,y)'x+y';
+create table t1(a integer,b integer,c integer,primary key(a,b)) partition by(ta6,h1,a,b);
+insert into t1(a,b) values(1,2),(1,3),(2,5);
+select a,0.1*0+1 r2,sum(1) r1 from t1 where a=1 group by a having r1>1 and r2=1;
+a	r2	r1
+1	1	2
+select a,sum(b) from t1 where a=1 group by c;
+a	sum(b)
+1	5
+select a*sum(b) from t1 where a=1 group by c;
+a*sum(b)
+5
+select sum(a)*sum(b) from t1 where a=1 group by c;
+sum(a)*sum(b)
+10
+select a,sum(b) from t1 where a=1 group by c having a=1;
+a	sum(b)
+1	5
+select sum(a)*sum(b) as d from t1 where a=1 group by c having d>0;
+d
+10
+drop table t1;
+drop partition function h1;
+create table t1(a int,b int,primary key(a,b),c int)partition by range columns(a,b) (partition q1 values less than(1,2),partition q2 values less than(2,3),partition q3 values less than (maxvalue,maxvalue));
+insert into t1(a,b) values (1,2),(1,3);
+select a,b from t1 group by 'const';
+a	b
+1	2
+select distinct a,b from t1 group by 'const';
+a	b
+1	2
+drop table t1;
+create hash partition function h1(x)'x+3';
+create table t1(n int primary key,m int) partition by(ta7,h1,n);
+insert into t1(n) values (1);
+select n+1 as n from t1 group by n;
+n
+2
+drop table t1;
+drop partition function h1;
+create enum partition function e1(x,y)'[(aaa,bb1)],[(aaa,bb2)]';
+create table t1(c1 char(3),c2 char(3) ,primary key(c1,c2) ,c3 int)partition by (a1,e1,c1,c2);
+create enum partition function e2(x,y)'[(aaa,bb1)],[(aaa,bb2)]';
+create table t2(c3 char(3),c4 char(3) ,primary key(c3,c4) ,c1 int)partition by (a2,e2,c3,c4);
+insert into t1(c1,c2) values ('aaa','bb1'),('aaa','bb2');
+insert into t2(c3,c4) values ('aaa','bb1'),('aaa','bb2');
+select t1.c1 as c2 from t1,t2 where t1.c2=t2.c4 group by c2;
+c2
+aaa
+aaa
+select t1.c1 as c2 from t1,t2 where t1.c2=t2.c4 group by t1.c1;
+c2
+aaa
+drop table t1,t2;
+drop partition function e1,e2;
+create table t1(id int primary key,c1 int not null,c2 int not null)partition by range (id) (partition x1 values less than(3),partition x2 values less than(7),partition x3 values less than maxvalue);
+insert into t1(id,c1,c2) values(1,5,1),(2,4,1),(3,3,5),(4,2,3),(5,1,3);
+select * from t1 order by c1;
+id	c1	c2
+5	1	3
+4	2	3
+3	3	5
+2	4	1
+1	5	1
+select * from t1 group by id order by c1;
+id	c1	c2
+5	1	3
+4	2	3
+3	3	5
+2	4	1
+1	5	1
+select * from t1 group by id order by id desc;
+id	c1	c2
+5	1	3
+4	2	3
+3	3	5
+2	4	1
+1	5	1
+select * from t1 group by c2,c1,id order by c2,c1;
+id	c1	c2
+2	4	1
+1	5	1
+5	1	3
+4	2	3
+3	3	5
+select * from t1 group by c2,c1,id order by c2 desc,c1;
+id	c1	c2
+3	3	5
+5	1	3
+4	2	3
+2	4	1
+1	5	1
+select * from t1 group by c2,c1,id order by c2 desc,c1 desc;
+id	c1	c2
+3	3	5
+4	2	3
+5	1	3
+1	5	1
+2	4	1
+select * from t1 group by c2 order by c2,c1;
+id	c1	c2
+1	5	1
+4	2	3
+3	3	5
+select * from t1 group by c2 order by c2 desc,c1;
+id	c1	c2
+3	3	5
+4	2	3
+1	5	1
+select * from t1 group by c2 order by c2 desc,c1 desc;
+id	c1	c2
+3	3	5
+4	2	3
+1	5	1
+drop table t1;

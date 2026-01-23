@@ -1,0 +1,256 @@
+drop table if exists trange1,trange2;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	trange1	1	trange1#r0,trange1#r1	__range@3001	c1
+3002	2	trange2	1	trange2#r0,trange2#r1	__range@3002	c1
+insert into trange2 values(1,1,'haha'),(2,1,'haha'),(3,1,'haha'),(4,1,'haha'),(5,1,'haha'),(6,1,'haha'),(7,1,'haha');
+insert into trange1 select distinct c2,c1,c3 from trange2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+insert into trange2 values(8,4,'mkoe');
+insert into trange1 select c1 as grimp,c2 as tendency,c2 from trange2 where c1=8;
+insert into trange2 values(9,4,'mkoe'),(10,4,'mkoe'),(11,4,'mkoe'),(12,4,'mkoe'),(13,4,'mkoe');
+insert into trange1 select * from trange2 where c1>8 limit 3;
+insert into trange1 select * from trange2 as tinsert where c1=13;
+insert into trange2 values(15,3,'maosy');
+insert into trange1 select * from trange2 where c1=15 for update;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from trange1;
+c1	c2	c3
+8	4	4
+9	4	0
+10	4	0
+11	4	0
+13	4	0
+select * from trange2;
+c1	c2	c3
+1	1	haha
+2	1	haha
+3	1	haha
+4	1	haha
+5	1	haha
+6	1	haha
+7	1	haha
+8	4	mkoe
+9	4	mkoe
+10	4	mkoe
+11	4	mkoe
+12	4	mkoe
+13	4	mkoe
+15	3	maosy
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+drop table if exists trange1,trange2;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (8),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (8),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	trange1	1	trange1#r0,trange1#r1	__range@3003	c1
+3004	2	trange2	1	trange2#r0,trange2#r1	__range@3004	c1
+insert into trange2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+select * from trange1;
+c1	c2	c3
+select * from trange2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+drop table if exists trange1,trange2,trange3;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange3(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	2	trange1	1	trange1#r0,trange1#r1	__range@3005	c1
+3006	2	trange2	1	trange2#r0,trange2#r1	__range@3006	c1
+3007	2	trange3	1	trange3#r0,trange3#r1	__range@3007	c1
+insert into trange2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into trange3 values(1,2,'mid'),(3,1,'rdetg');
+insert into trange1 select trange2.c1,trange2.c2,trange3.c2 from trange2 inner join trange3 on trange2.c2=trange3.c2;
+select * from trange1;
+c1	c2	c3
+1	2	2
+3	1	1
+select * from trange2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+select * from trange3;
+c1	c2	c3
+1	2	mid
+3	1	rdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+drop table if exists trange1,trange2;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	2	trange3	1	trange3#r0,trange3#r1	__range@3007	c1
+3008	2	trange1	1	trange1#r0,trange1#r1	__range@3008	c1
+3009	2	trange2	1	trange2#r0,trange2#r1	__range@3009	c1
+insert into trange2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into trange1(c1,c2) select trange2.c1,trange2.c2 from trange2 left join trange1 on trange2.c2=trange1.c2;
+select * from trange1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+select * from trange2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+drop table if exists trange1,trange2,trange3;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+create table trange3(c1 int primary key,c2 int,c3 varchar(30)) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3010	2	trange1	1	trange1#r0,trange1#r1	__range@3010	c1
+3011	2	trange2	1	trange2#r0,trange2#r1	__range@3011	c1
+3012	2	trange3	1	trange3#r0,trange3#r1	__range@3012	c1
+insert into trange2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into trange3 values(1,2,'mid'),(3,1,'rdetg');
+insert into trange1(c1,c2) select c1,c2 from trange2 union select c1,c2 from trange3;
+select * from trange1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+select * from trange2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+select * from trange3;
+c1	c2	c3
+1	2	mid
+3	1	rdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	trange2	1	trange2#r0,trange2#r1	__range@3011	c1
+3012	2	trange3	1	trange3#r0,trange3#r1	__range@3012	c1
+3013	2	trange1	1	trange1#r0,trange1#r1	__range@3013	c1
+insert into trange1(c1,c2) select c1,c2 from trange2 except select c1,c2 from trange3;
+select * from trange1;
+c1	c2	c3
+2	4	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	trange2	1	trange2#r0,trange2#r1	__range@3011	c1
+3012	2	trange3	1	trange3#r0,trange3#r1	__range@3012	c1
+3014	2	trange1	1	trange1#r0,trange1#r1	__range@3014	c1
+insert into trange1(c1,c2) select c1,c2 from trange2 intersect select c1,c2 from trange3;
+select * from trange1;
+c1	c2	c3
+1	2	NULL
+3	1	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 int,c3 real) partition by range columns(c1) (partition r0 values less than (20),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	trange2	1	trange2#r0,trange2#r1	__range@3011	c1
+3012	2	trange3	1	trange3#r0,trange3#r1	__range@3012	c1
+3015	2	trange1	1	trange1#r0,trange1#r1	__range@3015	c1
+insert into trange1(c1,c2) select c1,c2 from trange2 where c1 in( select c1 from trange3);
+insert into trange1(c1,c2) select c1,c2 from trange2 where c1 not in( select c1 from trange1);
+select * from trange1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange2#r0	2	0	NULL
+trange2#r1	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL

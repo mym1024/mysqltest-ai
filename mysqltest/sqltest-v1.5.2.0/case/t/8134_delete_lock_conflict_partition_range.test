@@ -1,0 +1,110 @@
+##############################################################################################
+###1.测试功能点：range分区，删除锁冲突
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+
+
+###2-1:
+create table trange1(c1 int primary key,c2 varchar(30)) partition by range columns(c1)(partition r0 values less than(10),partition r1 values less than maxvalue);
+show table rules;
+--real_sleep 3
+insert into trange1 values(1,'a'),(2,'b');
+show partition groups;
+
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+begin;
+
+connection conn2;
+--error 5049
+connection conn1;
+rollback;
+
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+
+connect (conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn4,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+create table trange1(c1 int primary key,c2 varchar(30)) ;
+--real_sleep 3
+insert into trange1 values(1,'a'),(2,'b');
+connection conn3;
+begin;
+connection conn4;
+connection conn3;
+rollback;
+
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+create table trange1(c1 int primary key,c2 varchar(30)) ;
+--real_sleep 3
+insert into trange1 values(1,'a'),(2,'b');
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+
+
+connect (conn5,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn6,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn5;
+begin;
+connection conn6;
+begin;
+connection conn5;
+rollback;
+connection conn6;
+rollback;
+
+
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+
+connect (conn7,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn8,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+create table trange1(c1 int primary key,c2 varchar(30)) ;
+--real_sleep 3
+insert into trange1 values(1,'a'),(2,'b');
+connection conn7;
+begin;
+connection conn8;
+begin;
+--error 119
+connection conn7;
+rollback;
+connection conn8;
+rollback;
+
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

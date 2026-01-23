@@ -1,0 +1,285 @@
+####################################必填######################################################
+###1.测试功能点：测试嵌套子查询：投影列子查询、exists子查询
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：2023.11.23增加exists子查询
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+###2-1：投影列子查询
+#do sql
+drop table if exists t1,t2,t3,t4;
+create table t1(c1 int primary key, c2 float, c3 varchar(32));
+create table t2(c1 int primary key, c2 float);
+create table t3(c1 int primary key, c2 float);
+create table t4(c1 int primary key);
+--real_sleep 5
+insert into t1 values(1,1.1,'a'), (2,2.2,'b'), (3,3.3,'c');
+insert into t2 values(1,1.1), (2,2.2), (3,3.3), (4, 4.4);
+insert into t3 values(1,1.1), (2,2.2), (3,3.3), (5, 5.5);
+insert into t4 values(1), (2), (3);
+--real_sleep 5
+##父表 dual 表
+#子表 dual 表
+select (select null);
+select (select 1) as c1;
+select (select 1) + 1;
+select (select 1.23456789);
+select length((select 'yaobase'));
+select substr((select 'yaobase'), (select 2), (select 5 - 1));
+select cast((select 1.1) as int);
+select (select 'b' > 'a');
+select (select 4 is not NULL);
+select 1 between (select 1) and 2;
+select (select 1 in (2, 3, 4));
+--error 13
+select (select 1) in (2, 3, 4); 
+select (select 'yaobase') like concat ('%', (select 'yao'), '%');
+select (select (0 and 3) or (0 or 3));
+#子表实体表
+select (select c1 * c2 from t1 where c1 * 1 = 2);
+select (select c1 from t1 where c1 = 2);
+select (select c2 from t1 where c3 like '%a%');
+select (select c2 from t1 where c1 not in (1,2,-1));
+select (select c3 from t1 where c1 not between 2 and 4);
+select (select c1 from t1 where c1 > 2 and c1 in (3, -1, -2));
+select (select c1 from t1 where not c1 > 1);
+select (select max(c1) from t1);
+#子表临时表
+select (select c1 % (c2 - 1) from (select * from t1) as t11 where c1 % (c1 + 1) = 2);
+select (select c1 from (select * from t1) as t11 where c1 < 2);
+select (select c2 from (select * from t1) as t11 where c3 like '%a%');
+select (select c2 from (select * from t1) as t11 where c1 in (1,-1,-2));
+select (select c3 from (select * from t1) as t11 where c1 between 0 and 1);
+select (select c1 from (select * from t1) as t11 where c1 > 3 or c1 in (3, -1, -2));
+select (select avg(c1) from (select * from t1) as t11);
+#子表多表
+select (select count(1) from t3, t2);
+select (select count(*) from t3 inner join t2 on t3.c1=t2.c1);
+select (select count(1) from t2 left join t3 on t3.c1=t2.c1);
+select (select count(*) from t3 right join t2 on t3.c1=t2.c1);
+select (select count(1) from t3 full join t2 on t3.c1=t2.c1);
+#复杂子查询
+select (select count(1) from t1 where c1 > 0 group by c3 limit 1);
+select (select (case when (select count(*) from t1) > 0 then (select count(*) + 1 from t1) else 0 end));
+--error 13
+select (select count(*) from t1) in (2, 3, 4);
+
+##父表单表
+#父子表无关
+select (select 1) from t1;
+select c1, (select 1) from t1;
+select c1, (select count(*) from t2) from t1;
+#子表单表
+select (select t1.c1 from t2 where c1 + 1 = 2) from t1;
+select (select count(t2.c1) from t2 where t1.c1 >= t2.c1), c1 from t1;
+select (select t1.c2 * c1 from (select * from t2) as t22 where c1 * 1 = 2) from t1;
+select (select c1 % (t1.c1 + 1) from (select * from t2) as t22 where c1 % (c1 + 1) = 2) from t1;
+select (select count(1) from (select * from t2) as t22 where t1.c1 <= t22.c1) from t1;
+select (select count(*) from (select * from t2) as t22 where c1 > 2 and t1.c1 in (0, 1, 2)) from t1;
+select (select count(t22.c2) from (select * from t2) as t22 where not t1.c1 > 1) from t1;
+select (select t2.c1 - t1.c1 from t2 where t2.c1 - 1 = 2) from t1;
+select (select sum(t2.c1) from t2 where t2.c1 > t1.c1) from t1;
+select (select t22.c1 * t1.c1 from (select * from t2) as t22 where t22.c1 * 1 = 2) from t1;
+select c1, (select count(*) from (select * from t2) as t22 where t22.c1 > t1.c1) from t1;
+select (select count(*) from (select * from t2) as t22 where t22.c1 > 3 or t1.c1 in (0, 1, 2)) from t1;
+select (select count(t22.c1) from (select * from t2) as t22 where t22.c1 > t1.c1) from t1;
+#子表多表
+select (select count(1) from t3, t2 where t1.c1 > t2.c1 and t1.c1 > t3.c1) from t1;
+select (select count(1) from t3 inner join t2 on t3.c1=t2.c1 where t1.c1 != t2.c1) from t1;
+select (select count(1) from t3 left join t2 on t3.c1=t2.c1 where t1.c1 != t2.c1) from t1;
+select (select count(1) from t2 right join t3 on t3.c1=t2.c1 where t1.c1 != t2.c1) from t1;
+select (select count(1) from t3 full join t2 on t3.c1=t2.c1 where t1.c1 != t2.c1) from t1;
+
+##父表多表
+#父子表无关
+select distinct (select 1) from t1, t2;
+select distinct t1.c1, (select t2.c1) as res1 from t1, t2 order by t1.c1, res1;
+select distinct t1.c1, (select count(*) from t3) from t1, t2 order by t1.c1;
+#子表单表
+select (select count(t3.c2) from t4) from t2, t3;
+select t1.c1, (select count(*) from t2 where t2.c1 > t1.c1) as res1 from t1 left join t3 on t1.c1 != t3.c1 order by t1.c1, res1;
+select (select count(*) from t2 where t1.c3 like '%a%') as res1 from t1 left join t3 on t1.c1 != t3.c1 order by res1;
+select (select count(*) from t2 where t1.c1 in (1, -1, -2)) as res1 from t1 inner join t3 on t1.c1 != t3.c1 order by res1;
+select (select count(*) from t2 where t1.c1 between 0 and 1) as res1 from t1, t3 order by res1;
+select (select sum(t2.c1) from t2 where t2.c2 > t1.c1 or t3.c1 <= t1.c1) as res1 from t1, t3 order by res1;
+select (select t22.c1 % (t1.c1 + 1) from (select * from t2) as t22 where t22.c1 % (t22.c1 + 1) = 2) as res1 from t1, t3 order by res1;
+select (select count(*) from (select * from t2) as t22 where t22.c1 > t1.c1) as res1 from t3 left join t1 on t1.c2 < t3.c2 order by res1;
+select (select count(t22.c1) from (select * from t2) as t22 where t22.c1 > t1.c1) as res1, t1.c1 from t1 right join t3 on t1.c1 != t3.c1 order by res1, t1.c1;
+select (select count(t22.c2) from (select * from t2) as t22 where t22.c1 = t1.c1) as res1 from t1 inner join t3 on t1.c2 > t3.c1 order by res1;
+select (select count(*) from (select * from t2) as t22 where t1.c3 like '%a%') as res1 from t1 full join t3 on t1.c2 = t3.c2 order by res1;
+select (select count(*) from (select * from t2) as t22 where t1.c1 not in (2, 3, 4)) as res1 from t1 inner join t3 on t1.c1 = t3.c1 order by res1;
+select (select count(*) from (select * from t2) as t22 where t1.c1 not between 2 and 4) as res1 from t3 full join t1 on t1.c2 = t3.c2 order by res1;
+select (select count(1) from (select * from t2) as t22 where not t1.c1 > 1) as res1 from t3 right join t1 on t3.c2 > t1.c2 order by res1;
+select (select min(t22.c1) from (select * from t2) as t22 where t22.c1 > t1.c1) as res1 from t1 left join t3 on t1.c2 != t3.c2 order by res1;
+#子表多表
+select (select count(1) from t3, t2 where t1.c1 > t2.c1 and t1.c1 > t3.c1) as res1 from t1 inner join t3 on t1.c1 < t3.c2 order by res1;
+select (select count(1) from t2 left join t3 on t3.c1=t2.c1 where t1.c1 != t2.c1) as res1 from t1 left join t3 on t1.c2 != t3.c2 order by res1;
+select (select count(1) from t3 right join t2 on t3.c1=t2.c1 where t1.c1 != t2.c1) as res1 from t3 left join t1 on t1.c2 < t3.c2 order by res1;
+select (select count(1) from t3 full join t2 on t3.c1=t2.c1 where t1.c1 != t2.c1) as res1 from t1 right join t3 on t3.c1 < t1.c2 order by res1;
+
+##集合查询
+(select (select 1)) union (select (select count(*) from t2 where t2.c1 > t1.c1) from t1);
+(select (select 1)) intersect (select (select count(*) from t2 where t2.c1 > t1.c1) from t1);
+(select (select 1)) except (select (select count(*) from t2 where t2.c1 > t1.c1) from t1);
+(select (select count(*) from t2 where t2.c1 > t1.c1) from t1) except (select (select 1));
+
+##多个投影列子查询
+#并列关系
+select (select 1), (select 2.3), (select 'yaobase'), (select null);
+select (select c1 + t1.c1 from t2 where c1 + 1 = 2), (select 1), (select count(t3.c1) from t3 where t3.c1 > t1.c1) from t1;
+select (select count(1) from t3, t2 where t1.c1 > t2.c1 and t1.c1 > t3.c1) as res1, (select t2.c1 + t1.c1 from t2 where t2.c1 + 1 = 2) as res2 from t1 inner join t3 on t1.c1 < t3.c2 order by res1, res2;
+#嵌套关系
+select (select (select 1));
+select (select (select c2 from t4 limit 1) from t3 limit 1) from t2;
+select (select (select t3.c2 from t4 limit 1) from t3 limit 1) from t2;
+select (select (select count(c2) from t4) from t3 limit 1) from t2;
+
+##特殊情况
+--error 5007
+select (select c1,c2 from t1 where c1 = 1);
+--error 5007
+select (select c1,c2 from t1 where c1 > 0);
+select (select c1 from t1 where c1 < 0);
+drop table t1,t2,t3,t4;
+
+###2-2:测试exists子查询
+create table t1(c1 int primary key,c2 float,c3 varchar(20));
+create table t2(c1 int primary key,c2 float,c3 varchar(20));
+create table t3(c1 int primary key,c2 float,c3 varchar(20));
+create table t4(c1 int primary key,c2 float);
+insert into t1 values(1,1,'西安'),(2,2,'北京'),(3,3,'');
+insert into t2 values(1,2,'下雨'),(2,3,'晴天');
+insert into t3 values(1,3,'学校');
+insert into t4 values(1,2),(3,4);
+
+##单个子查询
+#主查询不含join
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1);
+select * from t2,t3,t4 where exists(select t1.c1 from t1 where t1.c2 = t2.c2 or t3.c2 = 1);
+select t1.c1 from t1 where exists(select t2.c2,t3.c2 from t2,t3 where t2.c1 = t3.c1 and t1.c1 = t2.c1);
+select t1.c1 from t1 where exists(select t2.c2 from t2 where t2.c1 = t1.c1 and t2.c1 = t2.c2);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 order by t2.c1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 group by t2.c1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 limit 1);
+select * from t2 where exists(select count(t1.c1) = t2.c1 from t1);
+--error 2
+select * from t2 where exists(select max(t2.c1) = t2.c1 from t1);
+select * from t2 where exists(select min(t1.c1) = t2.c1 from t1);
+--error 2
+select * from t2 where exists(select min(t2.c1) = t2.c1 from t1);
+select * from t2 where exists(select avg(t1.c1) = t2.c1 from t1);
+#--error 5055
+select * from t2 where exists(select char_length(t2.c3) = char_length(t1.c3) from t1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 + 2);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 < t2.c1 mod 2);
+select * from t2 p where exists(select t1.c2 from t1 where t1.c1 = p.c1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c3 = t2.c3);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1);
+select * from t2 where exists(select t2.c2 = 2);
+#主查询含join
+select * from t2 right join t1 on t1.c1 = t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1);
+select * from t2 left join t1 on t1.c1 = t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1 or t2.c1 = t1.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t2.c2,t3.c2 from t2,t3 where t2.c1 = t3.c1 and t1.c1 = t2.c1);
+select  * from t1 join t2 on t1.c1=t2.c1 where exists(select t2.c2 from t2 where t2.c1 = t1.c1 and t2.c1 = t2.c2);
+select * from t1 right join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 order by t2.c1);
+select * from t1 left join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 order by t3.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 order by t1.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 group by t1.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 group by t3.c1);
+select * from t1 right join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 limit 1);
+select * from t1 left join t2 on t1.c1=t2.c1 where exists(select sum(t1.c1) = t2.c1 from t1);
+select * from t1 right join t2 on t1.c1=t2.c1 where exists(select concat(t2.c3,t1.c3) = '西安' from t1);
+select * from t2 join t1 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 > t2.c1 / 2);
+
+##多个子查询
+#主查询不含join
+select * from t1,t2 where exists(select c1 from t3 where t3.c1 = t2.c1 and t1.c2 = t2.c2) or (select c1 from t4 where t4.c1 = t1.c1 and t1.c2 = t2.c2);
+select * from t1,t2 where exists(select t2.c2,t3.c2 from t3 where t2.c1 = t3.c1 and t1.c1 = t2.c1) and (select 1);
+select t1.c1 from t1 where exists(select t2.c2 from t2 where t2.c1 = t1.c1 and t2.c1 = t2.c2) and (select 1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 order by t1.c1) and (select 1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 group by t1.c1) or exists(select t2.c1);
+select * from t2 where exists(select max(t1.c1) = t2.c1 from t1) and exists(select * from t1 where t1.c1 = t2.c1);
+select * from t2 where exists(select sum(t1.c1) = t2.c1 from t1) and exists(select t2.c1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 + 2) and (select 1);
+#--error 5007
+select * from t1 where exists (select c1 from t2 where t2.c1 = t1.c1) union select * from t3 where exists(select c1 from t2 where t2.c1 = t3.c1);
+select * from t1 where exists (select c1 from t2 where t2.c1 = t1.c1) union select * from t3 where exists(select c1 from t2 where t2.c1 = t3.c1);
+select * from t1 where exists (select c1 from t2 where t2.c1 = t1.c1) intersect select * from t3 where exists(select c1 from t2 where t2.c1 = t3.c1);
+select * from t1 where exists (select c1 from t2 where t2.c1 = t1.c1) except select * from t3 where exists(select c1 from t2 where t2.c1 = t3.c1);
+#主查询含join
+select  * from t1 join t2 on t1.c1=t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1) and (select c1 from t4 where t4.c1 = t1.c1);
+select * from t1 right join t2 on t1.c1=t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1) and (select c2 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1);
+select * from t1 left join t2 on t1.c1=t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1) or (select c2 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select c1 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1) or (select c2 from t3 where t3.c1 = t2.c1 and t1.c1 = t2.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t2.c1 = t3.c1) union select * from t2 join t3 on t2.c1=t3.c1 where exists(select c1 from t1 where t1.c1 = t3.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t2.c1 = t3.c1) intersect select * from t2 join t3 on t2.c1=t3.c1 where exists(select c1 from t1 where t1.c1 = t3.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t2.c1 = t3.c1) except select * from t2 join t3 on t2.c1=t3.c1 where exists(select c1 from t1 where t1.c1 = t3.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t2.c2,t3.c2 from t3 where t2.c1 = t3.c1 and t1.c1 = t2.c1) and (select 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t2.c2 from t2 where t2.c1 = t1.c1 and t2.c1 = t2.c2) and (select 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 group by t1.c1) or (select 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t2.c1 group by t3.c1) or exists(select t2.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t1.c2 from t1 where t1.c1 = t2.c1 limit 1) and t2.c2<3;
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select count(t1.c1) = t2.c1 from t1) and exists(select t2.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t1.c2 from t1 where t1.c1 != t2.c1 * 2) and (select 1);
+#嵌套子查询
+select * from t1 where exists (select c1 from t3 where t1.c1 = t3.c2 and exists (select c1 from t2 where t3.c2 = t2.c1));
+select * from t1 where exists (select c1 from t3 where t1.c1 = t3.c2 and t1.c1 in (select c1 from t2 where t2.c1 = 2));
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t1.c1 = t3.c2 and exists (select c1 from t2 where t3.c2 = t2.c1));
+
+##非关联子查询
+#单个子查询
+select * from t1 where exists(select null);
+select * from t1 where exists(select c1 from t2 where c2 = 2);
+select * from t1 where exists(select * from t2);
+select exists (select * from t1);
+select * from t1 where exists (select * from t2);
+select * from t1 where exists (select 1) or (select 2);
+select t1.c1 from t1 where exists(select t2.c2,t3.c2,t4.c2 from t2,t3,t4 where t2.c1 = t3.c1 and t2.c1 = t4.c1);
+select * from t2 where exists(select t1.c2,t3.c2 from t1,t3 where t1.c1 = t3.c1 order by t1.c1);
+select * from t2 where exists(select t1.c2,t3.c2 from t1,t3 where t1.c1 = t3.c1 limit 1);
+select * from t2 where exists(select max(t1.c1) from t1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1+ 2  = 4);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select null);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select * from t3);
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select 1) or (select 2);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = t3.c2);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t4.c2,t3.c2 from t4,t3 where t4.c1 = t3.c1 order by t4.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t4.c2,t3.c2 from t4,t3 where t4.c1 = t3.c1 group by t3.c1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select avg(t3.c1) from t3);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select concat(t3.c3,'') = '西安' from t3);
+#多个子查询
+select * from t1 where exists(select c1 from t2 where t2.c1 = 2) and (select c1 from t3 where c1 = 1);
+select * from t2 where exists(select t1.c2 from t1 where t1.c1 = t1.c2 limit 1) and exists(select 1);
+select * from t1 where exists (select c1 from t2 where t2.c1 = 2) union select * from t3 where exists(select c1 from t2 where t2.c1 = 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select c1 from t2 where t2.c1 = 2) and exists(select c1 from t3 where c1 = 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select c1 from t2 where t2.c1 = 2) or exists(select c1 from t3 where c1 = 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select * from t3,t4 where t3.c1 = t4.c2) and (select 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select t3.c2 from t3 where t3.c1 = 1 order by t3.c1) and exists(select t4.c1 from t4);
+#--error 5055
+select * from t1 join t2 on t1.c1=t2.c1 where exists(select char_length(t3.c3) = 2 from t3) and exists(select t4.c1 from t4);
+--error 5007
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t2 where t2.c1 = 2) union select * from t3 where exists(select c1 from t2 where t2.c1 = 1);
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t2 where t2.c1 = 2) except select * from t3 join t2 on t3.c1=t2.c1 where exists(select c1 from t1 where t1.c1 = 2);
+#嵌套查询
+select * from t1 where exists (select c1 from t3 where t3.c1 = 1 and exists (select c1 from t4 where t4.c2 = 2));
+select * from t1 where exists (select c1 from t3 where t3.c2 = 3 and t3.c1 in (select c1 from t2 where t2.c1 = 1));
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t3.c2 - 1 = 2 and exists (select c1 from t4 where t4.c2 = 2));
+select * from t1 join t2 on t1.c1=t2.c1 where exists (select c1 from t3 where t3.c2 = 3 and t3.c1 in (select c1 from t4 where t4.c1 = 1));
+
+drop table t1,t2,t3,t4;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

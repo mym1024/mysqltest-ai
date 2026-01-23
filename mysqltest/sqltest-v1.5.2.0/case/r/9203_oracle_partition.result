@@ -1,0 +1,1827 @@
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+set yao_enable_query_optimizer=false;
+create table h1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) partitions 3;
+create table h2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) (partition p0, partition p1);
+create table h3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) partitions 3;
+create table h4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) (partition p0, partition p1);
+create table h5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) (partition p0, partition p0);
+ERROR HY000: YAO-6000:  Duplicate partition name p0
+create table hh1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2) subpartitions 3 partitions 3;
+create table hh2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2) subpartition template(subpartition sp0, subpartition sp1) partitions 3;
+create table hh3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2) subpartitions 3 (partition p0, partition p1);
+create table hh4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2) subpartition template(subpartition sp0, subpartition sp1) (partition p0, partition p1);
+create table hh5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2,c1) subpartitions 3 partitions 3;
+create table hh6(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2,c1) subpartition template(subpartition sp0, subpartition sp1) partitions 3;
+create table hh7(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2,c1) subpartitions 3 (partition p0, partition p1);
+create table hh8(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2,c1) subpartition template(subpartition sp0, subpartition sp1) (partition p0, partition p1);
+create table hh9(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2) subpartitions 3 partitions 3;
+create table hh10(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2) subpartition template(subpartition sp0, subpartition sp1) partitions 3;
+create table hh11(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2) subpartitions 3 (partition p0, partition p1);
+create table hh12(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2) subpartition template(subpartition sp0, subpartition sp1) (partition p0, partition p1);
+create table hh13(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartitions 3 partitions 3;
+create table hh14(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartition template(subpartition sp0, subpartition sp1) partitions 3;
+create table hh15(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartitions 3 (partition p0, partition p1);
+create table hh16(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartition template (subpartition sp0, subpartition sp1) (partition p0, partition p1);
+create table hh17(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartition template (subpartition sp0, subpartition sp0) (partition p0, partition p1);
+ERROR HY000: YAO-6000:  Duplicate partition name sp0
+create table hh18(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1) subpartition template (subpartition sp0, subpartition sp1) (partition p0, partition p0);
+ERROR HY000: YAO-6000:  Duplicate partition name p0
+create table hr1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c2) subpartition template(subpartition sp0 values less than (100),subpartition sp1 values less than (maxvalue)) partitions 3;
+create table hr2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c2) subpartition template(subpartition sp0 values less than (100),subpartition sp1 values less than (maxvalue)) (partition p0, partition p1);
+create table hr3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by range(c2) subpartition template(subpartition sp0 values less than (100),subpartition sp1 values less than (maxvalue)) partitions 3;
+create table hr4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by range(c2) subpartition template(subpartition sp0 values less than (100),subpartition sp1 values less than (maxvalue)) (partition p0, partition p1);
+create table hr5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c1,c2) subpartition template(subpartition sp0 values less than (100, 1000),subpartition sp1 values less than (maxvalue, maxvalue)) partitions 3;
+create table hr6(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c1,c2) subpartition template(subpartition sp0 values less than (100,1000),subpartition sp1 values less than (maxvalue, maxvalue)) (partition p0, partition p1);
+create table hr7(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1,c2) subpartition by range(c1,c2) subpartition template(subpartition sp0 values less than (100,1000),subpartition sp1 values less than (maxvalue, maxvalue)) partitions 3;
+create table hr8(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1,c2) subpartition by range(c1,c2) subpartition template(subpartition sp0 values less than (100,1000),subpartition sp1 values less than (maxvalue, maxvalue)) (partition p0, partition p1);
+create table hr9(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1,c2) subpartition by range(c1,c2) subpartition template(subpartition sp0 values less than (100,1000),subpartition sp0 values less than (maxvalue, maxvalue)) (partition p0, partition p1);
+ERROR HY000: YAO--1:  Duplicate partition name sp0
+create table rh1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c2) subpartitions 3 (partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rh2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c2) subpartition template(subpartition sp0, subpartition sp1) (partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rh3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c2) subpartitions 3 (partition p0 values less than (100,900),partition p1 values less than (maxvalue,maxvalue));
+create table rh4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c2) subpartition template(subpartition p0, subpartition p1) (partition p0 values less than (100,900),partition p1 values less than (maxvalue,maxvalue));
+create table rh5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c1,c2) subpartitions 3 (partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rh6(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c1,c2) subpartition template(subpartition p0, subpartition p1) (partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rh7(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c1,c2) subpartitions 3 (partition p0 values less than (100,900),partition p1 values less than (maxvalue, maxvalue));
+create table rh8(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c1,c2) subpartition template(subpartition p0, subpartition p1)(partition p0 values less than (100,900),partition p1 values less than (maxvalue, maxvalue));
+create table rh9(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c1,c2) subpartition template(subpartition p0, subpartition p1) (partition p0 values less than (100,900),partition p0 values less than (maxvalue, maxvalue));
+ERROR HY000: YAO--1:  Duplicate partition name p0
+create table rh10(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c1,c2) subpartition template(subpartition p0, subpartition p1)(partition p0 values less than (100,900),partition p1 values less than (200,maxvalue));
+ERROR HY000: YAO--1: VALUES LESS THAN value must be strictly increasing for each partition and the last value must be maxvalue.
+create table rr1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by range(c2) subpartition template(subpartition p0 values less than (1000), subpartition p1 values less than (maxvalue))(partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rr2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c2) subpartition template(subpartition p0 values less than (1000), subpartition p1 values less than (maxvalue))(partition p0 values less than (100,900),partition p1 values less than (maxvalue,maxvalue));
+create table rr3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by range(c1,c2) subpartition template(subpartition p0 values less than (100,1000), subpartition p1 values less than (maxvalue,maxvalue))(partition p0 values less than (100),partition p1 values less than (maxvalue));
+create table rr4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c1,c2) subpartition template(subpartition p0 values less than (100,1000), subpartition p1 values less than (maxvalue,maxvalue)) (partition p0 values less than (100,900),partition p1 values less than (maxvalue, maxvalue));
+create table rr5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c1,c2) subpartition template(subpartition p0 values less than (100,1000), subpartition p1 values less than (maxvalue,maxvalue)) (partition p0 values less than (100,900),partition p0 values less than (maxvalue, maxvalue));
+ERROR HY000: YAO--1:  Duplicate partition name p0
+create table hhn1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2)(partition p0 (subpartition sp0, subpartition sp1) ,partition p1 (subpartition sp2, subpartition sp3));
+create table hhn2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by hash(c2,c1)(partition p0 (subpartition sp0, subpartition sp1),partition p1 (subpartition sp2, subpartition sp3));
+create table hhn3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2)(partition p0 (subpartition sp0, subpartition sp1),partition p1 (subpartition sp2, subpartition sp3));
+create table hhn4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1)(partition p0 (subpartition sp0, subpartition sp1),partition p1 (subpartition sp2, subpartition sp3));
+create table hhn5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1)(partition p0 (subpartition sp0, subpartition sp1),partition p0 (subpartition sp2, subpartition sp3));
+ERROR HY000: YAO-6000:  Duplicate partition name p0
+create table hhn6(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by hash(c2,c1)(partition p0 (subpartition sp0, subpartition sp1),partition p1 (subpartition sp1, subpartition sp3));
+ERROR HY000: YAO-6000:  Duplicate partition name sp1
+create table hrn1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c2)(partition p0 (subpartition sp0 values less than(1000), subpartition sp1 values less than(maxvalue)),partition p1 (subpartition sp2 values less than(1000), subpartition sp3 values less than(maxvalue)));
+create table hrn2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c1) subpartition by range(c1,c2)(partition p0 (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)) ,partition p1 (subpartition sp2 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+create table hrn3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by range(c2)(partition p0 (subpartition sp0 values less than(1000), subpartition sp1 values less than(maxvalue)),partition p1 (subpartition sp2 values less than(1000), subpartition sp3 values less than(maxvalue)));
+create table hrn4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by range(c1,c2)(partition p0 (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)),partition p1 (subpartition sp2 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+create table hrn5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by hash(c2,c1) subpartition by range(c1,c2)(partition p0 (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)) ,partition p1 (subpartition sp1 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+ERROR HY000: YAO--1:  Duplicate partition name sp1
+create table rhn1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c2)(partition p0 values less than(100) (subpartition sp0, subpartition sp1),partition p1 values less than(maxvalue) (subpartition sp2, subpartition sp3));
+create table rhn2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by hash(c2,c1)(partition p0 values less than(100) (subpartition sp0, subpartition sp1),partition p1 values less than(maxvalue) (subpartition sp2, subpartition sp3));
+create table rhn3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c2)(partition p0 values less than(100,900) (subpartition sp0, subpartition sp1) ,partition p1 values less than(maxvalue,maxvalue) (subpartition sp2, subpartition sp3));
+create table rhn4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c2,c1)(partition p0 values less than(100,900) (subpartition sp0, subpartition sp1),partition p1 values less than(maxvalue,maxvalue) (subpartition sp2, subpartition sp3));
+create table rhn5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by hash(c2,c1)(partition p0 values less than(100,900)(subpartition sp0, subpartition sp1),partition p0 values less than(maxvalue,maxvalue) (subpartition sp2, subpartition sp3));
+ERROR HY000: YAO-6000:  Duplicate partition name p0
+create table rrn1(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by range(c2)(partition p0 values less than(100) (subpartition sp0 values less than(1000), subpartition sp1 values less than(maxvalue)),partition p1 values less than(maxvalue) (subpartition sp2 values less than(1000), subpartition sp3 values less than(maxvalue)));
+create table rrn2(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1) subpartition by range(c2,c1)(partition p0 values less than(100) (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)),partition p1 values less than(maxvalue) (subpartition sp2 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+create table rrn3(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c2)(partition p0 values less than(100,900) (subpartition sp0 values less than(1000), subpartition sp1 values less than(maxvalue)),partition p1 values less than(maxvalue,maxvalue) (subpartition sp2 values less than(1000), subpartition sp3 values less than(maxvalue)));
+create table rrn4(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c2,c1)(partition p0 values less than(100,900) (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)),partition p1 values less than(maxvalue,maxvalue) (subpartition sp2 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+create table rrn5(c1 int, c2 int, c3 int, primary key(c1,c2))partition by range columns(c1,c2) subpartition by range(c2,c1)(partition p0 values less than(100,900) (subpartition sp0 values less than(100,1000), subpartition sp1 values less than(maxvalue,maxvalue)),partition p0 values less than(maxvalue,maxvalue) (subpartition sp2 values less than(100,1000), subpartition sp3 values less than(maxvalue,maxvalue)));
+ERROR HY000: YAO-6000:  Duplicate partition name p0
+show tables;
+table_name_in_test
+h1
+h2
+h3
+h4
+hh1
+hh2
+hh3
+hh4
+hh5
+hh6
+hh7
+hh8
+hh9
+hh10
+hh11
+hh12
+hh13
+hh14
+hh15
+hh16
+hr1
+hr2
+hr3
+hr4
+hr5
+hr6
+hr7
+hr8
+rh1
+rh2
+rh3
+rh4
+rh5
+rh6
+rh7
+rh8
+rr1
+rr2
+rr3
+rr4
+hhn1
+hhn2
+hhn3
+hhn4
+hrn1
+hrn2
+hrn3
+hrn4
+rhn1
+rhn2
+rhn3
+rhn4
+rrn1
+rrn2
+rrn3
+rrn4
+alter table hh1 rename to hhx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hh1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3005	hh1	2	hhx	3	hh1	partition_hash	c2	NULL	YAO_ORA_HASH_PARTITION	3	0
+alter table hhx rename to hh1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hh1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3005	hh1	2	hh1	3	hh1	partition_hash	c2	NULL	YAO_ORA_HASH_PARTITION	3	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table hr1 rename to hrx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hr1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3021	hr1	2	hrx	1	sp0,sp1	__range@3021@hr1	c2	NULL	NULL	NULL	0
+alter table hrx rename to hr1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hr1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3021	hr1	2	hr1	1	sp0,sp1	__range@3021@hr1	c2	NULL	NULL	NULL	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table rh1 rename to rhx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rh1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3029	p0,p1	2	rhx	3	rh1	partition_hash	c2	NULL	YAO_ORA_HASH_PARTITION	3	0
+alter table rhx rename to rh1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rh1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3029	p0,p1	2	rh1	3	rh1	partition_hash	c2	NULL	YAO_ORA_HASH_PARTITION	3	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table rr1 rename to rrx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rr1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3037	p0,p1	2	rrx	1	p0,p1	__range@3037@p0,p1	c2	NULL	NULL	NULL	0
+alter table rrx rename to rr1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rr1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3037	p0,p1	2	rr1	1	p0,p1	__range@3037@p0,p1	c2	NULL	NULL	NULL	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table hhn1 rename to hhnx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3041	p0	2	hhnx	4	sp0,sp1	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+3041	p1	2	hhnx	4	sp2,sp3	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+alter table hhnx rename to hhn1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3041	p0	2	hhn1	4	sp0,sp1	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+3041	p1	2	hhn1	4	sp2,sp3	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hhnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table hrn1 rename to hrnx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3045	p0	2	hrnx	1	sp0,sp1	__range@3045@p0	c2	NULL	NULL	NULL	0
+3045	p1	2	hrnx	1	sp2,sp3	__range@3045@p1	c2	NULL	NULL	NULL	0
+alter table hrnx rename to hrn1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3045	p0	2	hrn1	1	sp0,sp1	__range@3045@p0	c2	NULL	NULL	NULL	0
+3045	p1	2	hrn1	1	sp2,sp3	__range@3045@p1	c2	NULL	NULL	NULL	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='hrnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table rhn1 rename to rhnx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3049	p0	2	rhnx	4	sp0,sp1	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+3049	p1	2	rhnx	4	sp2,sp3	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+alter table rhnx rename to rhn1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3049	p0	2	rhn1	4	sp0,sp1	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+3049	p1	2	rhn1	4	sp2,sp3	partition_hash	c2	NULL	YAO_ORA_HASH_HARDCODE_PARTITION	2	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rhnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table rrn1 rename to rrnx;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	p0	2	rrnx	1	sp0,sp1	__range@3053@p0	c2	NULL	NULL	NULL	0
+3053	p1	2	rrnx	1	sp2,sp3	__range@3053@p1	c2	NULL	NULL	NULL	0
+alter table rrnx rename to rrn1;
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	p0	2	rrn1	1	sp0,sp1	__range@3053@p0	c2	NULL	NULL	NULL	0
+3053	p1	2	rrn1	1	sp2,sp3	__range@3053@p1	c2	NULL	NULL	NULL	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrnx';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+alter table rrn1 rename column c2 to cx;
+ERROR HY000: YAO-5002: Primary key column can not be rename, column name = 'c2'
+set trash_bin_switch = true;
+drop table h1;
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_rules where table_name='h1';
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3001	2	h1	3	h1	partition_hash	c1	NULL	YAO_ORA_HASH_PARTITION	3	1
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='h1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select rule_name,rule_par_num,rule_par_list,rule_body,type,trash_flag from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type	trash_flag
+boc_account_mixs	1	x	 	5	0
+boc_card_mixs	1	x	 	5	0
+__range@3021@hr1	1	c2	(100),(maxvalue)	1	0
+__range@3022@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3023@hr3	1	c2	(100),(maxvalue)	1	0
+__range@3024@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3025@hr5	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3026@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3027@hr7	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3028@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3029	1	c1	(100),(maxvalue)	1	0
+__range@3030	1	c1	(100),(maxvalue)	1	0
+__range@3031	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3032	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3033	1	c1	(100),(maxvalue)	1	0
+__range@3034	1	c1	(100),(maxvalue)	1	0
+__range@3035	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3036	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3037	1	c1	(100),(maxvalue)	1	0
+__range@3037@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3038	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3038@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3039	1	c1	(100),(maxvalue)	1	0
+__range@3039@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3040	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3040@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3045@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3045@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3046@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3046@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3047@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3047@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3048@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3048@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3049	1	c1	(100),(maxvalue)	1	0
+__range@3050	1	c1	(100),(maxvalue)	1	0
+__range@3051	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3052	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3053	1	c1	(100),(maxvalue)	1	0
+__range@3053@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3053@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3054	1	c1	(100),(maxvalue)	1	0
+__range@3054@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3054@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3055	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3055@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3055@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3056	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3056@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3056@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+set trash_bin_switch = true;
+drop table rrn1;
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_rules where table_name='rrn1';
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	2	rrn1	8	p0,p1	__range@3053	c1	NULL		2	1
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	p0	2	rrn1	1	sp0,sp1	__range@3053@p0	c2	NULL	NULL	NULL	1
+3053	p1	2	rrn1	1	sp2,sp3	__range@3053@p1	c2	NULL	NULL	NULL	1
+select rule_name,rule_par_num,rule_par_list,rule_body,type,trash_flag from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type	trash_flag
+boc_account_mixs	1	x	 	5	0
+boc_card_mixs	1	x	 	5	0
+__range@3021@hr1	1	c2	(100),(maxvalue)	1	0
+__range@3022@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3023@hr3	1	c2	(100),(maxvalue)	1	0
+__range@3024@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3025@hr5	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3026@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3027@hr7	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3028@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3029	1	c1	(100),(maxvalue)	1	0
+__range@3030	1	c1	(100),(maxvalue)	1	0
+__range@3031	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3032	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3033	1	c1	(100),(maxvalue)	1	0
+__range@3034	1	c1	(100),(maxvalue)	1	0
+__range@3035	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3036	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3037	1	c1	(100),(maxvalue)	1	0
+__range@3037@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3038	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3038@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3039	1	c1	(100),(maxvalue)	1	0
+__range@3039@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3040	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3040@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3045@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3045@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3046@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3046@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3047@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3047@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3048@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3048@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3049	1	c1	(100),(maxvalue)	1	0
+__range@3050	1	c1	(100),(maxvalue)	1	0
+__range@3051	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3052	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3053	1	c1	(100),(maxvalue)	1	1
+__range@3053@p0	1	c2	(1000),(maxvalue)	1	1
+__range@3053@p1	1	c2	(1000),(maxvalue)	1	1
+__range@3054	1	c1	(100),(maxvalue)	1	0
+__range@3054@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3054@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3055	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3055@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3055@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3056	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3056@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3056@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+FLASHBACK h1 TO BEFORE DROP;
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_rules where table_name='h1';
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3001	2	h1	3	h1	partition_hash	c1	NULL	YAO_ORA_HASH_PARTITION	3	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='h1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+select rule_name,rule_par_num,rule_par_list,rule_body,type,trash_flag from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type	trash_flag
+boc_account_mixs	1	x	 	5	0
+boc_card_mixs	1	x	 	5	0
+__range@3021@hr1	1	c2	(100),(maxvalue)	1	0
+__range@3022@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3023@hr3	1	c2	(100),(maxvalue)	1	0
+__range@3024@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3025@hr5	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3026@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3027@hr7	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3028@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3029	1	c1	(100),(maxvalue)	1	0
+__range@3030	1	c1	(100),(maxvalue)	1	0
+__range@3031	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3032	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3033	1	c1	(100),(maxvalue)	1	0
+__range@3034	1	c1	(100),(maxvalue)	1	0
+__range@3035	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3036	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3037	1	c1	(100),(maxvalue)	1	0
+__range@3037@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3038	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3038@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3039	1	c1	(100),(maxvalue)	1	0
+__range@3039@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3040	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3040@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3045@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3045@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3046@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3046@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3047@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3047@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3048@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3048@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3049	1	c1	(100),(maxvalue)	1	0
+__range@3050	1	c1	(100),(maxvalue)	1	0
+__range@3051	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3052	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3053	1	c1	(100),(maxvalue)	1	1
+__range@3053@p0	1	c2	(1000),(maxvalue)	1	1
+__range@3053@p1	1	c2	(1000),(maxvalue)	1	1
+__range@3054	1	c1	(100),(maxvalue)	1	0
+__range@3054@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3054@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3055	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3055@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3055@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3056	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3056@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3056@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+FLASHBACK rrn1 TO BEFORE DROP;
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_rules where table_name='rrn1';
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	2	rrn1	8	p0,p1	__range@3053	c1	NULL		2	0
+select table_id,parent_part_name,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info,reserver_field1,reserver_field2,trash_flag from __all_table_sub_rules where table_name='rrn1';
+table_id	parent_part_name	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info	reserver_field1	reserver_field2	trash_flag
+3053	p0	2	rrn1	1	sp0,sp1	__range@3053@p0	c2	NULL	NULL	NULL	0
+3053	p1	2	rrn1	1	sp2,sp3	__range@3053@p1	c2	NULL	NULL	NULL	0
+select rule_name,rule_par_num,rule_par_list,rule_body,type,trash_flag from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type	trash_flag
+boc_account_mixs	1	x	 	5	0
+boc_card_mixs	1	x	 	5	0
+__range@3021@hr1	1	c2	(100),(maxvalue)	1	0
+__range@3022@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3023@hr3	1	c2	(100),(maxvalue)	1	0
+__range@3024@p0,p1	1	c2	(100),(maxvalue)	1	0
+__range@3025@hr5	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3026@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3027@hr7	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3028@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3029	1	c1	(100),(maxvalue)	1	0
+__range@3030	1	c1	(100),(maxvalue)	1	0
+__range@3031	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3032	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3033	1	c1	(100),(maxvalue)	1	0
+__range@3034	1	c1	(100),(maxvalue)	1	0
+__range@3035	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3036	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3037	1	c1	(100),(maxvalue)	1	0
+__range@3037@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3038	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3038@p0,p1	1	c2	(1000),(maxvalue)	1	0
+__range@3039	1	c1	(100),(maxvalue)	1	0
+__range@3039@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3040	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3040@p0,p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3045@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3045@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3046@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3046@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3047@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3047@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3048@p0	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3048@p1	2	c1,c2	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3049	1	c1	(100),(maxvalue)	1	0
+__range@3050	1	c1	(100),(maxvalue)	1	0
+__range@3051	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3052	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3053	1	c1	(100),(maxvalue)	1	0
+__range@3053@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3053@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3054	1	c1	(100),(maxvalue)	1	0
+__range@3054@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3054@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3055	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3055@p0	1	c2	(1000),(maxvalue)	1	0
+__range@3055@p1	1	c2	(1000),(maxvalue)	1	0
+__range@3056	2	c1,c2	(100,900),(maxvalue,maxvalue)	1	0
+__range@3056@p0	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+__range@3056@p1	2	c2,c1	(100,1000),(maxvalue,maxvalue)	1	0
+create index idx on h2(c2);
+create index idx on hh4(c2);
+create index idx on hr4(c2);
+create index idx on rh4(c2);
+create index idx on rr4(c2);
+create index idx on hhn4(c2);
+create index idx on hrn4(c2);
+create index idx on rhn4(c2);
+create index idx on rrn4(c2);
+alter system set unmerge_if_unchanged='False' server_type=yaosqlsvr;
+alter system set merge_delay_interval='7s' server_type=yaodatasvr;
+alter system set major_freeze_wait_time='7s' server_type=yaoadminsvr;
+alter system set min_major_freeze_wait_time='7s' server_type=yaotxnsvr;
+alter system set min_merge_interval='7s' server_type=yaodatasvr;
+alter system set min_major_freeze_interval='6s' server_type=yaotxnsvr;
+alter system set min_drop_cache_wait_time='3s' server_type=yaodatasvr;
+alter system set location_cache_timeout='120s' server_type=yaosqlsvr;
+"merge"
+major_freeze...
+merge: DONE
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	h2	3057	__3002__idx__idx	1
+test	hh4	3058	__3008__idx__idx	1
+test	hr4	3059	__3024__idx__idx	1
+test	rh4	3060	__3032__idx__idx	1
+test	rr4	3061	__3040__idx__idx	1
+test	hhn4	3062	__3044__idx__idx	1
+test	hrn4	3063	__3048__idx__idx	1
+test	rhn4	3064	__3052__idx__idx	1
+test	rrn4	3065	__3056__idx__idx	1
+show create table h1;
+Table	Create Table
+test.h1	CREATE TABLE h1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+PARTITIONS 3;
+show create table h2;
+Table	Create Table
+test.h2	CREATE TABLE h2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) (
+PARTITION p0,
+PARTITION p1);
+show create table h3;
+Table	Create Table
+test.h3	CREATE TABLE h3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+PARTITIONS 3;
+show create table h4;
+Table	Create Table
+test.h4	CREATE TABLE h4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) (
+PARTITION p0,
+PARTITION p1);
+show create table hh1;
+Table	Create Table
+test.hh1	CREATE TABLE hh1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 
+PARTITIONS 3;
+show create table hh2;
+Table	Create Table
+test.hh2	CREATE TABLE hh2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)
+PARTITIONS 3;
+show create table hh3;
+Table	Create Table
+test.hh3	CREATE TABLE hh3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 (
+PARTITION p0,
+PARTITION p1);
+show create table hh4;
+Table	Create Table
+test.hh4	CREATE TABLE hh4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)(
+PARTITION p0,
+PARTITION p1);
+show create table hh5;
+Table	Create Table
+test.hh5	CREATE TABLE hh5 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2,c1) 
+SUBPARTITIONS 3 
+PARTITIONS 3;
+show create table hh6;
+Table	Create Table
+test.hh6	CREATE TABLE hh6 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2,c1) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)
+PARTITIONS 3;
+show create table hh7;
+Table	Create Table
+test.hh7	CREATE TABLE hh7 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2,c1) 
+SUBPARTITIONS 3 (
+PARTITION p0,
+PARTITION p1);
+show create table hh8;
+Table	Create Table
+test.hh8	CREATE TABLE hh8 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2,c1) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)(
+PARTITION p0,
+PARTITION p1);
+show create table hh9;
+Table	Create Table
+test.hh9	CREATE TABLE hh9 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 
+PARTITIONS 3;
+show create table hh10;
+Table	Create Table
+test.hh10	CREATE TABLE hh10 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)
+PARTITIONS 3;
+show create table hh11;
+Table	Create Table
+test.hh11	CREATE TABLE hh11 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 (
+PARTITION p0,
+PARTITION p1);
+show create table hh12;
+Table	Create Table
+test.hh12	CREATE TABLE hh12 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)(
+PARTITION p0,
+PARTITION p1);
+show create table hh13;
+Table	Create Table
+test.hh13	CREATE TABLE hh13 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2,c1) 
+SUBPARTITIONS 3 
+PARTITIONS 3;
+show create table hh14;
+Table	Create Table
+test.hh14	CREATE TABLE hh14 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2,c1) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)
+PARTITIONS 3;
+show create table hh15;
+Table	Create Table
+test.hh15	CREATE TABLE hh15 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2,c1) 
+SUBPARTITIONS 3 (
+PARTITION p0,
+PARTITION p1);
+show create table hh16;
+Table	Create Table
+test.hh16	CREATE TABLE hh16 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2,c1) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)(
+PARTITION p0,
+PARTITION p1);
+show create table hr1;
+Table	Create Table
+test.hr1	CREATE TABLE hr1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))
+PARTITIONS 3;
+show create table hr2;
+Table	Create Table
+test.hr2	CREATE TABLE hr2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))(
+PARTITION p0,
+PARTITION p1);
+show create table hr3;
+Table	Create Table
+test.hr3	CREATE TABLE hr3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))
+PARTITIONS 3;
+show create table hr4;
+Table	Create Table
+test.hr4	CREATE TABLE hr4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))(
+PARTITION p0,
+PARTITION p1);
+show create table hr5;
+Table	Create Table
+test.hr5	CREATE TABLE hr5 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))
+PARTITIONS 3;
+show create table hr6;
+Table	Create Table
+test.hr6	CREATE TABLE hr6 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))(
+PARTITION p0,
+PARTITION p1);
+show create table hr7;
+Table	Create Table
+test.hr7	CREATE TABLE hr7 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1,c2) 
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))
+PARTITIONS 3;
+show create table hr8;
+Table	Create Table
+test.hr8	CREATE TABLE hr8 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1,c2) 
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))(
+PARTITION p0,
+PARTITION p1);
+show create table rh1;
+Table	Create Table
+test.rh1	CREATE TABLE rh1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rh2;
+Table	Create Table
+test.rh2	CREATE TABLE rh2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION sp0,SUBPARTITION sp1)
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rh3;
+Table	Create Table
+test.rh3	CREATE TABLE rh3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c2) 
+SUBPARTITIONS 3 
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table rh4;
+Table	Create Table
+test.rh4	CREATE TABLE rh4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c2) SUBPARTITION TEMPLATE(SUBPARTITION p0,SUBPARTITION p1)
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table rh5;
+Table	Create Table
+test.rh5	CREATE TABLE rh5 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c1,c2) 
+SUBPARTITIONS 3 
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rh6;
+Table	Create Table
+test.rh6	CREATE TABLE rh6 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c1,c2) SUBPARTITION TEMPLATE(SUBPARTITION p0,SUBPARTITION p1)
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rh7;
+Table	Create Table
+test.rh7	CREATE TABLE rh7 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c1,c2) 
+SUBPARTITIONS 3 
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table rh8;
+Table	Create Table
+test.rh8	CREATE TABLE rh8 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c1,c2) SUBPARTITION TEMPLATE(SUBPARTITION p0,SUBPARTITION p1)
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table rr1;
+Table	Create Table
+test.rr1	CREATE TABLE rr1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION p0 VALUES LESS THAN (1000)
+,SUBPARTITION p1 VALUES LESS THAN (maxvalue))
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rr2;
+Table	Create Table
+test.rr2	CREATE TABLE rr2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY RANGE(c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION p0 VALUES LESS THAN (1000)
+,SUBPARTITION p1 VALUES LESS THAN (maxvalue))
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table rr3;
+Table	Create Table
+test.rr3	CREATE TABLE rr3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION p0 VALUES LESS THAN (100,1000)
+,SUBPARTITION p1 VALUES LESS THAN (maxvalue,maxvalue))
+(PARTITION p0 VALUES LESS THAN (100)
+,PARTITION p1 VALUES LESS THAN (maxvalue));
+show create table rr4;
+Table	Create Table
+test.rr4	CREATE TABLE rr4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY RANGE(c1,c2) SUBPARTITION TEMPLATE 
+(SUBPARTITION p0 VALUES LESS THAN (100,1000)
+,SUBPARTITION p1 VALUES LESS THAN (maxvalue,maxvalue))
+(PARTITION p0 VALUES LESS THAN (100,900)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue));
+show create table hhn1;
+Table	Create Table
+test.hhn1	CREATE TABLE hhn1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2) (
+PARTITION p0(
+SUBPARTITION sp0,
+SUBPARTITION sp1),
+PARTITION p1(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table hhn2;
+Table	Create Table
+test.hhn2	CREATE TABLE hhn2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY HASH (c2,c1) (
+PARTITION p0(
+SUBPARTITION sp0,
+SUBPARTITION sp1),
+PARTITION p1(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table hhn3;
+Table	Create Table
+test.hhn3	CREATE TABLE hhn3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2) (
+PARTITION p0(
+SUBPARTITION sp0,
+SUBPARTITION sp1),
+PARTITION p1(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table hhn4;
+Table	Create Table
+test.hhn4	CREATE TABLE hhn4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY HASH (c2,c1) (
+PARTITION p0(
+SUBPARTITION sp0,
+SUBPARTITION sp1),
+PARTITION p1(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table hrn1;
+Table	Create Table
+test.hrn1	CREATE TABLE hrn1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE (c2) (
+PARTITION p0(
+SUBPARTITION sp0 VALUES LESS THAN (1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue)),
+PARTITION p1(
+SUBPARTITION sp2 VALUES LESS THAN (1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue)));
+show create table hrn2;
+Table	Create Table
+test.hrn2	CREATE TABLE hrn2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c1) 
+SUBPARTITION BY RANGE (c1,c2) (
+PARTITION p0(
+SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue)),
+PARTITION p1(
+SUBPARTITION sp2 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue,maxvalue)));
+show create table hrn3;
+Table	Create Table
+test.hrn3	CREATE TABLE hrn3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY RANGE (c2) (
+PARTITION p0(
+SUBPARTITION sp0 VALUES LESS THAN (1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue)),
+PARTITION p1(
+SUBPARTITION sp2 VALUES LESS THAN (1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue)));
+show create table hrn4;
+Table	Create Table
+test.hrn4	CREATE TABLE hrn4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY HASH (c2,c1) 
+SUBPARTITION BY RANGE (c1,c2) (
+PARTITION p0(
+SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue)),
+PARTITION p1(
+SUBPARTITION sp2 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue,maxvalue)));
+show create table rhn1;
+Table	Create Table
+test.rhn1	CREATE TABLE rhn1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c2) 
+(PARTITION p0 VALUES LESS THAN (100)(
+SUBPARTITION sp0,
+SUBPARTITION sp1)
+,PARTITION p1 VALUES LESS THAN (maxvalue)(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table rhn2;
+Table	Create Table
+test.rhn2	CREATE TABLE rhn2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY HASH (c2,c1) 
+(PARTITION p0 VALUES LESS THAN (100)(
+SUBPARTITION sp0,
+SUBPARTITION sp1)
+,PARTITION p1 VALUES LESS THAN (maxvalue)(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table rhn3;
+Table	Create Table
+test.rhn3	CREATE TABLE rhn3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c2) 
+(PARTITION p0 VALUES LESS THAN (100,900)(
+SUBPARTITION sp0,
+SUBPARTITION sp1)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue)(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table rhn4;
+Table	Create Table
+test.rhn4	CREATE TABLE rhn4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY HASH (c2,c1) 
+(PARTITION p0 VALUES LESS THAN (100,900)(
+SUBPARTITION sp0,
+SUBPARTITION sp1)
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue)(
+SUBPARTITION sp2,
+SUBPARTITION sp3));
+show create table rrn1;
+Table	Create Table
+test.rrn1	CREATE TABLE rrn1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY RANGE (c2) 
+(PARTITION p0 VALUES LESS THAN (100)(
+SUBPARTITION sp0 VALUES LESS THAN (1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))
+,PARTITION p1 VALUES LESS THAN (maxvalue)(
+SUBPARTITION sp2 VALUES LESS THAN (1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue)));
+show create table rrn2;
+Table	Create Table
+test.rrn2	CREATE TABLE rrn2 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1)
+SUBPARTITION BY RANGE (c2,c1) 
+(PARTITION p0 VALUES LESS THAN (100)(
+SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))
+,PARTITION p1 VALUES LESS THAN (maxvalue)(
+SUBPARTITION sp2 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue,maxvalue)));
+show create table rrn3;
+Table	Create Table
+test.rrn3	CREATE TABLE rrn3 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY RANGE (c2) 
+(PARTITION p0 VALUES LESS THAN (100,900)(
+SUBPARTITION sp0 VALUES LESS THAN (1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue))
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue)(
+SUBPARTITION sp2 VALUES LESS THAN (1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue)));
+show create table rrn4;
+Table	Create Table
+test.rrn4	CREATE TABLE rrn4 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2),
+ KEY idx(c2, c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+SUBPARTITION BY RANGE (c2,c1) 
+(PARTITION p0 VALUES LESS THAN (100,900)(
+SUBPARTITION sp0 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp1 VALUES LESS THAN (maxvalue,maxvalue))
+,PARTITION p1 VALUES LESS THAN (maxvalue,maxvalue)(
+SUBPARTITION sp2 VALUES LESS THAN (100,1000)
+,SUBPARTITION sp3 VALUES LESS THAN (maxvalue,maxvalue)));
+insert into h1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into h2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into h3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into h4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh5 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh6 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh7 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh8 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh9 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh10 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh11 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh12 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh13 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh14 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh15 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hh16 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr5 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr6 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr7 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hr8 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh5 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh6 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh7 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rh8 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rr1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rr2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rr3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rr4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hhn1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hhn2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hhn3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hhn4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hrn1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hrn2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hrn3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into hrn4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rhn1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rhn2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rhn3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rhn4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rrn1 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rrn2 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rrn3 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+insert into rrn4 values(10,500,1),(50,1100,2),(120,1500,3),(150,1800,4),(150,2800,5),(200,2900,6);
+select c1 from h2;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from h2 partition (p0);
+c1
+50
+select c1 from h2 partition (p0,p1);
+c1
+10
+50
+120
+150
+150
+200
+select c1 from h2 where c2=500;
+c1
+10
+select c1 from h2 partition (p0) where c2=500;
+c1
+select c1 from h2 partition (p0,p1) where c2=500;
+c1
+10
+select c3 from h2 where c2=500;
+c3
+1
+select c3 from h2 partition (p0) where c2=500;
+c3
+select c3 from h2 partition (p0,p1) where c2=500;
+c3
+1
+select c1 from hh4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from hh4 partition (p0);
+c1
+select c1 from hh4 partition ("p1#sp1");
+c1
+10
+150
+150
+select c1 from hh4 partition (p0,"p1#sp1");
+c1
+10
+150
+150
+select c1 from hh4 where c2=500;
+c1
+10
+select c1 from hh4 partition (p0) where c2=500;
+c1
+select c1 from hh4 partition ("p1#sp1") where c2=500;
+c1
+10
+select c1 from hh4 partition (p0,"p1#sp1") where c2=500;
+c1
+10
+select c3 from hh4 where c2=500;
+c3
+1
+select c3 from hh4 partition (p0) where c2=500;
+c3
+select c3 from hh4 partition ("p1#sp1") where c2=500;
+c3
+1
+select c3 from hh4 partition (p0,"p1#sp1") where c2=500;
+c3
+1
+select c1 from hr4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from hr4 partition (p0);
+c1
+select c1 from hr4 partition ("p1#sp1");
+c1
+120
+select c1 from hr4 partition (p0,"p1#sp1");
+c1
+120
+select c1 from hr4 where c2=500;
+c1
+10
+select c1 from hr4 partition (p0) where c2=500;
+c1
+select c1 from hr4 partition ("p1#sp1") where c2=500;
+c1
+select c1 from hr4 partition (p0,"p1#sp1") where c2=500;
+c1
+select c3 from hr4 where c2=500;
+c3
+1
+select c3 from hr4 partition (p0) where c2=500;
+c3
+select c3 from hr4 partition ("p1#sp1") where c2=500;
+c3
+select c3 from hr4 partition (p0,"p1#sp1") where c2=500;
+c3
+select c1 from rh4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from rh4 partition (p0);
+c1
+select c1 from rh4 partition ("p1#sp1");
+c1
+select c1 from rh4 partition (p0,"p1#sp1");
+c1
+select c1 from rh4 where c2=500;
+c1
+10
+select c1 from rh4 partition (p0) where c2=500;
+c1
+select c1 from rh4 partition ("p1#sp1") where c2=500;
+c1
+select c1 from rh4 partition (p0,"p1#sp1") where c2=500;
+c1
+select c3 from rh4 where c2=500;
+c3
+1
+select c3 from rh4 partition (p0) where c2=500;
+c3
+select c3 from rh4 partition ("p1#sp1") where c2=500;
+c3
+select c3 from rh4 partition (p0,"p1#sp1") where c2=500;
+c3
+select c1 from rr4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from rr4 partition (p0);
+c1
+select c1 from rr4 partition ("p1#sp1");
+c1
+select c1 from rr4 partition (p0,"p1#sp1");
+c1
+select c1 from rr4 where c2=500;
+c1
+10
+select c1 from rr4 partition (p0) where c2=500;
+c1
+select c1 from rr4 partition ("p1#sp1") where c2=500;
+c1
+select c1 from rr4 partition (p0,"p1#sp1") where c2=500;
+c1
+select c3 from rr4 where c2=500;
+c3
+1
+select c3 from rr4 partition (p0) where c2=500;
+c3
+select c3 from rr4 partition ("p1#sp1") where c2=500;
+c3
+select c3 from rr4 partition (p0,"p1#sp1") where c2=500;
+c3
+select c1 from hhn4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from hhn4 partition (p0);
+c1
+select c1 from hhn4 partition (sp1);
+c1
+select c1 from hhn4 partition (p0,sp1);
+c1
+select c1 from hhn4 where c2=500;
+c1
+10
+select c1 from hhn4 partition (p0) where c2=500;
+c1
+select c1 from hhn4 partition (sp1) where c2=500;
+c1
+select c1 from hhn4 partition (p0,sp1) where c2=500;
+c1
+select c3 from hhn4 where c2=500;
+c3
+1
+select c3 from hhn4 partition (p0) where c2=500;
+c3
+select c3 from hhn4 partition (sp1) where c2=500;
+c3
+select c3 from hhn4 partition (p0,sp1) where c2=500;
+c3
+select c1 from hrn4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from hrn4 partition (p0);
+c1
+select c1 from hrn4 partition (sp1);
+c1
+150
+150
+200
+select c1 from hrn4 partition (p0,sp1);
+c1
+150
+150
+200
+select c1 from hrn4 where c2=500;
+c1
+10
+select c1 from hrn4 partition (p0) where c2=500;
+c1
+select c1 from hrn4 partition (sp1) where c2=500;
+c1
+select c1 from hrn4 partition (p0,sp1) where c2=500;
+c1
+select c3 from hrn4 where c2=500;
+c3
+1
+select c3 from hrn4 partition (p0) where c2=500;
+c3
+select c3 from hrn4 partition (sp1) where c2=500;
+c3
+select c3 from hrn4 partition (p0,sp1) where c2=500;
+c3
+select c1 from rhn4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from rhn4 partition (p0);
+c1
+select c1 from rhn4 partition (sp1);
+c1
+select c1 from rhn4 partition (p0,sp1);
+c1
+select c1 from rhn4 where c2=500;
+c1
+10
+select c1 from rhn4 partition (p0) where c2=500;
+c1
+select c1 from rhn4 partition (sp1) where c2=500;
+c1
+select c1 from rhn4 partition (p0,sp1) where c2=500;
+c1
+select c3 from rhn4 where c2=500;
+c3
+1
+select c3 from rhn4 partition (p0) where c2=500;
+c3
+select c3 from rhn4 partition (sp1) where c2=500;
+c3
+select c3 from rhn4 partition (p0,sp1) where c2=500;
+c3
+select c1 from rrn4;
+c1
+10
+50
+120
+150
+150
+200
+select c1 from rrn4 partition (p0);
+c1
+select c1 from rrn4 partition (sp1);
+c1
+10
+50
+select c1 from rrn4 partition (p0,sp1);
+c1
+10
+50
+select c1 from rrn4 where c2=500;
+c1
+10
+select c1 from rrn4 partition (p0) where c2=500;
+c1
+select c1 from rrn4 partition (sp1) where c2=500;
+c1
+10
+select c1 from rrn4 partition (p0,sp1) where c2=500;
+c1
+10
+select c3 from rrn4 where c2=500;
+c3
+1
+select c3 from rrn4 partition (p0) where c2=500;
+c3
+select c3 from rrn4 partition (sp1) where c2=500;
+c3
+1
+select c3 from rrn4 partition (p0,sp1) where c2=500;
+c3
+1
+select * from rhn1 partition (sp0) join rrn1 partition (sp1) on rhn1.c1=rrn1.c1;
+c1	c2	c3	c1	c2	c3
+50	1100	2	50	1100	2
+select (select c1 from rh1 partition(p0) where rh1.c1=rr1.c1) from rr1 partition (p0);
+(select c1 from rh1 partition(p0) where rh1.c1=rr1.c1)
+select partition_calc(h1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.h1	3	[2, MAX)	c1,c2	h1#0	0
+select partition_calc(h2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.h2	3	[2, MAX)	c1,c2	p1	0
+select partition_calc(h3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.h3	3	[2, MAX)	c1,c2	h3#1	0
+select partition_calc(h4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.h4	3	[2, MAX)	c1,c2	p1	0
+select partition_calc(hh1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.hh1	3	[2, MAX)	c1,c2	hh1#0#hh1#1	0
+select partition_calc(hh2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3006	test.hh2	3	[2, MAX)	c1,c2	hh2#0#sp1	1
+select partition_calc(hh3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3007	test.hh3	3	[2, MAX)	c1,c2	p1#hh3#1	1
+select partition_calc(hh4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3008	test.hh4	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hh5, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3009	test.hh5	3	[2, MAX)	c1,c2	hh5#0#hh5#1	0
+select partition_calc(hh6, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3010	test.hh6	3	[2, MAX)	c1,c2	hh6#0#sp1	1
+select partition_calc(hh7, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3011	test.hh7	3	[2, MAX)	c1,c2	p1#hh7#1	1
+select partition_calc(hh8, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3012	test.hh8	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hh9, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3013	test.hh9	3	[2, MAX)	c1,c2	hh9#1#hh9#1	1
+select partition_calc(hh10, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3014	test.hh10	3	[2, MAX)	c1,c2	hh10#1#sp1	0
+select partition_calc(hh11, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3015	test.hh11	3	[2, MAX)	c1,c2	p1#hh11#1	1
+select partition_calc(hh12, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3016	test.hh12	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hh13, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3017	test.hh13	3	[2, MAX)	c1,c2	hh13#1#hh13#1	1
+select partition_calc(hh14, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3018	test.hh14	3	[2, MAX)	c1,c2	hh14#1#sp1	0
+select partition_calc(hh15, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3019	test.hh15	3	[2, MAX)	c1,c2	p1#hh15#1	1
+select partition_calc(hh16, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3020	test.hh16	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hr1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3021	test.hr1	3	[2, MAX)	c1,c2	hr1#0#sp1	0
+select partition_calc(hr2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3022	test.hr2	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hr3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3023	test.hr3	3	[2, MAX)	c1,c2	hr3#1#sp1	0
+select partition_calc(hr4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3024	test.hr4	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hr5, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3025	test.hr5	3	[2, MAX)	c1,c2	hr5#0#sp1	0
+select partition_calc(hr6, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3026	test.hr6	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(hr7, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3027	test.hr7	3	[2, MAX)	c1,c2	hr7#1#sp1	0
+select partition_calc(hr8, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3028	test.hr8	3	[2, MAX)	c1,c2	p0#sp1	0
+select partition_calc(rh1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3029	test.rh1	3	[2, MAX)	c1,c2	p1#rh1#1	1
+select partition_calc(rh2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3030	test.rh2	3	[2, MAX)	c1,c2	p1#sp1	1
+select partition_calc(rh3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3031	test.rh3	3	[2, MAX)	c1,c2	p1#rh3#1	1
+select partition_calc(rh4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3032	test.rh4	3	[2, MAX)	c1,c2	p1#p1	1
+select partition_calc(rh5, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3033	test.rh5	3	[2, MAX)	c1,c2	p1#rh5#1	1
+select partition_calc(rh6, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3034	test.rh6	3	[2, MAX)	c1,c2	p1#p0	1
+select partition_calc(rh7, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3035	test.rh7	3	[2, MAX)	c1,c2	p1#rh7#1	1
+select partition_calc(rh8, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3036	test.rh8	3	[2, MAX)	c1,c2	p1#p0	1
+select partition_calc(rr1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3037	test.rr1	3	[2, MAX)	c1,c2	p1#p1	1
+select partition_calc(rr2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3038	test.rr2	3	[2, MAX)	c1,c2	p1#p1	1
+select partition_calc(rr3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3039	test.rr3	3	[2, MAX)	c1,c2	p1#p1	1
+select partition_calc(rr4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3040	test.rr4	3	[2, MAX)	c1,c2	p1#p1	1
+select partition_calc(hrn1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3045	test.hrn1	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hrn2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3046	test.hrn2	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hrn3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3047	test.hrn3	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hhn1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3041	test.hhn1	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hhn2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3042	test.hhn2	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hhn3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3043	test.hhn3	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hhn4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3044	test.hhn4	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(hrn4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3048	test.hrn4	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rhn1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3049	test.rhn1	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rhn2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3050	test.rhn2	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rhn3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3051	test.rhn3	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rhn4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3052	test.rhn4	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rrn1, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3053	test.rrn1	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rrn2, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3054	test.rrn2	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rrn3, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3055	test.rrn3	3	[2, MAX)	c1,c2	sp3	1
+select partition_calc(rrn4, (100,1000),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3056	test.rrn4	3	[2, MAX)	c1,c2	sp3	1

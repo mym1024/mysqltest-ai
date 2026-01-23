@@ -1,0 +1,101 @@
+--source merge.sql
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+#表中有静态数据，每个版本都对表做truncate操作，冻结多次，然后通过scan和get查询表中的数据，前几个冻结版本的数据在磁盘,后两个版本的数据在内存
+create table t1 (c1 int primary key,c2 varchar(10));
+insert into t1 values(0,'aa');
+
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 200
+
+select /*+ READ_STATIC*/ * from t1;
+
+insert into t1 values(1,'aa');
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+truncate table t1;
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 5
+
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+insert into t1 values(2,'aa');
+select * from t1;
+select * from t1 where c1 = 2;
+truncate table t1;
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 10
+
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+insert into t1 values(3,'aa');
+select * from t1;
+truncate table t1;
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+select * from t1 where c1 = 3;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 5
+
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+select * from t1 where c1 = 3;
+insert into t1 values(4,'aa');
+select * from t1;
+truncate table t1;
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+select * from t1 where c1 = 3;
+select * from t1 where c1 = 4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+
+select * from t1;
+select * from t1 where c1 = 0;
+select * from t1 where c1 = 1;
+select * from t1 where c1 = 2;
+select * from t1 where c1 = 3;
+select * from t1 where c1 = 4;
+
+
+
+
+

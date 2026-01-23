@@ -1,0 +1,332 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+set names utf8mb4;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+create range partition function r2(x) '(50),(100),(maxvalue)';
+create range partition function r3(x,y) '(80,\'drf\'),(150,\'vrty\'),(maxvalue,maxvalue)';
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4)],[(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4)],[(5),(6),(7),(8)]';
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (group1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+create table t5(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+select partition_calc(t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, MAX)		__user_default_group	0
+select partition_calc(t1,(1));
+paxos_id
+0
+select partition_calc(t2,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[2, MAX)		group1	1
+select partition_calc(t2,(1));
+paxos_id
+1
+select partition_calc(t3,(5),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[2, MAX)	c1	rr#0	0
+select partition_calc(t3,(5));
+paxos_id
+0
+select partition_calc(t3,(10),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[2, MAX)	c1	rr#1	1
+select partition_calc(t3,(10));
+paxos_id
+1
+select partition_calc(t3,(20),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[2, MAX)	c1	rr#2	0
+select partition_calc(t3,(20));
+paxos_id
+0
+select partition_calc(t4,(0),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	2	[2, MAX)	c3	hh#0	1
+select partition_calc(t4,(0));
+paxos_id
+1
+select partition_calc(t4,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	2	[2, MAX)	c3	hh#1	0
+select partition_calc(t4,(1));
+paxos_id
+0
+select partition_calc(t4,(2),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	2	[2, MAX)	c3	hh#2	1
+select partition_calc(t4,(2));
+paxos_id
+1
+select partition_calc(t5,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	2	[2, MAX)	c2,c1,c3	ee#0	0
+select partition_calc(t5,('a',1,1));
+paxos_id
+0
+select partition_calc(t5,('e',5,5),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	2	[2, MAX)	c2,c1,c3	ee#1	1
+select partition_calc(t5,('e',5,5));
+paxos_id
+1
+show table rules like 't1';
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	__user_default_group	NULL	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+ee#0	2	0	NULL
+ee#1	2	1	NULL
+group1	2	1	NULL
+hh#0	2	1	NULL
+hh#1	2	0	NULL
+hh#10	2	1	NULL
+hh#11	2	0	NULL
+hh#12	2	1	NULL
+hh#2	2	1	NULL
+hh#3	2	0	NULL
+hh#4	2	1	NULL
+hh#5	2	0	NULL
+hh#6	2	1	NULL
+hh#7	2	0	NULL
+hh#8	2	1	NULL
+hh#9	2	0	NULL
+rr#0	2	0	NULL
+rr#1	2	1	NULL
+rr#2	2	0	NULL
+__user_default_group	2	0	NULL
+alter table t1 partition rule to (t1,r1,c1);
+select partition_calc(t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, 3)		__user_default_group	0
+select partition_calc(t1,(1));
+paxos_id
+0
+select partition_calc(t1,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[3, MAX)	c1	t1#0	0
+alter table t1 partition rule to (t1,r3,c3,c2);
+select partition_calc(t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, 3)		__user_default_group	0
+select partition_calc(t1,(1));
+paxos_id
+0
+select partition_calc(t1,(1),1);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=1,param_list_num=2
+select partition_calc(t1,(100,'as'),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[3, MAX)	c3,c2	t1#1	1
+alter table t1 partition rule to (hh,h2,c1,c4);
+select partition_calc(t1,(100,'as'),1);
+ERROR 0A000: YAO-7: The data type of partition_value[1] is not compatible,the input type:6,expected type:16
+select partition_calc(t1,(100,100),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[3, MAX)	c1,c4	hh#5	0
+select partition_calc(t2,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[2, MAX)		group1	1
+select partition_calc(t2,(1));
+paxos_id
+1
+alter group "group1" move to paxos_idx=0;
+select partition_calc(t2,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[2, 3)		group1	1
+select partition_calc(t2,(1));
+paxos_id
+1
+select partition_calc(t2,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[3, MAX)		group1	0
+alter group "group1" move to paxos_idx=1;
+select partition_calc(t2,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[3, MAX)		group1	1
+alter group "group1" move to paxos_idx=0;
+select partition_calc(t2,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	2	[3, MAX)		group1	0
+alter table t3 partition rule to (t3,r2,c3);
+alter group "t3#0" move to paxos_idx=0;
+select partition_calc(t3,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[2, 3)	c1	rr#0	0
+select partition_calc(t3,(1));
+paxos_id
+0
+select partition_calc(t3,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[3, MAX)	c3	t3#0	0
+alter table t3 partition rule to (rr,r2,c3);
+select partition_calc(t3,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[2, 3)	c1	rr#0	0
+select partition_calc(t3,(1));
+paxos_id
+0
+select partition_calc(t3,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[3, MAX)	c3	rr#0	0
+alter group "rr#0" move to paxos_idx=1;
+select partition_calc(t3,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	2	[3, MAX)	c3	rr#0	1
+"merge"
+major_freeze...
+merge: DONE
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	__user_default_group	NULL	NULL
+3001	3	t1	1	hh	h2	c1,c4
+3002	2	t2	0	group1	NULL	NULL
+3003	2	t3	1	rr	r1	c1
+3003	3	t3	1	rr	r2	c3
+3004	2	t4	1	hh	h1	c3
+3005	2	t5	1	ee	e1	c2,c1,c3
+select partition_calc(t1,(100,100),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	3	[3, MAX)	c1,c4	hh#5	0
+select partition_calc(t1,(100,100));
+paxos_id
+0
+select partition_calc(t1,(11,10),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	3	[3, MAX)	c1,c4	hh#8	1
+select partition_calc(t1,(11,10));
+paxos_id
+1
+select partition_calc(t1,(100),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	3	[2, 3)		__user_default_group	0
+select partition_calc(t2,(11,10),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	3	[3, MAX)		group1	0
+select partition_calc(t2,(11,10));
+paxos_id
+0
+select partition_calc(t2,(11,10),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	3	[2, 3)		group1	1
+select partition_calc(t2,(11,10),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t3,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	3	[3, MAX)	c3	rr#0	1
+select partition_calc(t3,(1));
+paxos_id
+1
+select partition_calc(t3,(1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	3	[2, 3)	c1	rr#0	0
+select partition_calc(t4,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	3	[2, MAX)	c3	hh#1	0
+select partition_calc(t4,(1));
+paxos_id
+0
+alter group "group1" move to paxos_idx=1;
+select partition_calc(t4,(1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+alter table t4 partition rule to (group1);
+select partition_calc(t4,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	3	[4, MAX)		group1	1
+select partition_calc(t4,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	3	[2, 4)	c3	hh#1	0
+select partition_calc(t4,(1));
+paxos_id
+0
+select partition_calc(t5,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	3	[2, MAX)	c2,c1,c3	ee#0	0
+select partition_calc(t5,('a',1,1));
+paxos_id
+0
+select partition_calc(t5,(a,1,1),0);
+ERROR 42S22: YAO-5009: Unkown column name a
+select partition_calc(t5,(a,1,1));
+ERROR 42S22: YAO-5009: Unkown column name a
+alter group "ee#0" move to paxos_idx=1;
+alter group "ee#1" move to paxos_idx=0;
+select partition_calc(t5,('a',1,1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	3	[4, MAX)	c2,c1,c3	ee#0	1
+select partition_calc(t5,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	3	[2, 4)	c2,c1,c3	ee#0	0
+select partition_calc(t5,('a',1,1));
+paxos_id
+0
+"merge"
+major_freeze...
+merge: DONE
+select partition_calc(t1,(100,100),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	4	[3, MAX)	c1,c4	hh#5	0
+select partition_calc(t1,(100,100));
+paxos_id
+0
+select partition_calc(t1,(11,10),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	4	[3, MAX)	c1,c4	hh#8	1
+select partition_calc(t1,(11,10));
+paxos_id
+1
+select partition_calc(t1,(100),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	4	[2, 3)		__user_default_group	0
+select partition_calc(t2,(11,10),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	4	[4, MAX)		group1	1
+select partition_calc(t2,(11,10));
+paxos_id
+1
+select partition_calc(t2,(11,10),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3002	test.t2	4	[3, 4)		group1	0
+select partition_calc(t2,(11,10),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t3,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	4	[3, MAX)	c3	rr#0	1
+select partition_calc(t3,(1));
+paxos_id
+1
+select partition_calc(t3,(1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test.t3	4	[2, 3)	c1	rr#0	0
+select partition_calc(t4,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t4,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	4	[4, MAX)		group1	1
+select partition_calc(t4,(1));
+paxos_id
+1
+select partition_calc(t4,(1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test.t4	4	[2, 4)	c3	hh#1	0
+select partition_calc(t5,('a',1,1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t5,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	4	[4, MAX)	c2,c1,c3	ee#0	1
+select partition_calc(t5,('a',1,1));
+paxos_id
+1
+select partition_calc(t5,('a',1,1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t5	4	[2, 4)	c2,c1,c3	ee#0	0

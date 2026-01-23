@@ -1,0 +1,474 @@
+--source merge.sql
+
+#建4张表（t1,t2,t3,t4） 2张不带索引(t1,t2);2张表建索引(t3,t4)  t1,t3 做truncate测试
+
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t2(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t3(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t3(c2) storing(c3);
+create index i2 on t3(c4);
+create table t4(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t4(c2) storing(c3);
+create index i2 on t4(c4);
+
+--disable_query_log
+--enable_query_log
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 600
+
+
+
+#3-1 多次truncate
+insert into t1 values(10,10,30,40,50);
+insert into t2 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t4 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t4;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze |tail -1;
+--real_sleep 10
+
+#3-2 仅增删改查
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t1 values(30,30,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+insert into t3 values(30,30,30,40,50);
+
+replace into t1 values(5,5,30,40,50);
+replace into t1 values(10,10,30,40,50);
+replace into t1 values(30,50,30,40,50);
+replace into t3 values(5,5,30,40,50);
+replace into t3 values(10,10,30,40,50);
+replace into t3 values(30,50,30,40,50);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 5 and c2 = 5;
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 5 and c2 = 5;
+update t3 set c3 = 5 where c1 = 30 and c2 = 30;
+update t3 set c4 = 5 where c1 = 30 and c2 = 30;
+update t3 set c5 = 5 where c1 = 30 and c2 = 30;
+
+delete from t1 where c1 = 5 and c2 = 5;
+delete from t3 where c1 = 5 and c2 = 5;
+
+select * from t1;
+select * from t1 where c1 = 5 and c2 = 5;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 100 and c2 = 100;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 5 and c2 = 5;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 100 and c2 = 100;
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+
+#4-1 仅增删改查
+insert into t1 values(1,2,3,4,5);
+insert into t1 values(11,22,33,44,55);
+insert into t1 values(111,222,333,444,555);
+insert into t3 values(1,2,3,4,5);
+insert into t3 values(11,22,33,44,55);
+insert into t3 values(111,222,333,444,555);
+
+replace into t1 values(5,5,3,2,1);
+replace into t1 values(55,44,33,22,11);
+replace into t3 values(5,5,3,2,1);
+replace into t3 values(55,44,33,22,11);
+update t1 set c1 = 110, c2 = 110 where c1 = 111 and c2 =222;
+update t1 set c3 = 3, c4 = 4, c5 = 5 where c1 = 11 and c2 =22;
+update t3 set c1 = 110, c2 = 110 where c1 = 111 and c2 =222;
+update t3 set c3 = 3, c4 = 4, c5 = 5 where c1 = 11 and c2 =22;
+update t3 set c3 = 5 where c1 = 30 and c2 =30;
+update t3 set c4 = 5 where c1 = 30 and c2 =30;
+update t3 set c5 = 5 where c1 = 30 and c2 =30;
+update t3 set c3 = 55 where c1 = 1 and c2 =2;
+update t3 set c4 = 55 where c1 = 1 and c2 =2;
+update t3 set c5 = 55 where c1 = 1 and c2 =2;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 2;
+select * from t1 where c1 = 11 and c2 = 22;
+select * from t1 where c1 = 111 and c2 = 222;
+select * from t1 where c1 = 5 and c2 = 5;
+select * from t1 where c1 = 55 and c2 = 44;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 2;
+select * from t3 where c1 = 11 and c2 = 22;
+select * from t3 where c1 = 111 and c2 = 222;
+select * from t3 where c1 = 5 and c2 = 30;
+select * from t3 where c1 = 55 and c2 = 44;
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze |tail -1;
+--real_sleep 10
+
+#4-2 直接冻结
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+
+#5-1 仅增删改查
+insert into t1 values(12,12,13,14,15);
+insert into t1 values(23,23,24,25,26);
+insert into t1 values(34,34,35,36,37);
+insert into t3 values(12,12,13,14,15);
+insert into t3 values(23,23,24,25,26);
+insert into t3 values(34,34,35,36,37);
+
+replace into t1 values(10,10,3,2,1);
+replace into t1 values(30,30,33,22,11);
+replace into t3 values(10,10,3,2,1);
+replace into t3 values(30,30,33,22,11);
+update t1 set c1 = 120, c2 = 120 where c1 = 12 and c2 =12;
+update t1 set c3 = 3,c4 = 4,c5 = 5 where c1 = 23 and c2 = 23;
+update t3 set c1 = 120, c2 = 120 where c1 = 12 and c2 =12;
+update t3 set c3 = 3,c4 = 4,c5 = 5 where c1 = 23 and c2 = 23;
+update t3 set c3 = 5 where c1 = 30 and c2 = 30;
+update t3 set c4 = 5 where c1 = 30 and c2 = 30;
+update t3 set c5 = 5 where c1 = 30 and c2 = 30;
+update t3 set c3 = 55 where c1 = 12 and c2 = 12;
+update t3 set c4 = 55 where c1 = 12 and c2 = 12;
+update t3 set c5 = 55 where c1 = 12 and c2 = 12;
+
+select * from t1;
+select * from t1 where c1 = 12 and c2 = 12;
+select * from t1 where c1 = 23 and c2 = 23;
+select * from t1 where c1 = 34 and c2 = 34;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 12 and c2 = 12;
+select * from t3 where c1 = 23 and c2 = 23;
+select * from t3 where c1 = 34 and c2 = 34;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze |tail -1;
+--real_sleep 10
+
+#5-2 truncate
+insert into t1 values(45,45,30,40,50);
+insert into t1 values(56,56,30,40,50);
+insert into t3 values(45,45,30,40,50);
+insert into t3 values(56,56,30,40,50);
+
+select * from t1;
+select * from t1 where c1 = 45 and c2 = 45;
+select * from t1 where c1 = 56 and c2 = 56;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 1 and c2 = 2;
+select * from t1 where c1 = 12 and c2 = 12;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 45 and c2 = 45;
+select * from t3 where c1 = 56 and c2 = 56;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 1 and c2 = 2;
+select * from t3 where c1 = 12 and c2 = 12;
+select * from t4;
+
+truncate table t1, t3;
+
+select * from t1;
+select * from t1 where c1 = 45 and c2 = 45;
+select * from t1 where c1 = 56 and c2 = 56;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 1 and c2 = 2;
+select * from t1 where c1 = 12 and c2 = 12;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 45 and c2 = 45;
+select * from t3 where c1 = 56 and c2 = 56;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 1 and c2 = 2;
+select * from t3 where c1 = 12 and c2 = 12;
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+
+# 查询
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t2;
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t4;
+

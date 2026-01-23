@@ -1,0 +1,110 @@
+###########################################################################################
+###1.测试功能点：truncate与并发事务冲突时的返回码是否是-155
+##
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：xxx
+###5.编写/修改人：yuanzhuping
+###6.编写/修改日期：2019-11-06
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+###########################################################################################
+
+##########################################################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+#建表，插入数据
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values(1,1);
+select * from t1;
+
+#开两个客户端
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+#2-1连接客户端1 对表进行更新，但不提交
+connection conn1;
+echo 'conn1';
+start transaction;
+update t1 set c2 = 10 where c1 = 1;
+select * from t1;
+
+#连接客户端2 truncate表
+connection conn2;
+echo 'conn2';
+truncate table t1;
+
+#连接客户端1
+connection conn1;
+echo 'conn1';
+--error 155
+commit;
+select * from t1;
+insert into t1 values(2,2);
+
+#2-2在客户端1 删除表中数据，但不提交
+echo 'conn1';
+start transaction;
+delete from t1 where c1 = 2;
+select * from t1;
+
+#连接客户端2 truncate表
+connection conn2;
+echo 'conn2';
+truncate table t1;
+
+#连接客户端1
+connection conn1;
+echo 'conn1';
+--error 155
+commit;
+select * from t1;
+
+#2-3在客户端1 往表中插入数据，但不提交
+echo 'conn1';
+set autocommit = 0;
+insert into t1 values(2,2);
+select * from t1;
+
+#连接客户端2 truncate表
+connection conn2;
+echo 'conn2';
+truncate table t1;
+
+#连接客户端1
+connection conn1;
+echo 'conn1';
+--error 155
+commit;
+select * from t1;
+
+#2-4在客户端1 往表中replace语句，但不提交
+echo 'conn1';
+replace into t1 values(1,2);
+select * from t1;
+
+#连接客户端2 truncate表
+connection conn2;
+echo 'conn2';
+truncate table t1;
+
+#连接客户端1
+connection conn1;
+echo 'conn1';
+--error 155
+commit;
+select * from t1;
+
+
+drop table t1;
+
+
+
+
+

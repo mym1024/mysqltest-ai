@@ -1,0 +1,346 @@
+set yao_decimal_add_zero=true;
+CREATE TABLE t_main (
+id INT AUTO_INCREMENT PRIMARY KEY,
+category ENUM('A', 'B', 'C', 'D') NOT NULL,
+tags SET('tag1', 'tag2', 'tag3', 'tag4', 'tag5') NOT NULL,
+status ENUM('active', 'inactive', 'pending') DEFAULT 'pending',
+score INT,
+KEY idx_category (category),
+KEY idx_tags (tags),
+KEY idx_status (status)
+);
+CREATE TABLE t_lookup1 (
+code CHAR(2) PRIMARY KEY,
+description VARCHAR(50)
+);
+CREATE TABLE t_lookup2 (
+id INT PRIMARY KEY,
+main_id INT, 
+meta_enum ENUM('meta_x', 'meta_y', 'meta_z'),
+meta_set SET('flag_a', 'flag_b'),
+KEY idx_main_id (main_id),
+KEY idx_meta_enum (meta_enum)
+);
+CREATE TABLE t_hierarchy (
+node_id INT PRIMARY KEY,
+parent_node_id INT,
+node_type ENUM('root', 'branch', 'leaf'),
+node_flags SET('visible', 'editable', 'deletable'),
+KEY idx_parent (parent_node_id),
+KEY idx_type (node_type)
+);
+CREATE TABLE t_audit (
+log_id INT AUTO_INCREMENT PRIMARY KEY,
+ref_main_id INT,
+action ENUM('insert', 'update', 'delete'),
+old_status ENUM('active', 'inactive', 'pending'),
+new_status ENUM('active', 'inactive', 'pending'),
+KEY idx_ref_main (ref_main_id),
+KEY idx_action (action)
+);
+INSERT INTO t_main (category, tags, status, score) VALUES
+('A', 'tag1,tag3', 'active', 100),
+('B', 'tag2,tag4', 'inactive', 85),
+('A', 'tag1,tag2,tag5', 'pending', 90),
+('C', 'tag3,tag5', 'active', 95),
+('B', '', 'inactive', 70),
+('D', 'tag4', 'pending', 80),
+('A', 'tag1', 'active', 110),
+('C', 'tag2,tag3,tag4', 'inactive', 75);
+INSERT INTO t_lookup1 VALUES ('A', 'Category Alpha'), ('B', 'Category Beta'), ('C', 'Category Gamma'), ('D', 'Category Delta');
+INSERT INTO t_lookup2 (id, main_id, meta_enum, meta_set) VALUES
+(1, 1, 'meta_x', 'flag_a'),
+(2, 1, 'meta_y', 'flag_b'),
+(3, 2, 'meta_z', 'flag_a,flag_b'),
+(4, 3, 'meta_x', ''),
+(5, 4, 'meta_y', 'flag_a'),
+(6, 5, 'meta_z', 'flag_b'),
+(7, 6, 'meta_x', 'flag_a,flag_b'),
+(8, 7, 'meta_y', ''),
+(9, 8, 'meta_z', 'flag_a');
+INSERT INTO t_hierarchy VALUES
+(1, NULL, 'root', 'visible,editable'),
+(2, 1, 'branch', 'visible,editable'),
+(3, 1, 'branch', 'visible'),
+(4, 2, 'leaf', 'visible'),
+(5, 2, 'leaf', 'visible,deletable'),
+(6, 3, 'leaf', 'visible');
+INSERT INTO t_audit (ref_main_id, action, old_status, new_status) VALUES
+(1, 'update', 'pending', 'active'),
+(2, 'insert', NULL, 'inactive'),
+(1, 'update', 'active', 'inactive'), 
+(3, 'insert', NULL, 'pending'),
+(4, 'update', 'pending', 'active'),
+(5, 'insert', NULL, 'inactive');
+SELECT id, category, status, score
+FROM t_main
+WHERE category = (SELECT code FROM t_lookup1 WHERE description LIKE '%Alpha%');
+id	category	status	score
+1	A	active	100
+3	A	pending	90
+7	A	active	110
+SELECT id, category, tags
+FROM t_main
+WHERE id IN (
+SELECT main_id
+FROM t_lookup2
+WHERE FIND_IN_SET('flag_b', meta_set) > 0
+);
+id	category	tags
+1	A	tag1,tag3
+2	B	tag2,tag4
+5	B	
+6	D	tag4
+SELECT m.id, m.category, m.status
+FROM t_main m
+WHERE EXISTS (
+SELECT 1
+FROM t_lookup1 l
+WHERE l.code = m.category AND l.description LIKE '%Gamma%'
+);
+id	category	status
+4	C	active
+8	C	inactive
+SELECT m.id, m.tags
+FROM t_main m
+WHERE NOT EXISTS (
+SELECT 1
+FROM t_lookup2 l
+WHERE l.main_id = m.id AND l.meta_enum = 'meta_z'
+);
+id	tags
+1	tag1,tag3
+3	tag1,tag2,tag5
+4	tag3,tag5
+6	tag4
+7	tag1
+SELECT
+m.id,
+m.category,
+(SELECT l.description FROM t_lookup1 l WHERE l.code = m.category) AS category_desc,
+m.status
+FROM t_main m
+WHERE m.score > 90;
+id	category	category_desc	status
+1	A	Category Alpha	active
+4	C	Category Gamma	active
+7	A	Category Alpha	active
+SELECT
+m.id,
+m.tags,
+(SELECT COUNT(*) FROM t_lookup2 l WHERE l.main_id = m.id AND FIND_IN_SET('flag_a', l.meta_set) > 0) AS count_flag_a
+FROM t_main m
+WHERE m.category = 'A';
+id	tags	count_flag_a
+1	tag1,tag3	1
+3	tag1,tag2,tag5	0
+7	tag1	0
+SELECT dt.category, dt.avg_score, dt.common_tag
+FROM (
+SELECT
+category,
+AVG(score) AS avg_score,
+SUBSTRING_INDEX(tags, ',', 1) AS common_tag 
+FROM t_main
+WHERE status IN ('active', 'pending')
+GROUP BY category, SUBSTRING_INDEX(tags, ',', 1)
+HAVING COUNT(*) > 1
+) AS dt
+WHERE dt.avg_score > 80;
+category	avg_score	common_tag
+A	100.0000	tag1
+SELECT
+m.id,
+m.category,
+l.description AS category_full_name,
+m.status
+FROM t_main m
+JOIN t_lookup1 l ON m.category = l.code
+ORDER BY m.id;
+id	category	category_full_name	status
+1	A	Category Alpha	active
+2	B	Category Beta	inactive
+3	A	Category Alpha	pending
+4	C	Category Gamma	active
+5	B	Category Beta	inactive
+6	D	Category Delta	pending
+7	A	Category Alpha	active
+8	C	Category Gamma	inactive
+SELECT
+m.id,
+m.tags,
+d.meta_enum,
+d.meta_set
+FROM t_main m
+JOIN t_lookup2 d ON m.id = d.main_id
+WHERE d.meta_enum IN ('meta_x', 'meta_y') OR d.meta_set = 'flag_a,flag_b';
+id	tags	meta_enum	meta_set
+1	tag1,tag3	meta_y	flag_b
+1	tag1,tag3	meta_x	flag_a
+2	tag2,tag4	meta_z	flag_a,flag_b
+3	tag1,tag2,tag5	meta_x	
+4	tag3,tag5	meta_y	flag_a
+6	tag4	meta_x	flag_a,flag_b
+7	tag1	meta_y	
+SELECT
+m.id,
+m.category,
+m.status
+FROM t_main m
+LEFT JOIN t_lookup2 d ON m.id = d.main_id
+WHERE d.main_id IS NULL;
+id	category	status
+SELECT
+parent.node_id AS parent_id,
+parent.node_type AS parent_type,
+child.node_id AS child_id,
+child.node_flags AS child_flags
+FROM t_hierarchy parent
+JOIN t_hierarchy child ON parent.node_id = child.parent_node_id
+WHERE parent.node_type = 'branch' AND FIND_IN_SET('editable', child.node_flags) = 0;
+parent_id	parent_type	child_id	child_flags
+2	branch	4	visible
+2	branch	5	visible,deletable
+3	branch	6	visible
+SELECT
+m.id,
+m.category,
+d.meta_enum,
+a.action,
+a.old_status,
+a.new_status
+FROM t_main m
+JOIN t_lookup2 d ON m.id = d.main_id
+JOIN t_audit a ON m.id = a.ref_main_id
+WHERE m.category = 'A' AND a.action = 'update';
+id	category	meta_enum	action	old_status	new_status
+1	A	meta_x	update	pending	active
+1	A	meta_x	update	active	inactive
+1	A	meta_y	update	pending	active
+1	A	meta_y	update	active	inactive
+SELECT
+m.id,
+m.tags,
+d.id AS detail_id,
+d.meta_enum
+FROM t_main m
+JOIN t_lookup2 d ON FIND_IN_SET(d.meta_enum, REPLACE(m.tags, 'tag', 'meta_')) > 0
+WHERE m.id IN (1, 3);
+id	tags	detail_id	meta_enum
+(SELECT id, category, tags, 'High Scorers' AS source_type FROM t_main WHERE score >= 100)
+UNION ALL
+(SELECT id, category, tags, 'Tagged with 5' AS source_type FROM t_main WHERE FIND_IN_SET('tag5', tags) > 0)
+ORDER BY id, source_type;
+id	category	tags	source_type
+1	A	tag1,tag3	High Scorers
+3	A	tag1,tag2,tag5	Tagged with 5
+4	C	tag3,tag5	Tagged with 5
+7	A	tag1	High Scorers
+(SELECT DISTINCT status AS state, 'From Main Table' AS source FROM t_main)
+UNION
+(SELECT DISTINCT new_status AS state, 'From Audit Table' AS source FROM t_audit WHERE new_status IS NOT NULL)
+ORDER BY state, source;
+state	source
+active	From Audit Table
+active	From Main Table
+inactive	From Audit Table
+inactive	From Main Table
+pending	From Audit Table
+pending	From Main Table
+(SELECT category, COUNT(*) AS item_count, 'Category Count' AS metric FROM t_main GROUP BY category)
+UNION ALL
+(SELECT 'TOTAL' AS category, COUNT(*) AS item_count, 'Overall Count' AS metric FROM t_main)
+UNION ALL
+(SELECT 'WITH_TAG1' AS category, COUNT(*) AS item_count, 'Tag Analysis' AS metric FROM t_main WHERE FIND_IN_SET('tag1', tags) > 0)
+ORDER BY metric, category;
+category	item_count	metric
+A	3	Category Count
+B	2	Category Count
+C	2	Category Count
+D	1	Category Count
+TOTAL	8	Overall Count
+WITH_TAG1	3	Tag Analysis
+SELECT t.id FROM (
+(SELECT id FROM t_main WHERE score >= 100)
+UNION ALL
+(SELECT id FROM t_main WHERE FIND_IN_SET('tag1', tags) > 0)
+) AS t
+GROUP BY t.id
+HAVING COUNT(*) = 2;
+id
+1
+7
+WITH ActiveItems AS (
+SELECT id, category, tags, score
+FROM t_main
+WHERE status = 'active'
+)
+SELECT ai.id, ai.category, ai.tags
+FROM ActiveItems ai
+WHERE ai.score > 90;
+id	category	tags
+1	A	tag1,tag3
+4	C	tag3,tag5
+7	A	tag1
+WITH RECURSIVE NodeHierarchy AS (
+SELECT node_id, parent_node_id, node_type, node_flags, 0 AS level, CAST(node_id AS CHAR(200)) AS path
+FROM t_hierarchy
+WHERE parent_node_id IS NULL
+UNION ALL
+SELECT h.node_id, h.parent_node_id, h.node_type, h.node_flags, nh.level + 1, CONCAT(nh.path, '->', h.node_id)
+FROM t_hierarchy h
+INNER JOIN NodeHierarchy nh ON h.parent_node_id = nh.node_id
+)
+SELECT
+nh.node_id,
+nh.level,
+nh.path,
+nh.node_type,
+nh.node_flags
+FROM NodeHierarchy nh
+WHERE nh.node_type = 'leaf' OR FIND_IN_SET('editable', nh.node_flags) > 0
+ORDER BY nh.path;
+node_id	level	path	node_type	node_flags
+1	0	1	root	visible,editable
+2	1	1->2	branch	visible,editable
+4	2	1->2->4	leaf	visible
+5	2	1->2->5	leaf	visible,deletable
+6	2	1->3->6	leaf	visible
+WITH CategoryStats AS (
+SELECT category, AVG(score) AS avg_score, COUNT(*) AS cnt
+FROM t_main
+GROUP BY category
+),
+TopCategories AS (
+SELECT category
+FROM CategoryStats
+WHERE avg_score > 90
+),
+TagSummary AS (
+SELECT
+id,
+category,
+tags,
+CASE
+WHEN FIND_IN_SET('tag1', tags) > 0 THEN 'Has_Tag1'
+            WHEN FIND_IN_SET('tag5', tags) > 0 THEN 'Has_Tag5'
+            ELSE 'Other'
+        END AS tag_group
+FROM t_main
+)
+SELECT
+tc.category,
+ts.tag_group,
+COUNT(*) AS item_count,
+GROUP_CONCAT(ts.id ORDER BY ts.id) AS item_ids
+FROM TopCategories tc
+JOIN TagSummary ts ON tc.category = ts.category
+GROUP BY tc.category, ts.tag_group
+ORDER BY tc.category, ts.tag_group;
+category	tag_group	item_count	item_ids
+A	Has_Tag1	3	1,3,7
+DROP TABLE t_audit;
+DROP TABLE t_hierarchy;
+DROP TABLE t_lookup2;
+DROP TABLE t_lookup1;
+DROP TABLE t_main;

@@ -1,0 +1,12 @@
+drop table if exists c;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table c(c1 int primary key, c2 varchar(8)) partition by(hs,h,c1);
+set autocommit=0;
+insert into c values(1,1);
+set autocommit=0;
+delete from c where c1=1;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+commit;
+commit;

@@ -1,0 +1,246 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 ALTER TABLE with ENUM and SET types
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+
+# Test DDL - ALTER TABLE with ENUM and SET types
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  existing_col VARCHAR(50)
+);
+INSERT INTO t_base_for_alter VALUES (1, 'Initial Data');
+
+# 1. Column Operations (ADD/DROP)
+#
+# 1.1. Add ENUM column
+ALTER TABLE t_base_for_alter ADD COLUMN new_enum_col ENUM('option1', 'option2', 'option3');
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+
+# 1.2. Drop ENUM column
+ALTER TABLE t_base_for_alter DROP COLUMN new_enum_col;
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+
+# 1.3. Add SET column
+ALTER TABLE t_base_for_alter ADD COLUMN new_set_col SET('flag_a', 'flag_b', 'flag_c');
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+
+# 1.4. Drop SET column
+ALTER TABLE t_base_for_alter DROP COLUMN new_set_col;
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+
+# 2. Column Attribute Modifications
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+
+# 2.1. Add NOT NULL to ENUM column (requires handling existing NULLs)
+INSERT INTO t_base_for_alter VALUES (2, NULL, 'bit_y');
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') NOT NULL;
+UPDATE t_base_for_alter SET mod_enum_col = 'val_b' WHERE mod_enum_col IS NULL;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') NOT NULL;
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+
+# 2.2. Add/Modify DEFAULT for ENUM column
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter ALTER COLUMN mod_enum_col SET DEFAULT 'val_a';
+SHOW CREATE TABLE t_base_for_alter;
+INSERT INTO t_base_for_alter (id, mod_set_col) VALUES (3, 'bit_x,bit_y');
+SELECT * FROM t_base_for_alter WHERE id = 3;
+DROP TABLE t_base_for_alter;
+
+# 2.3. Modify CHARACTER SET/COLLATION for ENUM column
+#字符序修改失败，实际未生效，表现不一致
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+SHOW CREATE TABLE t_base_for_alter;
+DROP TABLE t_base_for_alter;
+
+# 2.4. Add NOT NULL to SET column (requires handling existing NULLs)
+# not null 修改失败，实际未生效，表现不一致
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (4, 'val_a', NULL);
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') NOT NULL;
+UPDATE t_base_for_alter SET mod_set_col = '' WHERE mod_set_col IS NULL;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') NOT NULL;
+SHOW CREATE TABLE t_base_for_alter;
+DESC t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+
+# 2.5. Add/Modify DEFAULT for SET column
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter ALTER COLUMN mod_set_col SET DEFAULT 'bit_x';
+SHOW CREATE TABLE t_base_for_alter;
+desc t_base_for_alter;
+INSERT INTO t_base_for_alter (id, mod_enum_col) VALUES (5, 'val_b');
+SELECT * FROM t_base_for_alter WHERE id = 5;
+DROP TABLE t_base_for_alter;
+
+# 2.6. Modify CHARACTER SET/COLLATION for SET column
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  mod_enum_col ENUM('val_a', 'val_b'),
+  mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+SHOW CREATE TABLE t_base_for_alter;
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+
+# 3. Constraint Operations (ADD)
+CREATE TABLE t_enum_set_parent (
+  parent_id INT PRIMARY KEY,
+  parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+  alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+
+# 3.1. Add CHECK constraint to ENUM column
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_enum CHECK (alter_enum_col IN ('ref_val_1', 'local_val'));
+SHOW CREATE TABLE t_base_for_alter;
+INSERT INTO t_base_for_alter VALUES (2, 'local_val', '');
+--error 5689
+INSERT INTO t_base_for_alter VALUES (3, 'ref_val_2', '');
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+
+# 3.2. Add FOREIGN KEY constraint to ENUM column
+CREATE TABLE t_enum_set_parent (
+  parent_id INT PRIMARY KEY,
+  parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+  alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+ALTER TABLE t_base_for_alter ADD COLUMN fk_helper_col VARCHAR(20);
+UPDATE t_base_for_alter SET fk_helper_col = alter_enum_col WHERE id = 1;
+#--mysql、ob 执行成功，表现不一致
+--error 16
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_enum_to_parent FOREIGN KEY (fk_helper_col) REFERENCES t_enum_set_parent(parent_val);
+SHOW CREATE TABLE t_base_for_alter;
+INSERT INTO t_base_for_alter VALUES (4, 'local_val', '', 'ref_val_2');
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (5, 'local_val', '', 'nonexistent');
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+
+# 3.3. Add CHECK constraint to SET column
+CREATE TABLE t_enum_set_parent (
+  parent_id INT PRIMARY KEY,
+  parent_val VARCHAR(20) UNIQUE
+);
+
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+  alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+ALTER TABLE t_base_for_alter ADD COLUMN fk_helper_col VARCHAR(20);
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_set CHECK (CHAR_LENGTH(alter_set_col) > 0 OR alter_set_col = '');
+ALTER TABLE t_base_for_alter DROP CONSTRAINT chk_set;
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_set_meaningful CHECK (NOT(FIND_IN_SET('ref_val_1', alter_set_col) > 0 AND FIND_IN_SET('local_set_val', alter_set_col) > 0));
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_enum_to_parent FOREIGN KEY (fk_helper_col) REFERENCES t_enum_set_parent(parent_val);
+SHOW CREATE TABLE t_base_for_alter;
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (6, 'local_val', 'ref_val_1', NULL);
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (7, 'local_val', 'local_set_val', NULL);
+#--mysql、ob报错 表现不一致
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (8, 'local_val', 'ref_val_1,local_set_val', NULL);
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+
+# 3.4. Add FOREIGN KEY constraint to SET column
+CREATE TABLE t_enum_set_parent (
+  parent_id INT PRIMARY KEY,
+  parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+CREATE TABLE t_base_for_alter (
+  id INT PRIMARY KEY,
+  alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+  alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+--error 16
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_set_to_parent FOREIGN KEY (alter_set_col) REFERENCES t_enum_set_parent(parent_val);
+ALTER TABLE t_base_for_alter ADD COLUMN fk_int_helper INT;
+UPDATE t_base_for_alter SET fk_int_helper = 999 WHERE id = 1;
+UPDATE t_base_for_alter SET fk_int_helper = 1 WHERE id = 1;
+#--mysql、ob报错 表现不一致
+--error 16
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_int_to_parent FOREIGN KEY (fk_int_helper) REFERENCES t_enum_set_parent(parent_id);
+SHOW CREATE TABLE t_base_for_alter;
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_int_helper) VALUES (9, 'local_val', '', 2);
+#--mysql、ob报错 表现不一致
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_int_helper) VALUES (10, 'local_val', '', 999);
+SELECT * FROM t_base_for_alter;
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+
+############################################ end sql ###################################################

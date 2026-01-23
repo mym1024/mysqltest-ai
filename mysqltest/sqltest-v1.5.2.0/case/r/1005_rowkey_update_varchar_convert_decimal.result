@@ -1,0 +1,47 @@
+create database rowkey_database;
+using database rowkey_database;
+create table if not exists t1(id1 varchar(24),id2 varchar(2), id3 varchar(2), id4 varchar(40), id5 varchar(3), dec1 decimal(15,2), dec2 decimal(15,2), dec3 decimal(15,2), dec4 decimal(8,0), primary key(id1,id2,id3,id4,id5));
+replace into t1 values('1', '01', '01', 'zhang', 'CNY', 1.11, 1.11, 1.11, 1);
+update t1 set id2='02',id3='88',id4='',id5='ABC',dec1=0.00,dec2=0.00,dec4=0.00 where id1='1' and id2='01' and id3='01' and id4='zhang' and id5='CNY';
+select * from t1;
+id1	id2	id3	id4	id5	dec1	dec2	dec3	dec4
+1	02	88		ABC	0	0	1.11	0
+drop table if exists t1;
+create table if not exists t2(id1 decimal(15,2), id2 decimal(15,2), id3 decimal(15,2), id4 decimal(8,0), col1 varchar(24), col2 varchar(2), col3 varchar(2), col4 varchar(40), col5 varchar(3), primary key(id1,id2,id3,id4));
+replace into t2 values(1.11, 1.11, 1.11, 1, '1', '01', '01', 'zhang', 'CNY');
+update t2 set id1=0.00,id2=0.00,id4=0,col1='ABC' where id1=1.11 and id2=1.11 and id3=1.11 and id4=1;
+select * from t2;
+id1	id2	id3	id4	col1	col2	col3	col4	col5
+0	0	1.11	0	ABC	01	01	zhang	CNY
+drop table if exists t2;
+create table if not exists t3(id1 varchar(24),id2 varchar(2), id3 varchar(2), id4 varchar(40), id5 varchar(3), dec1 decimal(15,2), dec2 decimal(15,2), dec3 decimal(15,2), dec4 decimal(8,0), primary key(id1,id2,id3,id4,id5));
+replace into t3 values('1', '01', '01', 'zhang', 'CNY', 1.11, 1.11, 1.11, 1);
+replace into t3 values('1', '02', '02', 'zhang', 'CNY', 2.22, 2.22, 2.22, 2);
+replace into t3 values('1', '03', '03', 'zhang', 'CNY', 3.33, 3.33, 3.33, 3);
+update t3 set id2='02',id3='88',id4='',id5='ABC',dec1=0.00,dec2=0.00,dec4=0.00 where id1='1';
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t3;
+id1	id2	id3	id4	id5	dec1	dec2	dec3	dec4
+1	01	01	zhang	CNY	1.11	1.11	1.11	1
+1	02	02	zhang	CNY	2.22	2.22	2.22	2
+1	03	03	zhang	CNY	3.33	3.33	3.33	3
+drop table if exists t3;
+create table if not exists t4(id1 decimal(15,2), id2 decimal(15,2), id3 decimal(15,2), id4 decimal(8,0), col1 varchar(24), col2 varchar(2), col3 varchar(2), col4 varchar(40), col5 varchar(3), primary key(id1,id2,id3,id4));
+replace into t4 values(1.11, 1.11, 1.11, 1, '1', '01', '01', 'zhang', 'CNY');
+replace into t4 values(1.11, 2.22, 2.22, 2, '2', '02', '02', 'zhang', 'CNY');
+replace into t4 values(1.11, 3.33, 3.33, 3, '3', '03', '03', 'zhang', 'CNY');
+update t4 set id2=0.00,id3=0.00,id4=0,col1='ABC' where id1=1.11;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t4;
+id1	id2	id3	id4	col1	col2	col3	col4	col5
+1.11	1.11	1.11	1	1	01	01	zhang	CNY
+1.11	2.22	2.22	2	2	02	02	zhang	CNY
+1.11	3.33	3.33	3	3	03	03	zhang	CNY
+drop table if exists t4;
+create table if not exists t5(id decimal(8,0) primary key, dec1 decimal(15,2));
+replace into t5 values(1, 1.11);
+update t5 set id=2, dec1=2.22 where id=1;
+select * from t5;
+id	dec1
+2	2.22
+drop table if exists t5;

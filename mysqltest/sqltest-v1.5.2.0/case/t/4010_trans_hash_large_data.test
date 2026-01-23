@@ -1,0 +1,66 @@
+#######################################################
+###1.测试功能点：在指定不同分区规则下，同一事务进行大量读写操作；
+#######################################################
+
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1(i int primary key, c1 char(20), c256 char(256),dt datetime, d datetime);
+
+#--disable_query_log
+#--disable_result_log
+
+###2-1:同一事务中大量的insert
+begin;
+let $i=0;
+while($i < 3000)
+{
+	eval insert into t1(i,c1,c256,dt,d) values($i,'1','$i','2012-10-10 12:00:00','2012-10-10');
+	inc $i;
+}
+commit;
+
+
+###2-3:同一事务中大量的replace
+begin;
+let $i=0;
+while($i < 3000)
+{
+	eval replace into t1(i,c1,c256,dt,d) values($i,'1','$i','2012-10-10 12:00:00','2012-10-10');
+	inc $i;
+}
+commit;
+
+###2-3:同一事务中大量的update
+begin;
+let $i=0;
+while($i < 3000)
+{
+	eval update t1 set c1='update_$i' where i=$i;
+	inc $i;
+}
+commit;
+
+###2-4:同一事务中大量的select for update
+begin;
+let $i=0;
+while($i < 3000)
+{
+	eval select * from t1 where i=$i for update;
+	inc $i;
+}
+commit;
+
+###2-5:同一事务中大量的delete
+begin;
+let $i=0;
+while($i < 3000)
+{
+	eval delete from t1 where i=$i;
+	inc $i;
+}
+commit;
+
+drop table t1;

@@ -1,0 +1,2234 @@
+create database d1;
+using database d1;
+drop table if exists t1,t2,t3,t4;
+create table
+create table t1(id int primary key,age int,name varchar(20));
+create table t2(id int,age int,name varchar(20));
+insert data
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a'),(11,-99,'a'),(12,-99,'a');
+insert into t2 values(0,-99,'a'),(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+create or replace sequence seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 18 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+0
+2
+4
+6
+8
+10
+12
+14
+16
+18
+0
+2
+select prevval for seq1 from t1;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+create or replace sequence seq1 as integer start with 0 increment by -4 minvalue 0 maxvalue 20 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+0
+20
+16
+12
+8
+4
+0
+20
+16
+12
+8
+4
+select prevval for seq1 from t1;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+create or replace sequence seq1 as integer start with -1 increment by 1 minvalue 0 maxvalue 5 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+-1
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+select prevval for seq1 from t1;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+create or replace sequence seq1 as integer start with -1 increment by -2 minvalue 0 maxvalue 18 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+-1
+18
+16
+14
+12
+10
+8
+6
+4
+2
+0
+18
+select prevval for seq1 from t1;
+prevval for seq1
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+create or replace sequence seq1 as smallint increment by -2 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+-1
+-3
+-5
+-7
+-9
+-11
+-13
+-15
+-17
+-19
+-21
+-23
+select prevval for seq1 from t1;
+prevval for seq1
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+-23
+create or replace sequence seq1 as smallint increment by 0 cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+select prevval for seq1 from t1;
+prevval for seq1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+create or replace sequence seq1 as bigint start with -1 increment by 4 minvalue 0 maxvalue 500 no cycle;
+select nextval for seq1 from t1;
+nextval for seq1
+-1
+3
+7
+11
+15
+19
+23
+27
+31
+35
+39
+43
+select prevval for seq1 from t1;
+prevval for seq1
+43
+43
+43
+43
+43
+43
+43
+43
+43
+43
+43
+43
+create or replace sequence seq1 as integer start with 2 increment by 1 minvalue 2 maxvalue 400;
+select nextval for seq1 from t1;
+nextval for seq1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+select prevval for seq1 from t1;
+prevval for seq1
+13
+13
+13
+13
+13
+13
+13
+13
+13
+13
+13
+13
+drop sequence seq1;
+create or replace sequence seq1 as integer start with 0 increment by 3 minvalue 0 maxvalue 24 cycle;
+update t2 set age=nextval for seq1 where id=1;
+select * from t2;
+id	age	name
+0	-99	a
+1	0	a
+2	-99	a
+3	-99	a
+4	-99	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+select nextval for seq1 from t2;
+nextval for seq1
+3
+6
+9
+12
+15
+18
+21
+24
+0
+3
+6
+select prevval for seq1 from t2;
+prevval for seq1
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+drop sequence seq1;
+drop table t1,t2;
+create or replace sequence seq1 as bigint start with -1 increment by -2 minvalue 0 maxvalue 4 cycle;
+create or replace sequence seq2 as smallint increment by 2 cycle;
+create or replace sequence seq3 as integer start with 2 increment by 2 minvalue 2 maxvalue 20 cycle;
+create or replace sequence seq4 as int;
+create or replace sequence seq5 as decimal(5,0) start with 0 increment by 3 minvalue 101 maxvalue 105 cycle;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than(13),partition a4 values less than maxvalue);
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+prevval for seq1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+select * from t1;
+id	age	name
+1	-1	a
+2	-99	a
+3	-99	a
+4	-99	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t1;
+id	age	name
+1	-1	a
+2	-99	a
+3	-99	a
+4	-99	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t1;
+id	age	name
+1	-1	a
+2	-99	a
+3	-99	a
+4	4	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t1;
+id	age	name
+1	-1	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t1;
+prevval for seq2
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+select * from t1;
+id	age	name
+1	1	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t1;
+prevval for seq2
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+select * from t1;
+id	age	name
+1	3	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t1;
+id	age	name
+1	3	a
+2	-99	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t1;
+id	age	name
+1	3	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t1 set age=prevval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t1;
+id	age	name
+1	3	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t1;
+prevval for seq3
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t1;
+id	age	name
+1	2	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t1;
+prevval for seq3
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t1;
+id	age	name
+1	2	a
+2	-58	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=(nextval for seq3+prevval for seq3)*nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t1;
+prevval for seq3
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t1;
+id	age	name
+1	2	a
+2	20	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t1 set age=prevval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t1 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t1;
+prevval for seq3
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+select * from t1;
+id	age	name
+1	2	a
+2	20	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t1;
+prevval for seq4
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+select * from t1;
+id	age	name
+1	1	a
+2	20	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+prevval for seq4
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t1;
+id	age	name
+1	2	a
+2	20	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+prevval for seq4
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t1;
+id	age	name
+1	2	a
+2	2	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t1 set age=prevval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t1 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t1;
+prevval for seq4
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+select * from t1;
+id	age	name
+1	2	a
+2	15	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t1;
+prevval for seq5
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t1;
+id	age	name
+1	0	a
+2	15	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t1;
+prevval for seq5
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t1;
+id	age	name
+1	0	a
+2	15	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t1;
+prevval for seq5
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+select * from t1;
+id	age	name
+1	0	a
+2	15	a
+3	-99	a
+4	12	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t1 set age=nextval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+update t1 set age=prevval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+create table t2(id int primary key,age int,name varchar(20)) partition by list(id)(partition b1 values in(1,3,5,7,9),partition b2 values in(2,4,6,8,10));
+insert into t2 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t2 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t2;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t2;
+id	age	name
+1	4	a
+2	-99	a
+3	-99	a
+4	-99	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t2;
+id	age	name
+1	4	a
+2	-99	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t2;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t2 set age=prevval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t2 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t2;
+id	age	name
+1	4	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t2;
+prevval for seq2
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+select * from t2;
+id	age	name
+1	5	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t2;
+prevval for seq2
+7
+7
+7
+7
+7
+7
+7
+7
+7
+7
+select * from t2;
+id	age	name
+1	5	a
+2	4	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t2;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t2;
+id	age	name
+1	5	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select prevval for seq1 from t2;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t2;
+id	age	name
+1	5	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t2 set age=prevval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t2 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t2;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t2;
+id	age	name
+1	5	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	4	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t2;
+prevval for seq3
+8
+8
+8
+8
+8
+8
+8
+8
+8
+8
+select * from t2;
+id	age	name
+1	8	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	4	a
+9	-99	a
+10	-99	a
+update t2 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t2;
+prevval for seq3
+8
+8
+8
+8
+8
+8
+8
+8
+8
+8
+select * from t2;
+id	age	name
+1	8	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	-58	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t2 set age=prevval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t2 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t2;
+prevval for seq3
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+select * from t2;
+id	age	name
+1	8	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t2;
+prevval for seq4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t2;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	2	a
+5	7	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+prevval for seq4
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+select * from t2;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	5	a
+5	7	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+prevval for seq4
+5
+5
+5
+5
+5
+5
+5
+5
+5
+5
+select * from t2;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	5	a
+5	5	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t2 set age=prevval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t2 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t2;
+prevval for seq4
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+select * from t2;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	5	a
+5	66	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t2;
+prevval for seq5
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+select * from t2;
+id	age	name
+1	6	a
+2	2	a
+3	-99	a
+4	5	a
+5	66	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t2;
+prevval for seq5
+6
+6
+6
+6
+6
+6
+6
+6
+6
+6
+select * from t2;
+id	age	name
+1	6	a
+2	2	a
+3	-99	a
+4	5	a
+5	66	a
+6	-99	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t2;
+prevval for seq5
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+select * from t2;
+id	age	name
+1	6	a
+2	2	a
+3	-99	a
+4	5	a
+5	66	a
+6	9	a
+7	-99	a
+8	20	a
+9	-99	a
+10	-99	a
+update t2 set age=nextval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+update t2 set age=prevval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+create hash partition function h1(x) 'x*2-1';
+create table t3(id int primary key,age int,name varchar(20)) partition by(h1t,h1,id);
+insert into t3 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t3 set age=nextval for seq1 where id=4;
+select prevval for seq1 from t3;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t3;
+id	age	name
+1	-99	a
+2	-99	a
+3	-99	a
+4	0	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t3 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t3;
+id	age	name
+1	-99	a
+2	-99	a
+3	-99	a
+4	0	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t3 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t3;
+id	age	name
+1	-99	a
+2	-99	a
+3	-99	a
+4	4	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t3 set age=nextval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t3 set age=prevval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t3 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t3;
+id	age	name
+1	-99	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t3 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t3;
+prevval for seq2
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+select * from t3;
+id	age	name
+1	9	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t3 set age=nextval for seq2 where id=prevval for seq2;
+select prevval for seq2 from t3;
+prevval for seq2
+11
+11
+11
+11
+11
+11
+11
+11
+11
+11
+select * from t3;
+id	age	name
+1	9	a
+2	-99	a
+3	-99	a
+4	8	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t3;
+id	age	name
+1	9	a
+2	-99	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t3;
+id	age	name
+1	9	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t3 set age=prevval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t3 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t3;
+prevval for seq1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+select * from t3;
+id	age	name
+1	9	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t3;
+prevval for seq3
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=-58 where id=prevval for seq3;
+select prevval for seq3 from t3;
+prevval for seq3
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t3 set age=prevval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t3 set age=nextval for seq3+nextval for seq3 where id=prevval for seq3;
+select prevval for seq3 from t3;
+prevval for seq3
+14
+14
+14
+14
+14
+14
+14
+14
+14
+14
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t3;
+prevval for seq4
+7
+7
+7
+7
+7
+7
+7
+7
+7
+7
+select * from t3;
+id	age	name
+1	7	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+prevval for seq4
+8
+8
+8
+8
+8
+8
+8
+8
+8
+8
+select * from t3;
+id	age	name
+1	7	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	-99	a
+9	11	a
+10	-99	a
+update t3 set age=prevval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+prevval for seq4
+8
+8
+8
+8
+8
+8
+8
+8
+8
+8
+select * from t3;
+id	age	name
+1	7	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	8	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t3 set age=prevval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t3 set age=(nextval for seq4+prevval for seq4)*nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t3;
+prevval for seq4
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+select * from t3;
+id	age	name
+1	7	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	153	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t3;
+prevval for seq5
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	153	a
+9	11	a
+10	-99	a
+update t3 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t3;
+prevval for seq5
+12
+12
+12
+12
+12
+12
+12
+12
+12
+12
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	153	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq5 where id=prevval for seq5;
+select prevval for seq5 from t3;
+prevval for seq5
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+select * from t3;
+id	age	name
+1	12	a
+2	0	a
+3	-99	a
+4	6	a
+5	-99	a
+6	-99	a
+7	8	a
+8	153	a
+9	11	a
+10	-99	a
+update t3 set age=nextval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+update t3 set age=prevval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+create enum partition function e(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)]';
+create table t4(id int primary key,age int,name varchar(20)) partition by(em,e,id);
+insert into t4 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t4 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t4;
+prevval for seq1
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+select * from t4;
+id	age	name
+1	4	a
+2	-99	a
+3	-99	a
+4	-99	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t4;
+id	age	name
+1	4	a
+2	-99	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t4;
+id	age	name
+1	4	a
+2	2	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t4 set age=prevval for seq1 where id=nextval for seq1;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq1] cannot be specified in this context
+update t4 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t4;
+prevval for seq1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+select * from t4;
+id	age	name
+1	4	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq2 where id=1;
+select prevval for seq2 from t4;
+prevval for seq2
+13
+13
+13
+13
+13
+13
+13
+13
+13
+13
+select * from t4;
+id	age	name
+1	13	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t4 set age=prevval for seq2 where id=nextval for seq2;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq2] cannot be specified in this context
+update t4 set age=nextval for seq2+nextval for seq2 where id=prevval for seq2+prevval for seq2;
+select prevval for seq2 from t4;
+prevval for seq2
+13
+13
+13
+13
+13
+13
+13
+13
+13
+13
+select * from t4;
+id	age	name
+1	13	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq3 where id=1;
+select prevval for seq3 from t4;
+prevval for seq3
+16
+16
+16
+16
+16
+16
+16
+16
+16
+16
+select * from t4;
+id	age	name
+1	16	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=prevval for seq3 where id=1;
+select prevval for seq3 from t4;
+prevval for seq3
+16
+16
+16
+16
+16
+16
+16
+16
+16
+16
+select * from t4;
+id	age	name
+1	16	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=-58 where id=prevval for seq3;
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select prevval for seq3 from t4;
+prevval for seq3
+16
+16
+16
+16
+16
+16
+16
+16
+16
+16
+select * from t4;
+id	age	name
+1	16	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t4 set age=prevval for seq3 where id=nextval for seq3;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq3] cannot be specified in this context
+update t4 set age=nextval for seq4 where id=1;
+select prevval for seq4 from t4;
+prevval for seq4
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+select * from t4;
+id	age	name
+1	10	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	-99	a
+update t4 set age=nextval for seq4 where id=prevval for seq4;
+select prevval for seq4 from t4;
+prevval for seq4
+11
+11
+11
+11
+11
+11
+11
+11
+11
+11
+select * from t4;
+id	age	name
+1	10	a
+2	4	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+update t4 set age=prevval for seq4 where id=2;
+select prevval for seq4 from t4;
+prevval for seq4
+11
+11
+11
+11
+11
+11
+11
+11
+11
+11
+select * from t4;
+id	age	name
+1	10	a
+2	11	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+update t4 set age=nextval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t4 set age=prevval for seq4 where id=nextval for seq4;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq4] cannot be specified in this context
+update t4 set age=nextval for seq4+nextval for seq4 where id=prevval for seq4+prevval for seq4;
+select prevval for seq4 from t4;
+prevval for seq4
+11
+11
+11
+11
+11
+11
+11
+11
+11
+11
+select * from t4;
+id	age	name
+1	10	a
+2	11	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+update t4 set age=nextval for seq5 where id=1;
+select prevval for seq5 from t4;
+prevval for seq5
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+select * from t4;
+id	age	name
+1	18	a
+2	11	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+update t4 set age=prevval for seq5 where id=1;
+select prevval for seq5 from t4;
+prevval for seq5
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+select * from t4;
+id	age	name
+1	18	a
+2	11	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+update t4 set age=nextval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+update t4 set age=prevval for seq5 where id=nextval for seq5;
+ERROR HY000: YAO-5006: NEXTVAL FOR SEQUENCE [seq5] cannot be specified in this context
+update t4 set age=nextval for seq5+nextval for seq5 where id=prevval for seq5+prevval for seq5;
+select prevval for seq5 from t4;
+prevval for seq5
+18
+18
+18
+18
+18
+18
+18
+18
+18
+18
+select * from t4;
+id	age	name
+1	18	a
+2	11	a
+3	-99	a
+4	2	a
+5	-99	a
+6	-99	a
+7	-99	a
+8	-99	a
+9	-99	a
+10	11	a
+drop table t1,t2,t3,t4;
+drop database d1;

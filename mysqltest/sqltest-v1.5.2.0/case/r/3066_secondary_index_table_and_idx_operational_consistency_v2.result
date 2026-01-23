@@ -1,0 +1,630 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists test1;
+create table test1(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index idx01 on test1(c1);
+create index idx02 on test1(c1,c2);
+create index idx03 on test1(c1,c2) storing (c3);
+create index idx04 on test1(c2,c1);
+create index idx05 on test1(c2,c1) storing (c3);
+create index idx06 on test1(c1,c3);
+create index idx07 on test1(c1,c2,c3);
+create index idx08 on test1(c1,c2,c3) storing (c5);
+create index idx09 on test1(c3,c1,c2);
+create index idx10 on test1(c3,c1,c2) storing (c5);
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	4	0
+__3001__idx__idx02	4	0
+__3001__idx__idx03	4	0
+__3001__idx__idx04	4	0
+__3001__idx__idx05	4	0
+__3001__idx__idx06	4	0
+__3001__idx__idx07	4	0
+__3001__idx__idx08	4	0
+__3001__idx__idx09	4	0
+__3001__idx__idx10	4	0
+insert into test1 values(1,1,1,1,1),(2,2,2,2,2),(3,3,3,3,3);
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	1	1	1
+2	2	2	2	2
+3	3	3	3	3
+"merge"
+major_freeze...
+merge: DONE
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	1	1	1
+2	2	2	2	2
+3	3	3	3	3
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	1	1
+2	2	2	2
+3	3	3	3
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+1	1	1	1
+2	2	2	2
+3	3	3	3
+update test1 set c3=666 where c1=1 or c2=2;
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	666	1	1
+2	2	666	2	2
+3	3	3	3	3
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	666
+2	2	666
+3	3	3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	666
+2	2	666
+3	3	3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+2	2	666	NULL
+3	3	3	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+2	2	666	NULL
+3	3	3	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	666	1
+2	2	666	2
+3	3	3	3
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+3	3	3	NULL
+1	1	666	NULL
+2	2	666	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+3	3	3	3
+1	1	666	1
+2	2	666	2
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	666	1	1
+2	2	666	2	2
+3	3	3	3	3
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	666
+2	2	666
+3	3	3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	666
+2	2	666
+3	3	3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+2	2	666	NULL
+3	3	3	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+2	2	666	NULL
+3	3	3	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	666	1
+2	2	666	2
+3	3	3	3
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+3	3	3	NULL
+1	1	666	NULL
+2	2	666	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+3	3	3	3
+1	1	666	1
+2	2	666	2
+delete from test1 where c5=2;
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	666	1	1
+3	3	3	3	3
+insert into test1 values(4,4,4,4,4);
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	666	1	1
+3	3	3	3	3
+4	4	4	4	4
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	666	1	1
+3	3	3	3	3
+4	4	4	4	4
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+3	3	NULL
+4	4	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+3	3	NULL
+4	4	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	666
+3	3	3
+4	4	4
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+3	3	NULL
+4	4	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	666
+3	3	3
+4	4	4
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	666	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	666	1
+3	3	3	3
+4	4	4	4
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+3	3	3	NULL
+4	4	4	NULL
+1	1	666	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+3	3	3	3
+4	4	4	4
+1	1	666	1
+delete from test1 where c1=1 or c1=3 or c1=4;
+select * from test1;
+c1	c2	c3	c4	c5
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx03;
+c1	c2	c3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx05;
+c1	c2	c3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx03;
+c1	c2	c3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx05;
+c1	c2	c3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+insert into test1(c1,c2) values(1,1);
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	NULL	NULL	NULL
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	NULL	NULL
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+1	1	NULL	NULL
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	NULL	NULL	NULL
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	NULL	NULL
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+1	1	NULL	NULL
+delete from test1 where c1=1;
+select * from test1;
+c1	c2	c3	c4	c5
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx03;
+c1	c2	c3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx05;
+c1	c2	c3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx03;
+c1	c2	c3
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+select * from __3001__idx__idx05;
+c1	c2	c3
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+insert into test1(c1,c2) values(1,1);
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	NULL	NULL	NULL
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	NULL	NULL
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+1	1	NULL	NULL
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx01	1	0
+__3001__idx__idx02	1	0
+__3001__idx__idx03	1	0
+__3001__idx__idx04	1	0
+__3001__idx__idx05	1	0
+__3001__idx__idx06	1	0
+__3001__idx__idx07	1	0
+__3001__idx__idx08	1	0
+__3001__idx__idx09	1	0
+__3001__idx__idx10	1	0
+select * from test1;
+c1	c2	c3	c4	c5
+1	1	NULL	NULL	NULL
+select * from __3001__idx__idx01;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx02;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx03;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx04;
+c1	c2	yao_virtual_col
+1	1	NULL
+select * from __3001__idx__idx05;
+c1	c2	c3
+1	1	NULL
+select * from __3001__idx__idx06;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx07;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx08;
+c1	c2	c3	c5
+1	1	NULL	NULL
+select * from __3001__idx__idx09;
+c1	c2	c3	yao_virtual_col
+1	1	NULL	NULL
+select * from __3001__idx__idx10;
+c1	c2	c3	c5
+1	1	NULL	NULL

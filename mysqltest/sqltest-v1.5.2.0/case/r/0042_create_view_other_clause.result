@@ -1,0 +1,468 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+create or replace view v1 as select c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c2	int(10)	YES		NULL	
+select * from v1;
+c2
+-2
+2
+select c2 from t1;
+c2
+-2
+2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3003	0	1	select "test"."t1"."c2" as "c2" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c2" as "c2" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3005	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+create or replace view v2 as select c1 from t1;
+create or replace view v3 as select c3 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c3	float	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from v2;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from v3;
+c3
+-3.15
+3.15
+select c3 from t1;
+c3
+-3.15
+3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3007	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+3008	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+3009	0	1	select "test"."t1"."c3" as "c3" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+drop view v1;
+create or replace view v1 as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3012	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1(a,b,c) as select c1,c1,c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+a	bigint	YES		NULL	
+b	bigint	YES		NULL	
+c	int(10)	YES		NULL	
+select * from v1;
+a	b	c
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select c1,c1,c2 from t1;
+c1	c1	c2
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3014	0	1	select "test"."t1"."c1" as "a", "test"."t1"."c1" as "b", "test"."t1"."c2" as "c" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "a", "test"."t1"."c1" as "b", "test"."t1"."c2" as "c" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("NAME1","Name1","NaMe1") as select c1,c1,c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+NAME1	bigint	YES		NULL	
+Name1	bigint	YES		NULL	
+NaMe1	int(10)	YES		NULL	
+select * from v1;
+NAME1	Name1	NaMe1
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select c1,c1,c2 from t1;
+c1	c1	c2
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3016	0	1	select "test"."t1"."c1" as "NAME1", "test"."t1"."c1" as "Name1", "test"."t1"."c2" as "NaMe1" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "NAME1", "test"."t1"."c1" as "Name1", "test"."t1"."c2" as "NaMe1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("列1","β","A") as select c1,c1,c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+列1	bigint	YES		NULL	
+β	bigint	YES		NULL	
+A	int(10)	YES		NULL	
+select * from v1;
+列1	β	A
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select c1,c1,c2 from t1;
+c1	c1	c2
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3018	0	1	select "test"."t1"."c1" as "列1", "test"."t1"."c1" as "β", "test"."t1"."c2" as "A" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列") as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列	bigint	YES		NULL	
+select * from v1;
+列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列
+-12321112147483647
+12321112147483647
+select c1,c1,c2 from t1;
+c1	c1	c2
+-12321112147483647	-12321112147483647	-2
+12321112147483647	12321112147483647	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3020	0	1	select "test"."t1"."c1" as "列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3022	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with local check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3024	2	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with cascaded check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3026	1	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3028	1	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "yao".v1 as select c1 from t1 with check option;
+desc "yao".v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from "yao".v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3030	1	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view "yao".v1;
+View	Create View	character_set_client	collation_connection
+yao.v1	create view `yao`.`v1` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists "yao".v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+create or replace view "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名" as select c2 from t1 with check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+desc "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+Field	Type	Null	Key	Default	Extra
+c2	int(10)	YES		NULL	
+select * from v1;
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+c2
+-2
+2
+select c2 from t1;
+c2
+-2
+2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3032	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+3033	1	1	select "test"."t1"."c2" as "c2" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+View	Create View	character_set_client	collation_connection
+test.名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名	create view `test`.`名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名` as select "test"."t1"."c2" as "c2" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "V1_Name" as select c1 from t1;
+desc "V1_Name";
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from "V1_Name";
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3035	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view "V1_Name";
+View	Create View	character_set_client	collation_connection
+test.V1_Name	create view `test`.`V1_Name` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name","V1_名_βα","名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "V1_名_βα" as select c1 from t1;
+desc "V1_名_βα";
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+select * from "V1_名_βα";
+c1
+-12321112147483647
+12321112147483647
+select c1 from t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3037	0	1	select "test"."t1"."c1" as "c1" from "test"."t1"
+show create view "V1_名_βα";
+View	Create View	character_set_client	collation_connection
+test.V1_名_βα	create view `test`.`V1_名_βα` as select "test"."t1"."c1" as "c1" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name","V1_名_βα","名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create database db;
+using database db;
+create table db.t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+using database "yao";
+create or replace view db.v1 as select c1 from db.t1;
+desc db.t1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+c4	double	YES		NULL	
+c5	decimal(10,5)	YES		NULL	
+c6	varchar(100)	YES		NULL	
+c7	bool	YES		NULL	
+select * from db.t1;
+c1	c2	c3	c4	c5	c6	c7
+-12321112147483647	-2	-3.15	-5.5656	-77777.77777	-7878787.3569	0
+12321112147483647	2	3.15	5.57	77777.97687	12321321.123123	1
+select c1 from db.t1;
+c1
+-12321112147483647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3039	0	1	select "db"."t1"."c1" as "c1" from "db"."t1"
+show create view db.v1;
+View	Create View	character_set_client	collation_connection
+db.v1	create view `db`.`v1` as select "db"."t1"."c1" as "c1" from "db"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3,db.t1;
+drop view if exists v1,v2,v3,db.v1;
+drop database db;

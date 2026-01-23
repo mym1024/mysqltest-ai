@@ -1,0 +1,163 @@
+##############################################################################################
+###1.测试功能点：在指定不同分区的建表下测试ListAgg的可用性
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：11.706320 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists test_sy,test_s,test_y;
+--error 5077
+drop partition function e1;
+--enable_warnings
+create table test_sy(id int primary key,age int ,name varchar(30)) partition by range(id)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than maxvalue);
+--real_sleep 1
+insert into test_sy values(1,1,'a'),(2,2,'b'),(3,3,'c'),(4,4,'d'),(5,5,'e');
+create table test_s(id int primary key,age int ,name varchar(30),sex char(1))partition by list(id)(partition b1 values in(1,3),partition b2 values in(2,4));
+--real_sleep 1
+insert into test_s values(1,10,'aa','0'),(2,22,'bb','1');
+create enum  partition function e1(x) '[(1)],[(2)],[(3)]';
+create table test_y(id int primary key,age int ,name varchar(30),sex char(1))partition by(ta1,e1,id);
+--real_sleep 1
+insert into test_y values(1,100,'aaa','0'),(2,222,'bbb','1');
+--real_sleep 2
+select * from test_sy;
+select * from test_s;
+select * from test_y;
+
+###2-1：用不同分隔符，不同分组或排序方式进行查询
+select listagg(name, ',')within group (order by id) as NAMES from test_sy;
+select listagg(name, ',')as NAMES from test_sy;
+select listagg(name, ',')within group (order by id) as NAMES from test_sy;
+select listagg(name, ',') as NAMES from test_sy;
+select listagg(name, '\n')within group (order by id) as NAMES from test_sy;
+select listagg(name, '\n') as NAMES from test_sy;
+select listagg(name, '\n')within group (order by id) as NAMES from test_sy group by age;
+select listagg(name, '\n') as NAMES from test_sy group by age;
+select listagg(name, '\n')within group (order by age) as NAMES from test_sy order by id;
+select listagg(name, '\n')as NAMES from test_sy order by id;
+
+###2-2：嵌入聚集函数
+select listagg(name, ',')within group (order by age) as NAMES,sum(id) from test_sy ;
+select listagg(name, ',')as NAMES,sum(id) from test_sy ;
+select listagg(name, ',')within group (order by id) as NAMES, avg(age) from test_sy ;
+select listagg(name, ',')as NAMES, avg(age) from test_sy;
+select listagg(name, ',')within group (order by id) as NAMES, max(age) from test_sy ;
+select listagg(name, ',')as NAMES, max(age) from test_sy;
+select listagg(name, ',')within group (order by id) as NAMES, count(*) from test_sy ;
+select listagg(name, ',')as NAMES, count(*) from test_sy;
+
+###2-3：查询两列数据并用listagg添加不同分隔符。用desc降序排列
+select listagg(name)within group (order by id) as NAMES from test_sy ;
+select listagg(name) as NAMES from test_sy;
+select listagg(name,'/')within group (order by id desc) as NAMES ,listagg(age,'s')within group (order by age) as AGES from test_sy ;
+select listagg(name,'/')as NAMES ,listagg(age,'s')as AGES from test_sy;
+select listagg(name,'/')as NAMES ,listagg(age,'s')within group (order by age) as AGES from test_sy ;
+select listagg(name,'/')as NAMES ,listagg(age,'s')as AGES from test_sy order by id;
+select listagg(name, '\t')within group (order by id) as NAMES from test_sy ;
+select listagg(name, '\t') from test_sy;
+select listagg(name,'/')within group (order by age,id) from test_sy order by id;
+select listagg(name,'/')  from test_sy order by age,id desc;
+--error 5001
+select listagg(distinct age,',')within group (order by id)from test_sy;
+--error 5001
+select listagg(distinct age,',') from test_sy;
+
+###2-4：复合单个having,where,limit字句进行查询
+select id, listagg(age,',')within group (order by id)from test_sy  group by age having age>1;
+select id, listagg(age,',') from test_sy  group by age having age>1;
+#select listagg(age,',')within group (order by id) from test_sy for update;
+#select listagg(age,',') from test_sy for update;
+select listagg(age,',')within group (order by id) from test_sy where id in (1,2,3,4,5);
+select listagg(age,',') from test_sy where id in (1,2,3,4,5);
+select listagg(name,',')within group (order by id desc) from test_sy where age=2 or age =1;
+select listagg(name,',')from test_sy where age=2 or age =1;
+select listagg(id,',')within group (order by id desc) from test_sy limit 1,2;
+select listagg(id,',')from test_sy limit 1,2;
+
+###2-5：复合join语句与test_s的某列等值进行查询
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) as NAME from test_sy inner join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.name ,',') as NAME from test_sy inner join test_s on test_sy.id=test_s.id;
+select listagg(name ,',')within group (order by id desc) as NAMES ,listagg(name,','),listagg(name,',')from test_sy;
+select listagg(name ,',')as NAMES ,listagg(name,','),listagg(name,',')from test_sy ;
+select listagg(test_sy.name ,',')within group (order by test_sy.id desc) as NAME from test_sy left outer join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.name ,',')within group (order by test_sy.id asc)  as NAME from test_sy left outer join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) as NAME from test_sy right outer join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.name ,',') as NAME from test_sy right outer join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.id ,',')within group (order by test_sy.id desc) as NAME from test_sy full join test_s on test_sy.id=test_s.id;
+select listagg(test_sy.id ,',')within group (order by test_sy.id asc) as NAME from test_sy full join test_s on test_sy.id=test_s.id;
+select listagg(name ,',')within group (order by id)from test_sy;
+select listagg(name ,',')from test_sy;
+select listagg(name ,',')within group (order by id)from test_sy;
+select listagg(name ,',')from test_sy;
+select listagg(name ,',')within group (order by id),listagg(age,',')as NAMES  from test_sy group by age;
+select listagg(name ,','),listagg(age,',')as NAMES  from test_sy group by age;
+--error 5054
+select listagg(name ,',',',',',')within group (order by id)from test_sy;
+--error 5054
+select listagg(name ,',',',',',')from test_sy;
+select listagg(name ,',')within group (order by id)as NAMES  from test_sy;
+select listagg(name ,',')from test_sy;
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy inner join test_s on test_sy.id=test_s.id group by test_sy.age;
+select listagg(test_sy.name ,',')as NAME from test_sy inner join test_s on test_sy.id=test_s.id group by test_sy.age ;
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy left outer join test_s on test_sy.id=test_s.id group by test_s.age limit 2;
+select listagg(test_sy.name ,',')as NAME from test_sy left outer join test_s on test_sy.id=test_s.id group by test_s.age limit 2;
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy right outer join test_s on test_sy.id=test_s.id group by test_s.sex;
+select listagg(test_sy.age ,',')as NAMES,listagg(test_s.sex,',')as SEXS from test_sy,test_s where test_sy.id=test_s.id;
+select listagg(test_sy.name ,',')within group (order by test_sy.id desc) from test_sy  where test_sy.age =test_sy.age;
+select listagg(test_sy.name ,',')as NAME from test_sy right outer join test_s on test_sy.id=test_s.id group by test_s.sex;
+select listagg(test_sy.id ,',')within group (order by test_s.id desc)as NAME from test_sy full join test_s on test_sy.id=test_s.id group by test_sy.age;
+select listagg(test_sy.id ,',')as NAME from test_sy full join test_s on test_sy.id=test_s.id group by test_sy.age ;
+
+###2-6：部分复杂select语句测试
+select listagg(test_sy.age,',')within group (order by test_sy.id desc) as NAMES,listagg(test_s.sex,',')as SEXS from test_sy,test_s where test_sy.id=test_s.id ;
+select listagg(test_sy.name ,',')from test_sy  where test_sy.age =test_sy.age;
+select listagg(name,',')within group (order by id desc) from test_sy where name like '%y';
+select listagg(name,',')from test_sy where name like '%y';
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 union select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+select listagg(name,',')as NAMES from test_sy where id>=2 union select listagg(name,';') as NAMES from test_sy where age<10;
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 intersect select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+select listagg(name,',')as NAMES from test_sy where id>=2 intersect select listagg(name,';') as NAMES from test_sy where age<10;
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 except select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+select listagg(name,',')as NAMES from test_sy where id>=2 except select listagg(name,';') as NAMES from test_sy where age<10;
+(select listagg(name,',')from test_sy order by id) union( select listagg(name ,';') from test_sy order by id desc);
+select listagg(age-1,',')within group (order by id ) from test_sy;
+select listagg(age-1,',') from test_sy;
+select listagg(name,'?')within group (order by id)from test_sy where id not in (1,2,3);
+select listagg(name,'?')from test_sy where id not in (1,2,3);
+select listagg(name,',') within group (order by id) from test_sy where id>8;
+select listagg(name,',') from test_sy where id>8;
+select listagg(name,',')within group (order by id desc) from test_sy where id>1 and age<4;
+select listagg(name,',')from test_sy where id>1 and age<4;
+select listagg(name,',')within group (order by id desc) from test_sy group by age having count(*)>1;
+select listagg(name,',')from test_sy group by age having count(*)>1;
+select listagg(name,';') within group (order by id desc) from test_sy where age between 1 and 4;
+select listagg(name,';') from test_sy where age between 1 and 4;
+select listagg(name,';')within group (order by id desc) from test_sy where name not like '%y';
+select listagg(id,',')within group (order by id DESC) from test_sy where age IS NULL;
+select listagg(id,',')from test_sy where age IS NULL;
+select listagg(name,',') within group (order by id desc)from test_sy where id>1 and id <10 or age>3;
+select listagg(name,',')within group(order by id)from test_y;
+select listagg(name,',')from test_y;
+select listagg(id,';')within group(order by name)from test_y;
+select listagg(id,';')from test_y;
+select listagg(2015-id ,',')within group (order by id)from test_y;
+select listagg(2015-id ,',')from test_y;
+select listagg(name,',')within group(order by id desc) as NAMES from test_sy where age is not null;
+select listagg(name,',')as NAMES from test_sy where age is not null;
+select listagg(name,',')within group (order by id desc)from test_sy where id not between 3 and 10;
+select listagg(name,',')from test_sy where id not between 3 and 10;
+select listagg(test_sy.id ,',') within group (order by test_s.id desc) as NAME from test_sy ,test_s;
+select listagg(test_sy.id ,',')  as NAMES from test_sy ,test_s where test_sy.id>=test_s.id;
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) from test_sy,test_s where test_sy.id=test_s.id and test_sy.id>1;
+select listagg(test_sy.name ,',') from test_sy,test_s where test_sy.id=test_s.id and test_sy.id>1;
+select listagg(name,',')within group (order by id desc)from test_sy where id>1 group by (age) having count(*)>1 order by id desc;
+select listagg(name,',')from test_sy where id>1 group by (age) having count(*)>1 order by id desc;

@@ -1,0 +1,135 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：分区计算函数
+#                 测试不同类型的表，指定分区键值对应的group组和paxos组
+#                 主要测试异常系，对应的场景：
+#                 输入错误的分区键个数查询   
+#                 输入不符的分区键类型查询 
+#                 输入不存在的表，系统表，索引表
+##                查询(0,1,-1)以外的版本
+#                 输入的参数过多或过少
+#                 输入错误的语法，比如select partition_calc() from t1;
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/552
+###4.问题号：552
+###5.预计运行时间：408s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+--enable_warnings
+set names utf8mb4;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+###建各种类型的分区函数以及表
+create range partition function r1(x) '(10),(20),(maxvalue)';
+
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4),(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4),(5),(6),(7),(8)]';
+
+
+
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create index i1 on t1(c2) storing(c5);
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+
+
+
+#查询(0,1,-1)以外的版本
+
+select partition_calc(t1,(1),0);
+select partition_calc(t1,(1),1);
+select partition_calc(t1,(1),-1);
+select partition_calc(t1,(1),0);
+--error 5001
+select partition_calc(t1,(1),2);
+--error 5001
+select partition_calc(t1,(1),-2);
+--error 5001
+select partition_calc(t1,(1),-100);
+--error 5001
+select partition_calc(t1,(1),-100);
+
+
+
+#输入的参数过多或过少
+--error 5001
+select partition_calc();
+--error 5001
+select partition_calc(t1);
+--error 5001
+select partition_calc(t1,0);
+--error 5001
+select partition_calc(t1,0,());
+--error 5001
+select partition_calc(t1,0,(1),1);
+--error 5001
+select partition_calc(0,(1));
+--error 5001
+select partition_calc( ,0,(1));
+
+#输入错误的分区键个数查询
+--error 65535
+select partition_calc(t2,(1,2),0);
+--error 65535
+select partition_calc(t2,(1,2,3),0);
+--error 65535
+select partition_calc(t4,(1),0);
+--error 65535
+select partition_calc(t4,(1,2),0);
+--error 65535
+select partition_calc(t4,(1,2,3,4,5),0);
+
+
+#输入不符的分区键类型查询
+select partition_calc(t4,('a',1,1),0);
+--error 5083
+select partition_calc(t4,('e',1,1),0);
+--error 7
+select partition_calc(t4,('e','as',1),0);
+--error 7
+select partition_calc(t2,('as'),0);
+
+
+#输入不存在的表，系统表，索引表
+--error 5019
+select partition_calc(t6,(100,100),0);
+--error 5019
+select partition_calc(t7,(11,10),0);
+--error 7
+select partition_calc(__first_tablet_entry,(100),-1);
+--error 7
+select partition_calc(__3001__idx__i1,(100),-1);
+
+#输入错误的select语句
+--error 5001
+select partition_calc(t1,(1),0),* from t1;
+--error 5001
+select *,partition_calc(t1,(1),0) from t1;
+--error 5001
+select partition_calc(t1,(1),0) from t1 where c1 = 1;
+--error 5001
+select partition_calc(t1,(1),0) limit 1;
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

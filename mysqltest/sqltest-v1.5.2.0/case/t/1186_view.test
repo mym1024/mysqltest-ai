@@ -1,0 +1,673 @@
+##############################################################################################
+###1.测试功能点：测试可更新视图
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：15s
+###6.编写/修改人：zhangt
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--source merge.sql
+set names utf8mb4;
+###2-1:insert视图、update视图、delete视图、replace视图
+##原表无主键
+drop table if exists t1;
+drop view if exists v1;
+create table t1 ( column1 INT, column2 VARCHAR(50));
+create view v1 as select column1, column2 from t1;
+insert into v1 values(1, 'value1'),(2, 'value2');
+update v1 set column1 = 9 where column2 = 'value2';
+update v1 set column2 = 'new_value' where column2 = 'value2';
+select * from v1;
+delete from v1 where column2 = 'value1';
+replace into v1 values (300, 'John');
+select * from v1;
+select * from t1;
+
+###原表有主键
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (a int, b int, c int, primary key(a,b));
+insert into t1 values (10,2,-1), (20,3,-2);
+create view v1 (x,y,z) as select c, b, a from t1;
+create view v2 (x,y) as select b, a from t1;
+create view v3 (x,y,z) as select b, a, b from t1;
+create view v4 (x,y,z) as select c+1, b, a from t1;
+create view v5 (x,y,z) as select c, b, a from t1;
+insert into v1 values (-60,4,30);
+--error 5024
+insert into v1 values (10,2,10);
+update v1 set z=-1 where z=30;
+--error 119
+update v1 set y=3,z=20;
+insert into v2 values (5,40);
+--error 5863
+replace into v4 (z,y,x) values (50,6,-100);
+select * from t1;
+--error 5863
+insert into v3 values (-60,4,30);
+delete from v3;
+select * from t1;
+
+##原表为自增表
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+CREATE TABLE t1 ( id INT PRIMARY KEY AUTO_INCREMENT, column1 VARCHAR(50), column2 INT);
+CREATE VIEW v1 AS SELECT id, column1, column2 FROM t1;
+INSERT INTO v1 (column1, column2)VALUES ('value1', 100);
+UPDATE v1 SET column1 = 'new_value' WHERE id = 1;
+select * from t1;
+DELETE FROM v1 WHERE id = 1;
+replace into v1 values (300, 'John',9);
+SELECT * FROM v1;
+
+##原表使用索引、唯一索引、外键、alter table新列
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1(department_id INT PRIMARY KEY, department_name VARCHAR(50) NOT NULL);
+create table tt1(employee_id INT PRIMARY KEY,first_name VARCHAR(50) NOT NULL,last_name VARCHAR(50), job_id VARCHAR(50), department_id INT, salary DECIMAL(10, 2),FOREIGN KEY (department_id) REFERENCES t1(department_id));
+insert into t1 (department_id, department_name)values (1, 'HR'),(2, 'Finance'),(3, 'IT'),(4, 'Sales'), (5, 'Marketing');
+insert into tt1 (employee_id, first_name, last_name, job_id, department_id, salary)values (100, 'John', 'Smith', 'HR_REP', 1, 5000.00),(101, 'Sara', 'Jones', 'FIN_ANALYST', 2, 6000.00),(102, 'Tom', 'Brown', 'IT_PROG', 3, 7000.00),(103, 'Linda', 'White', 'SALES_REP', 4, 5500.00),(104, 'Michael', 'Green', 'MARK_MGR', 5, 7500.00);
+create OR REPLACE view v1 as select employee_id, first_name, last_name, job_id, department_id, salary from tt1;
+#单列/多列执行、NULL值、带条件使用子查询、默认值、多个记录、
+--error 5500
+insert into v1 (employee_id) values (105);
+insert into v1 values (200, 'John', 'Smith', 'HR_REP', 1, 5000.00);
+insert into v1 (employee_id, first_name, last_name, job_id,department_id,salary) values (106, 'John', 'Doe', 'IT_PROG',2,3.99);
+insert into v1 (employee_id, first_name,department_id) values (300, 'John',2);
+--error 5209
+insert into v1 (employee_id, first_name,department_id) values (301, 'John',33);
+update  v1 set job_id ='bbbb' where job_id ='IT_PROG';
+delete from v1 where last_name ='Jones';
+replace into v1 values (300, 'John', 'Smith', 'HR_REP', 1, 5000.00);
+insert into v1 (employee_id, first_name, last_name,department_id) values (107, 'Jane', NULL,2);
+delete from v1 where last_name is null;
+select * from v1;
+select * from tt1;
+insert into v1 (employee_id, first_name, last_name, job_id) select department_id + 200, department_name, 'Unknown', 'IT_PROG' from t1 ;
+replace into v1 (employee_id, first_name, last_name, job_id,department_id) values (609, 'Alice', 'Smith', 'HR_REP',1), (119, 'Bob', 'Johnson', 'FIN_MGR',5);
+#忽略重复记录
+--error 5001
+insert IGNORE into v1 (employee_id, first_name, last_name, job_id,department_id)values (111, 'Carol', 'Williams', 'SA_REP',4);
+#包含计算表达式
+insert into v1 (employee_id, first_name, last_name, salary,department_id) values (116, 'Hank', 'Lopez', 5000 * 1.1,2);
+#基于select的插入
+insert into v1 (employee_id, first_name, last_name, job_id,department_id) select department_id + 400, department_name, 'Employee', 'SA_REP',department_id from t1 where department_id < 3;
+#使用索引
+alter table tt1 add column c1 int;
+create OR REPLACE view v2 as select * from tt1;
+desc v2;
+alter table tt1 add column c2 int;
+desc v2;
+--error 5610
+create INDEX idx_1 ON v1(employee_id);
+--error 5610
+create INDEX idx_2 ON v2(c1);
+create INDEX idx_3 ON tt1(c1);
+insert into tt1 (employee_id, first_name, last_name,department_id,c1)values (112, 'David', 'Brown',3,9);
+desc tt1;
+desc v1;
+select * from v1;
+#使用唯一索引
+create table t2(c1 INT ,c2 VARCHAR(50),c3 VARCHAR(50),c4 int);
+create view v3 as select * from t2;
+create UNIQUE INDEX idx_4 ON t2(c3);
+insert into t2 (c1, c2, c3,c4) values (113, 'Eve', 'Davis',6); 
+--error 5024
+insert into t2 (c1, c2, c3,c4) values (113, 'Eve', 'Davis',6); 
+select * from v3;
+desc t2;
+#删除
+drop table tt1;
+show tables;
+--error 5019
+desc v1;
+drop table if exists t1,t2,tt1;
+drop view if exists v1,v2,v3,v4,v5;
+
+#update
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt1 (cc1 INT PRIMARY KEY,cc2 VARCHAR(50) UNIQUE, c1 INT, FOREIGN KEY (c1) REFERENCES t1(c1));
+insert into t1 (c1, c2) values(1, 'Sales'),(2, 'Marketing');
+insert into tt1 (cc1, cc2, c1) values(1, 'Alice', 1),(2, 'Bob', 1),(3, 'Charlie', 2);
+alter table tt1 add column cc3 text;
+create view v1 as select * from tt1 where c1 = 1;
+#更新视图中的单、多字段
+update v1 set cc2 = 'Alice Smith' where cc1 = 1;
+update v1 set cc1 = cc1*c1;
+update v1 set cc3=concat(cc1,cc2) where cc3 is null;
+select * from v1;
+select * from tt1;
+#更新数据时视图涉及连接查询的情况
+create view v2 as select e.cc1, e.cc2, d.c2 from tt1 e  JOIN t1 d ON e.c1 = d.c1;
+--error 5865
+update v2 set cc2 = 'Bob Johnson' where cc1 = 2;
+#更新操作对数据完整性和约束的影响
+#外键
+create view v3 as select cc1, cc2, c1 from tt1 where c1 = 2;
+update v3 set cc2 = 'Christine' where cc1 = 3;
+#唯一索引
+update v1 set cc2 = 'Bob' where cc1 = 2;
+create INDEX idx_c1 ON tt1 (c1);
+update v1 set c1 = 2 where cc1 = 1;
+select * from v1;
+drop table tt1,t1;
+drop view if exists v1,v2,v3,v4,v5;
+
+#delete
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt1 (cc1 INT PRIMARY KEY,cc2 VARCHAR(50) UNIQUE,c1 INT,FOREIGN KEY (c1) REFERENCES t1(c1));
+insert into t1 (c1, c2) values(1, 'Sales'),(2, 'Marketing');
+insert into tt1 (cc1, cc2, c1) values(1, 'Alice', 1),(2, 'Bob', 1),(3, 'Charlie', 2);
+create view v1 as select cc1, cc2, c1 from tt1 where c1 = 1;
+#正常情况下的删除操作测试
+delete from v1 where cc1 = 1;
+select * from v1;
+#删除数据时视图涉及连接查询的情况
+create view v2 as select e.cc1, e.cc2, d.c2 from tt1 e JOIN t1 d ON e.c1 = d.c1;
+--error 5861
+delete from v2 where cc1 = 2;
+#删除操作对数据完整性和约束的影响
+#外键
+create view v3 as select cc1, cc2, c1 from tt1 where c1 = 2;
+delete from v3 where cc1 = 3;
+select * from v3;
+select * from tt1;
+#唯一索引
+delete from v1 where cc1 = 2;
+#普通索引
+create INDEX idx_c1 ON tt1 (c1);
+delete from v1 where cc1 = 1;
+select * from v1;
+select * from tt1;
+drop table tt1,t1;
+drop view if exists v1,v2,v3,v4,v5;
+
+#replace
+create table t1(c1 INT,c2 VARCHAR(50), c3 DATE,PRIMARY KEY (c1, c3));
+insert into t1 (c1, c2, c3) values(1, 'jogging', '2024-06-01'),(1, 'cycling', '2024-06-02'),(2, 'swimming', '2024-06-03');
+create view v1 as select c1, c2, c3 from t1;
+#正常情况下的替换操作测试
+REPLACE into v1 (c1, c2, c3)values (1, 'running', '2024-06-01');
+#替换已存在的数据
+REPLACE into v1 (c1, c2, c3)values (1, 'hiking', '2024-06-02');
+#替换不存在的数据
+REPLACE into v1 (c1, c2, c3)values (2, 'yoga', '2024-06-04');
+#替换带有复合主键的数据
+REPLACE into v1 (c1, c2, c3)values (2, 'yoga', '2024-06-03');
+select * from v1;
+#替换同时涉及多个表的数据
+create table t2 (id INT PRIMARY KEY,name VARCHAR(50));
+insert into t2 values(1, 'aaa'),(2, 'bbb');
+create view v2 as select ua.c1, ua.c2, ua.c3, u.name as clo from t1 ua JOIN t2 u ON ua.c1 = u.id;
+--error 5861
+REPLACE into v2 (c1, c2, c3, clo)values (3, 'dancing', '2024-06-05', 'Eve');
+#替换操作引发的自增ID行为
+create table t4 (c1 INT AUTO_INCREMENT PRIMARY KEY,c2 VARCHAR(50),c3 VARCHAR(50));
+create view v4 as select  c1,c2,c3 from t4;
+REPLACE into v4 values (1,'Ivan', 'Martinez');
+select * from v4;
+#替换操作对数据完整性和约束的影响
+drop table if exists t1,t2,tt3,t3;
+create table t3 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt3 (c1 INT PRIMARY KEY,c2 VARCHAR(50),c3 INT,FOREIGN KEY (c3) REFERENCES t3(c1));
+insert into t3 values(1,'qqq'),(2,'bbb');
+create view v5 as select * from tt3;
+REPLACE into v5 (c1, c2,c3) values (1, 'Sales',1);
+select * from v5;
+select * from tt3;
+#insert ... ON DUPLICATE KEY update(不支持)
+#--error 5001
+insert into t3 (c1, c2) values (1, 'Sales')ON DUPLICATE KEY update c2 = 'Marketing';
+drop table if exists t1,t2,tt3,t3;
+drop view if exists v1,v2,v3,v4,v5;
+
+##结合新增数据类型
+create table t1 (a int, b int,c varchar(30),d bit(1),e float,f json);
+insert into t1 values (1,2,'aaa',b'1',1.1,'{"age":12}'), (1,3,'bbb',b'1',1.1,'{"age":19}'), (2,4,'ccc',b'1',1.1,'{"age":92}'), (2,5,'ddd',b'1',1.1,'{"age":52}'), (3,10,'eee',b'1',1.1,'{"age":12}');
+--error 5007
+create view v1 (c,d,e,f) as select a,b,c,d,e,f from t1;
+create view v1 (c,d,e,f) as select a,b, a in (select a+2 from t1), b in (select a from t1) from t1;
+create view v2 as select c, d from v1;
+create view v3 as select * from t1;
+select * from v1;
+select * from v2;
+select * from v3;
+show tables;
+show full tables;
+drop table t1;
+drop view v1,v2,v3;
+
+##含表达式
+create table t1 (a int, b int, primary key(a));
+insert into t1 values (10,2), (20,3), (30,4), (40,5), (50,10);
+create view v1 (a,c) as select a, b+1 from t1;
+create view v2 (a,c) as select a, b from t1;
+create view v3(a) as select sum(a) from t1;
+--error 5863
+insert into v3 values(66);
+--error 5860
+update v1 set c=a+c;
+update v1 set a=a+c;
+select * from v1;
+select * from t1;
+insert into t1 values (1,2), (2,3), (3,4), (4,5), (5,10);
+--error 5860
+delete from v1 where c < 4;
+delete from v2 where c < 4;
+drop table t1;
+drop view v1,v2,v3;
+
+##insert ... select
+create table t1 (a int, b int, c int, primary key(a,b));
+insert into t1 values (10,2,-1), (20,3,-2);
+create table t2 (a int, b int, c int, primary key(a,b));
+insert into t2 values (30,4,-60);
+create view v1 (x,y,z) as select c, b, a from t1;
+create view v2 (x,y) as select b, a from t1;
+create view v3 (x,y,z) as select b, a, b from t1;
+create view v4 (x,y,z) as select c+1, b, a from t1;
+create view v5 (x,y,z) as select c, b, a from t1;
+--error 5863
+insert into v3 select c, b, a from t2;
+--error 5863
+insert into v4 select c, b, a from t2;
+insert into v1 select c, b, a from t2;
+insert into v1 (z,y,x) select a+20,b+2,-100 from t2;
+insert into v2 select b+1, a+10 from t2;
+select * from t1;
+drop table t1, t2;
+drop view v1,v2,v3,v4,v5;
+
+##更新视图上的视图
+create table t1 (a int, primary key(a));
+insert into t1 values (1), (2), (3), (200);
+create view v1 (x) as select a from t1;
+create view v2 (y) as select x from v1;
+--error 119
+update v2 set y=10;
+#update v2 set y=10 where y=2;
+select * from v2;
+drop table t1;
+drop view v1,v2;
+
+create table t1 (col1 int,col2 char(22));
+insert into t1 values(5,'Hello, world of views');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+update v2 set col2='Hello, view world';
+select * from t1;
+drop view v2, v1;
+drop table t1;
+
+##使用别名
+create table t1 (s1 int);
+create view v1 as select s1 as a, s1 as b from t1;
+--error 5863
+insert into v1 values (1,1);
+update v1 set a = 5;
+select * from v1;
+drop view v1;
+drop table t1;
+
+##带有列重命名的视图
+create table t1 (col1 bigint not null, primary key (col1));
+create table t2 (col1 bigint not null, key (col1));
+create view v1 as select * from t1;
+create view v2 as select * from t2;
+insert into v1 values (1);
+insert into v2 values (1);
+create view v3 (a,b) as select v1.col1 as a, v2.col1 as b from v1, v2 where v1.col1 = v2.col1;
+select * from v3;
+show create view v3;
+drop view v3, v2, v1;
+drop table t2, t1;
+
+##updating of join view
+create table t1 (a int, primary key (a), b int);
+create table t2 (a int, primary key (a));
+insert into t1 values (1,100), (2,200);
+insert into t2 values (1), (3);
+#legal view for update
+create view v3 (a,b) as select t1.a as a, t2.a as b from t1, t2;
+--error 5860
+update v3 set a= 10 where a=1;
+select * from v3;
+--error 5860
+delete from v3 where a=1;
+drop view v3;
+drop table t1,t2;
+
+##违反视图定义的数据
+create table t1 (f59 int, f60 int, f61 int);
+insert into t1 values (19,41,32);
+create view v1 as select f59, f60 from t1 where f59 in(select f59 from t1);
+#--error 5006
+update t1 set f60=(select max(f60) from v1);
+drop view v1;
+drop table t1;
+
+#Trys update table from which we select using views and subqueries
+create table t1 (s1 smallint);
+create view v1 as select * from t1 where 20 < (select (s1) from t1);
+insert into v1 values (30);
+create view v2 as select * from t1;
+create view v3 as select * from t1 where 20 < (select (s1) from v2);
+insert into v3 values (30);
+create view v4 as select * from v2 where 20 < (select (s1) from t1);
+insert into v4 values (30);
+drop view if exists v4, v3, v2, v1;
+drop table t1;
+
+##违反表约束的数据
+create table t1 (col1 int,col2 char(22));
+create view v1 as select * from t1;
+--error 5610
+create index i1 on v1 (col1);
+drop view v1;
+drop table t1;
+
+##空值和非空值
+create table t1 (col1 INT NOT NULL, col2 INT NOT NULL);
+create view v1 (vcol1) as select col1 from t1;
+create view v2 (vcol1) as select col1 from t1 where col2 > 2;
+--error 5500
+insert into t1 (col1) values(12);
+--error 5500
+insert into v1 (vcol1) values(12);
+--error 5500
+insert into v2 (vcol1) values(12);
+drop view v2,v1;
+drop table t1;
+
+create table t1 (col1 int);
+insert into t1 values (1);
+create view v1 as select count(*) from t1;
+--error 5863
+insert into v1 values (null);
+select * from v1;
+drop view v1;
+drop table t1;
+
+##通过复杂的语句测试
+# 基于名称复杂的函数的视图
+delimiter //;
+create function f1 () returns int begin return 5;end//
+delimiter ;//
+create view v1 as select test.f1 ();
+show create view v1;
+select * from v1;
+drop view v1;
+
+# view with national characters
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+set names utf8;
+create table tü (cü char(30));
+create view vü as select cü from tü;
+insert into vü values ('ü');
+select * from vü;
+drop view vü;
+drop table tü;
+
+##合并多个表的视图
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (a int);
+create table t2 (a int);
+create table t3 (a int);
+insert into t1 values (1), (2), (3);
+insert into t2 values (1), (3);
+insert into t3 values (1), (2), (4);
+create view v3 (a,b) as select t1.a as a, t2.a as b from t1 left join t2 on (t1.a=t2.a);
+select * from v3;
+--error 5865
+update v3 set a =9 where b=1;
+create view v1 (a) as select a from t1;
+create view v2 (a) as select a from t2;
+create view v4 (a,b) as select v1.a as a, v2.a as b from v1 left join v2 on (v1.a=v2.a);
+select * from v4;
+--error 5861
+delete from v4;
+delete from v2;
+
+# test of updating and fetching from the same table check
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (col1 int);
+create table t2 (col1 int);
+create table t3 (col1 datetime not null);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select v2.col1 from v2,t2 where v2.col1 = t2.col1;
+--error 5006
+update v2 set col1 = (select max(col1) from v1);
+--error 5006
+update v1,t2 set v1.col1 = (select max(col1) from t1) where v1.col1 = t2.col1;
+drop view if exists v4,v3,v2,v1;
+drop table if exists t1,t2,t3;
+
+##结合字符集：调用带有COLLATE子句的select定义的view
+#可更新视图的select列好像不支持使用系统函数,仿照ob的字符集相当于加了一层系统函数
+create table t1 (s1 char) charset utf8mb4;
+insert into t1 values ('Z');
+create view v1 as select s1 collate utf8mb4_bin as col from t1;
+create view v2 (col) as select s1 collate utf8mb4_bin from t1;
+--error 5863
+insert into v1 (col) values ('b');
+--error 5863
+insert into v2 (col) values ('c');
+DROP view v1, v2;
+DROP table t1;
+
+##结合列注释
+create table t1 (c1 int comment '表的列1注释',c2 varchar(50) comment '表的列2注释' );
+insert into t1 values (2,'aaa'),(3,'ccc'),(0,'ddd');
+--error 5001
+create view v1 as select c1 comment '视图的列1注释',c2 comment '视图的列2注释' from t1;
+drop table t1;
+
+###2-2:check option功能
+# WITH CHECK OPTION insert/update test
+create table t1 (a int);
+create view v1 as select * from t1 where a < 2 with check option;
+--error 5862
+insert into v1 values(3);
+insert into v1 values(1);
+delete from t1;
+insert into v1 select 1;
+--error 119
+insert into v1 select 3;
+
+# CasCADED/LOCAL CHECK OPTION test
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create table t1 (a int);
+create view v1 as select * from t1 where a < 2 with check option;
+create view v2 as select * from v1 where a > 0 with local check option;
+create view v3 as select * from v1 where a > 0 with cascaded check option;
+insert into v2 values (1);
+insert into v3 values (1);
+--error 5862
+insert into v2 values (0);
+--error 5862
+insert into v3 values (0);
+--error 5862
+insert into v2 values (2);
+--error 5862
+insert into v3 values (2);
+select * from t1;
+drop view v3,v2,v1;
+create view v2 as select distinct a from t1 WITH CHECK OPTION;
+create view v3 as select a from t1 WITH CHECK OPTION;
+create view v4 as select a from t1 WITH CasCADED CHECK OPTION;
+create view v5 as select a from t1 WITH LOCAL CHECK OPTION;
+--error 5001
+drop view v5 RESTRICT;
+--error 5001
+drop view v5 CasCADE;
+drop view if exists v1,v2,v3,v4,v5,v6,v7;
+drop table t1;
+
+#底层视图 级联
+create table t1 (s1 tinyint);
+create view v1 as select * from t1 where s1 <> 0;
+create view v2 as select * from v1 where s1 <> 1 with cascaded check option;
+--error 5862
+insert into v2 values (0);
+select * from v2;
+select * from t1;
+drop view v2, v1;
+drop table t1;
+
+# with local check option
+create table t1(f1 int, f2 int);
+create view v1 as select ta.f1 as a, tb.f1 as b from t1 ta, t1 tb where ta.f1=tb.f1 and ta.f2=tb.f2;
+insert into t1 values(1,1),(2,2);
+create view v2 as select * from v1 where a > 1 with local check option;
+select * from v2;
+--error 5860
+update v2 set b=3 where a=2;
+select * from v2;
+drop view v2, v1;
+drop table t1;
+
+# 多表check option
+create table t1 (a int);
+create table t2 (b int);
+insert into t1 values (1), (2);
+insert into t2 values (1), (2);
+create view v1 as  select t2.b from t1,t2 where t1.a = t2.b WITH CHECK OPTION;
+select * from v1;
+--error 5860
+update v1 set b=3;
+select * from v1;
+select * from t1;
+select * from t2;
+DROP view v1;
+DROP table t1,t2;
+
+###2-3:另外同步以下视图相关bug
+##875-定义视图的select语句里包含where条件会导致视图相关操作报错
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+create table t1 (c1 INT, c2 VARCHAR(50), c3 VARCHAR(50), c4 INT, c5 DECIMAL(10, 2));
+create table t2 (c1 INT,c2 VARCHAR(50),c3 INT);
+insert into t1 values(1,'aaa','aa',1,2.6),(2,'bbb','bb',2,5.6),(1,'aaa','aa',3,6);
+insert into t2 values(1,'testaa',1700),(2,'testbb',2001);
+#视图的 where 条件是基于单表的简单条件
+create OR REPLACE view v1 as select c1, c2, c3, c4 from t1 where c4 = 3;
+insert into v1 (c1, c2, c3, c4)values (118, 'John', 'Doe', 3);
+update v1 set c2 = 'Johnny' where c1 = 118;
+delete from v1 where c1 = 118;
+select * from v1;
+
+#视图的 where 条件是基于多表的复杂条件
+create OR REPLACE view v2 as select e.c1, e.c2, e.c3  from t1 e JOIN t2 d ON e.c4 = d.c1 where d.c3 = 1700;
+select * from v2;
+--error 5865
+update v2 set c2 = 'Johnny' where c1 = 1;
+select * from v2;
+#--error 5860
+#delete from v2 where c1 =118;
+#select * from v2;
+
+#视图的 where 条件包括聚合函数等不可修改的内容
+create OR REPLACE view aggregate_view as select c4, AVG(c5) as avg_salary from t1 GROUP BY c4 HAVING AVG(c5) > 5000;
+drop table t1,t2;
+drop view v1,v2;
+
+##896-视图的列名中大小写字母转换显示有误
+drop table if exists t1,t2;
+#-- 将所有列名转换为大写
+create table t1 (employee_id INT,first_name VARCHAR(50),last_name VARCHAR(50), hire_date DATE);
+create OR REPLACE view view_uppercase as select employee_id as "EMP_ID", first_name as "FIRST", last_name as "LasT", hire_date as "HIREDATE" from t1;
+desc view_uppercase;
+#-- 将所有列名转换为小写
+create OR REPLACE view view_lowercase as select EMPLOYEE_ID as "emp_id",FIRST_NAME as "first",LasT_NAME  as "last", HIRE_DATE  as "hiredate" from t1;
+desc view_lowercase;
+#-- 创建一个原始表，列名有大写小写
+create table table_uppercase ("ID" INT,"name" VARCHAR(50), "AGE" INT);
+#-- 创建视图，验证大小写列名被保留
+create OR REPLACE view uppercase_v as select * from table_uppercase;
+desc uppercase_v;
+
+##899-创建视图的查询中用的系统表别名，查询视图会报错
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(100),c3 INT);
+create table t2 (c1 INT PRIMARY KEY,c2 VARCHAR(100));
+create OR REPLACE view info_view as select e.c1, e.c2 from t1 e JOIN t2 d ON e.c3 = d.c1;
+select v.c2 as "Name", v.c2 as "Department" from info_view v where v.c1 = 123;
+
+##924-对view进行批量更新时，更新了原表中不符合条件的数据
+create table employee_salary_info (employee_id INT,employee_name VARCHAR(50),department VARCHAR(50),salary DECIMAL(10, 2));
+create view department_salary_view as select employee_id, employee_name, department, salary from employee_salary_info where department = 'IT';
+insert into employee_salary_info (employee_id, employee_name, department, salary)values(1, 'Alice', 'IT', 60000.00),(2, 'Bob', 'HR', 50000.00),(3, 'Charlie', 'IT', 55000.00),(4, 'David', 'IT', 62000.00);
+update department_salary_view set salary = salary * 1.05;
+select * from department_salary_view;
+update department_salary_view set salary = salary * 1.05 where employee_id=1;
+select * from employee_salary_info;
+
+##927-对view更新使用别名时，MS发生了coredump
+drop table if exists t3;
+drop view if exists v3;
+create table if not exists t3(c1 int primary key,c2 int,c3 int default 0);
+insert into t3 values(1,1,1),(2,2,2),(3,3,3);
+create or replace view v3 as select c1 as a,c2 as b from t3;
+insert into v3 values(9,9);
+update v3 view3 set b=1;
+select * from v3;
+update v3 as view3 set b=2;
+update v3 set a=8 where a =9;
+select * from v3;
+
+##952-创建视图的select语句里用包含where A or B with check option， 更新视图时报错
+drop table if exists t3;
+drop view if exists v3;
+create table if not exists t3(c1 int, c2 varchar(30), c3 decimal(6,2), c4 float, c5 double, c6 int, c7 bool, c8 char(30), primary key(c1, c2));
+replace into t3 values(1, 'aaa', 1.11,1.1,1.11, 1, true,'aaa'), (2,'bbb', 2.22, 2.2, 2.22, 2, false,'bbb'), (3,'ccc', 3.33, 3.3, 3.33,3, true, 'ccc'), (4, 'ddd', 4.44,4.4, 4.44, 4, false,'ddd'), (12, 'fff', 12.22, 12.2, 12.22, 12, false, 'ff'),(13, 'ggg', 13.33, 13.3, 13.33,13, true, 'ggg'), (14, 'hhh', 14.44, 14.4, 14.44, 14, false,'hhh'), (18,'ccc', 18.33, 18.3, 18.33, 18, true,'ccc'), (19, 'ddd', 19.44,19.4,19.44,19, false,'ddd');
+create or replace view v3 as select c1, c2, c3, c8 from t3 where c1 > 13 or c7 = true with check option;
+update v3 set c8=concat(c1,c3) where c1 >=10;
+select * from v3;
+
+##982-创建视图的select语句里用包含case when选择列时，查询视图时报错-145
+drop table if exists employees;
+drop view  if exists employee_bonus_view;
+create table employees (employee_id INT,employee_name VARCHAR(50),department VARCHAR(50),salary INT);
+create view employee_bonus_view as
+select 
+    employee_id, 
+    employee_name, 
+    department, 
+    salary,
+    CasE 
+        WHEN department = 'Sales' THEN salary * 0.1
+        WHEN department = 'Marketing' THEN salary * 0.08
+        ELSE salary * 0.05
+    END as bonus
+from employees;
+insert into employees (employee_id, employee_name, department, salary) values (1, 'Alice', 'Sales', 50000);
+insert into employees (employee_id, employee_name, department, salary) values (2, 'Bob', 'Marketing', 60000);
+insert into employees (employee_id, employee_name, department, salary) values (3, 'Charlie', 'Engineering', 55000);
+select * from employee_bonus_view;
+
+##1029-clean_root_table时提示视图表没有完整汇报
+
+##1036-ts小版本冻结时ups下线，合并时所有cs发生coredown
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze | tail -1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

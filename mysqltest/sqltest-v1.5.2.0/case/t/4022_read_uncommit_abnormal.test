@@ -1,0 +1,15 @@
+#######################################################
+###1.测试功能点：读未提交事务;
+#######################################################
+
+###2-1:通过设置autocommit来控制事务的提交，从而读取未提交事务
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8));
+set autocommit=0;
+insert into c values(1,1);
+select * from c where c1=1;
+select * from c;
+rollback;
+select * from c where c1=1;
+select * from c;
+commit;

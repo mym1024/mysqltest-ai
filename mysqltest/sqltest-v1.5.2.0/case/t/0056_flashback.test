@@ -1,0 +1,408 @@
+##############################################################################################
+###1.测试功能点：在回收站关闭开启时，flashback的功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：xxx
+###7.编写/修改日期：xxx
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set yao_read_consistency=4;
+--disable_warnings
+drop table if exists t1,t2,t3,t4 purge;
+--enable_warnings
+
+###2-1:测试flashback table
+--echo -- open trash
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set global trash_bin_switch = true;
+
+#CASE1:use drop_name flashback table
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn2;
+--echo use drop_name flashback table
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+show tables;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval flashback table $drop_name to before drop;
+show tables;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE2:use drop_name flashback table has index
+--echo use drop_name flashback table has index
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+create index t1_idx on t1(c2);
+show index on t1;
+drop table t1;
+show tables;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval flashback table $drop_name to before drop;
+show tables;
+show index on t1;
+select drop_name, object_name,type from __all_trash;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE3:use drop_name flashback table rename
+--echo use drop_name flashback table rename
+connection conn2;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+show tables;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval flashback table $drop_name to before drop rename to t2;
+show tables;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+#CASE4:use drop_name flashback table has index rename
+--echo use drop_name flashback table has index rename
+connection conn2;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval flashback table $drop_name to before drop rename to t2;
+show tables;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+#CASE5:use table_name flashback table
+--echo use table_name flashback table
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+flashback t1 to before drop;
+show tables;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE6:use table_name flashback table has index
+--echo use table_name flashback table has index
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+flashback t1 to before drop;
+show tables;
+show index on t1;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE7:use table_name flashback table rename
+--echo use table_name flashback table rename
+connection conn2;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+flashback t1 to before drop rename to t2;
+show tables;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+#CASE8:use table_name flashback table has index rename
+--echo use table_name flashback table has index rename
+connection conn2;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+flashback t1 to before drop rename to t2;
+show tables;
+show index on t2;
+select drop_name,object_name,type from __all_trash;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+###2-2:测试flashback database
+#CASE1:use drop_name flashback no table database
+--echo use drop_name flashback no table database
+connection conn2;
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop;
+show databases;
+select drop_name,object_name,type from __all_trash;
+drop database test1 purge;
+show recyclebin;
+purge recyclebin;
+
+#CASE2:use drop_name flashback no table database rename
+--echo use drop_name flashback no table database rename
+connection conn2;
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop rename to test2;
+show databases;
+select drop_name,object_name,type from __all_trash;
+drop database test2 purge;
+purge recyclebin;
+
+#CASE3:use drop_name flashback has table database
+--echo use drop_name flashback has table database
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop;
+show databases;
+select drop_name,object_name,type from __all_trash;
+using database test1;
+show tables;
+drop table if exists t1 purge;
+drop database test1 purge;
+select drop_name,object_name,type from __all_trash;
+purge recyclebin;
+
+#CASE4:use drop_name flashback has table database rename
+--echo use drop_name flashback has table database rename
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop rename to test2;
+show databases;
+select drop_name,object_name,type from __all_trash;
+using database test2;
+show tables;
+drop table if exists t1 purge;
+drop database test2 purge;
+show recyclebin;
+purge recyclebin;
+
+#CASE5:use drop_name flashback has table and index database
+--echo use drop_name flashback has table and index database
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop;
+show databases;
+select drop_name,object_name,type from __all_trash;
+using database test1;
+show tables;
+show index on t1;
+drop table if exists t1 purge;
+drop database test1 purge;
+show recyclebin;
+purge recyclebin;
+
+#CASE5:use drop_name flashback has table and index database rename
+--echo use drop_name flashback has table and index database rename
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop rename to test2;
+show databases;
+select drop_name,object_name,type from __all_trash;
+using database test2;
+show tables;
+show index on t1;
+drop table if exists t1 purge;
+drop database test2 purge;
+show recyclebin;
+purge recyclebin;
+
+###2-3:测试flashback 异常系
+#CASEl:use not existed drop_name flashback table
+connection conn2;
+drop table if exists a_3921 purge;
+--error 5093
+flashback table a_3921 to before drop;
+
+#CASE2:flashback table but table name has existed
+connection conn2;
+using database test;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table t1;
+create table t1(c1 int primary key,c2 int);
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+--error 5107
+eval flashback table $drop_name to before drop;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE3:flashback table rename but table name has existed
+connection conn2;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+--error 5091
+eval flashback table $drop_name to before drop rename to t2;
+select drop_name,object_name,type from __all_trash;
+show tables;
+drop table if exists t1,t2;
+purge recyclebin;
+
+#CASE4:use not existed drop_name flashback
+connection conn2;
+drop table if exists a_3921 purge;
+--error 5093
+flashback a_3921 to before drop;
+
+#CASE5:flashback but table name has existed
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table t1;
+create table t1(c1 int primary key,c2 int);
+select drop_name,object_name,type from __all_trash;
+--error 5107
+flashback t1 to before drop;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE6: flashback table rename but table name has existed
+connection conn2;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+--error 5091
+flashback t1 to before drop rename to t2;
+drop table if exists t1,t2;
+purge recyclebin;
+
+#CASE7:use not existed drop_name flashback database
+connection conn2;
+--error 5093
+flashback database kkk to before drop;
+
+#CASE8:flashback database but db_name has existed
+connection conn2;
+create database test1;
+drop database test1;
+create database test1;
+select drop_name,object_name,type from __all_trash;
+show databases;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+--error 5096
+eval flashback database $drop_name to before drop;
+purge recyclebin;
+drop database test1 purge;
+
+#CASE9:flashback database rename but db_name has existed
+connection conn2;
+create database test1;
+drop database test1;
+create database test2;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+--error 5096
+eval flashback database $drop_name to before drop rename to test2;
+purge recyclebin;
+drop database test2 purge;
+
+###2-4:测试flashback 权限
+connection conn2;
+create database test1;
+create database test2;
+drop database test1;
+drop database test2;
+let $drop_name1 = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+let $drop_name2 = query_get_value(select drop_name from __all_trash where object_name = 'test2',drop_name,1);
+create user 'u1' identified by 'pass-12345';
+grant flashback on * to 'u1';
+connect (conn3,$OBMYSQL_MS0,u1,pass-12345,test,$OBMYSQL_PORT);
+connection conn3;
+eval flashback database $drop_name1 to before drop;
+
+connection conn2;
+revoke flashback on * from 'u1';
+
+connection conn3;
+--error 5036
+eval flashback database $drop_name2 to before drop;
+
+connection conn2;
+purge recyclebin;
+drop database test1 purge;
+drop user 'u1';
+
+###2-5:测试事务开启时执行rlashback操作
+connection conn2;
+create table tew1(c1 int, c2 int, primary key(c1));
+create table tew2(c1 int, c2 int, primary key(c1));
+drop table tew1;
+set autocommit = 0;
+insert into tew2 values(1,1);
+--error 5060
+flashback tew1 to before drop;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

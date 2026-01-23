@@ -1,0 +1,1451 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：partition_range:批量更新int类型的range分区
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：2055 S
+###6.编写/修改人：caojun
+###7.编写/修改日期：2019-12-30
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists trange1,trange2;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+# 创建int类型的range，参数=1
+create table trange1(c1 int primary key, c2 int, c3 int, c4 int)partition by range columns(c1)(partition r0 values less than(5),partition r1 values less than maxvalue);
+show table rules;
+--real_sleep 1
+insert into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+show partition groups;
+create index idx1 on trange1(c1);
+create index idx2 on trange1(c2); 
+create index idx3 on trange1(c3);
+create index idx4 on trange1(c4);
+
+# 创建int类型的range，参数>1.
+create table trange2(c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int,primary key(c1,c2,c3))partition by range columns(c1,c2,c3)(partition r0 values less than(5,5,5),partition r1 values less than (maxvalue,maxvalue,maxvalue));
+--real_sleep 1
+insert into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+create index idx1 on trange2(c2);
+create index idx2 on trange2(c5) storing(c6,c4);
+create index idx3 on trange2(c6,c3) storing(c4,c7);
+create index idx4 on trange2(c8,c7,c5) storing(c4,c6);
+create index idx5 on trange2(c5,c4) storing(c6,c7,c8);
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on trange1;
+show index on trange2;
+
+let $trange1_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='trange1',table_id,1);
+let $trange2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='trange2',table_id,1);
+
+--let $index_head = __
+--let $index1_end = __idx__idx1
+--let $index2_end = __idx__idx2
+--let $index3_end = __idx__idx3
+--let $index4_end = __idx__idx4
+--let $index5_end = __idx__idx5
+
+--let $trange1_idx1_name=$index_head$trange1_tb_id$index1_end
+--let $trange1_idx2_name=$index_head$trange1_tb_id$index2_end
+--let $trange1_idx3_name=$index_head$trange1_tb_id$index3_end
+--let $trange1_idx4_name=$index_head$trange1_tb_id$index4_end
+
+--let $trange2_idx1_name=$index_head$trange2_tb_id$index1_end
+--let $trange2_idx2_name=$index_head$trange2_tb_id$index2_end
+--let $trange2_idx3_name=$index_head$trange2_tb_id$index3_end
+--let $trange2_idx4_name=$index_head$trange2_tb_id$index4_end
+--let $trange2_idx5_name=$index_head$trange2_tb_id$index5_end
+
+echo $trange1_idx1_name;
+echo $trange1_idx2_name;
+echo $trange1_idx3_name;
+echo $trange1_idx4_name;
+
+echo $trange2_idx1_name;
+echo $trange2_idx2_name;
+echo $trange2_idx3_name;
+echo $trange2_idx4_name;
+echo $trange2_idx5_name;
+
+
+###2-1:多张索引,单主键:where条件为主键
+# 存在多张索引
+# 单主键（where条件：主键/非主键AND NO BETWEEN...AND... IN IN子查询 运算表达式 ><）
+# 指定条件为主键
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+#--error 5024
+#update trange1 set c1=2 where c1=1;
+#--error 5024
+#update trange1 set c1=2 where c1>1;
+update trange1 set c3=2;
+
+update trange1 set c2=10 where c1>100;
+--real_sleep 1
+select * from trange1;
+--real_sleep 1
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1>1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=5,c4=7 where c1=1 OR c1=2 OR c1=3 OR c1=4 OR c1=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+--error 145
+update trange1 set c2=11,c2=12,c3=13 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+--error 145
+update trange1 set c2=11,c2=12,c3=13 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+--real_sleep 1
+--error 145
+update trange1 set c2=10 where c1=1 and c1=2 and c1=3 and c1=4 and c1=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c1=1 or c1=2 and c1=3 or c1=4 and c1=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=5,c3=444444444 where c1 between 1 and 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1 between 2 and 2;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1 between 3 and 4;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=12 where c1 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c1 IN(1);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1 IN(2);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=9.99 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=123 where c1 * 2 + 1 > 3;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+
+update trange1 set c2=10 where c1 / 2 - 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c1 * 2 / 3 * 5 % 4 + 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=32 where (c1 * 2 / 3 * 5) MOD 3 + 1 > 2;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+
+###2-2 指定条件为非主键（单独一个非主键）
+update trange1 set c2=10 where c2 > 100;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c2 = 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=10 where c2 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c2=1 OR c2=2 OR c2=3 OR c2=4 OR c2=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=10 where c2=1 and c2=1 and c2=1 and c2=1 and c2=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c2=1 and c2=2 and c2=3 and c2=4 and c2=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c2=1 or c2=2 and c2=3 or c2=4 and c2=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=10 where c2 between 1 and 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c2 between 3 and 4;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c2 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c2 IN(1);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=10 where c2 IN(2);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c4=10 where c2 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c3=10 where c2 * 2 + 1 > 3;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+
+update trange1 set c2=10 where c2 / 2 - 1 > 0;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c2 * 2 / 3 * 5 % 4 + 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where (c2 * 2 / 3 * 5) MOD 3 + 1 > 2;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+
+###2-3 指定条件为主键或非主键（多个非主键 主键结合）
+update trange1 set c4=51;
+--error 119
+update trange1 set c4=51,c4=51 where c1=1 OR c2=2 OR c3=3 OR c4=4 OR c2=5;
+--error 119
+update trange1 set c4=51,c4=52 where c1=1 OR c2=2 OR c3=3 OR c4=4 OR c2=5;
+
+update trange1 set c2=9 where c1=1 OR c2=2 OR c3=3 OR c4=4 OR c2=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=3 where c1=1 and c2=2 and c3=3 and c4=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=7 where c1=1 and c2=1 and c3=1 and c4=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=6 where c2=1 and c3=1 and c4=1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=5 where c1=1 or c2=2 and c4=3 or c2=4 and c2=5;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=4 where c3 between 1 and 4 and c4 between 3 and 4;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=3 where c2 * 2 + c3 > 3;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=2 where c2 * c3 - 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=10 where c2 * 2 / c3 * 5 % c3 + 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+update trange1 set c2=222 where (c2 * 2 / 3 * 5) MOD c1 + 1 > 1;
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+
+replace into trange1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+--real_sleep 1
+select * from trange1;
+eval select * from $trange1_idx1_name;
+eval select * from $trange1_idx2_name;
+eval select * from $trange1_idx3_name;
+eval select * from $trange1_idx4_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+
+###2-4 
+# 复合主键(where条件：主键/非主键AND OR BETWEEN...AND... IN IN子查询 运算表达式 > <)
+# 指定条件为主键
+#--error 5024
+#update trange1 set c1=2 where c1=1;
+update trange1 set c2=2 where c1>1;
+--real_sleep 1
+update trange1 set c3=2 where c1>100;
+
+update trange1 set c4=51,c4=51 where c2=4;
+--error 5009
+update trange1 set c4=51,c4=52 where c6=3;
+
+update trange2 set c8=10 where c1=1 and c2=1 and c3=1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c1>1 and c2>1 and c3>1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c1 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c2 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where c3 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c1=1 OR c2=2 OR c3=3;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c1=1 and c2=1 and c3=1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c1=1 and c2=2 and c3=3;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c1=1 or c2=2 and c3=3;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where c1 between 1 and 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c2 between 3 and 4;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c3 between 4 and 7;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where c1 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c2 IN(1);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c3 IN(2);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c1 * c2 + 1 > 3 ;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c1 / c3 - 1 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c1 * 2 / c2 * 5 % 4 + 1 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where (c1 * 2 / 3 * 5) MOD 3 + 1 > 2;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+
+###2-5 指定条件为主键、非主键结合
+update trange2 set c8=10 where c4 > 100;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c5=1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c6 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c1=1 OR c2=2 OR c4=3 OR c5=4 OR c6=5;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where c2=1 and c3=1 and c4=1 and c5=1 and c6=1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c1=1 and c2=2 and c3=3 and c4=4 and c6=5;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c2=1 or c4=2 and c5=3 or c7=4 and c6=5;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c4 between 1 and 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c5 between 3 and 4;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c6 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c7=10 where c7 IN(1);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c6=10 where c8 IN(2);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c5=10 where c5 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c4=10 where c4 * 2 + 1 > 3;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c5 / 2 - 1 > 1;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where c7 * 2 / 3 * c6 % 4 + 1 > 2;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+update trange2 set c8=10 where (c8 * c4 / 3 * 5) MOD 3 + 1 > 2;
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+
+replace into trange2 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+--real_sleep 1
+select * from trange2;
+eval select * from $trange2_idx1_name;
+eval select * from $trange2_idx2_name;
+eval select * from $trange2_idx3_name;
+eval select * from $trange2_idx4_name;
+eval select * from $trange2_idx5_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+# float
+# double
+# decimal
+# varchar
+# where中包含like
+# timestamp
+# date time
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

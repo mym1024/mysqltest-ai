@@ -1,0 +1,175 @@
+drop table if exists t1,t2,t3;
+create table t1(
+id int,
+idservice int,
+clee char(20) not null,
+flag char(1),
+primary key(clee,idservice)
+) partition by list columns(clee,idservice)(partition a1 values in(('dd',3),('60671569',7)),partition a2 values in(('6067169d',4),('606716d1',5)),partition a3 values in(('606717c1',1),('60671515',6)));
+insert into t1 values (2,4,'6067169d','Y');
+insert into t1 values (2,5,'606716d1','Y');
+insert into t1 values (2,1,'606717c1','Y');
+insert into t1 values (2,6,'60671515','Y');
+insert into t1 values (2,7,'60671569','Y');
+insert into t1 values (2,3,'dd','Y');
+create table t2(
+id int,
+description varchar(40) not null,
+idform varchar(40),
+ordre int,
+image varchar(60),
+primary key(id)
+) partition by range(id)(partition b1 values less than(5),partition b2 values less than(12),partition b3 values less than maxvalue);
+insert into t2 values (1,'Emettre un appel d''offres','en_construction.html',10,'emettre.gif');
+insert into t2 values (2,'Emettre des soumissions','en_construction.html',20,'emettre.gif');
+insert into t2 values (7,'Liste des t2','t2_liste__form.phtml',51060,'link.gif');
+insert into t2 values (8,'Consulter les soumissions','consulter_soumissions.phtml',200,'link.gif');
+insert into t2 values (9,'Ajouter un type de materiel','typeMateriel.phtml',51000,'link.gif');
+insert into t2 values (10,'Lister/modifier un type de materiel','typeMateriel_liste_form.phtml',51010,'link.gif');
+insert into t2 values (3,'Creer une fiche de client','clients_ajoute_form.phtml',40000,'link.gif');
+insert into t2 values (4,'Modifier des clients','en_construction.html',40010,'link.gif');
+insert into t2 values (5,'Effacer des clients','en_construction.html',40020,'link.gif');
+insert into t2 values (6,'Ajouter un service','t2_ajoute_form.phtml',51050,'link.gif');
+select t1.id,t1.idservice,t2.ordre,t2.description from t1,t2 where t1.id=2 and t1.idservice = t2.id order by t2.ordre;
+id	idservice	ordre	description
+2	1	10	Emettre un appel d'offres
+2	3	40000	Creer une fiche de client
+2	4	40010	Modifier des clients
+2	5	40020	Effacer des clients
+2	6	51050	Ajouter un service
+2	7	51060	Liste des t2
+drop table t1,t2;
+drop partition function e1;
+ERROR HY000: YAO-5077: partition function 'e1' doesn't exist
+create enum partition function e1(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1(pk int primary key,name varchar(255) not null,number varchar(255) not null) partition by(ta1,e1,pk);
+insert into t1 values (1,'Gamma','123'),(2,'Gamma Ext','123a'),(3,'Alpha','001'),(4,'Beta','200c');
+select distinct t1.name as BName,t1.number as BNumber from t1 order by t1.name asc;
+BName	BNumber
+Alpha	001
+Beta	200c
+Gamma	123
+Gamma Ext	123a
+drop table t1;
+drop partition function e1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+2';
+create table t1(id int primary key ,col1 int not null,col2 int not null) partition by(ta2,h1,id);
+insert into t1 values(1,2,2),(2,2,1),(3,1,2),(4,1,1),(5,1,4),(6,2,3),(7,3,1),(8,2,4);
+select * from t1 order by col1,col2;
+id	col1	col2
+4	1	1
+3	1	2
+5	1	4
+2	2	1
+1	2	2
+6	2	3
+8	2	4
+7	3	1
+select col1 from t1 order by id;
+col1
+2
+2
+1
+1
+1
+2
+3
+2
+select col1 as id from t1 order by id;
+id
+2
+2
+1
+1
+1
+2
+3
+2
+drop table t1;
+drop partition function h1;
+create table t1(pk int primary key,a int not null,b int,c varchar(10)) partition by range(pk) (partition r1 values less than(5),partition r2 values less than (10),partition r3 values less than (15),partition r4 values less than maxvalue);
+insert into t1 values (1,1,null,null),(2,1,null,'b'),(3,1,1,null),(4,1,1,'b'),(5,1,1,'b'),(6,2,1,'b'),(7,2,1,'b'),(8,2,2,'a'),(9,2,2,'b'),(10,2,3,'c'),(11,1,3,'b');
+select * from t1 where (a=1 and b is null and c='b') or (a>2) order by a desc;
+pk	a	b	c
+2	1	NULL	b
+select * from t1 where a>=1 and a<3 order by a desc;
+pk	a	b	c
+6	2	1	b
+7	2	1	b
+8	2	2	a
+9	2	2	b
+10	2	3	c
+1	1	NULL	NULL
+2	1	NULL	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+11	1	3	b
+select * from t1 where a=1 order by a desc,b desc;
+pk	a	b	c
+1	1	NULL	NULL
+2	1	NULL	b
+11	1	3	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+select * from t1 where a=1 and b is null order by a desc,b desc;
+pk	a	b	c
+1	1	NULL	NULL
+2	1	NULL	b
+select * from t1 where a=1 order by b desc;
+pk	a	b	c
+1	1	NULL	NULL
+2	1	NULL	b
+11	1	3	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+select * from t1 order by a,b,c;
+pk	a	b	c
+4	1	1	b
+5	1	1	b
+3	1	1	NULL
+11	1	3	b
+2	1	NULL	b
+1	1	NULL	NULL
+6	2	1	b
+7	2	1	b
+8	2	2	a
+9	2	2	b
+10	2	3	c
+select * from t1 order by a desc,b desc,c desc;
+pk	a	b	c
+10	2	3	c
+9	2	2	b
+8	2	2	a
+6	2	1	b
+7	2	1	b
+1	1	NULL	NULL
+2	1	NULL	b
+11	1	3	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+select * from t1 where (a=1 and b =1 and c='b') or (a>2) order by a desc;
+pk	a	b	c
+4	1	1	b
+5	1	1	b
+select * from t1 where a between 1 and 3 and b<=1 order by a desc,b desc;
+pk	a	b	c
+6	2	1	b
+7	2	1	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+select * from t1 where a between 0 and 1 order by a desc,b desc;
+pk	a	b	c
+1	1	NULL	NULL
+2	1	NULL	b
+11	1	3	b
+3	1	1	NULL
+4	1	1	b
+5	1	1	b
+drop table t1;

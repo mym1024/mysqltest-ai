@@ -1,0 +1,236 @@
+##############################################################################################
+###1.测试功能点:hash分区规则表中，select+update+when操作
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+show variables like 'yao_query_timeout';
+
+drop table if exists t1,t2;
+create hash partition function h1(x,y)'(x+y)*3-4';
+create table t1(pk1 int,pk2 varchar(30),pk3 datetime,a int,b varchar(30),c datetime,primary key(pk1,pk2)) partition by(h1t,h1,pk1,pk2);
+insert into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+insert into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+###2-1:case:s1 lock r1,s2 update r1,commit
+connection conn1;
+begin;
+select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+update t1 set a=a+1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+
+connection conn1;
+commit;
+
+connection conn2;
+reap;
+update t1 set b='abc' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+commit;
+
+--real_sleep 5
+select * from t1;
+
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+###2-2:case:s1 lock r1,s2 lock r2,r1, commit
+connection conn1;
+begin;
+select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+update t1 set b='r2000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+update t1 set b='r2000' where pk1=2 and pk2='conn2' and pk3='2012-12-12 12:00:00';
+delete from t1 where pk1=2 and pk2='conn2' and pk3='2012-12-12 12:00:00';
+insert into t1 values(2,'conn2','2012-12-12 12:00:00',200,'nr200','2013-12-12 12:00:00');
+send update t1 set b='r20000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+--real_sleep 2
+connection conn1;
+commit;
+
+connection conn2;
+reap;
+commit;
+--real_sleep 1
+select * from t1;
+
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-3:case:s1 lock r1,s2 update r1, rollback
+connection conn1;
+begin;
+select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+delete from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+
+connection conn1;
+rollback;
+
+connection conn2;
+reap;
+update t1 set b='abc' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+commit;
+
+select * from t1;
+
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-4:case:s1 lock r1,s2 lock r2,r1, commit
+connection conn1;
+begin;
+select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+delete from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+update t1 set b='r2000' where pk1=2 and pk2='conn2' and pk3='2012-12-12 12:00:00';
+delete from t1 where pk1=2 and pk2='conn2' and pk3='2012-12-12 12:00:00';
+insert into t1 values(2,'conn2','2012-12-12 12:00:00',200,'nr200','2013-12-12 12:00:00');
+send update t1 set b='r20000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn1;
+rollback;
+
+connection conn2;
+reap;
+commit;
+--real_sleep 2
+select * from t1;
+
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-5:case:select for update + when 1
+connection conn1;
+begin;
+select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update when row_count(update t1 set b='r1000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00')=1;
+
+connection conn2;
+send update t1 set b='r1000_2' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+connection conn1;
+commit;
+
+connection conn2;
+reap;
+commit;
+select * from t1;
+
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-6:case:select for update + when 2
+connection conn1;
+begin;
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update when row_count(update t1 set b='r1000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00')=1;
+
+connection conn2;
+begin;
+--real_sleep 1
+send update t1 set b='r1000_2' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn1;
+reap;
+commit;
+
+connection conn2;
+reap;
+commit;
+select * from t1;
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+
+###2-7:case:select for update + when 3
+connection conn1;
+begin;
+send delete from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+--real_sleep 1
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update when row_count(update t1 set b='r1000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00')=1;
+
+
+connection conn1;
+reap;
+commit;
+
+connection conn2;
+--error 5064
+reap;
+commit;
+select * from t1;
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-8:case:select for update + when 4
+connection conn1;
+begin;
+send delete from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+
+connection conn2;
+begin;
+--real_sleep 1
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update when row_count(update t1 set b='r1000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00')=1;
+
+connection conn1;
+reap;
+rollback;
+
+connection conn2;
+reap;
+commit;
+select * from t1;
+replace into t1 values(1,'conn1','2012-12-12 12:00:00',100,'r100','2013-12-12 12:00:00');
+replace into t1 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00');
+
+###2-9:case:select for update + when 5
+create table t2(pk1 int,pk2 varchar(30),pk3 datetime,a int,b varchar(30),c datetime,primary key(pk1,pk2,pk3));
+connection conn1;
+begin;
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update when row_count(update t1 set b='r1000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' when row_count(insert into t2 values(2,'conn2','2012-12-12 12:00:00',200,'r200','2013-12-12 12:00:00'))=1)=1;
+
+
+connection conn2;
+begin;
+--real_sleep 1
+send select * from t1 where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00' for update;
+
+connection conn1;
+reap;
+commit;
+
+connection conn2;
+reap;
+update t1 set b='r10000' where pk1=1 and pk2='conn1' and pk3='2012-12-12 12:00:00';
+commit;
+select * from t1;
+select * from t2;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,625 @@
+drop table if exists t1,t2;
+create table t1 (c1 int,c2 int, primary key(c1));
+create table t2 (c1 int,c2 int, primary key(c1));
+audit select on table t1;
+ERROR HY000: YAO-5088: audit param hasn't been set
+set @@yao_audit_open=true;
+audit select on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	SELECT_OBJ	audit_success	 
+select * from t1;
+c1	c2
+no audit;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+select * from t1;
+c1	c2
+audit select on table t1;
+select t1.c1 from t1, t2 where t1.c1 = t2.c1;
+c1
+select * from t1 join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	c1	c2
+select * from t2;
+c1	c2
+noaudit select on table t1;
+audit alter table on table t1;
+alter table  t1 rename to tt1;
+alter table  tt1 rename to t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+set @@yao_audit_open=false;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+set @@yao_audit_open=true;
+audit insert table on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	INSERT_OBJ	audit_success	 
+insert into t1 values(2, 1);
+noaudit insert table on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+audit index on table t1;
+create index idx_t1 on t1(c2);
+drop index idx_t1 on t1;
+audit grant table on table t1;
+grant all on t1 to 'admin';
+audit system audit on table t1;
+audit select on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	AUDIT_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	GRANT_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	INDEX_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	SELECT_OBJ	audit_success	 
+noaudit system audit on table t1;
+no audit;
+audit select, delete table, update table, insert table, index, alter table, system audit on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	ALTER_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	AUDIT_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	DELETE_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	INDEX_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	INSERT_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	SELECT_OBJ	audit_success	 
+NULL	NULL	3001	NULL	table	UPDATE_OBJ	audit_success	 
+select * from t1;
+c1	c2
+2	1
+delete from t1 where c1 = 1;
+update t1 set c1 = 1 where c2 = 1;
+insert into t1 values(3, 1);
+create index idx_t1_test on t1(c1);
+drop index idx_t1_test on t1;
+alter table t1 add column temp int;
+no audit;
+audit select on table t1 whenever not successful;
+audit delete table on table t1 whenever not successful;
+audit update table on table t1 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	NULL	table	DELETE_OBJ	audit_not_success	 
+NULL	NULL	3001	NULL	table	SELECT_OBJ	audit_not_success	 
+NULL	NULL	3001	NULL	table	UPDATE_OBJ	audit_not_success	 
+select * from t1 where c4 = 1;
+ERROR 42S22: YAO-5009: Unkown column name c4
+delete from t1 where c4 = 1;
+ERROR 42S22: YAO-5009: Unkown column name c4
+update t1 set c1 = 1 where c4 = 1;
+ERROR 42S22: YAO-5009: Unkown column name c4
+no audit;
+audit select on column t1.c1;
+select t1.c1 from t1, t2 where t1.c1 = t2.c1;
+c1
+select * from t1 join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	temp	c1	c2
+select c1, c2 from t1;
+c1	c2
+1	1
+3	1
+select t1.c2 from t1;
+c2
+1
+1
+select c2 as c1 from t1;
+c1
+1
+1
+noaudit select on column t1.c1;
+audit alter table on column t1.c1;
+audit alter table on column t1.c2 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3001	16	column	ALTER_OBJ	audit_success	 
+NULL	NULL	3001	17	column	ALTER_OBJ	audit_not_success	 
+alter table  t1 rename c2 to c1;
+ERROR 42S21: YAO-5008: Column 'c1' already exist
+alter table  t1 rename to test1;
+no audit;
+CREATE TABLE t1 (c1 INT,c2 INT, PRIMARY KEY(c1));
+audit update table on column t1.c2;
+alter table  t1 rename c2 to cc2;
+alter table  t1 rename cc2 to c2;
+update t1 set c2 = 1 where c1 = 1;
+no audit;
+audit index on column t1.c2 whenever not successful;
+create index idx_t1 on t1(c2);
+create index idx_t2 on t1(c3);
+ERROR HY000: YAO-5610: Index Columns c3 are not found
+drop index idx_t1 on t1;
+no audit;
+audit select on column t1.c2;
+audit alter table on column t1.c2;
+audit update table on column t1.c2;
+audit index on column t1.c2;
+audit system audit on column t1.c2;
+select * from t1;
+c1	c2
+alter table  t1 rename c2 to cc2;
+update t1 set cc2 = c1;
+create index idx_1 on t1(cc2);
+drop index idx_1 on t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3005	17	column	ALTER_OBJ	audit_success	 
+NULL	NULL	3005	17	column	AUDIT_OBJ	audit_success	 
+NULL	NULL	3005	17	column	INDEX_OBJ	audit_success	 
+NULL	NULL	3005	17	column	SELECT_OBJ	audit_success	 
+NULL	NULL	3005	17	column	UPDATE_OBJ	audit_success	 
+no audit;
+drop table t1;
+CREATE TABLE t1 (c1 INT,c2 INT, PRIMARY KEY(c1));
+audit select, update table, index, alter table, system audit on column t1.c2 whenever not successful;
+select c2, c4 from t1;
+ERROR 42S22: YAO-5009: Unkown column name c4
+update t1 set c2 = 1 where c4 = 1;
+ERROR 42S22: YAO-5009: Unkown column name c4
+create index idx_t1_1 on t1(c2);
+create index idx_t1_2 on t1(c2);
+alter table t1 rename c2 to c1;
+ERROR 42S21: YAO-5008: Column 'c1' already exist
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3008	17	column	ALTER_OBJ	audit_not_success	 
+NULL	NULL	3008	17	column	AUDIT_OBJ	audit_not_success	 
+NULL	NULL	3008	17	column	INDEX_OBJ	audit_not_success	 
+NULL	NULL	3008	17	column	SELECT_OBJ	audit_not_success	 
+NULL	NULL	3008	17	column	UPDATE_OBJ	audit_not_success	 
+no audit;
+audit alter table on database "test";
+alter table t1 rename to tt1;
+audit delete table on database "test";
+delete from tt1 where c1=1;
+noaudit delete table on database "test";
+audit replace on database "test";
+replace into tt1 values(2, 1);
+audit index on database "test" whenever not successful;
+create index idx_t4 on t1(c2);
+ERROR 42S01: YAO-5025: the table to create index 'test.t1' is not exist
+drop index idx_t2 on tt1;
+ERROR HY000: YAO-152: no index to drop!
+audit table on database "test" whenever not successful;
+truncate table t4;
+ERROR 42S02: YAO-5019: table 'test.t4' does not exist
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	ALTER_TABLE	audit_success	 
+NULL	test	NULL	NULL	database	INDEX	audit_not_success	 
+NULL	test	NULL	NULL	database	REPLACE	audit_success	 
+NULL	test	NULL	NULL	database	TABLE_V1	audit_not_success	 
+no audit;
+audit select on database "yao";
+using database yao;
+create table t1(c1 int primary key, c2 int);
+select * from t1;
+c1	c2
+using database test;
+audit select on database "test";
+create table t1(c1 int primary key, c2 int);
+select * from t1;
+c1	c2
+audit grant table on database "test";
+grant all on t1 to 'admin';
+audit session on database "test";
+audit table on database "test";
+truncate table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	GRANT_TABLE	audit_success	 
+NULL	test	NULL	NULL	database	SELECT	audit_success	 
+NULL	test	NULL	NULL	database	SESSION	audit_success	 
+NULL	test	NULL	NULL	database	TABLE_V1	audit_success	 
+NULL	yao	NULL	NULL	database	SELECT	audit_success	 
+no audit;
+drop table t1;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+audit view on database "test";
+create view v1 as select * from t1;
+drop view v1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	VIEW	audit_success	 
+no audit;
+audit user on database "test";
+CREATE USER 'test1' IDENTIFIED BY '122qqq...A';
+GRANT ALL PRIVILEGES, GRANT OPTION ON *.* TO 'test1';
+noaudit user on database "test";
+audit select on table tt1;
+audit select;
+select * from tt1;
+c1	c2
+2	1
+no audit;
+audit select on column tt1.c1;
+audit select;
+select * from tt1;
+c1	c2
+2	1
+no audit;
+audit select on database "test";
+audit select;
+select * from tt1;
+c1	c2
+2	1
+create database test2;
+using database test2;
+create table t4 (c1 int,c2 int, primary key(c1));
+audit select;
+select * from t4;
+c1	c2
+no audit;
+audit select on table t1;
+set @@yao_audit_open=true;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+no audit;
+drop table t1;
+create table t1 (c1 int,c2 int, primary key(c1));
+audit insert table by admin;
+audit create table by test1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+admin	NULL	NULL	NULL	user	INSERT	audit_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_success	 
+no audit;
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test";
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	ALTER_SEQUENCE	audit_success	 
+NULL	test	NULL	NULL	database	ALTER_TABLE	audit_success	 
+NULL	test	NULL	NULL	database	AUDIT	audit_success	 
+NULL	test	NULL	NULL	database	CREATE	audit_success	 
+NULL	test	NULL	NULL	database	DATABASE	audit_success	 
+NULL	test	NULL	NULL	database	DELETE	audit_success	 
+NULL	test	NULL	NULL	database	DROP	audit_success	 
+NULL	test	NULL	NULL	database	EXECUTE_PROCEDURE	audit_success	 
+NULL	test	NULL	NULL	database	GRANT_PROCEDURE	audit_success	 
+NULL	test	NULL	NULL	database	GRANT_TABLE	audit_success	 
+NULL	test	NULL	NULL	database	INDEX	audit_success	 
+NULL	test	NULL	NULL	database	INSERT	audit_success	 
+NULL	test	NULL	NULL	database	PROCEDURE	audit_success	 
+NULL	test	NULL	NULL	database	REPLACE	audit_success	 
+NULL	test	NULL	NULL	database	ROLE	audit_success	 
+NULL	test	NULL	NULL	database	SELECT	audit_success	 
+NULL	test	NULL	NULL	database	SEQUENCE	audit_success	 
+NULL	test	NULL	NULL	database	SESSION	audit_success	 
+NULL	test	NULL	NULL	database	TABLE_V1	audit_success	 
+NULL	test	NULL	NULL	database	TRIGGER	audit_success	 
+NULL	test	NULL	NULL	database	TRUNCATE_TABLE	audit_success	 
+NULL	test	NULL	NULL	database	UPDATE	audit_success	 
+NULL	test	NULL	NULL	database	USER	audit_success	 
+NULL	test	NULL	NULL	database	VIEW	audit_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test";
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test" whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	ALTER_SEQUENCE	audit_not_success	 
+NULL	test	NULL	NULL	database	ALTER_TABLE	audit_not_success	 
+NULL	test	NULL	NULL	database	AUDIT	audit_not_success	 
+NULL	test	NULL	NULL	database	CREATE	audit_not_success	 
+NULL	test	NULL	NULL	database	DATABASE	audit_not_success	 
+NULL	test	NULL	NULL	database	DELETE	audit_not_success	 
+NULL	test	NULL	NULL	database	DROP	audit_not_success	 
+NULL	test	NULL	NULL	database	EXECUTE_PROCEDURE	audit_not_success	 
+NULL	test	NULL	NULL	database	GRANT_PROCEDURE	audit_not_success	 
+NULL	test	NULL	NULL	database	GRANT_TABLE	audit_not_success	 
+NULL	test	NULL	NULL	database	INDEX	audit_not_success	 
+NULL	test	NULL	NULL	database	INSERT	audit_not_success	 
+NULL	test	NULL	NULL	database	PROCEDURE	audit_not_success	 
+NULL	test	NULL	NULL	database	REPLACE	audit_not_success	 
+NULL	test	NULL	NULL	database	ROLE	audit_not_success	 
+NULL	test	NULL	NULL	database	SELECT	audit_not_success	 
+NULL	test	NULL	NULL	database	SEQUENCE	audit_not_success	 
+NULL	test	NULL	NULL	database	SESSION	audit_not_success	 
+NULL	test	NULL	NULL	database	TABLE_V1	audit_not_success	 
+NULL	test	NULL	NULL	database	TRIGGER	audit_not_success	 
+NULL	test	NULL	NULL	database	TRUNCATE_TABLE	audit_not_success	 
+NULL	test	NULL	NULL	database	UPDATE	audit_not_success	 
+NULL	test	NULL	NULL	database	USER	audit_not_success	 
+NULL	test	NULL	NULL	database	VIEW	audit_not_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,system audit,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE on database "test" whenever not successful;
+audit all on database "test";
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	ALL	audit_success	 
+noaudit all on database "test";
+audit all on database "test" whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	test	NULL	NULL	database	ALL	audit_not_success	 
+noaudit all on database "test" whenever not successful;
+audit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	NULL	table	ALTER_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	AUDIT_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	DELETE_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	GRANT_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	INDEX_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	INSERT_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	SELECT_OBJ	audit_success	 
+NULL	NULL	3016	NULL	table	UPDATE_OBJ	audit_success	 
+noaudit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1;
+audit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	NULL	table	ALTER_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	AUDIT_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	DELETE_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	GRANT_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	INDEX_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	INSERT_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	SELECT_OBJ	audit_not_success	 
+NULL	NULL	3016	NULL	table	UPDATE_OBJ	audit_not_success	 
+noaudit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1 whenever not successful;
+audit all on table t1;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	NULL	table	ALL_OBJ	audit_success	 
+noaudit all on table t1;
+audit all on table t1 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	NULL	table	ALL_OBJ	audit_not_success	 
+noaudit all on table t1 whenever not successful;
+audit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	17	column	ALTER_OBJ	audit_success	 
+NULL	NULL	3016	17	column	AUDIT_OBJ	audit_success	 
+NULL	NULL	3016	17	column	DELETE_OBJ	audit_success	 
+NULL	NULL	3016	17	column	INDEX_OBJ	audit_success	 
+NULL	NULL	3016	17	column	INSERT_OBJ	audit_success	 
+NULL	NULL	3016	17	column	SELECT_OBJ	audit_success	 
+NULL	NULL	3016	17	column	UPDATE_OBJ	audit_success	 
+noaudit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2;
+audit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	17	column	ALTER_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	AUDIT_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	DELETE_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	INDEX_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	INSERT_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	SELECT_OBJ	audit_not_success	 
+NULL	NULL	3016	17	column	UPDATE_OBJ	audit_not_success	 
+noaudit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2 whenever not successful;
+audit all on column t1.c2;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	17	column	ALL_OBJ	audit_success	 
+noaudit all on column t1.c2;
+audit all on column t1.c2 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+NULL	NULL	3016	17	column	ALL_OBJ	audit_not_success	 
+noaudit all on column t1.c2 whenever not successful;
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by admin;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+admin	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_success	 
+admin	NULL	NULL	NULL	user	ALTER_TABLE	audit_success	 
+admin	NULL	NULL	NULL	user	AUDIT	audit_success	 
+admin	NULL	NULL	NULL	user	CREATE	audit_success	 
+admin	NULL	NULL	NULL	user	DATABASE	audit_success	 
+admin	NULL	NULL	NULL	user	DELETE	audit_success	 
+admin	NULL	NULL	NULL	user	DROP	audit_success	 
+admin	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_success	 
+admin	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_success	 
+admin	NULL	NULL	NULL	user	GRANT_TABLE	audit_success	 
+admin	NULL	NULL	NULL	user	INDEX	audit_success	 
+admin	NULL	NULL	NULL	user	INSERT	audit_success	 
+admin	NULL	NULL	NULL	user	PROCEDURE	audit_success	 
+admin	NULL	NULL	NULL	user	REPLACE	audit_success	 
+admin	NULL	NULL	NULL	user	ROLE	audit_success	 
+admin	NULL	NULL	NULL	user	SELECT	audit_success	 
+admin	NULL	NULL	NULL	user	SEQUENCE	audit_success	 
+admin	NULL	NULL	NULL	user	SESSION	audit_success	 
+admin	NULL	NULL	NULL	user	TABLE_V1	audit_success	 
+admin	NULL	NULL	NULL	user	TRIGGER	audit_success	 
+admin	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_success	 
+admin	NULL	NULL	NULL	user	UPDATE	audit_success	 
+admin	NULL	NULL	NULL	user	USER	audit_success	 
+admin	NULL	NULL	NULL	user	VIEW	audit_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by admin;
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by test1 whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+test1	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	AUDIT	audit_not_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DATABASE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DELETE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DROP	audit_not_success	 
+test1	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	INDEX	audit_not_success	 
+test1	NULL	NULL	NULL	user	INSERT	audit_not_success	 
+test1	NULL	NULL	NULL	user	PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	REPLACE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ROLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SELECT	audit_not_success	 
+test1	NULL	NULL	NULL	user	SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SESSION	audit_not_success	 
+test1	NULL	NULL	NULL	user	TABLE_V1	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRIGGER	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	UPDATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	USER	audit_not_success	 
+test1	NULL	NULL	NULL	user	VIEW	audit_not_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by test1;
+audit all by admin;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+admin	NULL	NULL	NULL	user	ALL	audit_success	 
+test1	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	AUDIT	audit_not_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DATABASE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DELETE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DROP	audit_not_success	 
+test1	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	INDEX	audit_not_success	 
+test1	NULL	NULL	NULL	user	INSERT	audit_not_success	 
+test1	NULL	NULL	NULL	user	PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	REPLACE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ROLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SELECT	audit_not_success	 
+test1	NULL	NULL	NULL	user	SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SESSION	audit_not_success	 
+test1	NULL	NULL	NULL	user	TABLE_V1	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRIGGER	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	UPDATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	USER	audit_not_success	 
+test1	NULL	NULL	NULL	user	VIEW	audit_not_success	 
+noaudit all by admin;
+audit all by admin whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+admin	NULL	NULL	NULL	user	ALL	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	AUDIT	audit_not_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DATABASE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DELETE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DROP	audit_not_success	 
+test1	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	INDEX	audit_not_success	 
+test1	NULL	NULL	NULL	user	INSERT	audit_not_success	 
+test1	NULL	NULL	NULL	user	PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	REPLACE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ROLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SELECT	audit_not_success	 
+test1	NULL	NULL	NULL	user	SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SESSION	audit_not_success	 
+test1	NULL	NULL	NULL	user	TABLE_V1	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRIGGER	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	UPDATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	USER	audit_not_success	 
+test1	NULL	NULL	NULL	user	VIEW	audit_not_success	 
+noaudit all by admin whenever not successful;
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+test1	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	AUDIT	audit_not_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DATABASE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DELETE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DROP	audit_not_success	 
+test1	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	INDEX	audit_not_success	 
+test1	NULL	NULL	NULL	user	INSERT	audit_not_success	 
+test1	NULL	NULL	NULL	user	PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	REPLACE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ROLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SELECT	audit_not_success	 
+test1	NULL	NULL	NULL	user	SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SESSION	audit_not_success	 
+test1	NULL	NULL	NULL	user	TABLE_V1	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRIGGER	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	UPDATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	USER	audit_not_success	 
+test1	NULL	NULL	NULL	user	VIEW	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	ALTER_SEQUENCE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	ALTER_TABLE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	AUDIT	audit_success	 
+NULL	NULL	NULL	NULL	stmt	CREATE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	DATABASE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	DELETE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	DROP	audit_success	 
+NULL	NULL	NULL	NULL	stmt	EXECUTE_PROCEDURE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	GRANT_PROCEDURE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	GRANT_TABLE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	INDEX	audit_success	 
+NULL	NULL	NULL	NULL	stmt	INSERT	audit_success	 
+NULL	NULL	NULL	NULL	stmt	PROCEDURE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	REPLACE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	ROLE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	SELECT	audit_success	 
+NULL	NULL	NULL	NULL	stmt	SEQUENCE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	SESSION	audit_success	 
+NULL	NULL	NULL	NULL	stmt	TABLE_V1	audit_success	 
+NULL	NULL	NULL	NULL	stmt	TRIGGER	audit_success	 
+NULL	NULL	NULL	NULL	stmt	TRUNCATE_TABLE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	UPDATE	audit_success	 
+NULL	NULL	NULL	NULL	stmt	USER	audit_success	 
+NULL	NULL	NULL	NULL	stmt	VIEW	audit_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit;
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit whenever not successful;
+select * from __all_audit_rules;
+username	dbname	table_id	column_id	audit_type	sql_type	if_success	info
+test1	NULL	NULL	NULL	user	ALTER_SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ALTER_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	AUDIT	audit_not_success	 
+test1	NULL	NULL	NULL	user	CREATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DATABASE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DELETE	audit_not_success	 
+test1	NULL	NULL	NULL	user	DROP	audit_not_success	 
+test1	NULL	NULL	NULL	user	EXECUTE_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	GRANT_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	INDEX	audit_not_success	 
+test1	NULL	NULL	NULL	user	INSERT	audit_not_success	 
+test1	NULL	NULL	NULL	user	PROCEDURE	audit_not_success	 
+test1	NULL	NULL	NULL	user	REPLACE	audit_not_success	 
+test1	NULL	NULL	NULL	user	ROLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SELECT	audit_not_success	 
+test1	NULL	NULL	NULL	user	SEQUENCE	audit_not_success	 
+test1	NULL	NULL	NULL	user	SESSION	audit_not_success	 
+test1	NULL	NULL	NULL	user	TABLE_V1	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRIGGER	audit_not_success	 
+test1	NULL	NULL	NULL	user	TRUNCATE_TABLE	audit_not_success	 
+test1	NULL	NULL	NULL	user	UPDATE	audit_not_success	 
+test1	NULL	NULL	NULL	user	USER	audit_not_success	 
+test1	NULL	NULL	NULL	user	VIEW	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	ALTER_SEQUENCE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	ALTER_TABLE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	AUDIT	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	CREATE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	DATABASE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	DELETE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	DROP	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	EXECUTE_PROCEDURE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	GRANT_PROCEDURE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	GRANT_TABLE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	INDEX	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	INSERT	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	PROCEDURE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	REPLACE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	ROLE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	SELECT	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	SEQUENCE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	SESSION	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	TABLE_V1	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	TRIGGER	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	TRUNCATE_TABLE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	UPDATE	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	USER	audit_not_success	 
+NULL	NULL	NULL	NULL	stmt	VIEW	audit_not_success	 
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit whenever not successful;

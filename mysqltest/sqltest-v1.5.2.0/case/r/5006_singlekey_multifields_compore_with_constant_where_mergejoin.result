@@ -1,0 +1,204 @@
+drop table if exists t1,t2;
+create table t1(c1 int primary key, c2 int, c3 varchar(30));
+insert into t1 values(1,1,'aaa');
+insert into t1 values(2,2,'bbb');
+insert into t1 values(3,3,'ccc');
+insert into t1 values(4,4,'ddd');
+insert into t1 values(5,5,'eee');
+insert into t1 values(6,6,'fff');
+insert into t1 values(7,7,'ggg');
+insert into t1 values(8,8,'hhh');
+insert into t1 values(9,9,'iii');
+insert into t1 values(10,10,'jjj');
+create table t2(c1 int primary key, c2 int, c3 varchar(30));
+insert into t2 values(1,1,'aaa');
+insert into t2 values(2,2,'bbb');
+insert into t2 values(3,3,'ccc');
+insert into t2 values(4,4,'ddd');
+insert into t2 values(5,5,'eee');
+insert into t2 values(6,6,'fff');
+insert into t2 values(7,7,'ggg');
+insert into t2 values(8,8,'hhh');
+insert into t2 values(9,9,'iii');
+insert into t2 values(10,10,'jjj');
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=10;
+c1	c2	c3	c1	c2	c3
+10	10	jjj	10	10	jjj
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=10;
+c1	c2	c3	c1	c2	c3
+10	10	jjj	10	10	jjj
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=10;
+c1	c2	c3	c1	c2	c3
+10	10	jjj	10	10	jjj
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=10;
+c1	c2	c3	c1	c2	c3
+10	10	jjj	10	10	jjj
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=11;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=11;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=11;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=11;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+c1	c2	c3	c1	c2	c3
+9	9	iii	9	9	iii
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+c1	c2	c3	c1	c2	c3
+9	9	iii	9	9	iii
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+c1	c2	c3	c1	c2	c3
+9	9	iii	9	9	iii
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+c1	c2	c3	c1	c2	c3
+9	9	iii	9	9	iii
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+c1	c2	c3	c1	c2	c3
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+6	6	fff	6	6	fff
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+6	6	fff	6	6	fff
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+6	6	fff	6	6	fff
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+5	5	eee	5	5	eee
+6	6	fff	6	6	fff
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+4	4	ddd	4	4	ddd
+drop table t1,t2;

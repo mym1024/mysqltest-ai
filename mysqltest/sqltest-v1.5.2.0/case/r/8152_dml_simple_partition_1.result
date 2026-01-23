@@ -1,0 +1,120 @@
+drop table if exists t1,t2,t3,t4,t5;
+create enum partition function e1(x)'[(12345678901234567890)]';
+create table t1 (a bigint primary key,b double) partition by(ta1,e1,a);
+insert into t1(a) values (12345678901234567890);
+select count(a) from t1;
+count(a)
+1
+select count(distinct a) from t1;
+count(distinct a)
+1
+drop table t1;
+drop partition function e1;
+create table t1 (a int ,b int primary key) partition by list(b) (partition d1 values in(1,2,3,4),partition d2 values in(5,6,7,8));
+insert into t1 values(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8);
+select a,count(distinct b) as cnt from t1 group by a having cnt>50;
+a	cnt
+select a,sum(distinct b) as sumation from t1 group by a having sumation>50;
+a	sumation
+select a,avg(distinct b) as average from t1 group by a having average>50;
+a	average
+drop table t1;
+create enum partition function e1(x)'[(1)],[(2)]';
+create table t1 (a int ,b int primary key) partition by(ta2,e1,b);
+insert into t1 values(null,1),(null,2);
+select min(a),min(b) from t1;
+min(a)	min(b)
+NULL	1
+create table t2 (pk int primary key ,a int,b int,c int) partition by list(pk) (partition b1 values in(1,3),partition b2 values in(2,4));
+insert into t2 (pk,a,b,c) values(1,1,null,2),(2,1,3,4),(3,1,4,4);
+select min(b),min(c) from t2 where a=1;
+min(b)	min(c)
+3	2
+create hash partition function h2(x)'(x+4)%3';
+create table t3(pk int primary key,a int,b int,c int)partition by(h2t,h2,pk);
+insert into t3 values
+(1,1,null,1),(2,2,null,2),(3,3,null,3);
+select min(a),min(b) from t3 where a=2;
+min(a)	min(b)
+2	NULL
+create table t4(a int,b int,c int,primary key(a,c)) partition by range columns(a,c)(partition q1 values less than(2,2),partition q2 values less than(4,4),partition q3 values less than(maxvalue,maxvalue));
+insert into t4 values(1,1,1),(2,null,2),(3,1,3);
+select min(a),min(b) from t4 where a=2;
+min(a)	min(b)
+2	NULL
+select min(b),min(c) from t4 where a=2;
+min(b)	min(c)
+NULL	2
+create enum partition function e2(x,y)'[(1,1)],[(1,2)]';
+create table t5 (a int,b int,primary key(a,b),c int) partition by(ta5,e2,a,b);
+insert into t5(a,b) values(1,1),(1,2);
+select min(a),min(b) from t5 where a=1;
+min(a)	min(b)
+1	1
+select min(a),min(b) from t5 where a=1 and b>1;
+min(a)	min(b)
+1	2
+drop table t1,t2,t3,t4,t5;
+create table t1(a int primary key,b int) partition by range (a)(partition d1 values less than(3),partition d2 values less than(5),partition d3 values less than maxvalue);
+insert into t1(a) values(1),(2),(3),(4);
+select a from t1 having count(*)>2;
+a
+1
+select count(*),a from t1;
+count(*)	a
+4	1
+drop table t1;
+create table t1 (a int ,b int primary key) partition by list(b) (partition v1 values in(1,2),partition v2 values in(3,4));
+insert into t1 values(1,1),(1,2),(1,3);
+select count(*) from t1;
+count(*)
+3
+select count(*) from t1 where a=1;
+count(*)
+3
+select count(*),a from t1;
+count(*)	a
+3	1
+select count(*) from t1 a join t1 b on a.a=b.a;
+count(*)
+9
+drop table t1;
+create hash partition function h1(x)'x+3';
+create table t1(pk int not null,i int,primary key(pk))partition by(ta1,h1,pk);
+insert into t1 values(1,11),(2,12),(3,13);
+select max(pk) as max ,i from t1 order by max;
+max	i
+3	11
+select max(pk) as max ,i from t1 where pk<2 order by max;
+max	i
+1	11
+drop table t1;
+drop partition function h1;
+create enum partition function e3(x)'[(1)],[(2)]';
+create table t1 (a int,primary key(a),b int) partition by(ta2,e3,a);
+insert into t1(a) values(1),(2);
+select 1 from t1 order by avg(distinct a);
+1
+1
+drop table t1;
+drop partition function e3;
+create table t1 (pk int primary key ,col_int_nokey int) partition by list(pk) (partition r1 values in(1,4),partition r2 values in(2,3));
+insert into t1 values(1,7),(2,8),(3,null);
+select avg(distinct col_int_nokey) from t1;
+avg(distinct col_int_nokey)
+7.5
+select avg(distinct outr.col_int_nokey) from t1 as outr left join t1 as outr2 on outr.col_int_nokey=outr2.col_int_nokey;
+avg(distinct outr.col_int_nokey)
+7.5
+drop table t1;
+create table t1(pk int primary key,b int) partition by range (pk)(partition p1 values less than(2),partition p2 values less than(5),partition p3 values less than maxvalue);
+insert into t1 values(1,null),(2,2),(3,4);
+select * from t1;
+pk	b
+1	NULL
+2	2
+3	4
+select count(b) ,min(b),max(b),sum(b) ,avg(b) from t1;
+count(b)	min(b)	max(b)	sum(b)	avg(b)
+2	2	4	6	3
+drop table t1;

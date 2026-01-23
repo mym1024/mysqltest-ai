@@ -1,0 +1,683 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：哈希分区函数下的批量删除
+##
+#
+###2.测试项：（每新添一测试项，需在添加前注明测试项，注释填在新添sql前，不填在此处，如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：1200 s
+###5.编写/修改人：hexiangsong
+###6.编写/修改日期：2019-12-05
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists test1,test2;
+--error 5077
+drop partition function h;
+--enable_warnings
+
+# rowkey use int and varchar
+create hash partition function h(x) '1+2';
+create table test1(c1 int,c2 varchar(20),c3 decimal(10,5),c4 int,primary key(c1)) partition by(em,h,c1);
+--real_sleep 5
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+show partition groups;
+create index idx1 on test1(c1);
+create index idx2 on test1(c2);
+create index idx3 on test1(c3);
+
+alter system set min_drop_cache_wait_time='300s' server_type=yaodatasvr;
+
+# rowkey use int,varchar and decimal
+create hash partition function h2(x) 'x+2';
+create table test2(c1 int,c2 decimal(10,5),c3 varchar(20),c4 int,c5 int,c6 int,c7 decimal(10,5),c8 varchar(20),primary key(c1,c2,c3)) partition by(em,h2,c1);
+--real_sleep 5
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+show partition groups;
+create index idx2 on test2(c5) storing(c6,c4);
+create index idx3 on test2(c2,c3) storing(c4,c5);
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 1000
+
+let $test1_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test1',table_id,1);
+let $test2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test2',table_id,1);
+
+--let $index_head =__
+--let $index1_end =__idx__idx1
+--let $index2_end =__idx__idx2
+--let $index3_end =__idx__idx3
+
+--let $test1_idx1_name=$index_head$test1_tb_id$index1_end
+--let $test1_idx2_name=$index_head$test1_tb_id$index2_end
+--let $test1_idx3_name=$index_head$test1_tb_id$index3_end
+
+--let $test2_idx2_name=$index_head$test2_tb_id$index2_end
+--let $test2_idx3_name=$index_head$test2_tb_id$index3_end
+
+echo $test1_idx1_name;
+echo $test1_idx2_name;
+echo $test1_idx3_name;
+
+echo $test2_idx2_name;
+echo $test2_idx3_name;
+
+show index on test1;
+show index on test2;
+
+# 存在多张索引
+# 单主键（where条件：主键/非主键 AND OR BETWEEN...AND... IN IN子查询 运算表达式 > <）
+
+###2-1:指定条件为主键
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 > 100;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+
+delete from test1 where c1 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 > 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+
+delete from test1 where c1 = 1 OR c1 = 2 OR c1 = 3 OR c1 = 4 OR c1 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+--error 145
+delete from test1 where c1 = 1 and c1 = 1 and c1 = 1 and c1 = 1 and c1 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+--error 145
+delete from test1 where c1 = 1 and c1 = 2 and c1 = 3 and c1 = 4 and c1 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 = 1 or c1 = 2 and c1 = 3 or c1 = 4 and c1 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 between 1 and 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 between 3 and 4;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 IN (10,11,12,13,14,15);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 IN (1);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 IN (2);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 IN (1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 * 2 + 1 > 3;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 / 2 - 1 > 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 * 2 / 3 * 5 % 4 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where (c1 * 2 / 3 * 5) MOD 3 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+# TODO 目前支持的函数
+# TODO 子查询
+
+###2-2：指定条件为非主键（单独一个非主键）
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 > 100;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 > 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 = 1 OR c3 = 2 OR c3 = 3 OR c3 = 4 OR c3 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 = 1 and c3 = 1 and c3 = 1 and c3 = 1 and c3 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 = 1 and c3 = 2 and c3 = 3 and c3 = 4 and c3 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 = 1 or c3 = 2 and c3 = 3 or c3 = 4 and c3 = 5;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 between 1 and 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 between 3 and 4;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 IN (10,11,12,13,14,15);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 IN (1);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 IN (2);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 IN (1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 * 2 + 1 > 3;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 / 2 - 1 > 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 * 2 / 3 * 5 % 4 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where (c3 * 2 / 3 * 5) MOD 3 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+# TODO 目前支持的函数
+# TODO 子查询
+
+###2-3：指定条件为非主键（多个非主键，主键结合）
+delete from test1 where c1 = 1 OR c2 = '2' OR c3 = 3 OR c4 = 4 OR c2 = '5';
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+--error 5009
+delete from test1 where c1 = 1 and c2 = 'b' and c3 = 3 and c4 = 1 and c5 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 = 1 and c2 = 'a' and c3 = 1 and c4 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c2 = 'a' and c3 = 1 and c4 = 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c1 = 1 or c2 = 'b' and c4 = 3 or c2 = 'd' and c2 = 'e';
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c3 between 1 and 4 and c4 between 3 and 4;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c2 * 2 + c3 > 3;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+#
+#--error 119
+delete from test1 where c2 * c3 - 1 > 1;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where c2 * 2 / c3 * 5 % c3 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+delete from test1 where (c2 * 2 / 3 * 5) MOD c1 + 1 > 8;
+--real_sleep 1
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+replace into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+# TODO 目前支持的函数
+# TODO 子查询
+
+# 复合主键（where条件：主键/非主键 AND OR BETWEEN...AND... IN IN子查询 运算表达式 > < ）
+
+###2-4：指定条件为主键
+update test2 set c7=11.11,c8='abcd' where c1 = 1 and c2 = 1.11 and c3 = 'a';
+delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 > 1 and c2 > 1 and c3 > 'a';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 > 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#update test2 set c7=11.11,c8='abcd' where c1 > 0;
+#eval select * from $test2_idx2_name;
+#eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c2 > 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c3 > 'a';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 OR c2 = 2 OR c3 = 'a';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 and c2 = 1 and c3 = 'b';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 and c2 = 2 and c3 = 'c';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 and c2 = 2 and c3 = 'd';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 between 1 and 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c2 between 3 and 4;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c3 between 'a' and 'd';
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 IN (10,11,12,13,14,15);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c2 IN (1);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c3 IN ('a');
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 IN (1,2,3,4,5,6,7,8,9,10);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 * c2 + 1 > 3;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 / c2 - 1 > 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 * 2 / c2 * 5 % 4 + 1 > 8;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where (c1 * 2 / 3 * 5) MOD 3 + 1 > 8;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+# TODO 目前支持的函数
+# TODO 子查询
+
+###2-5：指定条件主键，非主键结合
+update test2 set c7=11.11,c8='abcd' where c4 > 100;
+update test2 set c7=11.11,c8='abcd' where c5 = 1;
+delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c6 > 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 OR c2 = 2 OR c4 = 3 OR c5 = 4 OR c6 = 5;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c2 = 1 and c3 = 1 and c4 = 1 and c5 = 1 and c6 = 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c1 = 1 and c2 = 2 and c3 = 3 and c4 = 4 and c6 = 5;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c2 = 1 or c4 = 2 and c5 = 3 or c7 = 4 and c6 = 5;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c4 between 1 and 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c5 between 3 and 4;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+#--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c6 IN (10,11,12,13,14,15);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c7 IN (1);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c8 IN (2);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c5 IN (1,2,3,4,5,6,7,8,9,10);
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c4 * 2 + 1 > 3;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+--sleep 3
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c5 / 2 - 1 > 1;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where c7 * 2 / 3 * c6 % 4 + 1 > 8;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+#delete from test2 where c1 > 0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c7=11.11,c8='abcd' where (c8 * c4 / 3 * 5) MOD 3 + 1 > 8;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+# TODO 目前支持的函数
+# TODO 子查询
+
+# float
+# double
+# decimal
+# varchar
+# where中包含like
+# timestamp
+# date time
+
+
+

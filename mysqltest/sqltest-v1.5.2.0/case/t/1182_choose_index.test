@@ -1,0 +1,109 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：索引扫描和原表扫描路径选择测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：曹俊
+###7.编写/修改日期：202001219
+###8.其他（选填）：xxx
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database opt;
+using database opt;
+sleep 5;
+
+###设置合并参数
+
+###建表插数据
+create table if not exists t1(c1 int primary key, c2 int, c3 int, c4 int);
+
+create index idx1 on t1(c2);
+create index idx2 on t1(c2) storing(c3);
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+
+###t1表数据
+--let $row_num = 1
+while ($row_num != 100)
+{
+  eval replace into t1 values($row_num,$row_num,$row_num,$row_num);
+  inc $row_num;
+}
+
+###合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+###开启查询优化器
+set @@yao_enable_query_optimizer=true;
+
+select @@yao_enable_query_optimizer;
+
+###选择原表
+explain select c1 from t1 where c1 = 1;
+
+explain select c3 from t1 where c3 = 2;
+
+explain select c1, c2 from t1 where c1 = 1 and c2 = 2;
+
+explain select c1, c2, c3 from t1 where c1 = 1 and c2 = 2 and c3 = 3;
+
+explain select c1, c2, c4 from t1 where c1 = 1 and c2 = 2 and c4 = 1;
+
+###选择索引表
+explain select c2 from t1 where c2 = 2;
+
+explain select c3 from t1 where c2 = 2 and c3 = 3;
+
+###选择索引表+回表
+explain select c3, c4 from t1 where c2 = 2 and c4 = 1;
+
+explain select * from t1 where c2 = 2 and c3 = 1 and c4 = 1;
+
+###关闭查询优化器
+set @@yao_enable_query_optimizer=false;
+
+select @@yao_enable_query_optimizer;
+
+###选择原表
+explain select c1 from t1 where c1 = 1;
+
+explain select c3 from t1 where c3 = 2;
+
+explain select c1, c2 from t1 where c1 = 1 and c2 = 2;
+
+explain select c1, c2, c3 from t1 where c1 = 1 and c2 = 2 and c3 = 3;
+
+explain select c1, c2, c4 from t1 where c1 = 1 and c2 = 2 and c4 = 1;
+
+###选择索引表
+explain select c2 from t1 where c2 = 2;
+
+explain select c3 from t1 where c2 = 2 and c3 = 3;
+
+###选择索引表+回表
+explain select c3, c4 from t1 where c2 = 2 and c4 = 1;
+
+explain select * from t1 where c2 = 2 and c3 = 1 and c4 = 1;
+
+###删表删库
+drop table if exists t1;
+drop database opt;
+
+########################################################################################################

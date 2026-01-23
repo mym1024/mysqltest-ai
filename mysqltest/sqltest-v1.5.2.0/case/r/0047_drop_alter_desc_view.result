@@ -1,0 +1,196 @@
+alter view %v as select 1+1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop view if exists v1;
+alter view v1 as select 1*2.37*6.78;
+ERROR HY000: YAO-18: VIEW 'test.v1' does not exist
+drop view if exists v1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select v1.c1,t2.c2 from v1,t2;
+create view v3 as select v2.c1,v2.c2 from v2,t2;
+alter view v1 as select c1 from v3;
+select * from v1;
+ERROR HY000: YAO-5853: 'test.v1' contains view recursion
+select * from v2;
+ERROR HY000: YAO-5853: 'test.v2' contains view recursion
+select * from v3;
+ERROR HY000: YAO-5853: 'test.v3' contains view recursion
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop view if exists v1,v2,t1;
+ERROR HY000: YAO-5852: 'test.t1' is not a view
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view if exists v1,__all_view;
+drop view v1,__all_view;
+ERROR 42S02: YAO-5019: view 'test.v1' does not exist
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create database db;
+using database db;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+create user 'user01' identified by 'Abc@12345';
+grant select on *.* to 'user01';
+using database db;
+drop view if exists v1,v2;
+ERROR HY000: YAO-5036: no privilege
+drop view v1,v2;
+ERROR HY000: YAO-5036: no privilege
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop user 'user01';
+create user 'user01' identified by 'Abc@12345';
+grant select on db.v1 to 'user01';
+grant drop on db.v1 to 'user01';
+using database db;
+drop view if exists v1,v2;
+ERROR HY000: YAO-5036: no privilege
+drop view v1,v2;
+ERROR HY000: YAO-5036: no privilege
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop view v1,v2,v3;
+ERROR 42S02: YAO-5019: view 'db.v3' does not exist
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop view v1,v2,v3,v4,v6,v5;
+ERROR 42S02: YAO-5019: view 'db.v3' does not exist
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view v1,v2,v3;
+ERROR 42S02: YAO-5019: view 'db.v1' does not exist
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+truncate table v1;
+ERROR HY000: YAO-5852: Object 'db.v1' is not a TABLE
+truncate table t1,v1;
+ERROR HY000: YAO-5852: Object 'db.v1' is not a TABLE
+truncate table if exists t1,v1;
+ERROR HY000: YAO-5852: Object 'db.v1' is not a TABLE
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+alter table v1 add c1 int;
+ERROR HY000: YAO-5852: Object 'v1' is not a TABLE
+alter table v1 drop c1;
+ERROR HY000: YAO-5852: Object 'v1' is not a TABLE
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop table v1,v2,t1;
+ERROR HY000: YAO-5852: Object 'db.v1' is not a TABLE
+drop table if exists v1,v2,t1;
+ERROR HY000: YAO-5852: Object 'db.v1' is not a TABLE
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+rename table v1 to v3;
+ERROR HY000: YAO-5852: Object 'v1' is not a TABLE
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+desc v3;
+ERROR 42S02: YAO-5019: Unknown table "db.v3"
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+desc v1;
+ERROR 42S02: YAO-5019: Unknown table "db.v1"
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+using database "yao";
+desc db.v1;
+ERROR 42S02: YAO-5019: Unknown table "db.v1"
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+using database "yao";
+desc db.v1;
+ERROR 42S02: YAO-5019: Unknown table "db.v1"
+create view db.v1 as select c1 from db.t1;
+desc db.v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;

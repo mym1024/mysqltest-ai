@@ -1,0 +1,264 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create table t3(c1 int primary key, c2 int, c3 bigint, c4 float, c5 double,
+c6 datetime, c7 timestamp,
+c8 date, c9 time, c10 timestamp,
+c11 varchar(20), c12 bool, c13 bool, c14 decimal(20,2),
+c15 tinyint, c16 smallint, c17 mediumint,
+c19 real, c20 char(5), c21 binary(4), c22 varbinary(4));
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	bigint	YES		NULL	
+c4	float	YES		NULL	
+c5	double	YES		NULL	
+c6	timestamp	YES		NULL	
+c7	timestamp	YES		NULL	
+c8	date	YES		NULL	
+c9	time	YES		NULL	
+c10	timestamp	YES		NULL	
+c11	varchar(20)	YES		NULL	
+c12	bool	YES		NULL	
+c13	bool	YES		NULL	
+c14	decimal(20,2)	YES		NULL	
+c15	int(3)	YES		NULL	
+c16	int(5)	YES		NULL	
+c17	int(8)	YES		NULL	
+c19	double	YES		NULL	
+c20	varchar(5)	YES		NULL	
+c21	varchar(4)	YES		NULL	
+c22	varchar(4)	YES		NULL	
+insert into t3(c1,c2,c3,c4) values(11, 9, 10, 4.6);
+alter table t3 alter column c2 set default 10;
+alter table t3 alter column c3 set default 100;
+alter table t3 alter column c4 set default 1.11;
+alter table t3 alter column c5 set default 2.22;
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		10	
+c3	bigint	YES		100	
+c4	float	YES		1.11	
+c5	double	YES		2.22	
+c6	timestamp	YES		NULL	
+c7	timestamp	YES		NULL	
+c8	date	YES		NULL	
+c9	time	YES		NULL	
+c10	timestamp	YES		NULL	
+c11	varchar(20)	YES		NULL	
+c12	bool	YES		NULL	
+c13	bool	YES		NULL	
+c14	decimal(20,2)	YES		NULL	
+c15	int(3)	YES		NULL	
+c16	int(5)	YES		NULL	
+c17	int(8)	YES		NULL	
+c19	double	YES		NULL	
+c20	varchar(5)	YES		NULL	
+c21	varchar(4)	YES		NULL	
+c22	varchar(4)	YES		NULL	
+insert into t3(c1, c2, c3, c4, c5) values(1, default, default, default, default);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+insert into t3(c1) values(2);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+alter table t3 alter column c6 set default '2017-09-11 15:36:01';
+alter table t3 alter column c7 set default '2016-08-12 11:36:01';
+alter table t3 alter column c8 set default '2017-09-11';
+alter table t3 alter column c9 set default '15:36:01';
+alter table t3 alter column c10 set default 1503799330000000;
+alter table t3 alter column c11 set default 'aaa';
+alter table t3 alter column c12 set default true;
+alter table t3 alter column c13 set default 1;
+alter table t3 alter column c14 set default 3;
+alter table t3 alter column c15 set default 2;
+alter table t3 alter column c16 set default 134;
+alter table t3 alter column c17 set default 178;
+alter table t3 alter column c19 set default 5.55;
+alter table t3 alter column c20 set default 'bbb';
+alter table t3 alter column c21 set default '1111';
+alter table t3 alter column c22 set default '0000';
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		10	
+c3	bigint	YES		100	
+c4	float	YES		1.11	
+c5	double	YES		2.22	
+c6	timestamp	YES		2017-09-11 15:36:01	
+c7	timestamp	YES		2016-08-12 11:36:01	
+c8	date	YES		2017-09-11	
+c9	time	YES		15:36:01	
+c10	timestamp	YES		1503799330000000	
+c11	varchar(20)	YES		aaa	
+c12	bool	YES		1	
+c13	bool	YES		1	
+c14	decimal(20,2)	YES		3	
+c15	int(3)	YES		2	
+c16	int(5)	YES		134	
+c17	int(8)	YES		178	
+c19	double	YES		5.55	
+c20	varchar(5)	YES		bbb	
+c21	varchar(4)	YES		1111	
+c22	varchar(4)	YES		0000	
+insert into t3(c1) values(3);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+alter table t3 alter column c2 drop default;
+alter table t3 alter column c3 drop default;
+alter table t3 alter column c4 drop default;
+alter table t3 alter column c5 drop default;
+alter table t3 alter column c5 drop default;
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	bigint	YES		NULL	
+c4	float	YES		NULL	
+c5	double	YES		NULL	
+c6	timestamp	YES		2017-09-11 15:36:01	
+c7	timestamp	YES		2016-08-12 11:36:01	
+c8	date	YES		2017-09-11	
+c9	time	YES		15:36:01	
+c10	timestamp	YES		1503799330000000	
+c11	varchar(20)	YES		aaa	
+c12	bool	YES		1	
+c13	bool	YES		1	
+c14	decimal(20,2)	YES		3	
+c15	int(3)	YES		2	
+c16	int(5)	YES		134	
+c17	int(8)	YES		178	
+c19	double	YES		5.55	
+c20	varchar(5)	YES		bbb	
+c21	varchar(4)	YES		1111	
+c22	varchar(4)	YES		0000	
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+insert into t3(c1) values(4);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+4	NULL	NULL	NULL	NULL	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+alter table t3 alter column c6 drop default;
+alter table t3 alter column c7 drop default;
+alter table t3 alter column c8 drop default;
+alter table t3 alter column c9 drop default;
+alter table t3 alter column c10 drop default;
+alter table t3 alter column c11 drop default;
+alter table t3 alter column c12 drop default;
+alter table t3 alter column c13 drop default;
+alter table t3 alter column c14 drop default;
+alter table t3 alter column c15 drop default;
+alter table t3 alter column c16 drop default;
+alter table t3 alter column c17 drop default;
+alter table t3 alter column c19 drop default;
+alter table t3 alter column c20 drop default;
+alter table t3 alter column c21 drop default;
+alter table t3 alter column c22 drop default;
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+c3	bigint	YES		NULL	
+c4	float	YES		NULL	
+c5	double	YES		NULL	
+c6	timestamp	YES		NULL	
+c7	timestamp	YES		NULL	
+c8	date	YES		NULL	
+c9	time	YES		NULL	
+c10	timestamp	YES		NULL	
+c11	varchar(20)	YES		NULL	
+c12	bool	YES		NULL	
+c13	bool	YES		NULL	
+c14	decimal(20,2)	YES		NULL	
+c15	int(3)	YES		NULL	
+c16	int(5)	YES		NULL	
+c17	int(8)	YES		NULL	
+c19	double	YES		NULL	
+c20	varchar(5)	YES		NULL	
+c21	varchar(4)	YES		NULL	
+c22	varchar(4)	YES		NULL	
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+4	NULL	NULL	NULL	NULL	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+insert into t3(c1) values(5);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+4	NULL	NULL	NULL	NULL	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+alter table t3 alter column c2 set default 10;
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		10	
+c3	bigint	YES		NULL	
+c4	float	YES		NULL	
+c5	double	YES		NULL	
+c6	timestamp	YES		NULL	
+c7	timestamp	YES		NULL	
+c8	date	YES		NULL	
+c9	time	YES		NULL	
+c10	timestamp	YES		NULL	
+c11	varchar(20)	YES		NULL	
+c12	bool	YES		NULL	
+c13	bool	YES		NULL	
+c14	decimal(20,2)	YES		NULL	
+c15	int(3)	YES		NULL	
+c16	int(5)	YES		NULL	
+c17	int(8)	YES		NULL	
+c19	double	YES		NULL	
+c20	varchar(5)	YES		NULL	
+c21	varchar(4)	YES		NULL	
+c22	varchar(4)	YES		NULL	
+insert into t3(c1) values(6);
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+4	NULL	NULL	NULL	NULL	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+6	10	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c19	c20	c21	c22
+1	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+2	10	100	1.11	2.22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+3	10	100	1.11	2.22	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+4	NULL	NULL	NULL	NULL	2017-09-11 15:36:01.000000	2016-08-12 11:36:01.000000	2017-09-11	15:36:01	2017-08-27 10:02:10.000000	aaa	1	1	3	2	134	178	5.55	bbb	1111	0000
+5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+6	10	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+11	9	10	4.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+drop table t3;

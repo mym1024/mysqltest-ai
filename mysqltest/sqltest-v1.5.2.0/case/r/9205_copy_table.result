@@ -1,0 +1,68 @@
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table LIKE original_table;
+DESCRIBE copied_table;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+name	varchar(100)	YES		NULL	
+select * from original_table;
+id	name
+1	Alice
+2	Bob
+3	Charlie
+select * from copied_table;
+id	name
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table AS SELECT * FROM original_table;
+SELECT * FROM copied_table;
+id	name
+1	Alice
+2	Bob
+3	Charlie
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100),UNIQUE KEY unique_name (name));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table like original_table;
+ALTER TABLE copied_table ADD UNIQUE KEY unique_name (name);
+SHOW INDEXS;
+db_name	data_table_name	index_id	index_name	status
+test	original_table	3006	__3005__idx__unique_name	1
+test	copied_table	3008	__3007__idx__uk_1766600343583654	1
+test	copied_table	3009	__3007__idx__unique_name	1
+CREATE TABLE parent_table (id INT PRIMARY KEY,name VARCHAR(100));
+CREATE TABLE child_table (id INT PRIMARY KEY,parent_id INT,FOREIGN KEY (parent_id) REFERENCES parent_table(id));
+CREATE TABLE copied_parent_table AS SELECT * FROM parent_table;
+CREATE TABLE copied_child_table AS SELECT * FROM child_table;
+ALTER TABLE copied_child_table ADD FOREIGN KEY (parent_id) REFERENCES copied_parent_table(id);
+SHOW CREATE TABLE copied_child_table;
+Table	Create Table
+test.copied_child_table	CREATE TABLE copied_child_table (
+id INT(127),
+parent_id INT(127),
+ CONSTRAINT copied_child_table_ybfk_1766600344545673 FOREIGN KEY (parent_id) REFERENCES test.copied_parent_table(id) ON UPDATE RESTRICT ON DELETE RESTRICT
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100) NOT NULL,email VARCHAR(100) UNIQUE);
+INSERT INTO original_table VALUES (1, 'Alice', 'alice@example.com'), (2, 'Bob', 'bob@example.com');
+CREATE TABLE copied_table LIKE original_table;
+DESCRIBE copied_table;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+name	varchar(100)	NO		NULL	
+email	varchar(100)	YES	UNI	NULL	
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO copied_table SELECT * FROM original_table;
+SELECT * FROM copied_table;
+id	name
+1	Alice
+2	Bob
+3	Charlie

@@ -1,0 +1,169 @@
+case 1:commit
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t1;
+create table t1(c1 int primary key ,c2 int) partition by range(c1) (partition a1 values less than(3),partition a2 values less than (6),partition a3 values less than maxvalue);
+set autocommit=0;
+insert into t4 values(2,3,1,22);
+ERROR 42S02: YAO-5019: table 'test.t4' does not exist
+insert into t4 values(1,3,1,22);
+ERROR 42S02: YAO-5019: table 'test.t4' does not exist
+insert into t4 values(4,7,11,21);
+ERROR 42S02: YAO-5019: table 'test.t4' does not exist
+insert into t1 values(1,2);
+select * from t1 where c1=1 for update;
+c1	c2
+1	2
+commit;
+set autocommit =1;
+select * from t1;
+c1	c2
+1	2
+case 2:commit is ignored if ac=1
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t2;
+create table t2(c1 int primary key ,c2 int) partition by list(c1) (partition b1 values in(1,3),partition b2 values in(2,4));
+set autocommit =1;
+insert into t2 values(1,2);
+select * from t2 where c1=1 for update;
+c1	c2
+1	2
+select * from t2;
+c1	c2
+1	2
+case 3:autocommit commit before set from 0 to 1
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t3;
+-error 5077;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create enum partition e1(x) '[(1)],[(3)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t3(c1 int primary key ,c2 int) partition by(ta1,e1,c1);
+ERROR HY000: YAO-5077: partition function 'e1' doesn't exist
+set autocommit=0;
+insert into t3 values(1,2);
+ERROR 42S02: YAO-5019: table 'test.t3' does not exist
+select * from t3 where c1=1 for update;
+ERROR 42S02: YAO-5019: table 'test.t3' does not exist
+set autocommit=1;
+select * from t3;
+ERROR 42S02: YAO-5019: table 'test.t3' does not exist
+case 4:rollback is ignored if ac=1
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t4;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x*2';
+create table t4(c1 int primary key ,c2 int) partition by(ta2,h1,c1);
+set autocommit=1;
+insert into t4 values(1,2);
+select * from t4 where c1=1 for update;
+c1	c2
+1	2
+select * from t4;
+c1	c2
+1	2
+case 5:rollback
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t5;
+create table t5(c1 int primary key ,c2 int) partition by range(c1) (partition c1 values less than(2),partition c2 values less than (5),partition c3 values less than maxvalue);
+set autocommit=0;
+insert into t5 values(1,2);
+select * from t5 where c1=1 for update;
+c1	c2
+1	2
+rollback;
+set autocommit=1;
+select * from t5;
+c1	c2
+case 5:continue commit/rollback
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t6;
+create table t6(c1 int primary key ,c2 int) partition by list(c1) (partition d1 values in(1,2,3),partition d2 values in(4,5,6));
+set autocommit=0;
+insert into t6 values(1,1);
+select * from t6 where c1=1 for update;
+c1	c2
+1	1
+commit;
+insert into t6 values(2,2);
+select * from t6 where c1=2 for update;
+c1	c2
+2	2
+commit;
+insert into t6 values(3,3);
+select * from t6 where c1=3 for update;
+c1	c2
+3	3
+rollback;
+insert into t6 values(4,4);
+select * from t6 where c1=4 for update;
+c1	c2
+4	4
+commit;
+insert into t6 values(5,5);
+rollback;
+set autocommit=1;
+select * from t6;
+c1	c2
+1	1
+2	2
+4	4
+case 6:fail first,and then success
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t7;
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create hash partition function h2(x) 'x-4';
+create table t7(c1 int primary key ,c2 int) partition by(ta3,h2,c1);
+set autocommit=0;
+insert into t7 values(1,1);
+select * from t7 where c1=1 for update;
+c1	c2
+1	1
+rollback;
+insert into t7 values(1,1);
+select * from t7 where c1=1 for update;
+c1	c2
+1	1
+commit;
+set autocommit=1;
+select * from t7;
+c1	c2
+1	1
+case 7:no stmt success in trx
+show variables like 'autocommit';
+variable_name	value
+autocommit	1
+drop table if exists t8;
+-error 5077;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function e2;
+ERROR HY000: YAO-5077: partition function 'e2' doesn't exist
+create enum partition function e2(x) '[(1)],[(2)],[(3)]';
+create table t8(c1 int primary key ,c2 int) partition by(ta4,e2,c1);
+set autocommit=0;
+insert into t8 values(1,1);
+commit;
+insert into t8 values(1,1);
+ERROR 23000: YAO-5024: Duplicate entry ' <3008.16>=int32:1' for key 'PRIMARY'
+rollback;
+set autocommit=1;
+select * from t8;
+c1	c2
+1	1

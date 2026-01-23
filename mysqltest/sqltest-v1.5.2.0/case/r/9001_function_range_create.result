@@ -1,0 +1,137 @@
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r1,c1);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3001	2	t1	1	rr	r1	c1	NULL
+insert into t1 values(10,10,'a');
+insert into t1 values(15,20,'b');
+select * from t1;
+c1	c2	c3
+10	10	a
+15	20	b
+create range partition function r2(x,y) '(10,50),(20,60),(maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+r2	2	x,y	(10,50),(20,60),(maxvalue,maxvalue)	4
+create table if not exists t2(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r2,c1,c2);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3001	2	t1	1	rr	r1	c1	NULL
+3002	2	t2	1	rr	r2	c1,c2	NULL
+insert into t2 values(1,10,'a');
+insert into t2 values(15,55,'b');
+insert into t2 values(15,70,'c');
+select * from t2;
+c1	c2	c3
+1	10	a
+15	55	b
+15	70	c
+create range partition function r3(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+r2	2	x,y	(10,50),(20,60),(maxvalue,maxvalue)	4
+r3	16	a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16	(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)	4
+create table if not exists t3(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(rr,r3,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3001	2	t1	1	rr	r1	c1	NULL
+3002	2	t2	1	rr	r2	c1,c2	NULL
+3003	2	t3	1	rr	r3	c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16	NULL
+insert into t3 values(-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,'a');
+insert into t3 values(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,'b');
+select * from t3;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17
+-1	-2	-3	-4	-5	-6	-7	-8	-9	-10	-11	-12	-13	-14	-15	-16	a
+2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	b
+create range partition function _r4(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+r2	2	x,y	(10,50),(20,60),(maxvalue,maxvalue)	4
+r3	16	a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16	(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)	4
+_r4	1	x	(10),(20),(maxvalue)	4
+create table if not exists t4(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,_r4,c1);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3001	2	t1	1	rr	r1	c1	NULL
+3002	2	t2	1	rr	r2	c1,c2	NULL
+3003	2	t3	1	rr	r3	c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16	NULL
+3004	2	t4	1	rr	_r4	c1	NULL
+insert into t4 values(10,10,'a');
+insert into t4 values(15,20,'b');
+select * from t4;
+c1	c2	c3
+10	10	a
+15	20	b
+drop table if exists t1;
+drop partition function r1;
+drop table if exists t2;
+drop partition function r2;
+drop table if exists t3;
+drop partition function r3;
+drop table if exists t4;
+drop partition function _r4;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+create table t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3005	2	t1	0	rr	NULL	NULL	NULL
+insert into t1 values(10,10,'a');
+insert into t1 values(15,20,'b');
+insert into t1 values(30,30,'c');
+select * from t1;
+c1	c2	c3
+10	10	a
+15	20	b
+30	30	c
+create table t2(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(,r1,c1);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3005	2	t1	0	rr	NULL	NULL	NULL
+3006	2	t2	1	t2	r1	c1	NULL
+insert into t2 values(10,10,'a');
+insert into t2 values(15,20,'b');
+select * from t2;
+c1	c2	c3
+10	10	a
+15	20	b
+create table t3(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by();
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3005	2	t1	0	rr	NULL	NULL	NULL
+3006	2	t2	1	t2	r1	c1	NULL
+3007	2	t3	0	__user_default_group	NULL	NULL	NULL
+insert into t3 values(10,10,'a');
+insert into t3 values(15,20,'b');
+insert into t3 values(30,30,'c');
+select * from t3;
+c1	c2	c3
+10	10	a
+15	20	b
+30	30	c
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop partition function r1;

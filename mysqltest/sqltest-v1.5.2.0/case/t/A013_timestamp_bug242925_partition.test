@@ -1,0 +1,33 @@
+##############################################################################################
+###1.测试功能点：bug,list分区规则表中插入不同类型列的数据
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-01-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+drop table if exists test_table;
+
+create table test_table(id int,name varchar(64),age int,birth datetime,school_date timestamp,height float,weight double,home varchar(64),description varchar(64),primary key(id,name)) partition by list columns(id,name) (partition qq0 values in((1,'abc'),(2,'yy')),partition qq1 values in((3,'cm'),(4,'my')));
+--real_sleep 5
+replace into test_table values(1,'abc',38,'1988-01-29','1993-09-01',158.778,50.06432,'shiyan','rd'),(2,'yy',30,'1984-3-16','1990-09-01',165.624,59.870,'shanghai','dba'),(3,'cm',18,'1987-01-12','1992-09-01',160.234,51.364,'hangzhou','qa'),(4,'my',26,'1987-06-29','1994-09-01',159.008,48.786,'beijing','sa');
+--real_sleep 3
+select * from test_table;
+drop table test_table;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

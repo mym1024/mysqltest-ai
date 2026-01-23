@@ -1,0 +1,91 @@
+####################################必填######################################################
+###1.测试功能点：虚表操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3; 
+--enable_warnings 
+
+
+###2-1:select操作
+select 1;
+select 1+2;
+select 1+2+3;
+
+select 1-1;
+select 1-1-1;
+select 2-1-0;
+
+#--error 78
+select 1/0;
+select 1/2;
+select 2/1;
+select 4/2/2;
+
+select 1*0;
+select 1*2*3;
+select (1+2.5)*3/5-10*0.1*8/0.2-2 limit 10;
+
+select 0.1;
+select 0.1+0.2;
+select 0.1+1;
+select 0.2/0.1;
+
+select 1 limit 1;
+select 1+1 limit 2;
+
+create table t1(pk int primary key,extra int);
+select 1 from (select pk from t1) as t;
+insert into t1(pk) values(1),(2);
+select 1 from (select pk from t1) as t;
+select 1 from (select 1) as t;
+drop table t1;
+
+
+select 'a';
+select 'a'+'b';
+select 'a'-'b';
+select '1'+'2';
+select '1'/'2';
+select '1'*'2';
+select '1.5';
+select '1.5'+'2.0';
+select (1+'2.5')*3/5-'10'*0.1*8/'0.2'-2 limit 10;
+
+select 1 from dual;
+select '1' from dual where 1 limit 20;
+select '1' from dual where 0 limit 20;
+
+#--error 5001
+select 1 union select 1 from dual;
+#--error 5001
+select 1 union select 1;
+
+--error 5001 
+create table dual(name varchar(30) primary key,a int);
+--error 5001 
+insert into dual values(1);
+
+--error 5002 
+select *;
+--error 5002 
+select * from dual;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,75 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：测试复制表功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2025-01-20
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+#connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+#connection conn1;
+#--disable_warnings
+
+
+###复制表结构（不复制数据）
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table LIKE original_table;
+DESCRIBE copied_table;
+select * from original_table;
+select * from copied_table;
+
+###复制表结构和数据
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table AS SELECT * FROM original_table;
+SELECT * FROM copied_table;
+
+###复制表并保留主键和索引
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100),UNIQUE KEY unique_name (name));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+--sleep 5
+CREATE TABLE copied_table like original_table;
+ALTER TABLE copied_table ADD UNIQUE KEY unique_name (name);
+SHOW INDEXS;
+
+###复制表及其外键约束
+CREATE TABLE parent_table (id INT PRIMARY KEY,name VARCHAR(100));
+CREATE TABLE child_table (id INT PRIMARY KEY,parent_id INT,FOREIGN KEY (parent_id) REFERENCES parent_table(id));
+CREATE TABLE copied_parent_table AS SELECT * FROM parent_table;
+CREATE TABLE copied_child_table AS SELECT * FROM child_table;
+ALTER TABLE copied_child_table ADD FOREIGN KEY (parent_id) REFERENCES copied_parent_table(id);
+SHOW CREATE TABLE copied_child_table;
+
+###复制表（包括约束、索引等）
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100) NOT NULL,email VARCHAR(100) UNIQUE);
+INSERT INTO original_table VALUES (1, 'Alice', 'alice@example.com'), (2, 'Bob', 'bob@example.com');
+CREATE TABLE copied_table LIKE original_table;
+#INSERT INTO copied_table SELECT * FROM original_table;
+DESCRIBE copied_table;
+
+###使用INSERT INTO复制表数据
+drop table original_table;
+drop table copied_table;
+CREATE TABLE original_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO original_table VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+CREATE TABLE copied_table (id INT PRIMARY KEY,name VARCHAR(100));
+INSERT INTO copied_table SELECT * FROM original_table;
+SELECT * FROM copied_table;

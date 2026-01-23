@@ -1,0 +1,284 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+drop table if exists test11;
+drop table if exists test12;
+drop table if exists test13;
+drop table if exists test14;
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+alter table test add current expire_info='c4>=#2020-08-07# and c4<=#2020-08-09#';
+alter table test drop c4;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+alter table test add current expire_info='c4>=#2020-08-07# and c3>2';
+alter table test drop c3;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test drop c4;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+create index idx on test(c2);
+alter table test add current expire_info='c4>=#2020-08-07# and c4<=#2020-08-09#';
+ERROR HY000: YAO-152: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-152
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+create index idx on test(c2,c4);
+alter table test add current expire_info='c4>=#2020-08-07# and c3>1';
+ERROR HY000: YAO-152: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-152
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 datetime);
+alter table test add current expire_info='c4=\'test\' or c4=\'game\'';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 varchar(30), c4 datetime)expire_info='$SYS_DATE>1*24*60*60*1000000+c4 and c2>2';
+ERROR HY000: YAO-2: invalid expire info `$SYS_DATE>1*24*60*60*1000000+c4 and c2>2'
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30))expire_info='c4=\'test\'+2';
+ERROR HY000: YAO-2: invalid expire info `c4='test'+2'
+drop table if exists test;
+create table test(c1 int primary key, c2 int, c3 varchar(30), c4 datetime)expire_info='c4=#2020-08-07# and c3=test';
+ERROR HY000: YAO-2: invalid expire info `c4=#2020-08-07# and c3=test'
+create table test(c1 int primary key, c2 int, c3 varchar(30), c4 datetime)expire_info='c1=#2020-08-07# and c3=\'test\'';
+create table test1(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+alter table test1 add current expire_info='c4=\'test\' or c4=\'game\'';
+insert into test1 values(1,1,1,'test');
+insert into test1 values(2,2,1,'game');
+insert into test1 values(3,3,1,'program');
+insert into test1 values(4,4,1,'test');
+insert into test1 values(5,0,1,'test');
+create table test2(c1 int primary key, c2 int, c3 int, c4 datetime);
+alter table test2 add current expire_info='c4>=#2020-08-07# and c4<=#2020-08-09#';
+insert into test2 values(1,1,1,'2020-08-07');
+insert into test2 values(2,1,1,'2020-08-08');
+insert into test2 values(3,1,1,'2020-08-09');
+insert into test2 values(4,1,1,'2021-08-11');
+insert into test2 values(5,1,1,'2021-08-14  18:00:00');
+create table test3(c1 int primary key, c2 int, c3 int, c4 datetime);
+alter table test3 add current expire_info='c4=#2020-08-07# or c4=#2020-08-09#';
+insert into test3 values(1,1,1,'2020-08-07');
+insert into test3 values(2,1,1,'2020-08-07');
+insert into test3 values(3,1,1,'2020-08-09');
+insert into test3 values(4,1,1,'2021-08-11');
+insert into test3 values(5,1,1,'2021-08-14  18:00:00');
+create table test4(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+alter table test4 add current expire_info='c4>=#2020-08-07# and c4<=#2020-08-09#';
+insert into test4 values(1,1,1,'20200807');
+insert into test4 values(2,1,1,'20200808');
+insert into test4 values(3,1,1,'2020/08/09');
+insert into test4 values(4,1,1,'20200811');
+insert into test4 values(5,1,1,'2020/08/26');
+insert into test4 values(8,1,1,'20200827');
+create table test5(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test5 add current expire_info='c4=#2020-08-07# and c3=\'test\'';
+insert into test5 values(1,1,'test','2020-08-07');
+insert into test5 values(2,1,'test ','2020-08-08');
+insert into test5 values(3,1,'tes t','2020-08-07');
+create table test6(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test6 add current expire_info='c4=#2020-08-07# and c1=1';
+insert into test6 values(1,1,'test','2020-08-07');
+insert into test6 values(2,1,'test ','2020-08-08');
+insert into test6 values(3,1,'tes t','2020-08-07');
+create table test7(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test7 add current expire_info='$SYS_DATE>c4+1*24*60*60*1000000 and c3=\'test\'';
+insert into test7 values(1,1,'test','2020-08-07');
+insert into test7 values(2,1,'test ','2020-08-08');
+insert into test7 values(3,1,'tes t','2020-08-07');
+create table test8(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test8 add current expire_info='$SYS_DATE>c4+1*24*60*60*1000000 and c3=#2020-08-07#';
+insert into test8 values(1,1,'20200809','2020-08-07');
+insert into test8 values(2,1,'2020-08-07','2020-08-08');
+insert into test8 values(3,1,'test','2020-08-07');
+create table test9(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test9 add current expire_info='$SYS_DAY>c4+1*24*60*60*1000000 and c3=#2020-08-07#';
+insert into test9 values(1,1,'20200809','2020-08-07');
+insert into test9 values(2,1,'2020-08-07','2020-08-08');
+insert into test9 values(3,1,'test','2020-08-07');
+create table test10(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test10 add current expire_info='c3=\'test\' and c2=NULL';
+insert into test10 values(1,1,'test','2020-08-07');
+insert into test10 values(2,1,'test','2020-08-08');
+insert into test10 values(3,1,'test','2020-08-07');
+insert into test10(c1,c3,c4) values(4,'test','2020-08-07');
+insert into test10(c1,c3,c4) values(5,'t est','2020-08-07');
+create table test11(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test11 add current expire_info='$SYS_DATE>c3+1*24*60*60*1000000 or c3=\'9999/99/99\'';
+insert into test11 values(1,1,'2020-08-07','2020-08-07');
+insert into test11 values(2,1,'test','2020-08-08');
+insert into test11 values(3,1,'2020-08-07','2020-08-07');
+insert into test11 values(4,1,'9999/99/99','2020-08-07');
+create table test12(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test12 add current expire_info='c4!=#2020-08-07# and c1>=1';
+insert into test12 values(1,1,'test','2020-08-07');
+insert into test12 values(2,1,'test ','2020-08-08');
+insert into test12 values(3,1,'tes t','2020-08-07');
+create table test13(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test13 add current expire_info='$SYS_DATE>c4+1*24*60*60*1000000 or 1=0';
+insert into test13 values(1,1,'test','2020-08-07');
+insert into test13 values(2,1,'test ','2020-08-08');
+insert into test13 values(3,1,'tes t','2020-08-07');
+insert into test13 values(4,1,'tes t','2029-08-07');
+create table test14(c1 int primary key, c2 int, c3 varchar(30), c4 datetime);
+alter table test14 add current expire_info='$SYS_DATE>c4+1*24*60*60*1000000 and c1%2=0';
+insert into test14 values(1,1,'test','2020-08-07');
+insert into test14 values(2,1,'test ','2020-08-08');
+insert into test14 values(3,1,'tes t','2020-08-07');
+select * from test1;
+c1	c2	c3	c4
+1	1	1	test
+2	2	1	game
+3	3	1	program
+4	4	1	test
+5	0	1	test
+select * from test2;
+c1	c2	c3	c4
+1	1	1	2020-08-07 00:00:00.000000
+2	1	1	2020-08-08 00:00:00.000000
+3	1	1	2020-08-09 00:00:00.000000
+4	1	1	2021-08-11 00:00:00.000000
+5	1	1	2021-08-14 18:00:00.000000
+select * from test3;
+c1	c2	c3	c4
+1	1	1	2020-08-07 00:00:00.000000
+2	1	1	2020-08-07 00:00:00.000000
+3	1	1	2020-08-09 00:00:00.000000
+4	1	1	2021-08-11 00:00:00.000000
+5	1	1	2021-08-14 18:00:00.000000
+select * from test4;
+c1	c2	c3	c4
+1	1	1	20200807
+2	1	1	20200808
+3	1	1	2020/08/09
+4	1	1	20200811
+5	1	1	2020/08/26
+8	1	1	20200827
+select * from test5;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test6;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test7;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test8;
+c1	c2	c3	c4
+1	1	20200809	2020-08-07 00:00:00.000000
+2	1	2020-08-07	2020-08-08 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+select * from test9;
+c1	c2	c3	c4
+1	1	20200809	2020-08-07 00:00:00.000000
+2	1	2020-08-07	2020-08-08 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+select * from test10;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test	2020-08-08 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+4	NULL	test	2020-08-07 00:00:00.000000
+5	NULL	t est	2020-08-07 00:00:00.000000
+select * from test11;
+c1	c2	c3	c4
+1	1	2020-08-07	2020-08-07 00:00:00.000000
+2	1	test	2020-08-08 00:00:00.000000
+3	1	2020-08-07	2020-08-07 00:00:00.000000
+4	1	9999/99/99	2020-08-07 00:00:00.000000
+select * from test12;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test13;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+4	1	tes t	2029-08-07 00:00:00.000000
+select * from test14;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+"merge"
+major_freeze...
+merge: DONE
+select * from test1;
+c1	c2	c3	c4
+3	3	1	program
+select * from test2;
+c1	c2	c3	c4
+4	1	1	2021-08-11 00:00:00.000000
+5	1	1	2021-08-14 18:00:00.000000
+select * from test3;
+c1	c2	c3	c4
+4	1	1	2021-08-11 00:00:00.000000
+5	1	1	2021-08-14 18:00:00.000000
+select * from test4;
+c1	c2	c3	c4
+4	1	1	20200811
+5	1	1	2020/08/26
+8	1	1	20200827
+select * from test5;
+c1	c2	c3	c4
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test6;
+c1	c2	c3	c4
+2	1	test 	2020-08-08 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test7;
+c1	c2	c3	c4
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test8;
+c1	c2	c3	c4
+1	1	20200809	2020-08-07 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+select * from test9;
+c1	c2	c3	c4
+1	1	20200809	2020-08-07 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+select * from test10;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+2	1	test	2020-08-08 00:00:00.000000
+3	1	test	2020-08-07 00:00:00.000000
+5	NULL	t est	2020-08-07 00:00:00.000000
+select * from test11;
+c1	c2	c3	c4
+2	1	test	2020-08-08 00:00:00.000000
+select * from test12;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000
+select * from test13;
+c1	c2	c3	c4
+4	1	tes t	2029-08-07 00:00:00.000000
+select * from test14;
+c1	c2	c3	c4
+1	1	test	2020-08-07 00:00:00.000000
+3	1	tes t	2020-08-07 00:00:00.000000

@@ -1,0 +1,64 @@
+##############################################################################################
+###1.测试功能点:show分区规则表
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+#--sleep 10
+--error 5077
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions;
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like 'h1';
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like 'h%';
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like '_1';
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like '__';
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions where rule_name='h1' or rule_name='h2';
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+--replace_column 1,2 0
+select rule_name,rule_par_num,rule_par_list,rule_body,type from __all_partition_rules;
+show partition functions where rule_par_num=1;
+show partition functions where rule_par_list='x';
+show partition functions where rule_body='x+1';
+
+show partition functions like 'hf';
+show partition functions like '_f';
+show partition functions like '%f';
+show partition functions like '_%f';
+show partition functions where rule_name='hf';
+#--error 5023
+show partition functions where rule_name=1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

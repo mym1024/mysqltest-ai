@@ -1,0 +1,42 @@
+drop table if exists seller_item,seller_item_tag;
+create table seller_item
+(
+sellerid int not null,
+itemid   int not null,
+co103     int,
+co104     int,
+co105     int,
+co106     int,
+co107     int,
+co108     int,
+co109     int,
+co110     int,
+primary key (sellerid, itemid)
+);
+create table seller_item_tag
+(
+sellerid int not null,
+itemid int not null,
+tagid int not null,
+col4 int not null,
+primary key (sellerid, itemid, tagid)
+);
+prepare st from select a.sellerid, a.itemid, a.tagid, b.co104, b.co105 from (select * from seller_item_tag where sellerid > ? and sellerid < ?) as A, (select * from seller_item where sellerid > ? and sellerid < ?) as B where a.sellerid = b.sellerid and a.itemid = b.itemid;
+set @a=1;
+set @b=2;
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+set @a=2;
+set @b=3;
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105
+execute st using @a,@b,@a,@b;
+sellerid	itemid	tagid	co104	co105

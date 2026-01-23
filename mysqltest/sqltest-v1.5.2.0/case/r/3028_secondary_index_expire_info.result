@@ -1,0 +1,43 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create table t1 (c1 int primary key,c2 int,c3 int,c4 int);
+update __first_tablet_entry set expire_condition='$SYS_DATE>c2+60' where table_name ='t1' and db_name='test';
+Okay
+create index il on t1(c1) storing(c3);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__il	1	0
+drop table t1;
+create table t1 (c1 int primary key,c2 int,c3 int,c4 int);
+create index il on t1(c1) storing(c3);
+"merge"
+major_freeze...
+merge: DONE
+update __first_tablet_entry set expire_condition='$SYS_DATE>c2+60' where table_name ='t1' and db_name='test';
+drop table t1;
+create table t1 (c1 int primary key,c2 int,c3 int,c4 int);
+create index il on t1(c1,c2) storing(c3);
+"merge"
+major_freeze...
+merge: DONE
+update __first_tablet_entry set expire_condition='$SYS_DATE>c2+60' where table_name ='t1' and db_name='test';
+drop table t1;
+create table t1 (c1 int primary key,c2 int,c3 int,c4 int);
+create index il on t1(c1,c2) storing(c3);
+"merge"
+major_freeze...
+merge: DONE
+update __first_tablet_entry set expire_condition='$SYS_DATE>c1+60' where table_name ='t1' and db_name='test';
+alter table t1 add c5 int;
+update __first_tablet_entry set expire_condition='$SYS_DATE>c5+60' where table_name ='t1' and db_name='test';

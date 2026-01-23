@@ -1,0 +1,254 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+drop table if exists t5;
+alter system set min_drop_cache_wait_time='1s' server_type=yaodatasvr;
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t2 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t3 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t4 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t5 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t2 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t3 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t4 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t5 values(1,1,'a','b',12,'2019-09-07',0);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+create index i1 on t1(c2);
+create index i1 on t3(c2);
+create index i1 on t4(c2);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	4
+test	t3	3007	__3003__idx__i1	4
+test	t4	3008	__3004__idx__i1	4
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	4
+test	t3	3007	__3003__idx__i1	4
+test	t4	3008	__3004__idx__i1	4
+merge
+major_freeze...
+merge: DONE
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t3	3007	__3003__idx__i1	1
+test	t4	3008	__3004__idx__i1	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+update __first_tablet_entry set index_status = 2 where table_id = 3007;
+update __index_process_info set status = 2 where index_id = 3007;
+show indexs where status = 2;
+db_name	data_table_name	index_id	index_name	status
+refresh_schema
+Okay
+show indexs where status = 2;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t4	3008	__3004__idx__i1	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+create index i1 on t2(c2);
+create index i1 on t5(c2);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t2	3009	__3002__idx__i1	4
+test	t3	3007	__3003__idx__i1	2
+test	t4	3008	__3004__idx__i1	1
+test	t5	3010	__3005__idx__i1	4
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t4	3008	__3004__idx__i1	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t2	3009	__3002__idx__i1	4
+test	t5	3010	__3005__idx__i1	4
+create index i2 on t1(c4);
+create index i2 on t3(c4);
+create index i2 on t4(c4);
+create index i3 on t1(c6);
+create index i3 on t3(c6);
+create index i3 on t4(c6);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	4
+test	t1	3014	__3001__idx__i3	4
+test	t2	3009	__3002__idx__i1	4
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	4
+test	t3	3015	__3003__idx__i3	4
+test	t4	3008	__3004__idx__i1	1
+test	t4	3013	__3004__idx__i2	4
+test	t4	3016	__3004__idx__i3	4
+test	t5	3010	__3005__idx__i1	4
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t4	3008	__3004__idx__i1	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3011	__3001__idx__i2	4
+test	t1	3014	__3001__idx__i3	4
+test	t2	3009	__3002__idx__i1	4
+test	t3	3012	__3003__idx__i2	4
+test	t3	3015	__3003__idx__i3	4
+test	t4	3013	__3004__idx__i2	4
+test	t4	3016	__3004__idx__i3	4
+test	t5	3010	__3005__idx__i1	4
+merge
+major_freeze...
+merge: DONE
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	1
+test	t1	3014	__3001__idx__i3	1
+test	t2	3009	__3002__idx__i1	1
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	1
+test	t3	3015	__3003__idx__i3	1
+test	t4	3008	__3004__idx__i1	1
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	1
+test	t1	3014	__3001__idx__i3	1
+test	t2	3009	__3002__idx__i1	1
+test	t3	3012	__3003__idx__i2	1
+test	t3	3015	__3003__idx__i3	1
+test	t4	3008	__3004__idx__i1	1
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+update __first_tablet_entry set index_status = 2 where table_id = 3008;
+update __index_process_info set status = 2 where index_id = 3008;
+update __first_tablet_entry set index_status = 2 where table_id = 3012;
+update __index_process_info set status = 2 where index_id = 3012;
+show indexs where status = 2;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+refresh_schema
+Okay
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	1
+test	t1	3014	__3001__idx__i3	1
+test	t2	3009	__3002__idx__i1	1
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	2
+test	t3	3015	__3003__idx__i3	1
+test	t4	3008	__3004__idx__i1	2
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	1
+test	t1	3014	__3001__idx__i3	1
+test	t2	3009	__3002__idx__i1	1
+test	t3	3015	__3003__idx__i3	1
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	2
+test	t4	3008	__3004__idx__i1	2
+create index i2 on t2(c3);
+create index i3 on t2(c4);
+create index i4 on t2(c5);
+create index i2 on t5(c4);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3006	__3001__idx__i1	1
+test	t1	3011	__3001__idx__i2	1
+test	t1	3014	__3001__idx__i3	1
+test	t2	3009	__3002__idx__i1	1
+test	t2	3017	__3002__idx__i2	4
+test	t2	3018	__3002__idx__i3	4
+test	t2	3019	__3002__idx__i4	4
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	2
+test	t3	3015	__3003__idx__i3	1
+test	t4	3008	__3004__idx__i1	2
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+test	t5	3020	__3005__idx__i2	4
+show indexs like '%3010%';
+db_name	data_table_name	index_id	index_name	status
+show indexs like '%3013%';
+db_name	data_table_name	index_id	index_name	status
+show indexs where data_table_name = 't3';
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	2
+test	t3	3015	__3003__idx__i3	1
+show indexs where data_table_name = 't4';
+db_name	data_table_name	index_id	index_name	status
+test	t4	3008	__3004__idx__i1	2
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t3	3007	__3003__idx__i1	2
+test	t3	3012	__3003__idx__i2	2
+test	t4	3008	__3004__idx__i1	2
+show init indexs where data_table_name = 't2';
+db_name	data_table_name	index_id	index_name	status
+test	t2	3017	__3002__idx__i2	4
+test	t2	3018	__3002__idx__i3	4
+test	t2	3019	__3002__idx__i4	4
+drop table t1;
+drop table t3;
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t2	3009	__3002__idx__i1	1
+test	t2	3017	__3002__idx__i2	4
+test	t2	3018	__3002__idx__i3	4
+test	t2	3019	__3002__idx__i4	4
+test	t4	3008	__3004__idx__i1	2
+test	t4	3013	__3004__idx__i2	1
+test	t4	3016	__3004__idx__i3	1
+test	t5	3010	__3005__idx__i1	1
+test	t5	3020	__3005__idx__i2	4
+show indexs where data_table_name = 't1';
+db_name	data_table_name	index_id	index_name	status
+show indexs where data_table_name = 't3';
+db_name	data_table_name	index_id	index_name	status

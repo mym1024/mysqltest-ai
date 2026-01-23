@@ -1,0 +1,122 @@
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 int not null)partition by list columns(c1)(partition q0 values in(1),partition q1 values in(2));
+create table list2(c1 int primary key,c2 int)partition by list(c1)(partition q0 values in(1),partition q1 values in(2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0,list1#q1	__list@3001	c1
+3002	2	list2	1	list2#q0,list2#q1	__list@3002	c1
+insert into list2 values(1,1),(2,2);
+select * from list2;
+c1	c2
+1	1
+2	2
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+insert into list1(c1) select c1 from list2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from list1;
+c1	c2
+insert into list1(c1) select c1 from list2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from list1;
+c1	c2
+select * from list2;
+c1	c2
+1	1
+2	2
+select * from list2;
+c1	c2
+1	1
+2	2
+select * from list2;
+c1	c2
+1	1
+2	2
+insert into list1 select * from list2;
+select * from list1;
+c1	c2
+1	1
+2	2
+select * from list2;
+c1	c2
+1	1
+2	2
+insert into list1 select * from list1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from list1;
+c1	c2
+1	1
+2	2
+insert into list1 select * from list2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from list1;
+c1	c2
+1	1
+2	2
+drop table if exists list1,list2,list3;
+create table list1(c1 int primary key,c2 int)partition by list(c1)(partition q0 values in(10));
+create table list2(c1 int primary key,c2 int)partition by list(c1)(partition q0 values in(10));
+create table list3(c1 int primary key,c2 varchar(30))partition by list(c1)(partition q0 values in(10));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	list1	1	list1#q0	__list@3003	c1
+3004	2	list2	1	list2#q0	__list@3004	c1
+3005	2	list3	1	list3#q0	__list@3005	c1
+insert into list3 values(10,'hhaa');
+select * from list3;
+c1	c2
+10	hhaa
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+list3#q0	2	0	NULL
+insert into list1 select * from list3;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from list1;
+c1	c2
+insert into list1(c1) select * from list3;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from list1;
+c1	c2
+insert into list2(c2) select c1 from list3;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from list2;
+c1	c2
+drop table if exists list1,list2,list3;
+create table list1(c1 int,c2 real,c3 varchar(30),primary key(c1,c2))partition by list columns(c1)(partition q0 values in(1),partition q1 values in(5));
+create table list2(c1 int primary key,c2 real)partition by list(c1)(partition q0 values in(1),partition q1 values in(5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3006	2	list1	1	list1#q0,list1#q1	__list@3006	c1
+3007	2	list2	1	list2#q0,list2#q1	__list@3007	c1
+insert into list2 values(1,1.256);
+insert into list2 values(5,1.256);
+select * from list2;
+c1	c2
+1	1.256
+5	1.256
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+list3#q0	2	0	NULL
+insert into list1(c1,c2) select * from list2;
+select * from list1;
+c1	c2	c3
+1	1.256	NULL
+5	1.256	NULL
+insert into list1 select * from list2;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from list1;
+c1	c2	c3
+1	1.256	NULL
+5	1.256	NULL

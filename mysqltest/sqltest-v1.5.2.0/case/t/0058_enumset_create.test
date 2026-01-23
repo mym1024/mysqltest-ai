@@ -1,0 +1,507 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 CREATE TABLE with ENUM and SET types
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+set yao_read_consistency=4;
+# 1. Basic Table Structures
+
+#1.1. Table with no primary key, one ENUM column, one SET column
+CREATE TABLE t_enum_set_basic (
+  id INT,
+  status ENUM('active', 'inactive', 'pending'),
+  tags SET('tag1', 'tag2', 'tag3', 'tag4')
+);
+SHOW CREATE TABLE t_enum_set_basic;
+INSERT INTO t_enum_set_basic VALUES (1, 'active', 'tag1,tag3'), (2, 'inactive', 'tag2'), (3, NULL, '');
+SELECT * FROM t_enum_set_basic;
+DROP TABLE t_enum_set_basic;
+
+# 1.2. Table with single primary key (normal column), ENUM and SET as normal columns
+CREATE TABLE t_pk_normal_enum_set (
+  id INT PRIMARY KEY,
+  name VARCHAR(50),
+  status ENUM('draft', 'published', 'archived'),
+  categories SET('news', 'sports', 'tech', 'entertainment')
+);
+SHOW CREATE TABLE t_pk_normal_enum_set;
+INSERT INTO t_pk_normal_enum_set VALUES (1, 'Article1', 'published', 'news,tech'), (2, 'Article2', 'draft', 'sports');
+SELECT * FROM t_pk_normal_enum_set;
+DROP TABLE t_pk_normal_enum_set;
+
+# 1.3. Table with single primary key (ENUM column), SET as normal column
+CREATE TABLE t_pk_enum (
+  status ENUM('open', 'closed', 'in_progress') PRIMARY KEY,
+  description TEXT
+);
+SHOW CREATE TABLE t_pk_enum;
+INSERT INTO t_pk_enum VALUES ('open', 'Task is open'), ('closed', 'Task is finished');
+--error 5024
+INSERT INTO t_pk_enum VALUES ('open', 'Another open task');
+SELECT * FROM t_pk_enum;
+DROP TABLE t_pk_enum;
+
+# 1.4. Table with single primary key (SET column), ENUM as normal column
+CREATE TABLE t_pk_set (
+  permissions SET('read', 'write', 'execute') PRIMARY KEY,
+  resource VARCHAR(100)
+);
+SHOW CREATE TABLE t_pk_set;
+INSERT INTO t_pk_set VALUES ('read,write', 'file1.txt'), ('execute', 'script.sh');
+--error 5024
+INSERT INTO t_pk_set VALUES ('read,write', 'file2.txt');
+SELECT * FROM t_pk_set;
+DROP TABLE t_pk_set;
+
+# 1.5. Table with composite primary key (ENUM and SET columns)
+CREATE TABLE t_pk_enum_set_composite (
+  type ENUM('user', 'admin', 'guest'),
+  roles SET('viewer', 'editor', 'manager'),
+  last_login TIMESTAMP,
+  PRIMARY KEY (type, roles)
+);
+SHOW CREATE TABLE t_pk_enum_set_composite;
+INSERT INTO t_pk_enum_set_composite (type, roles, last_login) VALUES ('user', 'viewer', NOW()), ('admin', 'editor,manager', NOW());
+--error 5024
+INSERT INTO t_pk_enum_set_composite (type, roles, last_login) VALUES ('user', 'viewer', NOW() + INTERVAL 1 MINUTE);
+--replace_column 3 '固定值'
+SELECT * FROM t_pk_enum_set_composite;
+DROP TABLE t_pk_enum_set_composite;
+
+# 2. Column Attributes
+
+# 2.1. NOT NULL attribute on ENUM and SET
+CREATE TABLE t_enum_set_not_null (
+  id INT,
+  required_status ENUM('yes', 'no') NOT NULL,
+  required_flags SET('flag_a', 'flag_b') NOT NULL
+);
+SHOW CREATE TABLE t_enum_set_not_null;
+INSERT INTO t_enum_set_not_null VALUES (1, 'yes', 'flag_a');
+--error 5500
+INSERT INTO t_enum_set_not_null (id, required_status) VALUES (2, 'no');
+INSERT INTO t_enum_set_not_null (id, required_flags) VALUES (3, 'flag_b');
+SELECT * FROM t_enum_set_not_null;
+DROP TABLE t_enum_set_not_null;
+
+# 2.2. DEFAULT attribute on ENUM and SET
+CREATE TABLE t_enum_set_default (
+  id INT,
+  default_status ENUM('unknown', 'known') DEFAULT 'unknown',
+  default_tags SET('default_tag') DEFAULT 'default_tag',
+  explicit_default_enum ENUM('A', 'B') DEFAULT 'A',
+  explicit_default_set SET('X', 'Y', 'Z') DEFAULT 'X,Z'
+);
+SHOW CREATE TABLE t_enum_set_default;
+INSERT INTO t_enum_set_default (id) VALUES (1);
+INSERT INTO t_enum_set_default (id, default_status, default_tags) VALUES (2, 'known', '');
+SELECT * FROM t_enum_set_default;
+DROP TABLE t_enum_set_default;
+
+# 2.3. CHARACTER SET and COLLATION attributes on ENUM and SET
+--error 5143
+CREATE TABLE t_enum_set_charset (
+  id INT,
+  localized_enum ENUM('café', 'naïve', 'résumé') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  localized_set SET('français', 'español', '中文') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+);
+#SHOW CREATE TABLE t_enum_set_charset;
+#INSERT INTO t_enum_set_charset VALUES (1, 'café', 'français,中文');
+#SELECT * FROM t_enum_set_charset;
+#DROP TABLE t_enum_set_charset;
+
+# 3. Indexes
+#
+# 3.1. Three columns, no PK, ENUM column with plain index
+CREATE TABLE t_idx_enum_plain (
+  id INT,
+  indexed_status ENUM('low', 'medium', 'high'),
+  data VARCHAR(100),
+  INDEX idx_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_plain;
+INSERT INTO t_idx_enum_plain VALUES (1, 'high', 'Data1'), (2, 'low', 'Data2'), (3, 'medium', 'Data3');
+SELECT * FROM t_idx_enum_plain WHERE indexed_status = 'high';
+DROP TABLE t_idx_enum_plain;
+
+# 3.2. Three columns, no PK, SET column with plain index
+CREATE TABLE t_idx_set_plain (
+  id INT,
+  data VARCHAR(100),
+  indexed_tags SET('red', 'green', 'blue', 'yellow'),
+  INDEX idx_tags (indexed_tags)
+);
+SHOW CREATE TABLE t_idx_set_plain;
+INSERT INTO t_idx_set_plain VALUES (1, 'Data1', 'red,blue'), (2, 'Data2', 'green'), (3, 'Data3', '');
+SELECT * FROM t_idx_set_plain WHERE indexed_tags = 'red,blue';
+DROP TABLE t_idx_set_plain;
+
+# 3.3. Three columns, no PK, ENUM column with unique index
+CREATE TABLE t_idx_enum_unique (
+  id INT,
+  unique_status ENUM('unique_a', 'unique_b', 'unique_c'),
+  data VARCHAR(100),
+  UNIQUE INDEX idx_unique_status (unique_status)
+);
+SHOW CREATE TABLE t_idx_enum_unique;
+INSERT INTO t_idx_enum_unique VALUES (1, 'unique_a', 'Data1'), (2, 'unique_b', 'Data2');
+--error 5024
+INSERT INTO t_idx_enum_unique VALUES (3, 'unique_a', 'Data3');
+SELECT * FROM t_idx_enum_unique;
+DROP TABLE t_idx_enum_unique;
+
+# 3.4. Three columns, no PK, SET column with unique index
+CREATE TABLE t_idx_set_unique (
+  id INT,
+  unique_combination SET('opt1', 'opt2', 'opt3'),
+  data VARCHAR(100),
+  UNIQUE INDEX idx_unique_combination (unique_combination)
+);
+SHOW CREATE TABLE t_idx_set_unique;
+INSERT INTO t_idx_set_unique VALUES (1, 'opt1,opt3', 'Data1'), (2, 'opt2', 'Data2');
+--error 5024
+INSERT INTO t_idx_set_unique VALUES (3, 'opt1,opt3', 'Data3');
+SELECT * FROM t_idx_set_unique;
+DROP TABLE t_idx_set_unique;
+
+# 3.5. Three columns, no PK, ENUM column with both plain and unique index (Expect error or only one takes effect logically)
+CREATE TABLE t_idx_enum_both (
+  id INT,
+  indexed_status ENUM('level1', 'level2', 'level3'),
+  data VARCHAR(100),
+  UNIQUE INDEX idx_unique_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_both;
+INSERT INTO t_idx_enum_both VALUES (1, 'level1', 'Data1'), (2, 'level2', 'Data2');
+--error 5024
+INSERT INTO t_idx_enum_both VALUES (3, 'level1', 'Data3');
+SELECT * FROM t_idx_enum_both;
+DROP TABLE t_idx_enum_both;
+
+# 3.6. Three columns, no PK, SET column with both plain and unique index (Same logic as 3.5)
+CREATE TABLE t_idx_set_both (
+  id INT,
+  indexed_combination SET('a', 'b', 'c'),
+  data VARCHAR(100),
+  UNIQUE INDEX idx_unique_combination (indexed_combination)
+);
+SHOW CREATE TABLE t_idx_set_both;
+INSERT INTO t_idx_set_both VALUES (1, 'a,c', 'Data1'), (2, 'b', 'Data2');
+--error 5024
+INSERT INTO t_idx_set_both VALUES (3, 'a,c', 'Data3'); 
+SELECT * FROM t_idx_set_both;
+DROP TABLE t_idx_set_both;
+
+# 3.7. Three columns, no PK, ENUM column, plain index and unique index on other normal columns
+CREATE TABLE t_idx_enum_other_cols (
+  id INT,
+  unique_name VARCHAR(50),
+  indexed_status ENUM('state_x', 'state_y'),
+  data VARCHAR(100),
+  UNIQUE INDEX idx_unique_name (unique_name),
+  INDEX idx_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_other_cols;
+INSERT INTO t_idx_enum_other_cols VALUES (1, 'Name1', 'state_x', 'Data1'), (2, 'Name2', 'state_y', 'Data2');
+--error 5024
+INSERT INTO t_idx_enum_other_cols (id, unique_name, indexed_status) VALUES (3, 'Name1', 'state_x');
+SELECT * FROM t_idx_enum_other_cols;
+DROP TABLE t_idx_enum_other_cols;
+
+# 3.8. Three columns, no PK, SET column, plain index and unique index on other normal columns
+CREATE TABLE t_idx_set_other_cols (
+  id INT,
+  indexed_tags SET('p', 'q', 'r'),
+  unique_code VARCHAR(20),
+  data VARCHAR(100),
+  INDEX idx_tags (indexed_tags),
+  UNIQUE INDEX idx_unique_code (unique_code)
+);
+SHOW CREATE TABLE t_idx_set_other_cols;
+INSERT INTO t_idx_set_other_cols VALUES (1, 'p,r', 'CODE001', 'Data1'), (2, 'q', 'CODE002', 'Data2');
+--error 5024
+INSERT INTO t_idx_set_other_cols (id, indexed_tags, unique_code) VALUES (3, 'p', 'CODE001');
+SELECT * FROM t_idx_set_other_cols WHERE indexed_tags = 'q';
+SELECT * FROM t_idx_set_other_cols WHERE unique_code = 'CODE002';
+SELECT * FROM t_idx_set_other_cols;
+DROP TABLE t_idx_set_other_cols;
+
+# 3.9. Four columns, no PK, contains ENUM, SET, composite plain index on ENUM and SET
+CREATE TABLE t_idx_enum_set_composite_plain (
+  id INT,
+  status ENUM('on', 'off'),
+  flags SET('debug', 'trace', 'info'),
+  description VARCHAR(100),
+  INDEX idx_status_flags (status, flags)
+);
+SHOW CREATE TABLE t_idx_enum_set_composite_plain;
+INSERT INTO t_idx_enum_set_composite_plain VALUES (1, 'on', 'debug,info', 'Enabled with info'), (2, 'off', '', 'Disabled');
+SELECT * FROM t_idx_enum_set_composite_plain WHERE status = 'on' AND flags = 'debug,info';
+SELECT * FROM t_idx_enum_set_composite_plain;
+DROP TABLE t_idx_enum_set_composite_plain;
+
+# 3.10. Four columns, no PK, contains ENUM, SET, composite unique index on ENUM and SET
+CREATE TABLE t_idx_enum_set_composite_unique (
+  id INT,
+  state ENUM('start', 'stop'),
+  modes SET('mode_a', 'mode_b'),
+  description VARCHAR(100),
+  UNIQUE INDEX idx_unique_state_modes (state, modes)
+);
+SHOW CREATE TABLE t_idx_enum_set_composite_unique;
+INSERT INTO t_idx_enum_set_composite_unique VALUES (1, 'start', 'mode_a,mode_b', 'Started in both modes'), (2, 'stop', 'mode_a', 'Stopped in mode_a');
+--error 5024
+INSERT INTO t_idx_enum_set_composite_unique (id, state, modes) VALUES (3, 'start', 'mode_a,mode_b');
+SELECT * FROM t_idx_enum_set_composite_unique WHERE state = 'stop' AND modes = 'mode_a';
+SELECT * FROM t_idx_enum_set_composite_unique;
+DROP TABLE t_idx_enum_set_composite_unique;
+
+
+# 4. Advanced Objects (Views, Temp Tables, Partitioning)
+#
+# 4.1. View containing query on ENUM column
+CREATE TABLE t_enum_set_view (
+    id INT,
+    user_role ENUM('guest', 'user', 'moderator', 'admin'),
+    user_status SET('verified', 'active', 'premium')
+);
+INSERT INTO t_enum_set_view VALUES (1, 'admin', 'verified,active,premium'), (2, 'user', 'verified,active'), (3, 'guest', '');
+CREATE VIEW v_enum_select AS SELECT id, user_role FROM t_enum_set_view WHERE user_role IN ('admin', 'moderator');
+SELECT * FROM v_enum_select;
+DROP VIEW v_enum_select;
+DROP TABLE t_enum_set_view;
+
+# 4.2. View containing query on SET column
+CREATE TABLE t_enum_set_view (
+    id INT,
+    user_role ENUM('guest', 'user', 'moderator', 'admin'),
+    user_status SET('verified', 'active', 'premium')
+);
+INSERT INTO t_enum_set_view VALUES (1, 'admin', 'verified,active,premium'), (2, 'user', 'verified,active'), (3, 'guest', '');
+CREATE VIEW v_set_select AS SELECT id, user_status FROM t_enum_set_view WHERE FIND_IN_SET('premium', user_status) > 0;
+SELECT * FROM v_set_select;
+DROP VIEW v_set_select;
+DROP TABLE t_enum_set_view;
+
+# 4.3. Temporary table containing ENUM column
+CREATE TEMPORARY TABLE t_enum_set_tmp (
+  temp_id INT,
+  temp_status ENUM('temp_a', 'temp_b')
+);
+INSERT INTO TEMPORARY t_enum_set_tmp VALUES (100, 'temp_a');
+SELECT * FROM TEMPORARY t_enum_set_tmp;
+DROP TEMPORARY TABLE t_enum_set_tmp;
+
+# 4.4. Temporary table containing SET column
+CREATE TEMPORARY TABLE t_enum_set_tmp (
+  temp_id INT,
+  temp_flags SET('flag_x', 'flag_y', 'flag_z')
+);
+INSERT INTO TEMPORARY t_enum_set_tmp VALUES (200, 'flag_x,flag_z');
+SELECT * FROM TEMPORARY t_enum_set_tmp;
+DROP TEMPORARY TABLE t_enum_set_tmp;
+
+# 4.5. Partitioned table with ENUM column as partition key
+CREATE TABLE t_enum_partitioned (
+  id INT NOT NULL,
+  p_status ENUM('p1', 'p2', 'p3') NOT NULL primary key
+) PARTITION BY LIST COLUMNS(p_status) (
+  PARTITION p_part1 VALUES IN ('p1'),
+  PARTITION p_part2 VALUES IN ('p2'),
+  PARTITION p_part3 VALUES IN ('p3')
+);
+INSERT INTO t_enum_partitioned VALUES (1, 'p1'), (2, 'p2'), (3, 'p3');
+--real_sleep 2
+SELECT * FROM t_enum_partitioned;
+DROP TABLE t_enum_partitioned;
+
+# 4.6. Partitioned table with SET column as partition key
+CREATE TABLE t_set_partitioned (
+  id INT NOT NULL,
+  p_modes SET('mode_p', 'mode_q', 'mode_r') NOT NULL primary key
+) PARTITION BY LIST COLUMNS(p_modes) (
+  PARTITION p_mode_p VALUES IN ('mode_p'),
+  PARTITION p_mode_q VALUES IN ('mode_q'),
+  PARTITION p_mode_r VALUES IN ('mode_r')
+);
+INSERT INTO t_set_partitioned VALUES (1, 'mode_p'), (2, 'mode_q'), (3, 'mode_r');
+--real_sleep 2
+SELECT * FROM t_set_partitioned;
+DROP TABLE t_set_partitioned;
+
+
+# 5. Constraints (Check, Foreign Key)
+#
+# 5.1. ENUM column with foreign key constraint
+CREATE TABLE t_enum_set_parent (
+  parent_status ENUM('parent_a', 'parent_b') PRIMARY KEY
+);
+INSERT INTO t_enum_set_parent VALUES ('parent_a'), ('parent_b');
+
+CREATE TABLE t_enum_set_child (
+  child_id INT PRIMARY KEY,
+  child_status ENUM('parent_a', 'parent_b'),
+  FOREIGN KEY (child_status) REFERENCES t_enum_set_parent(parent_status)
+);
+SHOW CREATE TABLE t_enum_set_child;
+INSERT INTO t_enum_set_child VALUES (1, 'parent_a');
+--error 2
+INSERT INTO t_enum_set_child VALUES (2, 'nonexistent');
+SELECT * FROM t_enum_set_child;
+DROP TABLE t_enum_set_child;
+DROP TABLE t_enum_set_parent;
+
+# 5.2. SET column with foreign key constraint
+CREATE TABLE t_enum_set_parent (
+  parent_id INT PRIMARY KEY,
+  parent_tag VARCHAR(20) UNIQUE 
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'tag_ref_a'), (2, 'tag_ref_b');
+
+CREATE TABLE t_enum_set_child (
+  child_id INT,
+  child_ref_id INT,
+  FOREIGN KEY (child_ref_id) REFERENCES t_enum_set_parent(parent_id)
+);
+SHOW CREATE TABLE t_enum_set_child;
+INSERT INTO t_enum_set_child VALUES (1, 1);
+--error 5209
+INSERT INTO t_enum_set_child VALUES (2, 999);
+SELECT * FROM t_enum_set_child;
+DROP TABLE t_enum_set_child;
+DROP TABLE t_enum_set_parent;
+
+# 5.3. ENUM column with CHECK constraint
+CREATE TABLE t_enum_set_check (
+  id INT,
+  checked_enum ENUM('val1', 'val2', 'val3'),
+  CONSTRAINT chk_enum CHECK (checked_enum IN ('val1', 'val2')) 
+);
+SHOW CREATE TABLE t_enum_set_check;
+INSERT INTO t_enum_set_check VALUES (1, 'val1');
+INSERT INTO t_enum_set_check VALUES (2, 'val2');
+--error 5689
+INSERT INTO t_enum_set_check VALUES (3, 'val3');
+SELECT * FROM t_enum_set_check;
+DROP TABLE t_enum_set_check;
+
+# 5.4. SET column with CHECK constraint
+CREATE TABLE t_enum_set_check (
+  id INT,
+  checked_set SET('option_a', 'option_b', 'option_c'),
+  CONSTRAINT chk_set CHECK (CHAR_LENGTH(checked_set) > 0)
+);
+SHOW CREATE TABLE t_enum_set_check;
+INSERT INTO t_enum_set_check VALUES (1, 'option_a,option_c');
+INSERT INTO t_enum_set_check VALUES (2, 'option_b');
+#--mysql、ob报错  表现不一致
+INSERT INTO t_enum_set_check VALUES (3, '');
+SELECT * FROM t_enum_set_check;
+DROP TABLE t_enum_set_check;
+
+
+# 6. Stored Programs (Basic creation tests, detailed logic in DML)
+#
+# 6.1. Stored Procedure containing ENUM data operations
+DELIMITER $$;
+CREATE PROCEDURE p_enum_operation(IN p_enum_val ENUM('proc_a', 'proc_b'))
+BEGIN
+  DECLARE v_result VARCHAR(50);
+  SET v_result = CONCAT('Processed ENUM value: ', p_enum_val);
+  SELECT v_result AS enum_operation_result;
+END $$
+DELIMITER ;$$
+CALL p_enum_operation('proc_a');
+DROP PROCEDURE p_enum_operation;
+
+# 6.2. Function containing ENUM data operations
+DELIMITER $$;
+CREATE FUNCTION f_enum_operation(p_enum_val ENUM('func_x', 'func_y'))
+RETURNS VARCHAR(100)
+BEGIN
+  RETURN CONCAT('Function received: ', p_enum_val);
+END $$
+DELIMITER ;$$
+SELECT f_enum_operation('func_y') AS function_result;
+DROP FUNCTION f_enum_operation;
+
+# 6.3. Trigger on ENUM DML (INSERT)
+CREATE TABLE t_enum_set_basic (
+  id INT,
+  trig_status ENUM('triggered', 'not_triggered')
+);
+CREATE TABLE t_trigger_log (
+  log_msg VARCHAR(100)
+);
+DELIMITER $$;
+CREATE TRIGGER tr_enum_insert
+AFTER INSERT ON t_enum_set_basic
+FOR EACH ROW
+BEGIN
+  INSERT INTO t_trigger_log VALUES (CONCAT('Inserted ENUM: ', NEW.trig_status));
+END $$
+DELIMITER ;$$
+INSERT INTO t_enum_set_basic VALUES (1, 'triggered');
+SELECT * FROM t_trigger_log;
+DROP TRIGGER tr_enum_insert;
+DROP TABLE t_trigger_log;
+DROP TABLE t_enum_set_basic;
+
+# 6.4. Stored Procedure containing SET data operations
+DELIMITER $$;
+CREATE PROCEDURE p_set_operation(IN p_set_val SET('proc_flag1', 'proc_flag2'))
+BEGIN
+  DECLARE v_result VARCHAR(100);
+  SET v_result = CONCAT('Processed SET value: ', p_set_val);
+  SELECT v_result AS set_operation_result;
+END $$
+DELIMITER ;$$
+CALL p_set_operation('proc_flag1,proc_flag2');
+DROP PROCEDURE p_set_operation;
+
+# 6.5. Function containing SET data operations
+DELIMITER $$;
+CREATE FUNCTION f_set_operation(p_set_val SET('func_opt1', 'func_opt2'))
+RETURNS VARCHAR(150)
+BEGIN
+  RETURN CONCAT('Function received SET: ', p_set_val);
+END $$
+DELIMITER ;$$
+SELECT f_set_operation('func_opt2') AS function_set_result;
+DROP FUNCTION f_set_operation;
+
+# 6.6. Trigger on SET DML (INSERT)
+CREATE TABLE t_enum_set_basic (
+  id INT,
+  trig_flags SET('flag_t1', 'flag_t2')
+);
+CREATE TABLE t_trigger_log (
+  log_msg VARCHAR(100)
+);
+DELIMITER $$;
+CREATE TRIGGER tr_set_insert
+AFTER INSERT ON t_enum_set_basic
+FOR EACH ROW
+BEGIN
+  INSERT INTO t_trigger_log VALUES (CONCAT('Inserted SET: ', NEW.trig_flags));
+END $$
+DELIMITER ;$$
+INSERT INTO t_enum_set_basic VALUES (1, 'flag_t1,flag_t2');
+SELECT * FROM t_trigger_log;
+DROP TRIGGER tr_set_insert;
+DROP TABLE t_trigger_log;
+DROP TABLE t_enum_set_basic;
+
+############################################ end sql ###################################################

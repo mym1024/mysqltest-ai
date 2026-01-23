@@ -1,0 +1,143 @@
+####################################必填######################################################
+###1.测试功能点：指定分区规则表中在多session下重复执行prepare操作
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(i int primary key, c1 char(1), c256 char(256), dt datetime, d datetime, ct createtime, mt modifytime)partition by(hs,h,i);
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(1)],[(3)]';
+create table t2(i int primary key, c1 char(1), c256 char(256), dt datetime, d datetime, ct createtime, mt modifytime)partition by(em,e,i);
+--sleep 3
+replace into t1(i,c1,c256,dt,d) values(0,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(1,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(2,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(3,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(4,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+let $i=0;
+--disable_query_log
+--disable_result_log
+
+###2-1:muti conn execute  select sql repeatedly
+connection conn1;
+prepare stmt1 from select c1,dt from t1 where c256=?;
+connection conn2;
+prepare stmt1 from select c1,dt from t1 where c256=?;
+connection conn1;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+connection conn2;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+
+###2-2:muti conn execute  replace sql repeatedly
+connection conn1;
+prepare stmt1 from replace into t1(i,c1,c256,dt,d) values (5,'1',?,'2012-10-10 12:00:00','2012-10-10');
+connection conn2;
+prepare stmt1 from replace into t1(i,c1,c256,dt,d) values (5,'1',?,'2012-10-10 12:00:00','2012-10-10');
+connection conn1;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+connection conn2;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+
+###2-3:muti conn execute  update sql repeatedly
+connection conn1;
+prepare stmt1 from update t1 set c256=? where i=6;
+connection conn2;
+prepare stmt1 from update t1 set c256=? where i=6;
+
+connection conn1;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+connection conn2;
+let $i=0;
+while($i<1000)
+{
+
+    set @c256='xqy';
+    execute stmt1 using @c256;
+    inc $i;
+}
+
+###2-4:muti conn execute  delete sql repeatedly
+connection conn1;
+prepare stmt1 from delete from t1 where i=?;
+connection conn2;
+prepare stmt1 from delete from t1 where i=?;
+connection conn1;
+let $i=0;
+while($i<1000)
+{
+
+    set @a=2;
+    execute stmt1 using @a;
+    inc $i;
+}
+connection conn2;
+let $i=0;
+while($i<1000)
+{
+
+    set @a=2;
+    execute stmt1 using @a;
+    inc $i;
+}
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

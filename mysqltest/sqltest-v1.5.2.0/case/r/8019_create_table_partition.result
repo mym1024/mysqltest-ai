@@ -1,0 +1,25 @@
+drop table if exists t1,t2,left_table;
+create table t1 (c_int int, c_ts timestamp, c_vchar varchar(250));
+drop table t1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x+1';
+create table t1( a int primary key,b int)partition by(hs,h1,a);
+insert into t1 values(1,1);
+select a from t1;
+a
+1
+drop table t1;
+select * from t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+create table left_table (k1 varchar(30),k2 varchar(30),v1 int,v2 varchar(30),v3 int,primary key (k1, k2));
+create table left_table (k1 varchar(30),k2 varchar(30),v1 int,v2 varchar(30),v3 int,primary key (k1, k2));
+ERROR 42S01: YAO-5025: table 'left_table' already exists
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum  partition function e(x) '[(1)],[(3)]';
+create table t1 (v varchar(30), c char(3), e char(20), t varchar(256) primary key)partition by(em,e,t);
+create table t1 (v varchar(30), c char(3), e char(20), t varchar(256) primary key);
+ERROR 42S01: YAO-5025: table 't1' already exists
+drop table t1;
+drop table left_table;

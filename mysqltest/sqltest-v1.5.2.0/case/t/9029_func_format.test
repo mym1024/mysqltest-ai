@@ -1,0 +1,168 @@
+##############################################################################################
+###1.测试功能点：测试系统函数format
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create database d1;
+using database d1;
+sleep 5;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6;
+--enable_warnings
+
+#创建不同数据类型的不同分区类型的表
+--echo create table
+create table t1(c1 int primary key,c2 double,c3 float,c4 datetime,c5 decimal(10,5),c6 varchar(10),c7 bool);
+create table t2(c1 int primary key,c2 float);
+create table t3(c1 int primary key,c2 varchar(10));
+create table t4(c1 int primary key,c2 double,c3 varchar(10));
+create table t5(c1 int primary key,c2 int,c3 double,c4 float,c5 varchar(10));
+create table t6(c1 int primary key,c2 varchar(10),c3 varchar(10));
+
+#初始化各个表
+--real_sleep 5
+--echo insert data
+insert into t1 values(1001,12.345678,1234.56,'2022-10-27',77777.97678,'1,001',true);
+insert into t2 values(1,2.34);
+insert into t2 values(2,1.0);
+insert into t3 values(1,'de_DE');
+insert into t3 values(2,'en_US');
+insert into t4 values(1,123456.789,'de_DE');
+insert into t4 values(2,1234.1234,'en_US');
+insert into t5 values(1,2,1234.1234,2345.678,'en_US');
+insert into t6 values(1,'345.67','L1');
+insert into t6 values(2,'123.456','L2');
+insert into t6 values(3,'123.456','L3');
+insert into t6 values(4,'345.67','L4');
+insert into t6 values(5,format(123456.789,1),'L5');
+
+###2-1:参数个数不同
+--error 5054
+select format(12345.678);
+select format(12345.678,2);
+select format(12345.678,2,'de_DE');
+--error 5054
+select format(12345.678,2,'de_DE',5);
+
+###2-2:参数为空
+select format(null,3);
+--error 2
+select format(1234567.6789,null);
+--error 2
+select format(null,null);
+--error 2
+select format(12345.673,2,null);
+--error 2
+select format(null,null,'de_DE');
+--error 2
+select format(null,3,null);
+--error 2
+select format(12345.678,null,null);
+--error 2
+select format(null,null,null);
+
+###2-3:参数为列，且列为不同的数据类型
+#do sql
+##expr1为列
+select format(c1,1,'en_US') from t1;
+select format(c2,2,'de_DE') from t1;
+select format(c3,1) from t1;
+--error 2
+select format(c4,2,'de_DE') from t1;
+select format(c5,3,'de_DE') from t1;
+--error 2
+select format(c6,3) from t1;
+--error 2
+select format(c7,2) from t1;
+##expr2为列
+select format(1234.45,c1,'de_DE') from t2;
+#--error 2
+select format(1234.45,c2,'de_DE') from t2;
+##expr3为列
+select format(1234.4567,2,c2) from t3;
+--error 2
+select format(1234.4567,2,c1) from t3;
+##expr1为列，expr2为列，expr3为列
+select format(c2,c1,c3) from t4;
+
+###2-4:含有列的四则运算
+#do sql
+select format(c3*c2,c1*c2,c5) from t5;
+select format(c4/c2,c2/c1,c5) from t5;
+select format(c3+c4,c2+c1,c5) from t5;
+select format(c3-c4,c1-c2,c5) from t5;
+select format(c4 mod(c3),c2 mod(c1),c5) from t5;
+select format(c4*c3/c2,c2 mod(c1)+c2,c5) from t5;
+
+###2-5:含有四则运算
+select format(12345.6782*2,2*1,'en_US');
+select format(12345.6782/2,6/2,'en_US');
+select format(12345.6782+248.34,1+1,'de_DE');
+select format(12345.6782-248.34,3-2,'de_DE');
+select format(12345.6782,5 mod(2),'de_DE');
+select format(12345.6782/2,(1+8*9/4)%2,'en_US');
+
+###2-6：嵌套系统函数或聚集函数
+#do sql
+select format(round(1234.4567,2),1);
+select format(c2,1,lower(c3)) from t4;
+select format(12345.6782,count(*)) from t4;
+select format(avg(c2),3) from t4;
+
+###2-7：函数位置不同
+#do sql
+select c1,c3 from t6 where c2 like format(123.4556,3);
+select c1,c3 from t6 where c2 like format(345.672,2) order by c1;
+update t6 set c3 = 'LTest' where c2 like format(345.672,2);
+update t6 set c2 = format(5.789123,4) where c1 < 2;
+delete from t6 where c1 > 2 and c2 like format(345.67,2);
+
+###2-8：多表测试
+#do sql
+select t6.c1,format(t4.c2,t6.c1) from t4,t6;
+select distinct t4.c1,t6.c1,t6.c3 from t4,t6 where t6.c2 like format(123.4562,3);
+
+###2-9：参数中出现临界值
+select format(0,0);
+select format(1.1,0);
+#--error 2
+select format(0,1.1);
+select format(1,0);
+select format(0,1);
+select format(-1,-1);
+select format(-1,0);
+select format(-1,1);
+select format(null,0);
+select format(null,-1);
+select format(null,1);
+
+###2-10：其它情况（负数,小写）
+select format(12345.678,-2);
+select format(-12345.678,2);
+select format(12345.678,2,'de_de');
+select FORMAT(null,3);
+select format(null,3) AS test;
+select format(format(null,3),3);
+
+drop table t1,t2,t3,t4,t5,t6;
+drop database d1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

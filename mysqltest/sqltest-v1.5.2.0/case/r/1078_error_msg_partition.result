@@ -1,0 +1,57 @@
+drop table if exists t1;
+test connection close
+#########################
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(a int primary key,b int)partition by(hs,h,a);
+select * from t1;
+a	b
+drop table t1;
+#########################
+test table exists
+#########################
+create table t1(a int primary key,b int);
+create table t1(a int primary key,b int);
+ERROR 42S01: YAO-5025: table 't1' already exists
+drop table t1;
+#########################
+test table does not exists
+#########################
+select * from t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+#########################
+test use keyword
+#########################
+create table t1(int int);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+#########################
+test no primary key
+#########################
+create table t1(a int);
+insert into t1(a) values(NULL);
+insert into t1(b) values(1);
+ERROR 42S22: YAO-5009: Unknown column name b
+drop table t1;
+#########################
+test primary key null
+#########################
+create table t1(a int primary key,b int);
+insert into t1(a) values(NULL);
+insert into t1 values(NULL,1);
+ERROR 23000: YAO-5024: Duplicate entry ' <3004.16>=null:' for key 'PRIMARY'
+insert into t1(b) values(1);
+ERROR HY000: YAO-5030: primary key can not be empty
+drop table t1;
+create table t1(a int,b int,primary key(a,b),c int);
+insert into t1(a,b) values(NULL,1);
+insert into t1(a,b) values(1,NULL);
+drop table t1;
+#########################
+test syntax err
+#########################
+create ;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+#########################

@@ -1,0 +1,126 @@
+drop table if exists t1,t2;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10.25)]';
+create table t1 (c1 int primary key ,c2 varchar(30),c3 datetime,c4 float ,c5 decimal(5,4),c6 bool) partition by(em,e,c1);
+create table t2 (c1 int primary key ,c2 varchar(30),c3 datetime,c4 float ,c5 decimal(5,4),c6 bool) partition by(em,e,c1);
+insert into t2 values(1,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(2,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(3,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(4,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(5,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(6,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(7,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(8,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(9,'jiomn','2019-06-07 17:25:28',1.256,2.568,0);
+insert into t2 (c1,c2,c5) values(10,'linfang',2.568);
+insert into t1(c1,c5) select c1,c5 from t2 where c1>10;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	linfang	NULL	NULL	2.568	NULL
+insert into t1 (c1,c2,c3) values(11,14,5.2634);
+ERROR HY000: YAO-2: Invalid argument
+select * from t1;
+c1	c2	c3	c4	c5	c6
+insert into t2 (c1,c2,c5) select c1,c2,c3 from t1 where c1=11;
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	linfang	NULL	NULL	2.568	NULL
+insert into t2 (c1,c2,c6) values(15.345,16.35,'2015-07-09 12:45:56');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	linfang	NULL	NULL	2.568	NULL
+insert into t1 (c1 ,c5) select c1,c6 from t2 where c1>15;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+insert into t1(c1,c2) select c6,c6 from t2 where c1>16;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g;
+ERROR HY000: YAO-5077: partition function 'g' doesn't exist
+create enum partition function g(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10.25)]';
+create table t1 (c1 int primary key ,c2 int ,c3 decimal(5,4),c4 bool ,c5 varchar(30)) partition by(em,g,c1);
+create table t2 (c1 float ,c2 double,c3 bool ,c4 int ,c5 decimal(3,2),c6 datetime,primary key (c1,c2));
+insert into t2 (c1,c2,c3) values(1.56,2.87,2);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2.87	1	NULL	NULL	NULL
+insert into t1 (c1 ,c2) select c1,c2 from t2;
+ERROR 25S03: YAO-119: Unknown error, error code = 1
+select * from t1;
+c1	c2	c3	c4	c5
+insert into t2(c1,c2) values(5.36,6.46);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2.87	1	NULL	NULL	NULL
+5.36	6.46	NULL	NULL	NULL	NULL
+insert into t1 (c1,c3) select c1,c2 from t2 where c1>2;
+ERROR 25S03: YAO-119: Unknown error, error code = 1
+select * from t1;
+c1	c2	c3	c4	c5
+insert into t1(c1,c3) select c2,c1 from t2 where c1>2;
+ERROR 25S03: YAO-119: Unknown error, error code = 1
+select * from t1;
+c1	c2	c3	c4	c5
+insert into t2 (c1,c2,c5) values(8.65,9.123,4.25);
+insert into t1 (c1,c2 ) select c1,c5 from t2 where c1>6;
+ERROR 25S03: YAO-119: Unknown error, error code = 1
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2.87	1	NULL	NULL	NULL
+5.36	6.46	NULL	NULL	NULL	NULL
+8.65	9.123	NULL	NULL	4.25	NULL
+insert into t1(c1,c3) select c2,c5 from t2 where c1>6;
+ERROR 25S03: YAO-119: Unknown error, error code = 1
+select * from t1;
+c1	c2	c3	c4	c5
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+__user_default_group	2	0	NULL

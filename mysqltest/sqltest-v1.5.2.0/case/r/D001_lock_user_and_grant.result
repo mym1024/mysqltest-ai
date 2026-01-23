@@ -1,0 +1,5 @@
+drop table if exists t1,t2,t3,t4;
+create user 'u1' identified by 'password1*';
+alter user 'u1' locked;
+create user 'u2' identified by 'password2*';
+GRANT SELECT, GRANT OPTION ON test.* TO 'u2';

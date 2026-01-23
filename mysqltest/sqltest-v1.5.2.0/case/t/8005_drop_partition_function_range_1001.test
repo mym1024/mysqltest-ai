@@ -1,0 +1,60 @@
+###1.测试功能点：分区删除功能
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：10 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+
+###2-1 创建分区后删除
+--error 5077
+drop partition function h1;
+create range partition function r1(x) '(1),(3),(maxvalue)';
+drop partition function r1;
+show partition functions;
+create range partition function r1(x) '(1),(2),(maxvalue)';
+drop partition function r1;
+show partition functions;
+create range partition function r1(x) '(1),(2),(maxvalue)';
+drop partition function R1;
+show partition functions;
+create range partition function e1(x) '(1),(2),(maxvalue)';
+drop partition function E1;
+show partition functions;
+create range partition function r1(x) '(1),(2),(maxvalue)';
+create range partition function r2(x) '(1),(2),(maxvalue)';
+create range partition function r3(x) '(1),(2),(maxvalue)';
+drop partition function r1,r2,r3;
+show partition functions;
+create range partition function e1(x) '(1),(2),(maxvalue)';
+create range partition function e2(x) '(1),(2),(maxvalue)';
+create range partition function e3(x) '(1),(2),(maxvalue)';
+drop partition function e1,e2,e3;
+show partition functions;
+create range partition function h1(x)  '(1),(2),(maxvalue)';
+create range partition function h2(x)  '(1),(2),(maxvalue)';
+create enum partition function e3(x) '[(1),(2)]';
+drop partition function H1,h2,E3;
+show partition functions;
+create hash partition function h1(x)  'x+1';
+create hash partition function h2(x)  'x+1';
+create enum partition function e3(x)  '[(1),(2)]';
+create range partition function r1(x)   '(1),(2),(maxvalue)';
+create range partition function r2(x)  '(1),(2),(maxvalue)';
+drop partition function h1,h2,e3,r1,r2;
+show partition functions;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

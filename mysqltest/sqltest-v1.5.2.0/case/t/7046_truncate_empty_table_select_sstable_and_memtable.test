@@ -1,0 +1,63 @@
+--source merge.sql
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+#空表进行truncate操作或该版本没有增量进行truncate操作，冻结多次，然后通过scan和get查询表中的数据，前几个冻结版本的数据的在磁盘，后两个版本的数据在内存
+create table t1 (c1 int primary key,c2 varchar(10));
+
+
+
+select * from t1;
+truncate table t1;
+select * from t1;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 5
+
+
+select * from t1;
+truncate table t1;
+select * from t1;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 5
+
+
+select * from t1;
+insert into t1 values(1,'aa');
+select * from t1;
+select * from t1 where c1 = 1;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+--echo "drop memtable"
+exec $LOCAL_DIR/bin/ts_admin -r $RS0_IP -p $UPS0_PORT -t drop;
+--real_sleep 5
+
+select * from t1;
+select * from t1 where c1 = 1;
+truncate table t1;
+select * from t1;
+select * from t1 where c1 = 1;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 5
+
+select * from t1;
+select * from t1 where c1 = 1;
+
+
+
+
+

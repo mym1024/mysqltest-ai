@@ -1,0 +1,10 @@
+#######################################################
+###1.测试功能点：在未指定分区规则表中，加锁读取未提交事务;
+#######################################################
+
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8));
+begin;
+insert into c values(1,1);
+select * from c where c1=1 for update;
+commit;

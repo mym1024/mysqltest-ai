@@ -1,0 +1,4014 @@
+drop table if exists t1;
+create table t1(pk int primary key,c1 int) partition by range(pk) (partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+insert into t1 values(1,1);
+insert into t1 values(2,2);
+"connect conn1"
+begin;
+"connect conn2"
+begin;
+update t1 set c1=c1+10 where pk=2;
+update t1 set c1=c1+20 where pk=2;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:2' for key 'PRIMARY'
+commit;
+commit;
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+select * from t1;
+pk	c1
+1	1
+2	12
+commit;

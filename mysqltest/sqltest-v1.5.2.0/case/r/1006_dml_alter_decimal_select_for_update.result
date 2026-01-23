@@ -1,0 +1,1426 @@
+create database test_decimal;
+using database test_decimal;
+create table if not exists t1(c1 int primary key, c2 decimal(5,2), c3 decimal(10,2),c4 varchar(10));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t1 values(1, 1, 1.2, '1.325o');
+insert into t1 values(2, 1.2, 1.3, '1.32');
+insert into t1 values(3, 1.23, 1.36, 'a.asd');
+insert into t1 values(4, 123.234, 1.35, '1.36f');
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+select * from t1 where c1=3 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t1 where c1=4 for update;
+c1	c2	c3	c4	c1+c2
+4	123.23	1.35	1.36f	127.23
+select c2*c3 from t1;
+c2*c3
+1.2
+1.56
+1.6728
+166.3605
+select c2*c3 from t1 where c1=2 for update;
+c2*c3
+1.56
+select c2/c3 from t1;
+c2/c3
+0.833333
+0.923077
+0.904412
+91.281481
+select c2/c3 from t1 where c1=2 for update;
+c2/c3
+0.923077
+select c2-c3 from t1;
+c2-c3
+-0.2
+-0.1
+-0.13
+121.88
+select c2-c3 from t1 where c1=2 for update;
+c2-c3
+-0.1
+select c2+c3 from t1;
+c2+c3
+2.2
+2.5
+2.59
+124.58
+select c2+c3 from t1 where c1=2 for update;
+c2+c3
+2.5
+select c4*c3 from t1;
+c4*c3
+1.5899999999999999
+1.7160000000000002
+0
+1.8360000000000003
+select c4*c3 from t1 where c1=4;
+c4*c3
+1.8360000000000003
+select c4+c3 from t1 where c1=4;
+c4+c3
+2.71
+select c4-c3 from t1 where c1=4;
+c4-c3
+0.010000000000000009
+select c4/c3 from t1 where c1=4;
+c4/c3
+1.0074074074074073
+select c4*c3 from t1 where c1=1;
+c4*c3
+1.5899999999999999
+select c4+c3 from t1 where c1=1;
+c4+c3
+2.525
+select c4-c3 from t1 where c1=1;
+c4-c3
+0.125
+select c4/c3 from t1 where c1=1;
+c4/c3
+1.1041666666666667
+select c4*c3 from t1 where c1=2 for update;
+c4*c3
+1.7160000000000002
+select c1*c3 from t1;
+c1*c3
+1.2
+2.6
+4.08
+5.4
+select c1*c3 from t1 where c1=2 for update;
+c1*c3
+2.6
+select c4/c3 from t1;
+c4/c3
+1.1041666666666667
+1.0153846153846153
+0
+1.0074074074074073
+select c4/c3 from t1 where c1=2 for update;
+c4/c3
+1.0153846153846153
+select c1/c3 from t1;
+c1/c3
+0.8333
+1.5385
+2.2059
+2.963
+select c1/c3 from t1 where c1=2 for update;
+c1/c3
+1.5385
+select c4+c3 from t1;
+c4+c3
+2.525
+2.62
+1.36
+2.71
+select c4+c3 from t1 where c1=2 for update;
+c4+c3
+2.62
+select c1+c3 from t1;
+c1+c3
+2.2
+3.3
+4.36
+5.35
+select c1+c3 from t1 where c1=2 for update;
+c1+c3
+3.3
+select c4-c3 from t1;
+c4-c3
+0.125
+0.020000000000000018
+-1.36
+0.010000000000000009
+select c4-c3 from t1 where c1=2 for update;
+c4-c3
+0.020000000000000018
+select c1-c3 from t1;
+c1-c3
+-0.2
+0.7
+1.64
+2.65
+select c1-c3 from t1 where c1=2 for update;
+c1-c3
+0.7
+select sum(c2) from t1;
+sum(c2)
+126.66
+select avg(c2) from t1;
+avg(c2)
+31.665
+insert into t1 values(5, 1234.12, 1.36, '1.36');
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t1] column[c2] at row[1]
+alter table t1 alter column c2 set data type decimal(8,2);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(8,2)	YES		NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t1 values(6, 1234.12, 1.36, '13.654');
+insert into t1 values(7, 12345.123, 1.63, '15.36');
+insert into t1 values(8, 123456.123, 1.54, '12.36');
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+6	1234.12	1.36	13.654
+7	12345.12	1.63	15.36
+8	123456.12	1.54	12.36
+select *,c1+c2 from t1 where c1=8 for update;
+c1	c2	c3	c4	c1+c2
+8	123456.12	1.54	12.36	123464.12
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+6	1234.12	1.36	13.654
+7	12345.12	1.63	15.36
+8	123456.12	1.54	12.36
+select * from t1 where c1=3 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t1 where c1=4 for update;
+c1	c2	c3	c4	c1+c2
+4	123.23	1.35	1.36f	127.23
+select c2*c3 from t1;
+c2*c3
+1.2
+1.56
+1.6728
+166.3605
+1678.4032
+20122.5456
+190122.4248
+select c2*c3 from t1 where c1=2 for update;
+c2*c3
+1.56
+select c2/c3 from t1;
+c2/c3
+0.833333
+0.923077
+0.904412
+91.281481
+907.441176
+7573.693252
+80166.311688
+select c2/c3 from t1 where c1=2 for update;
+c2/c3
+0.923077
+select c2-c3 from t1;
+c2-c3
+-0.2
+-0.1
+-0.13
+121.88
+1232.76
+12343.49
+123454.58
+select c2-c3 from t1 where c1=2 for update;
+c2-c3
+-0.1
+select c2+c3 from t1;
+c2+c3
+2.2
+2.5
+2.59
+124.58
+1235.48
+12346.75
+123457.66
+select c2+c3 from t1 where c1=2 for update;
+c2+c3
+2.5
+select c4*c3 from t1;
+c4*c3
+1.5899999999999999
+1.7160000000000002
+0
+1.8360000000000003
+18.56944
+25.036799999999996
+19.034399999999998
+select c4*c3 from t1 where c1=2 for update;
+c4*c3
+1.7160000000000002
+select c1*c3 from t1;
+c1*c3
+1.2
+2.6
+4.08
+5.4
+8.16
+11.41
+12.32
+select c1*c3 from t1 where c1=2 for update;
+c1*c3
+2.6
+select c4/c3 from t1;
+c4/c3
+1.1041666666666667
+1.0153846153846153
+0
+1.0074074074074073
+10.03970588235294
+9.423312883435583
+8.025974025974026
+select c4/c3 from t1 where c1=2 for update;
+c4/c3
+1.0153846153846153
+select c1/c3 from t1;
+c1/c3
+0.8333
+1.5385
+2.2059
+2.963
+4.4118
+4.2945
+5.1948
+select c1/c3 from t1 where c1=2 for update;
+c1/c3
+1.5385
+select c4+c3 from t1;
+c4+c3
+2.525
+2.62
+1.36
+2.71
+15.014
+16.99
+13.899999999999999
+select c4+c3 from t1 where c1=2 for update;
+c4+c3
+2.62
+select c1+c3 from t1;
+c1+c3
+2.2
+3.3
+4.36
+5.35
+7.36
+8.63
+9.54
+select c1+c3 from t1 where c1=2 for update;
+c1+c3
+3.3
+select c4-c3 from t1;
+c4-c3
+0.125
+0.020000000000000018
+-1.36
+0.010000000000000009
+12.294
+13.73
+10.82
+select c4*c3 from t1 where c1=4;
+c4*c3
+1.8360000000000003
+select c4+c3 from t1 where c1=4;
+c4+c3
+2.71
+select c4-c3 from t1 where c1=4;
+c4-c3
+0.010000000000000009
+select c4/c3 from t1 where c1=4;
+c4/c3
+1.0074074074074073
+select c4*c3 from t1 where c1=1;
+c4*c3
+1.5899999999999999
+select c4+c3 from t1 where c1=1;
+c4+c3
+2.525
+select c4-c3 from t1 where c1=1;
+c4-c3
+0.125
+select c4/c3 from t1 where c1=1;
+c4/c3
+1.1041666666666667
+select c4-c3 from t1 where c1=2 for update;
+c4-c3
+0.020000000000000018
+select c1-c3 from t1;
+c1-c3
+-0.2
+0.7
+1.64
+2.65
+4.64
+5.37
+6.46
+select c1-c3 from t1 where c1=2 for update;
+c1-c3
+0.7
+select sum(c2) from t1;
+sum(c2)
+137162.02
+select avg(c2) from t1;
+avg(c2)
+19594.574286
+insert into t1 values(9, 1234567.12, 15.23, '145.265');
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(9,2) to decimal(8,2) for table[test_decimal.t1] column[c2] at row[1]
+alter table t1 alter column c2 set data type decimal(9,2);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(9,2)	YES		NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t1 values(10, 1234567.1, 12.36, '12.35');
+insert into t1 values(11, 1234567.12, 14.25, '12.02');
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+6	1234.12	1.36	13.654
+7	12345.12	1.63	15.36
+8	123456.12	1.54	12.36
+10	1234567.1	12.36	12.35
+11	1234567.12	14.25	12.02
+select * from t1 where c1=11 for update;
+c1	c2	c3	c4
+11	1234567.12	14.25	12.02
+select * from t1 where c1=3 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t1 where c1=4 for update;
+c1	c2	c3	c4	c1+c2
+4	123.23	1.35	1.36f	127.23
+select c2*c3 from t1;
+c2*c3
+1.2
+1.56
+1.6728
+166.3605
+1678.4032
+20122.5456
+190122.4248
+15259249.356
+17592581.46
+select c2*c3 from t1 where c1=2 for update;
+c2*c3
+1.56
+select c2/c3 from t1;
+c2/c3
+0.833333
+0.923077
+0.904412
+91.281481
+907.441176
+7573.693252
+80166.311688
+99884.069579
+86636.289123
+select c2/c3 from t1 where c1=2 for update;
+c2/c3
+0.923077
+select c2-c3 from t1;
+c2-c3
+-0.2
+-0.1
+-0.13
+121.88
+1232.76
+12343.49
+123454.58
+1234554.74
+1234552.87
+select c2-c3 from t1 where c1=2 for update;
+c2-c3
+-0.1
+select c2+c3 from t1;
+c2+c3
+2.2
+2.5
+2.59
+124.58
+1235.48
+12346.75
+123457.66
+1234579.46
+1234581.37
+select c2+c3 from t1 where c1=2 for update;
+c2+c3
+2.5
+select c4*c3 from t1;
+c4*c3
+1.5899999999999999
+1.7160000000000002
+0
+1.8360000000000003
+18.56944
+25.036799999999996
+19.034399999999998
+152.646
+171.285
+select c4*c3 from t1 where c1=2 for update;
+c4*c3
+1.7160000000000002
+select c1*c3 from t1;
+c1*c3
+1.2
+2.6
+4.08
+5.4
+8.16
+11.41
+12.32
+123.6
+156.75
+select c1*c3 from t1 where c1=2 for update;
+c1*c3
+2.6
+select c4/c3 from t1;
+c4/c3
+1.1041666666666667
+1.0153846153846153
+0
+1.0074074074074073
+10.03970588235294
+9.423312883435583
+8.025974025974026
+0.9991909385113269
+0.8435087719298245
+select c4/c3 from t1 where c1=2 for update;
+c4/c3
+1.0153846153846153
+select c1/c3 from t1;
+c1/c3
+0.8333
+1.5385
+2.2059
+2.963
+4.4118
+4.2945
+5.1948
+0.8091
+0.7719
+select c1/c3 from t1 where c1=2 for update;
+c1/c3
+1.5385
+select c4+c3 from t1;
+c4+c3
+2.525
+2.62
+1.36
+2.71
+15.014
+16.99
+13.899999999999999
+24.71
+26.27
+select c4+c3 from t1 where c1=2 for update;
+c4+c3
+2.62
+select c1+c3 from t1;
+c1+c3
+2.2
+3.3
+4.36
+5.35
+7.36
+8.63
+9.54
+22.36
+25.25
+select c1+c3 from t1 where c1=2 for update;
+c1+c3
+3.3
+select c4-c3 from t1;
+c4-c3
+0.125
+0.020000000000000018
+-1.36
+0.010000000000000009
+12.294
+13.73
+10.82
+-0.009999999999999787
+-2.2300000000000004
+select c4-c3 from t1 where c1=2 for update;
+c4-c3
+0.020000000000000018
+select c1-c3 from t1;
+c1-c3
+-0.2
+0.7
+1.64
+2.65
+4.64
+5.37
+6.46
+-2.36
+-3.25
+select c1-c3 from t1 where c1=2 for update;
+c1-c3
+0.7
+select sum(c2) from t1;
+sum(c2)
+2606296.24
+select avg(c2) from t1;
+avg(c2)
+289588.471111
+alter table t1 alter column c2 set data type decimal(12,2);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(12,2)	YES		NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t1 values(13, 123456789.1, 12.36, '145.62');
+insert into t1 values(14, 1234567890.12, 14.25, '147.21');
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+6	1234.12	1.36	13.654
+7	12345.12	1.63	15.36
+8	123456.12	1.54	12.36
+10	1234567.1	12.36	12.35
+11	1234567.12	14.25	12.02
+13	123456789.1	12.36	145.62
+14	1234567890.12	14.25	147.21
+select * from t1 where c1=14 for update;
+c1	c2	c3	c4
+14	1234567890.12	14.25	147.21
+select * from t1 where c1=13 for update;
+c1	c2	c3	c4
+13	123456789.1	12.36	145.62
+insert into t1 values(15, 12345678901.12, 124.53, '1475.21');
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(13,2) to decimal(12,2) for table[test_decimal.t1] column[c2] at row[1]
+select * from t1;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.32
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.36f
+6	1234.12	1.36	13.654
+7	12345.12	1.63	15.36
+8	123456.12	1.54	12.36
+10	1234567.1	12.36	12.35
+11	1234567.12	14.25	12.02
+13	123456789.1	12.36	145.62
+14	1234567890.12	14.25	147.21
+select * from t1 where c1=3 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t1 where c1=4 for update;
+c1	c2	c3	c4	c1+c2
+4	123.23	1.35	1.36f	127.23
+select c2*c3 from t1;
+c2*c3
+1.2
+1.56
+1.6728
+166.3605
+1678.4032
+20122.5456
+190122.4248
+15259249.356
+17592581.46
+1525925913.276
+17592592434.21
+select c2*c3 from t1 where c1=2 for update;
+c2*c3
+1.56
+select c2/c3 from t1;
+c2/c3
+0.833333
+0.923077
+0.904412
+91.281481
+907.441176
+7573.693252
+80166.311688
+99884.069579
+86636.289123
+9988413.357605
+86636343.166316
+select c2/c3 from t1 where c1=2 for update;
+c2/c3
+0.923077
+select c2-c3 from t1;
+c2-c3
+-0.2
+-0.1
+-0.13
+121.88
+1232.76
+12343.49
+123454.58
+1234554.74
+1234552.87
+123456776.74
+1234567875.87
+select c2-c3 from t1 where c1=2 for update;
+c2-c3
+-0.1
+select c2+c3 from t1;
+c2+c3
+2.2
+2.5
+2.59
+124.58
+1235.48
+12346.75
+123457.66
+1234579.46
+1234581.37
+123456801.46
+1234567904.37
+select c2+c3 from t1 where c1=2 for update;
+c2+c3
+2.5
+select c4*c3 from t1;
+c4*c3
+1.5899999999999999
+1.7160000000000002
+0
+1.8360000000000003
+18.56944
+25.036799999999996
+19.034399999999998
+152.646
+171.285
+1799.8632
+2097.7425000000003
+select c4*c3 from t1 where c1=2 for update;
+c4*c3
+1.7160000000000002
+select c1*c3 from t1;
+c1*c3
+1.2
+2.6
+4.08
+5.4
+8.16
+11.41
+12.32
+123.6
+156.75
+160.68
+199.5
+select c1*c3 from t1 where c1=2 for update;
+c1*c3
+2.6
+select c4/c3 from t1;
+c4/c3
+1.1041666666666667
+1.0153846153846153
+0
+1.0074074074074073
+10.03970588235294
+9.423312883435583
+8.025974025974026
+0.9991909385113269
+0.8435087719298245
+11.781553398058254
+10.330526315789474
+select c4/c3 from t1 where c1=2 for update;
+c4/c3
+1.0153846153846153
+select c1/c3 from t1;
+c1/c3
+0.8333
+1.5385
+2.2059
+2.963
+4.4118
+4.2945
+5.1948
+0.8091
+0.7719
+1.0518
+0.9825
+select c1/c3 from t1 where c1=2 for update;
+c1/c3
+1.5385
+select c4+c3 from t1;
+c4+c3
+2.525
+2.62
+1.36
+2.71
+15.014
+16.99
+13.899999999999999
+24.71
+26.27
+157.98000000000002
+161.46
+select c4+c3 from t1 where c1=2 for update;
+c4+c3
+2.62
+select c1+c3 from t1;
+c1+c3
+2.2
+3.3
+4.36
+5.35
+7.36
+8.63
+9.54
+22.36
+25.25
+25.36
+28.25
+select c1+c3 from t1 where c1=2 for update;
+c1+c3
+3.3
+select c4-c3 from t1;
+c4-c3
+0.125
+0.020000000000000018
+-1.36
+0.010000000000000009
+12.294
+13.73
+10.82
+-0.009999999999999787
+-2.2300000000000004
+133.26
+132.96
+select c4-c3 from t1 where c1=2 for update;
+c4-c3
+0.020000000000000018
+select c1-c3 from t1;
+c1-c3
+-0.2
+0.7
+1.64
+2.65
+4.64
+5.37
+6.46
+-2.36
+-3.25
+0.64
+-0.25
+select c1-c3 from t1 where c1=2 for update;
+c1-c3
+0.7
+select sum(c2) from t1;
+sum(c2)
+1360630975.46
+select avg(c2) from t1;
+avg(c2)
+123693725.041818
+drop table if exists t1;
+create table if not exists t2(c1 int, c2 decimal(5,2) primary key, c3 decimal(10,2),c4 varchar(10));
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	decimal(5,2)	YES	PRI	NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t2 values(1, 1, 1.2, '1.325o');
+insert into t2 values(2, 1.2, 1.3, '1.325');
+insert into t2 values(3, 1.23, 1.36, 'a.asd');
+insert into t2 values(4, 123.234, 1.35, '1.369f');
+select * from t2;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.325
+3	1.23	1.36	a.asd
+4	123.23	1.35	1.369f
+select * from t2 where c2=1.23 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t2 where c2=1.2 for update;
+c1	c2	c3	c4	c1+c2
+2	1.2	1.3	1.325	3.2
+select c2*c3 from t2;
+c2*c3
+1.2
+1.56
+1.6728
+166.3605
+select c2*c3 from t2 where c2=1.2 for update;
+c2*c3
+1.56
+select c2/c3 from t2;
+c2/c3
+0.833333
+0.923077
+0.904412
+91.281481
+select c2/c3 from t2 where c2=1.2 for update;
+c2/c3
+0.923077
+select c2-c3 from t2;
+c2-c3
+-0.2
+-0.1
+-0.13
+121.88
+select c2-c3 from t2 where c2=1.2 for update;
+c2-c3
+-0.1
+select c2+c3 from t2;
+c2+c3
+2.2
+2.5
+2.59
+124.58
+select c2+c3 from t2 where c2=1.2 for update;
+c2+c3
+2.5
+select c4*c3 from t2;
+c4*c3
+1.5899999999999999
+1.7225
+0
+1.8481500000000002
+select c4*c3 from t2 where c1=4;
+c4*c3
+1.8481500000000002
+select c4+c3 from t2 where c1=4;
+c4+c3
+2.7190000000000003
+select c4-c3 from t2 where c1=4;
+c4-c3
+0.018999999999999906
+select c4/c3 from t2 where c1=4;
+c4/c3
+1.014074074074074
+select c4*c3 from t2 where c1=1;
+c4*c3
+1.5899999999999999
+select c4+c3 from t2 where c1=1;
+c4+c3
+2.525
+select c4-c3 from t2 where c1=1;
+c4-c3
+0.125
+select c4/c3 from t2 where c1=1;
+c4/c3
+1.1041666666666667
+select c4*c3 from t2 where c2=1.2 for update;
+c4*c3
+1.7225
+select c1*c3 from t2;
+c1*c3
+1.2
+2.6
+4.08
+5.4
+select c1*c3 from t2 where c2=1.2 for update;
+c1*c3
+2.6
+select c4/c3 from t2;
+c4/c3
+1.1041666666666667
+1.0192307692307692
+0
+1.014074074074074
+select c4/c3 from t2 where c2=1.2 for update;
+c4/c3
+1.0192307692307692
+select c1/c3 from t2;
+c1/c3
+0.8333
+1.5385
+2.2059
+2.963
+select c1/c3 from t2 where c2=1.2 for update;
+c1/c3
+1.5385
+select c4+c3 from t2;
+c4+c3
+2.525
+2.625
+1.36
+2.7190000000000003
+select c4+c3 from t2 where c2=1.2 for update;
+c4+c3
+2.625
+select c1+c3 from t2;
+c1+c3
+2.2
+3.3
+4.36
+5.35
+select c1+c3 from t2 where c2=1.2 for update;
+c1+c3
+3.3
+select c4-c3 from t2;
+c4-c3
+0.125
+0.02499999999999991
+-1.36
+0.018999999999999906
+select c4-c3 from t2 where c2=1.2 for update;
+c4-c3
+0.02499999999999991
+select c1-c3 from t2;
+c1-c3
+-0.2
+0.7
+1.64
+2.65
+select c1-c3 from t2 where c2=1.2 for update;
+c1-c3
+0.7
+select sum(c2) from t2;
+sum(c2)
+126.66
+select avg(c2) from t2;
+avg(c2)
+31.665
+insert into t2 values(5, 1234.12, 1.32, '1.36');
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t2] column[c2] at row[1]
+alter table t2 alter column c2 set data type decimal(6,3);
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	decimal(6,3)	YES	PRI	NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t2 values(7, 123.234, 1.36, '2.365');
+insert into t2 values(8, 1.239, 1.36, '2.365');
+insert into t2 values(9, 1.231, 1.21, '1.365');
+insert into t2 values(10, 1.232, 1.54, '5.64');
+select * from t2;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.325
+3	1.23	1.36	a.asd
+9	1.231	1.21	1.365
+10	1.232	1.54	5.64
+8	1.239	1.36	2.365
+4	123.23	1.35	1.369f
+7	123.234	1.36	2.365
+select * from t2 where c2=1.23 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t2 where c2=1.2 for update;
+c1	c2	c3	c4	c1+c2
+2	1.2	1.3	1.325	3.2
+select c2*c3 from t2;
+c2*c3
+1.2
+1.56
+1.6728
+1.48951
+1.89728
+1.68504
+166.3605
+167.59824
+select c2*c3 from t2 where c2=1.2 for update;
+c2*c3
+1.56
+select c2/c3 from t2;
+c2/c3
+0.833333
+0.923077
+0.904412
+1.0173554
+0.8
+0.9110294
+91.281481
+90.6132353
+select c2/c3 from t2 where c2=1.2 for update;
+c2/c3
+0.9230769
+select c2-c3 from t2;
+c2-c3
+-0.2
+-0.1
+-0.13
+0.021
+-0.308
+-0.121
+121.88
+121.874
+select c2-c3 from t2 where c2=1.2 for update;
+c2-c3
+-0.1
+select c2+c3 from t2;
+c2+c3
+2.2
+2.5
+2.59
+2.441
+2.772
+2.599
+124.58
+124.594
+select c2+c3 from t2 where c2=1.2 for update;
+c2+c3
+2.5
+select c4*c3 from t2 where c2=1.2 for update;
+c4*c3
+1.7225
+select c1*c3 from t2;
+c1*c3
+1.2
+2.6
+4.08
+10.89
+15.4
+10.88
+5.4
+9.52
+select c1*c3 from t2 where c2=1.2 for update;
+c1*c3
+2.6
+select c4*c3 from t2 where c1=4;
+c4*c3
+1.8481500000000002
+select c4+c3 from t2 where c1=4;
+c4+c3
+2.7190000000000003
+select c4-c3 from t2 where c1=4;
+c4-c3
+0.018999999999999906
+select c4/c3 from t2 where c1=4;
+c4/c3
+1.014074074074074
+select c4*c3 from t2 where c1=1;
+c4*c3
+1.5899999999999999
+select c4+c3 from t2 where c1=1;
+c4+c3
+2.525
+select c4-c3 from t2 where c1=1;
+c4-c3
+0.125
+select c4/c3 from t2 where c1=1;
+c4/c3
+1.1041666666666667
+select c4/c3 from t2 where c2=1.2 for update;
+c4/c3
+1.0192307692307692
+select c1/c3 from t2;
+c1/c3
+0.8333
+1.5385
+2.2059
+7.438
+6.4935
+5.8824
+2.963
+5.1471
+select c1/c3 from t2 where c2=1.2 for update;
+c1/c3
+1.5385
+select c4+c3 from t2;
+c4+c3
+2.525
+2.625
+1.36
+2.575
+7.18
+3.7250000000000005
+2.7190000000000003
+3.7250000000000005
+select c4+c3 from t2 where c2=1.2 for update;
+c4+c3
+2.625
+select c1+c3 from t2;
+c1+c3
+2.2
+3.3
+4.36
+10.21
+11.54
+9.36
+5.35
+8.36
+select c1+c3 from t2 where c2=1.2 for update;
+c1+c3
+3.3
+select c4-c3 from t2;
+c4-c3
+0.125
+0.02499999999999991
+-1.36
+0.15500000000000003
+4.1
+1.0050000000000001
+0.018999999999999906
+1.0050000000000001
+select c4-c3 from t2 where c2=1.2 for update;
+c4-c3
+0.02499999999999991
+select c1-c3 from t2;
+c1-c3
+-0.2
+0.7
+1.64
+7.79
+8.46
+6.64
+2.65
+5.64
+select c1-c3 from t2 where c2=1.2 for update;
+c1-c3
+0.7
+select sum(c2) from t2;
+sum(c2)
+253.596
+select avg(c2) from t2;
+avg(c2)
+31.6995
+alter table t2 alter column c2 set data type decimal(10,4);
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	decimal(10,4)	YES	PRI	NULL	
+c3	decimal(10,2)	YES		NULL	
+c4	varchar(10)	YES		NULL	
+insert into t2 values(11, 1.2341, 1.65, '1.62');
+insert into t2 values(12, 12.234, 1.65, '1.62');
+insert into t2 values(13, 13.26, 1.65, '1.62');
+insert into t2 values(14, 1234.1, 1.52, '1.85');
+select * from t2;
+c1	c2	c3	c4
+1	1	1.2	1.325o
+2	1.2	1.3	1.325
+3	1.23	1.36	a.asd
+9	1.231	1.21	1.365
+10	1.232	1.54	5.64
+11	1.2341	1.65	1.62
+8	1.239	1.36	2.365
+12	12.234	1.65	1.62
+13	13.26	1.65	1.62
+4	123.23	1.35	1.369f
+7	123.234	1.36	2.365
+14	1234.1	1.52	1.85
+select * from t2 where c2=1.23 for update;
+c1	c2	c3	c4
+3	1.23	1.36	a.asd
+select *,c1+c2 from t2 where c2=1.2 for update;
+c1	c2	c3	c4	c1+c2
+2	1.2	1.3	1.325	3.2
+select c2*c3 from t2;
+c2*c3
+1.2
+1.56
+1.6728
+1.48951
+1.89728
+2.036265
+1.68504
+20.1861
+21.879
+166.3605
+167.59824
+1875.832
+select c2*c3 from t2 where c2=1.2 for update;
+c2*c3
+1.56
+select c2/c3 from t2;
+c2/c3
+0.833333
+0.923077
+0.904412
+1.0173554
+0.8
+0.74793939
+0.9110294
+7.41454545
+8.03636364
+91.281481
+90.6132353
+811.90789474
+select c2/c3 from t2 where c2=1.2 for update;
+c2/c3
+0.92307692
+select c2-c3 from t2;
+c2-c3
+-0.2
+-0.1
+-0.13
+0.021
+-0.308
+-0.4159
+-0.121
+10.584
+11.61
+121.88
+121.874
+1232.58
+select c2-c3 from t2 where c2=1.2 for update;
+c2-c3
+-0.1
+select c2+c3 from t2;
+c2+c3
+2.2
+2.5
+2.59
+2.441
+2.772
+2.8841
+2.599
+13.884
+14.91
+124.58
+124.594
+1235.62
+select c2+c3 from t2 where c2=1.2 for update;
+c2+c3
+2.5
+select c4*c3 from t2 where c1=4;
+c4*c3
+1.8481500000000002
+select c4+c3 from t2 where c1=4;
+c4+c3
+2.7190000000000003
+select c4-c3 from t2 where c1=4;
+c4-c3
+0.018999999999999906
+select c4/c3 from t2 where c1=4;
+c4/c3
+1.014074074074074
+select c4*c3 from t2 where c1=1;
+c4*c3
+1.5899999999999999
+select c4+c3 from t2 where c1=1;
+c4+c3
+2.525
+select c4-c3 from t2 where c1=1;
+c4-c3
+0.125
+select c4/c3 from t2 where c1=1;
+c4/c3
+1.1041666666666667
+select c4*c3 from t2 where c2=1.2 for update;
+c4*c3
+1.7225
+select c1*c3 from t2;
+c1*c3
+1.2
+2.6
+4.08
+10.89
+15.4
+18.15
+10.88
+19.8
+21.45
+5.4
+9.52
+21.28
+select c1*c3 from t2 where c2=1.2 for update;
+c1*c3
+2.6
+select c4/c3 from t2 where c2=1.2 for update;
+c4/c3
+1.0192307692307692
+select c1/c3 from t2;
+c1/c3
+0.8333
+1.5385
+2.2059
+7.438
+6.4935
+6.6667
+5.8824
+7.2727
+7.8788
+2.963
+5.1471
+9.2105
+select c1/c3 from t2 where c2=1.2 for update;
+c1/c3
+1.5385
+select c4+c3 from t2;
+c4+c3
+2.525
+2.625
+1.36
+2.575
+7.18
+3.27
+3.7250000000000005
+3.27
+3.27
+2.7190000000000003
+3.7250000000000005
+3.37
+select c4+c3 from t2 where c2=1.2 for update;
+c4+c3
+2.625
+select c1+c3 from t2;
+c1+c3
+2.2
+3.3
+4.36
+10.21
+11.54
+12.65
+9.36
+13.65
+14.65
+5.35
+8.36
+15.52
+select c1+c3 from t2 where c2=1.2 for update;
+c1+c3
+3.3
+select c4-c3 from t2;
+c4-c3
+0.125
+0.02499999999999991
+-1.36
+0.15500000000000003
+4.1
+-0.029999999999999805
+1.0050000000000001
+-0.029999999999999805
+-0.029999999999999805
+0.018999999999999906
+1.0050000000000001
+0.33000000000000007
+select c4-c3 from t2 where c2=1.2 for update;
+c4-c3
+0.02499999999999991
+select c1-c3 from t2;
+c1-c3
+-0.2
+0.7
+1.64
+7.79
+8.46
+9.35
+6.64
+10.35
+11.35
+2.65
+5.64
+12.48
+select c1-c3 from t2 where c2=1.2 for update;
+c1-c3
+0.7
+select sum(c2) from t2;
+sum(c2)
+1514.4241
+select avg(c2) from t2;
+avg(c2)
+126.20200833
+insert into t2 values(15, 1234567.12, 1.65, '5.36');
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(9,2) to decimal(10,4) for table[test_decimal.t2] column[c2] at row[1]
+drop table if exists t2;
+drop database test_decimal;

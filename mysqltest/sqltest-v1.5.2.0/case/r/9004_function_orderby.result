@@ -1,0 +1,100 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+create table t1(c1 decimal(10,5) primary key,c2 decimal(10,5),c3 decimal(10,5));
+insert into t1 values(1.123,9.987,2.234),(2.234,8.678,4.234),(3.234,7.789,5.456),(4.456,7.789,6.678),(5.456,7.789,4.234);
+select * from t1;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+select * from t1 order by c1 desc;
+c1	c2	c3
+5.456	7.789	4.234
+4.456	7.789	6.678
+3.234	7.789	5.456
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c1 asc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+select * from t1 order by c1 desc,c1 desc;
+c1	c2	c3
+5.456	7.789	4.234
+4.456	7.789	6.678
+3.234	7.789	5.456
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c2 desc,c2 asc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+select * from t1 order by c2 asc,c2 desc;
+c1	c2	c3
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+5.456	7.789	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+select * from t1 order by c1 desc;
+c1	c2	c3
+5.456	7.789	4.234
+4.456	7.789	6.678
+3.234	7.789	5.456
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c1 asc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+select * from t1 order by c1 desc,c1 desc;
+c1	c2	c3
+5.456	7.789	4.234
+4.456	7.789	6.678
+3.234	7.789	5.456
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c2 desc,c2 asc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+select * from t1 order by c2 asc,c2 desc;
+c1	c2	c3
+3.234	7.789	5.456
+4.456	7.789	6.678
+5.456	7.789	4.234
+2.234	8.678	4.234
+1.123	9.987	2.234
+select * from t1 order by c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc;
+c1	c2	c3
+1.123	9.987	2.234
+2.234	8.678	4.234
+5.456	7.789	4.234
+3.234	7.789	5.456
+4.456	7.789	6.678
+drop table if exists t1;

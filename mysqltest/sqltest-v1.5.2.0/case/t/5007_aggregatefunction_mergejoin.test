@@ -1,0 +1,44 @@
+#######################################################
+###1.���Թ��ܵ㣺������mgrge_joinʹ�þۼ�������group by,having��
+#######################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+create table t1(c1 int primary key, c2 int, c3 varchar(30));
+insert into t1 values(1,1,'aaa');
+insert into t1 values(2,2,'bbb');
+insert into t1 values(3,3,'ccc');
+insert into t1 values(4,4,'ddd');
+insert into t1 values(5,5,'eee');
+insert into t1 values(6,6,'fff');
+insert into t1 values(7,7,'ggg');
+insert into t1 values(8,8,'hhh');
+insert into t1 values(9,9,'iii');
+insert into t1 values(10,10,'jjj');
+
+create table t2(c1 int primary key, c2 int, c3 varchar(30));
+insert into t2 values(1,1,'aaa');
+insert into t2 values(2,2,'bbb');
+insert into t2 values(3,3,'ccc');
+insert into t2 values(4,4,'ddd');
+insert into t2 values(5,5,'eee');
+insert into t2 values(6,6,'fff');
+insert into t2 values(7,7,'ggg');
+insert into t2 values(8,8,'hhh');
+insert into t2 values(9,9,'iii');
+insert into t2 values(10,10,'jjj');
+
+
+###2-1:���Ծۼ�������group by, having��
+#select /*+ join(hash_join_single) */* from t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 full join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+select /*+ join(merge_join) */ t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 inner join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+select /*+ join(merge_join) */ t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 left join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;#select /*+ join(hash_join_single) */* from t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 full join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+select /*+ join(merge_join) */ t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 right join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+select /*+ join(merge_join) */ t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1 right join t2 on t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+
+###2-2:������ʽ������
+select /*+ join(merge_join) */t1.c1, count(t2.c1),sum(t2.c2),max(t2.c2),min(t2.c2),avg(t2.c2) from t1,t2 where t2.c1=t1.c1 group by t1.c3 having sum(t2.c2) < 20;
+
+drop table t1,t2;
+#############################################################################

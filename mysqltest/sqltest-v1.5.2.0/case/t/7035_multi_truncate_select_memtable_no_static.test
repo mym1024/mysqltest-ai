@@ -1,0 +1,588 @@
+--source merge.sql
+#建4张表（t1,t2,t3,t4） 2张不带索引(t1,t2);2张表建索引(t3,t4)  t1,t3 做truncate测试
+
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t2(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t3(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t3(c2) storing(c3);
+create index i2 on t3(c4);
+create table t4(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t4(c2) storing(c3);
+create index i2 on t4(c4);
+
+
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 600
+
+
+#3-1
+
+insert into t1 values(1,1,30,40,50);
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(1,1,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+#4-1
+
+truncate table t1,t3;
+select * from t1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze |tail -1;
+--real_sleep 10
+#4-2
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+
+replace into t1 values(10,10,10,10,10);
+replace into t1 values(30,30,10,10,10);
+replace into t1 values(40,40,10,10,10);
+replace into t1 values(50,50,10,10,10);
+replace into t3 values(10,10,10,10,10);
+replace into t3 values(30,30,10,10,10);
+replace into t3 values(40,40,10,10,10);
+replace into t3 values(50,50,10,10,10);
+
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t3 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t3 set c3 = 20,c4 = 20,c5 = 20 where c1 = 20 and c2 = 20;
+
+update t3 set c3 = 100;
+update t3 set c4 = 40 where c1 = 40 and c2 = 40;
+update t3 set c5 = 50 where c1 = 50 and c2 = 50;
+
+delete from t1 where c1 = 30 and c2 = 30;
+delete from t3 where c1 = 30 and c2 = 30;
+
+truncate table t1,t3;
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 10
+#5-1
+
+select * from t1;
+select * from t1 where c1 = 1 and c2 = 1;
+select * from t1 where c1 = 2 and c2 = 2;
+select * from t1 where c1 = 3 and c2 = 3;
+select * from t1 where c1 = 10 and c2 = 10;
+select * from t1 where c1 = 20 and c2 = 20;
+select * from t1 where c1 = 30 and c2 = 30;
+select * from t1 where c1 = 40 and c2 = 40;
+select * from t1 where c1 = 50 and c2 = 50;
+
+select * from t2;
+
+select * from t3;
+select * from t3 where c1 = 1 and c2 = 1;
+select * from t3 where c1 = 2 and c2 = 2;
+select * from t3 where c1 = 3 and c2 = 3;
+select * from t3 where c1 = 10 and c2 = 10;
+select * from t3 where c1 = 20 and c2 = 20;
+select * from t3 where c1 = 30 and c2 = 30;
+select * from t3 where c1 = 40 and c2 = 40;
+select * from t3 where c1 = 50 and c2 = 50;
+
+select * from t4;
+
+

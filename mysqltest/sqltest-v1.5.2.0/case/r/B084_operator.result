@@ -1,0 +1,679 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create table t1(c1 int primary key, c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+update t1 set c1:=4 where c1=1;
+UPDATE t1 SET c2 = 2 WHERE c1 = @var1:= 3;
+ERROR 0A000: YAO-7: Not supported feature or function
+update t1 set c1:=c2:=5 where c1=2;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+set @arg1:=1;
+set @arg1:=@arg2:=1;
+SELECT @var1 := 1, @var2 := 2;
+@var1 := 1	@var2 := 2
+1	2
+SELECT @var1, @var2 := @var1;
+@var1	@var2 := @var1
+1	1
+SELECT @var1:=COUNT(*) FROM t1;
+@var1:=COUNT(*)
+3
+SELECT @var1, @var2 := @var1 := 3, @var1;
+@var1	@var2 := @var1 := 3	@var1
+3	3	3
+SELECT @var1, @var1:=@var1+1;
+@var1	@var1:=@var1+1
+3	4
+select @var1:=c1 from t1;
+@var1:=c1
+2
+3
+4
+select @var1:=c1+1 from t1;
+@var1:=c1+1
+3
+4
+5
+select (@var1:=c1)+1, @var1 from t1;
+(@var1:=c1)+1	@var1
+3	2
+4	3
+5	4
+select concat('123', @var1:='yaobase'), @var1;
+concat('123', @var1:='yaobase')	@var1
+123yaobase	yaobase
+select @var1:=(select count(*) from t1), @var1;
+@var1:=(select count(*) from t1)	@var1
+3	3
+ALTER TABLE t1 ADD new_column INT DEFAULT 100;
+SHOW COLUMNS FROM t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+new_column	int(10)	YES		100	
+UPDATE t1 SET new_column := c1 + 10;
+SELECT * FROM t1;
+c1	c2	new_column
+2	2	12
+3	3	13
+4	1	14
+DELETE FROM t1 WHERE new_column := 13;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+SELECT @new_column1 := c2 + new_column  FROM t1;
+@new_column1 := c2 + new_column
+14
+16
+15
+drop table t1;
+create table t1(c1 int primary key,c2 float,c3 varchar(20));
+create table t2(c1 int primary key,c2 float,c3 varchar(20));
+insert into t1 values(1,1,'西安'),(2,2,'北京'),(3,3,'');
+insert into t2 values(1,2,'下雨'),(2,3,'晴天');
+set @var1:= NULL;
+set @var1:= 'yaobase';
+set @var1:= (2!=1);
+set @var1:= 1 in (2,3,4);
+set @var1:= 0 or 3;
+set @var1:= 14/3;
+set @var1:=1+1;
+set @var1:=@var1+1;
+set @var1:=@var2:=2*2;
+set @var1:=@var2:=@var1*2+@var2;
+set @var1:=(select c1+c2 from t1 where c2 =1);
+set @var1:=(select c1*c2 from t1 where c2 =1);
+set @var1:=(select c1/(c2-1) from t1 where c2 =1);
+set @var1:=(select c1 from t1 where c1 >1);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @var1:=(2 in (select c1 from t1));
+set @var1:=(select c1 from t1 where c1 in(2,3,4));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @var1:=not(select c1 from t1 where c1 >5);
+set @var1:=(select max(c1) from t1);
+set @var1:= (select *,rank() over (partition by c1 order by c2 desc) as ranking from t1);
+ERROR HY000: YAO-5007: Operand should contain 1 column(s)
+set @var1:=(select avg(c1) from t1);
+set @var1=(select max(t1.c1)+max(t2.c2) from t1,t2);
+set @var1:=(select count(*) from t1 inner join t2 on t1.c1=t2.c1);
+set @var1:=(select count(*) from t1 left join t2 on t1.c1=t2.c1);
+set @var1:=(select count(*) from t1 right join t2 on t1.c1=t2.c1);
+set @var1:=(select count(*) from t1 left join t2 on t1.c1=t2.c1 union select count(*) from t1 right join t2 on t1.c1=t2.c1);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+update t1 set c2 :=2 where c1=3;
+update t2 set c2 :=NULL where c1=1;
+update t2 set c3 :='yaobase' where c1=1;
+update t1 set c2 :=2*2 where c1=3;
+update t1 set c2 :=@var1*2 where c1=3;
+update t1 set c2:=@var1:=1 where c1=3;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+update t1 set c2 := 1 where c1=@var1:=3;
+ERROR 0A000: YAO-7: Not supported feature or function
+update t1 set c2:= (2!=1)where c1 =1;
+update t1 set c2:=@var1 in (2,3,4) where c1=1;
+update t1 set c2:= 0 or 3 where c1=1;
+update t1 set c2:= @var1/3 where c1=3;
+update t1 set c2:= (@var1+5)*3 where c1=3;
+select @var1:=1,@var2:=2;
+@var1:=1	@var2:=2
+1	2
+select @var1,@var2:=@var1;
+@var1	@var2:=@var1
+1	1
+select @var1,@var2:=@var1*2;
+@var1	@var2:=@var1*2
+1	2
+select @var1:=5*4,@var2:=10-4;
+@var1:=5*4	@var2:=10-4
+20	6
+select @var1:=count(*) from t1;
+@var1:=count(*)
+3
+select @var1,@var2:=@var1:=3,@var1;
+@var1	@var2:=@var1:=3	@var1
+3	3	3
+select ceil(@var1:=1.1);
+ceil(@var1:=1.1)
+2
+select ceil(@var1:=@var2:=1.1);
+ceil(@var1:=@var2:=1.1)
+2
+select round(@var1:=@var2/@var1+1.2);
+round(@var1:=@var2/@var1+1.2)
+2
+select @var1,@var1:=@var1+1;
+@var1	@var1:=@var1+1
+2.2	3.2
+set @var3:=1;
+select c2,count(*) from t1 group by c2 having c2 =@var1:=@var2:=@var3;
+c2	count(*)
+1	1
+select * from t1 limit 4 offset @var1:=3;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+delete from t1 where c1= @var1:=1;
+ERROR 0A000: YAO-7: Not supported feature or function
+select @var1:=c1 from t1;
+@var1:=c1
+1
+2
+3
+select @var1:=c2*2 from t1 where c1 =3;
+@var1:=c2*2
+42
+select (@var1:= c2)+1,@var1 from t1 where c1 = 3;
+(@var1:= c2)+1	@var1
+22	21
+select concat('123',@var1:='yao'),@var1;
+concat('123',@var1:='yao')	@var1
+123yao	yao
+select @var1:=(select count(*) from t1),@var1;
+@var1:=(select count(*) from t1)	@var1
+3	3
+select @var1:=@var2:=1;
+@var1:=@var2:=1
+1
+select @var1:=@var2:=c2 from t1 where c1 =3;
+@var1:=@var2:=c2
+21
+select @var1:=@var2:=count(*) from t1;
+@var1:=@var2:=count(*)
+3
+select @var1:=(select c1+c2 from t1 where c1 =1);
+@var1:=(select c1+c2 from t1 where c1 =1)
+2
+select @var1:=(select c1+c2 from t1 where c1  in (1,2,3) limit 1);
+@var1:=(select c1+c2 from t1 where c1  in (1,2,3) limit 1)
+2
+select @var1:=not(select c2 from t1 where c2<2);
+@var1:=not(select c2 from t1 where c2<2)
+0
+select count(*) from t1 left join t2 on t1.c1=t2.c1 union select count(*) from t1 right join t2 on t1.c1=t2.c1;
+count(*)
+2
+3
+select @var1:=(select max(t1.c1)+max(t2.c2)from t1,t2);
+@var1:=(select max(t1.c1)+max(t2.c2)from t1,t2)
+6
+select c2, case when c1>@var1:=1 then 'yes' else'no' end from t1;
+c2	case when c1>@var1:=1 then 'yes' else'no' end
+1	no
+2	yes
+21	yes
+select c2, case when c1=@var1:=NULL then 'yes' else'no' end from t1;
+c2	case when c1=@var1:=NULL then 'yes' else'no' end
+1	no
+2	no
+21	no
+select c1,c2, case when c3=@var1:='yaobase' then 'yes' else'no' end from t2;
+c1	c2	case when c3=@var1:='yaobase' then 'yes' else'no' end
+1	NULL	yes
+2	3	no
+insert into t1 values(111,1,@var1:=1);
+insert into t1 values(112,4,@var1:=NULL);
+insert into t1 values(113,2,@var1:=@var2);
+insert into t1 values(114,3,@var1:=@var2:=3);
+insert into t1 values(115,@var1:=5,@var2:=5);
+insert into t1 values(116,@var1:=@var2:=6,@var2:=@var1);
+insert into t1 values(117,@var1:=@var1+@var2,@var2:=@var2/@var1);
+drop table t1,t2;
+create table t1(c1 int primary key,c2 float,c3 varchar(20));
+create table t2(c1 int primary key,c2 float,c3 varchar(20));
+insert into t1 values(1,1,'西安'),(2,2,'北京'),(3,3,'');
+insert into t2 values(1,2,'下雨'),(2,3,'晴天');
+select 1 && 0;
+1 && 0
+0
+select 0 && 0;
+0 && 0
+0
+select 1.2 && 1;
+1.2 && 1
+1
+select 1.2 && 0.1;
+1.2 && 0.1
+1
+select -1.2 && 2.2;
+-1.2 && 2.2
+1
+select -1.2 && 0.2;
+-1.2 && 0.2
+1
+select -1.2 && 0;
+-1.2 && 0
+0
+select '1' && '0';
+'1' && '0'
+1
+select '0' && '0';
+'0' && '0'
+1
+select 'a' && 'b';
+'a' && 'b'
+1
+select '1.2' && '0.1';
+'1.2' && '0.1'
+1
+select '1.2' && '0';
+'1.2' && '0'
+1
+select 1+2 && 0+0;
+1+2 && 0+0
+0
+select 1-2 && 2-2;
+1-2 && 2-2
+0
+select 1.2*2 && 2*0;
+1.2*2 && 2*0
+0
+select 1.2/2 && 2/0;
+1.2/2 && 2/0
+NULL
+select 1=2 && 0=0;
+1=2 && 0=0
+0
+select 1<2 && 0.2<2;
+1<2 && 0.2<2
+1
+select 2>2 && 0.2>2;
+2>2 && 0.2>2
+0
+select 2<=2 && 0.2<=2;
+2<=2 && 0.2<=2
+1
+select 2>=2 && 0.2>=2;
+2>=2 && 0.2>=2
+0
+select 2!=2 && 0.2!=2;
+2!=2 && 0.2!=2
+0
+select t1.c1 = 2 && t2.c1 from t1,t2;
+t1.c1 = 2 && t2.c1
+0
+0
+1
+1
+0
+0
+select t1.c2 = 2 && t2.c2 = 1 from t1,t2;
+t1.c2 = 2 && t2.c2 = 1
+0
+0
+0
+0
+0
+0
+select t1.c3 = '西安' && t2.c3 = '下雨' from t1,t2;
+t1.c3 = '西安' && t2.c3 = '下雨'
+1
+0
+0
+0
+0
+0
+select c3 != '' && c1 is not null from t1;
+c3 != '' && c1 is not null
+1
+1
+0
+select * from t1 where c1 = 1 && c2 = 1;
+c1	c2	c3
+1	1	西安
+select * from t1 where c1 < 2 && c2 < 4;
+c1	c2	c3
+1	1	西安
+select * from t1 where c1 > 2 && c2 > 4;
+c1	c2	c3
+select * from t1 where c1 <= 2 && c2 <= 4;
+c1	c2	c3
+1	1	西安
+2	2	北京
+select * from t1 where c1 >= 2 && c2 >= 4;
+c1	c2	c3
+select * from t1 where c1 != 2 && c2 != 4;
+c1	c2	c3
+1	1	西安
+3	3	
+select * from t1 where c1 = 1 && c3 = '西安';
+c1	c2	c3
+1	1	西安
+select c1 between 1 && 3 from t1;
+c1 between 1 && 3
+1
+1
+1
+select c3 from t1 where c1 in (select c1 from t2 where c2<2) && c2 = 2;
+c3
+select c3 from t1 where c1 in (select c1 from t2 where c2<2) && (select 1);
+c3
+select char_length(c1) = 1 && char_length(c2) = 1 from t1;
+char_length(c1) = 1 && char_length(c2) = 1
+1
+1
+1
+select concat(c1,'') = 1 &&  concat(c2,'1') = 1 from t1;
+concat(c1,'') = 1 &&  concat(c2,'1') = 1
+0
+0
+0
+select 2<=2 && 0.2<=2 and 3>2;
+2<=2 && 0.2<=2 and 3>2
+1
+select 2<=2 && 0.2<=2 or 3>2;
+2<=2 && 0.2<=2 or 3>2
+1
+select 2<=2 && 0.2 !=2 && 3>2;
+2<=2 && 0.2 !=2 && 3>2
+1
+select 2<=2 && 0.2 !=2 || 3>2;
+2<=2 && 0.2 !=2 || 3>2
+1
+drop table t1,t2;
+set @s1=null;
+select @s1;
+@s1
+NULL
+set @s1=3;
+select @s1;
+@s1
+3
+set @s1=2.3456789;
+select @s1;
+@s1
+2.3456789
+set @s1='yaobase';
+select @s1;
+@s1
+yaobase
+set @s1=(7,8,9);
+select @s1;
+@s1
+3
+set @s1=(12+5);
+select @s1;
+@s1
+17
+set @s1=(16-3);
+select @s1;
+@s1
+13
+set @s1=(7*8);
+select @s1;
+@s1
+56
+set @s1=(14/5);
+select @s1;
+@s1
+2.8
+set @s1=(14%5);
+select @s1;
+@s1
+4
+set @s1=('b'>'a');
+select @s1;
+@s1
+1
+set @s1=(2=(1+3));
+select @s1;
+@s1
+0
+set @s1=(1.1!=1);
+select @s1;
+@s1
+1
+set @s1=(4 is NULL);
+select @s1;
+@s1
+0
+set @s1=(12 is not NULL);
+select @s1;
+@s1
+1
+set @s1=(2 between 4 and 6);
+select @s1;
+@s1
+0
+set @s1=(1 in (2,3,4));
+select @s1;
+@s1
+0
+set @s1=('abc' like '%b%');
+select @s1;
+@s1
+1
+set @s1=(0 and 3);
+select @s1;
+@s1
+0
+set @s1=(0 or 3);
+select @s1;
+@s1
+1
+set @s1=((0 and 3) or (0 or 3));
+select @s1;
+@s1
+1
+set @s1=(select NULL);
+select @s1;
+@s1
+NULL
+create table t1(c1 int,c2 float,c3 char(20),c4 float);
+insert into t1 values(1,2,3,4),(2,3,4,5),(3,4,5,6),(4,5,6,7),(5,6,7,8),(6,7,'x',9),(7,8,'dd',10),(8,9,'ddd',11);
+set @s1=(select c1+c3 from t1 where c2=2);
+select @s1;
+@s1
+4
+set @s1=(select c1-c3 from t1 where c2=2);
+select @s1;
+@s1
+-2
+set @s1=(select c1*c3 from t1 where c2=2);
+select @s1;
+@s1
+3
+set @s1=(select c1/(c2-1) from t1 where c2=2);
+select @s1;
+@s1
+1
+set @s1=(select c1%c2 from t1 where c2=2);
+select @s1;
+@s1
+1
+set @s1=(select c1 from t1 where c1>10);
+select @s1;
+@s1
+NULL
+set @s1=(select c1 from t1 where c2=4);
+select @s1;
+@s1
+3
+set @s1=(select c1 from t1 where c1<10);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select c1,c2 from t1 where c2=4);
+ERROR HY000: YAO-5007: Operand should contain 1 column(s)
+set @s1=(select c1 from t1 where c3 like '%x%');
+select @s1;
+@s1
+6
+set @s1=(select c1 from t1 where c3 like '%ddd%');
+select @s1;
+@s1
+8
+set @s1=(select c1 from t1 where c3 like '%d%');
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select c1 from t1 where c1 in (11,12,13));
+select @s1;
+@s1
+NULL
+set @s1=(select c1 from t1 where c1 in (8,9,10));
+select @s1;
+@s1
+8
+set @s1=(select c1 from t1 where c2 not in (2,3,4,5,6,7,8));
+select @s1;
+@s1
+8
+set @s1=(2 in (select c1 from t1));
+select @s1;
+@s1
+1
+set @s1=(select c1 from t1 where c1 in(1,2,3,4));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select c1 from t1 where c4 between 13 and 15);
+select @s1;
+@s1
+NULL
+set @s1=(select c1 from t1 where c4 between 11 and 12);
+select @s1;
+@s1
+8
+set @s1=(select c1 from t1 where c4 between 8 and 10);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=not(select c1 from t1 where c2>10);
+select @s1;
+@s1
+NULL
+set @s1=not(select c1 from t1 where c2=0);
+select @s1;
+@s1
+NULL
+set @s1=not(select c1 from t1 where c2!=0);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select max(c1) from t1);
+select @s1;
+@s1
+8
+set @s1=(select min(c1) from t1);
+select @s1;
+@s1
+1
+set @s1=(select avg(c3) from t1);
+select @s1;
+@s1
+3.125
+set @s1=(select count(c1) from t1 where c2>2);
+select @s1;
+@s1
+7
+set @s1=(select sum(c1) from t1 where c2>2);
+select @s1;
+@s1
+35
+create table t2(c1 int,c2 varchar(10),c3 float);
+insert into t2 values (1,2,3),(2,3,4),(4,5,6);
+set @s1=(select max(t1.c1)+max(t2.c2) from t1,t2);
+select @s1;
+@s1
+13
+set @s1=(select max(t1.c1) from t1 inner join t2 on t1.c2=t2.c1);
+select @s1;
+@s1
+3
+set @s1=(select t1.c1 from t1 inner join t2 on t1.c4=t2.c2);
+select @s1;
+@s1
+2
+set @s1=(select t1.c1 from t1 inner join t2 on t1.c2=t2.c2 where t1.c3 like '%x%');
+select @s1;
+@s1
+NULL
+set @s1=(select t1.c1 from t1 inner join t2 on t1.c2=t2.c2);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select t1.c1 from t1 inner join t2 on t1.c2=t2.c2 limit 1);
+select @s1;
+@s1
+1
+set @s1=(select max(t1.c1) from t1 left join t2 on t1.c2=t2.c1);
+select @s1;
+@s1
+8
+set @s1=(select t1.c1 from t1 left join t2 on t1.c2=t2.c3);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select t1.c1 from t1 left join t2 on t1.c2=t2.c2 where t1.c3 like '%x%');
+select @s1;
+@s1
+6
+set @s1=(select t1.c1 from t1 left join t2 on t1.c2=t2.c2);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select max(t1.c1) from t1 right join t2 on t1.c2=t2.c1);
+select @s1;
+@s1
+3
+set @s1=(select t1.c1 from t1 right join t2 on t1.c2=t2.c3);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select t1.c1 from t1 right join t2 on t1.c2=t2.c2 where t1.c3 like '%x%');
+select @s1;
+@s1
+NULL
+set @s1=(select t1.c1 from t1 right join t2 on t1.c2=t2.c2);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select max(t1.c1) from t1 full join t2 on t1.c2=t2.c1);
+select @s1;
+@s1
+8
+set @s1=(select t1.c1 from t1 full join t2 on t1.c2=t2.c3);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select t1.c1 from t1 full join t2 on t1.c2=t2.c2 where t1.c3 like '%x%');
+select @s1;
+@s1
+6
+set @s1=(select t1.c1 from t1 full join t2 on t1.c2=t2.c2);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select sum(c3) from t1 where c2+(select max(c2) from t2)>8);
+select @s1;
+@s1
+18
+set @s1=((select max(c2) from t1)+(select min(c3) from t1));
+select @s1;
+@s1
+12
+set @s1=(select c2 from t1 where c1=(select min(c1) from t2));
+select @s1;
+@s1
+2
+set @s1=(select c2 from t1 where c1<(select min(c1) from t2));
+select @s1;
+@s1
+NULL
+set @s1=(select c2 from t1 where c1 between (select min(c3) from t2) and (select max(c3) from t2));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select max(c2) from t1 where c1 between (select min(c3) from t2) and (select max(c3) from t2));
+select @s1;
+@s1
+7
+set @s1=(select c1 from t1 where c2 in (select c1 from t2));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select c1 from t1 where c2 in (select c1 from t2) limit 1);
+select @s1;
+@s1
+1
+set @s1=(select c2 from t1 where c1 and (select min(c1) from t2));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select c2 from t1 where c1 or (select min(c1) from t2));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=((select c1 from t1 where c2=3) and (select c2 from t1 where c2=6));
+select @s1;
+@s1
+1
+set @s1=((select c1 from t1 where c2=3) and (select c2 from t1 where c2=0));
+select @s1;
+@s1
+NULL
+set @s1=(select c1 from t1 where c2=3) and (select c2 from t1 where c2!=3);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=((select c1 from t1 where c2=7) or (select c2 from t1 where c2=8));
+select @s1;
+@s1
+1
+set @s1=((select c1 from t1 where c2=3) or (select c2 from t1 where c2=6));
+select @s1;
+@s1
+1
+set @s1=((select c1 from t1 where c2>3) or (select c2 from t1 where c2=6));
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+set @s1=(select max(t1.c1) from t1 inner join (select c2 from t2) as t2_ on t1.c2=t2_.c2);
+select @s1;
+@s1
+4
+set @s1=(select max(t1.c1) from t1 inner join (select c2 from t2 where c2>10) as t2_ on t1.c2=t2_.c2);
+select @s1;
+@s1
+NULL

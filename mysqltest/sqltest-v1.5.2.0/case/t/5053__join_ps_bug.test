@@ -1,0 +1,63 @@
+###########################################################################################
+###1.测试功能点：prepare中多表子查询
+##
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：xxx
+###5.编写/修改人：zhuyiying
+###6.编写/修改日期：2020-01-03
+###7.其它（选填）：case格式规范化修改
+###
+##
+#
+###########################################################################################
+
+##########################################################################################
+drop table if exists seller_item,seller_item_tag;
+
+create table seller_item
+(
+   sellerid int not null,
+   itemid   int not null,
+   co103     int,
+   co104     int,
+   co105     int,
+   co106     int,
+   co107     int,
+   co108     int,
+   co109     int,
+   co110     int,
+   primary key (sellerid, itemid)
+);
+
+create table seller_item_tag
+(
+   sellerid int not null,
+   itemid int not null,
+   tagid int not null,
+   col4 int not null,
+   primary key (sellerid, itemid, tagid)
+);
+
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+
+prepare st from select a.sellerid, a.itemid, a.tagid, b.co104, b.co105 from (select * from seller_item_tag where sellerid > ? and sellerid < ?) as A, (select * from seller_item where sellerid > ? and sellerid < ?) as B where a.sellerid = b.sellerid and a.itemid = b.itemid;
+set @a=1;
+set @b=2;
+
+execute st using @a,@b,@a,@b;
+set @a=2;
+set @b=3;
+execute st using @a,@b,@a,@b;
+execute st using @a,@b,@a,@b;
+execute st using @a,@b,@a,@b;
+execute st using @a,@b,@a,@b;
+execute st using @a,@b,@a,@b;
+execute st using @a,@b,@a,@b;
+###///新添测试项///###
+###2-x:(新添测试项说明)
+#do sql
+##########################################################################################

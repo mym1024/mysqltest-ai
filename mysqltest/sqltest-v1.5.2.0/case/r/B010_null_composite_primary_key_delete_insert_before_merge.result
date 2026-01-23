@@ -1,0 +1,72 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+create table t1(c1 int ,c2 char(30),c3 datetime,c4 int,primary  key(c1,c2,c3));
+insert into t1 values(NULL,'c2','2013-1-25',1);
+insert into t1 values(1,NULL,'2013-1-25',1);
+insert into t1 values(1,'c2',NULL,1);
+insert into t1 values(NULL,'c2',NULL,1);
+insert into t1 values(NULL,NULL,'2013-1-25',1);
+insert into t1 values(1,NULL,NULL,1);
+insert into t1 values(NULL,NULL,NULL,1);
+insert into t1 values(NULL,NULL,'2013-1-26',1);
+insert into t1 values(NULL,NULL,NULL,NULL);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=null: <3001.17>=null: <3001.18>=null:' for key 'PRIMARY'
+insert into t1 values(NULL,NULL,NULL,NULL);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=null: <3001.17>=null: <3001.18>=null:' for key 'PRIMARY'
+update t1 set c4 = 1 where c1 is NULL and c2 is NULL;
+update t1 set c4 = 1 where c1 is NULL and c2 is NULL and c3 is NULL;
+delete from t1 where c1 is NULL and c2 is NULL and c3 is NULL;
+delete from t1 where c1 is NULL and c2 = 'c2' and c3 is NULL;
+delete from t1 where c1 = 1 and c2 = 'c2' and c3 is NULL;
+insert into t1 values(NULL,NULL,NULL,NULL);
+insert into t1 values(NULL,'c2',NULL,NULL);
+select * from t1;
+c1	c2	c3	c4
+1	NULL	2013-01-25 00:00:00.000000	1
+1	NULL	NULL	1
+NULL	c2	2013-01-25 00:00:00.000000	1
+NULL	c2	NULL	NULL
+NULL	NULL	2013-01-25 00:00:00.000000	1
+NULL	NULL	2013-01-26 00:00:00.000000	1
+NULL	NULL	NULL	NULL
+major_freeze...
+select * from t1;
+c1	c2	c3	c4
+1	NULL	2013-01-25 00:00:00.000000	1
+1	NULL	NULL	1
+NULL	c2	2013-01-25 00:00:00.000000	1
+NULL	c2	NULL	NULL
+NULL	NULL	2013-01-25 00:00:00.000000	1
+NULL	NULL	2013-01-26 00:00:00.000000	1
+NULL	NULL	NULL	NULL
+select * from t1;
+c1	c2	c3	c4
+1	NULL	2013-01-25 00:00:00.000000	1
+1	NULL	NULL	1
+NULL	c2	2013-01-25 00:00:00.000000	1
+NULL	c2	NULL	NULL
+NULL	NULL	2013-01-25 00:00:00.000000	1
+NULL	NULL	2013-01-26 00:00:00.000000	1
+NULL	NULL	NULL	NULL
+insert into t1 values(NULL,NULL,NULL,NULL);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=null: <3001.17>=null: <3001.18>=null:' for key 'PRIMARY'
+insert into t1 values(NULL,'c2',NULL,NULL);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=null: <3001.17>=varchar:c2 <3001.18>=null:' for key 'PRIMARY'
+insert into t1 values(1,'c2',NULL,NULL);
+select * from t1;
+c1	c2	c3	c4
+1	c2	NULL	NULL
+1	NULL	2013-01-25 00:00:00.000000	1
+1	NULL	NULL	1
+NULL	c2	2013-01-25 00:00:00.000000	1
+NULL	c2	NULL	NULL
+NULL	NULL	2013-01-25 00:00:00.000000	1
+NULL	NULL	2013-01-26 00:00:00.000000	1
+NULL	NULL	NULL	NULL
+drop table t1;

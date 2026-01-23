@@ -1,0 +1,85 @@
+drop table if exists c;
+create table c(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+"refresh"
+Okay
+begin;
+insert into c values(1,1);
+begin;
+insert into c values(2,1);
+select * from c where c1=2;
+c1	c2
+select * from c where c2=1;
+c1	c2
+1	1
+select * from c;
+c1	c2
+1	1
+commit;
+select * from c where c1=2;
+c1	c2
+2	1
+select * from c where c2=1;
+c1	c2
+1	1
+2	1
+select * from c;
+c1	c2
+1	1
+2	1
+commit;
+drop table c;
+create table c(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+"refresh"
+Okay
+begin;
+insert into c values(1,'a');
+insert into c values(2,'a');
+insert into c values(3,'a');
+insert into c values(4,'a');
+insert into c values(5,'a');
+insert into c values(6,'a');
+insert into c values(7,'a');
+insert into c values(8,'a');
+insert into c values(9,'a');
+insert into c values(10,'a');
+insert into c values(11,'a');
+insert into c values(12,'a');
+insert into c values(13,'a');
+insert into c values(14,'a');
+commit;
+begin;
+update c set c2='b' where c1=1;
+update c set c2='b' where c1=2;
+update c set c2='b' where c1=3;
+update c set c2='b' where c1=4;
+update c set c2='b' where c1=5;
+update c set c2='b' where c1=6;
+update c set c2='b' where c1=7;
+update c set c2='b' where c1=8;
+update c set c2='b' where c1=9;
+update c set c2='b' where c1=10;
+update c set c2='b' where c1=11;
+update c set c2='b' where c1=12;
+update c set c2='b' where c1=13;
+update c set c2='b' where c1=14;
+select * from c where c1=2;
+c1	c2
+2	a
+select * from c;
+c1	c2
+1	a
+2	a
+3	a
+4	a
+5	a
+6	a
+7	a
+8	a
+9	a
+10	a
+11	a
+12	a
+13	a
+14	a
+commit;
+commit;

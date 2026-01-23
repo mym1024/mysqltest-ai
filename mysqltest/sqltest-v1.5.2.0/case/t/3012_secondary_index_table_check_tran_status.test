@@ -1,0 +1,188 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：不同类型的事务中发起合并后查看索引状态
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+
+###2-1:普通情况下，即当前事务完成后发起冻结合并
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+create index il0 on t1(c2) storing (c3);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+update t1 set c2=10 where c1=1;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end = __idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+--real_sleep 2
+eval select * from $table_name;
+drop table t1;
+
+###2-2:事务提交前发起冻结合并
+set autocommit=0;
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+insert into t1 values(4,4,4);
+replace into t1 values(5,5,5);
+replace into t1 values(6,6,6),(7,7,7),(8,8,8);
+commit;
+
+create index il0 on t1(c2) storing (c3);
+select * from t1;
+select * from t1 where c1=1;
+select * from t1 where c2=2;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+set autocommit=0;
+show index on t1;
+update t1 set c2=10 where c1=1;
+select * from t1;
+select * from t1 where c1=1;
+select * from t1 where c2=2 or c1=1;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_name=$table_head$n$table_end
+eval select * from $table_name;
+commit;
+eval select * from $table_name;
+update t1 set c2=20 where c1=2;
+select * from t1 where c1=2;
+commit;
+eval select * from $table_name;
+--real_sleep 2
+drop table t1;
+commit;
+
+##
+set autocommit=1;
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+
+
+create index il0 on t1(c2) storing (c3);
+update t1 set c2=10 where c1=1;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+select * from t1;
+select * from t1 where c1=1 between 1 and 3;
+
+set autocommit = 0;
+select * from t1 where c1 between 1 and 3;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_name=$table_head$n$table_end
+--real_sleep 2
+eval select * from $table_name;
+commit;
+eval select * from $table_name;
+set autocommit = 1;
+create index il2 on t1(c2);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+set autocommit = 0;
+update t1 set c2=10 where c1=2;
+--let $table_end = __idx__il2
+--let $table_name=$table_head$n$table_end
+select * from t1 where c1=2;
+show index on t1;
+eval select * from $table_name;
+commit;
+
+create index il3 on t1(c2);
+--let $table_end = __idx__il3
+--let $table_name=$table_head$n$table_end
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+eval select * from $table_name;
+commit;
+eval select * from $table_name;
+
+set autocommit = 1;
+update t1 set c3=100 where c1=2;
+eval select * from $table_name;
+--real_sleep 2
+drop table t1;
+
+create table t1 (c1 int primary key,c2 decimal(3,2),c3 bool,c4 datetime);
+insert into t1 values(1,1.23,1,'2012-09-08 12:00:22'),(2,1.23,1,'2012-09-08 12:00:22');
+
+create index il0 on t1(c4,c2) storing(c3);
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_end = __idx__il0
+--let $table_name=$table_head$n$table_end
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+update t1 set c2=3.22 where c1=2;
+eval select * from $table_name;
+select * from t1;
+select * from t1 where c1=2;
+
+create index il1 on t1(c3,c2,c1) storing(c4);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+eval select * from $table_name;
+select * from t1;
+select * from t1 where c1=2;
+--let $table_end = __idx__il1
+--let $table_name=$table_head$n$table_end
+eval select * from $table_name;
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

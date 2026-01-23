@@ -1,0 +1,656 @@
+set names utf8mb4;
+DROP TABLE IF EXISTS `t1`, `t2`;
+create table `t2`(`c1` INT ,`c2` varchar(64) PRIMARY KEY ,`c3` varchar(64));
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	varchar(64)	YES	PRI	NULL	
+c3	varchar(64)	YES		NULL	
+CREATE TABLE `t1`  (
+`cc1` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+`cc2` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+PRIMARY KEY (cc1) USING BTREE,
+INDEX idx_1 (cc1) USING BTREE,
+INDEX idx_2 (cc2) USING BTREE,
+KEY `key_1` (`cc1`) USING BTREE,
+CONSTRAINT `FK_1` FOREIGN KEY (`cc1`) REFERENCES `t2` (`c2`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+CONSTRAINT `FK_2` FOREIGN KEY (`cc2`) REFERENCES `t2` (`c2`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+create unique index idx_scope on t1(`cc2`);
+show index on t1;
+index_name	status	index_type
+__3002__idx__idx_1	1	0
+__3002__idx__idx_2	1	0
+__3002__idx__key_1	1	0
+__3002__idx__idx_scope	1	1
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+cc1 VARCHAR (64) COLLATE 'utf8mb4_general_ci' NOT NULL,
+cc2 VARCHAR (64) COLLATE 'utf8mb4_general_ci' NOT NULL,
+ PRIMARY KEY(cc1),
+ CONSTRAINT FK_1 FOREIGN KEY (cc1) REFERENCES test.t2(c2) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ CONSTRAINT FK_2 FOREIGN KEY (cc2) REFERENCES test.t2(c2) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ UNIQUE KEY idx_scope(cc2),
+ KEY idx_1(cc1),
+ KEY idx_2(cc2, cc1),
+ KEY key_1(cc1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+SHOW CHARACTER SET;
+Charset	Description	Default collation	Maxlen
+binary	Binary pseudo charset	binary	1
+utf8mb4	UTF-8 Unicode	utf8mb4_general_ci	4
+gbk	GBK charset	gbk_chinese_ci	2
+utf16	UTF-16 Unicode	utf16_general_ci	2
+gb18030	GB18030 charset	gb18030_chinese_ci	4
+latin1	cp1252 West European	latin1_swedish_ci	1
+gb18030_2022	GB18030-2022 charset	gb18030_2022_chinese_ci	4
+SHOW COLLATION;
+Collation	Charset	Id	Default	Compiled	Sortlen
+utf8mb4_general_ci	utf8	45	Yes	Yes	1
+utf8mb4_general_ci	utf8mb4	45	Yes	Yes	1
+utf8mb4_bin	utf8mb4	46	 	Yes	1
+gbk_chinese_ci	gbk	28	Yes	Yes	1
+gbk_bin	gbk	87	 	Yes	1
+utf16_general_ci	utf16	54	Yes	Yes	1
+utf16_bin	utf16	55	 	Yes	1
+gb18030_chinese_ci	gb18030	248	Yes	Yes	1
+gb18030_bin	gb18030	249	 	Yes	1
+latin1_swedish_ci	latin1	8	Yes	Yes	1
+latin1_bin	latin1	47	 	Yes	1
+gb18030_2022_bin	gb18030_2022	216	 	Yes	1
+gb18030_2022_chinese_ci	gb18030_2022	217	Yes	Yes	1
+gb18030_2022_chinese_cs	gb18030_2022	218	 	Yes	1
+gb18030_2022_radical_ci	gb18030_2022	219	 	Yes	1
+gb18030_2022_radical_cs	gb18030_2022	220	 	Yes	1
+gb18030_2022_stroke_ci	gb18030_2022	221	 	Yes	1
+gb18030_2022_stroke_cs	gb18030_2022	222	 	Yes	1
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1 (
+c1 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '唯一编号',
+c2 varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务组织' 
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性信息' ROW_FORMAT = Dynamic;
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (64) COLLATE 'utf8mb4_general_ci' NOT NULL COMMENT '唯一编号' ,
+c2 VARCHAR (36) COLLATE 'utf8mb4_general_ci' COMMENT '业务组织' 
+) COMMENT = '属性信息', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE IF EXISTS t1;
+create table t1 (c1 int,c2 varchar(255) COLLATE utf8mb4_general_ci) COLLATE = utf8mb4_general_ci;
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE IF EXISTS t2;
+create table t2 (c1 int,c2 varchar(255) CHARACTER SET utf8mb4) CHARACTER SET = utf8mb4;
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE IF EXISTS t3;
+create table t3 (c1 int,c2 varchar(255) COLLATE utf8mb4_general_ci,c3 varchar(255) charset 'utf8mb4')ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into t3 values(1,'测试','中文字符'),(2,'分布','中文字符');
+show create table t3;
+Table	Create Table
+test.t3	CREATE TABLE t3 (
+c1 INT(10),
+c2 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+c3 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select * from t3;
+c1	c2	c3
+1	测试	中文字符
+2	分布	中文字符
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1  (
+c1 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '唯一编号',
+c2 varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务组织',
+c3 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+PRIMARY KEY (c1) USING BTREE,
+INDEX id_x(c3) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性详细信息' ROW_FORMAT = Dynamic;
+DROP TABLE IF EXISTS t1;
+create table t1 (
+c1 int,
+c2 tinyint(1) NULL DEFAULT NULL,
+c3 smallint(6) DEFAULT NULL,
+c4 longtext,
+c5 text,
+c6 blob,
+c7 tinyblob,
+c8 bigint(20) NOT NULL,
+PRIMARY KEY (c1) USING BTREE,
+INDEX id_x(c3) USING BTREE
+);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(1)	YES		NULL	
+c3	int(6)	YES	MUL	NULL	
+c4	longtext	YES		NULL	
+c5	text	YES		NULL	
+c6	blob	YES		NULL	
+c7	tinyblob	YES		NULL	
+c8	bigint	NO		NULL	
+insert into t1 values(1,0,11,'一种用来存储非常大文本数据的类型，在MySQL中，它可以存储最大长度为 4 GB 的文本数据。这种类型通常用于存储长文本、大段文字或者大型文件内容','text类型是用来存储较长文本数据的数据类型，在MySQL中，有以下几种 text 类型',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',1000000),
+(2,1,22,'大段文章、长篇小说、大型报告等等。它不像整数类型有固定的数值范围，而是根据实际文本长度来决定占用的存储空间。','Hello, this is a sample text message',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',1000000);
+select c1,c2,c3,c4,c5,hex(c6),hex(c7),c8 from t1;
+c1	c2	c3	c4	c5	hex(c6)	hex(c7)	c8
+1	0	11	一种用来存储非常大文本数据的类型，在MySQL中，它可以存储最大长度为 4 GB 的文本数据。这种类型通常用于存储长文本、大段文字或者大型文件内容	text类型是用来存储较长文本数据的数据类型，在MySQL中，有以下几种 text 类型	ffd8ffe000104a46494600010101006000600000ffe100164578696600004d4d002a0000000800060100000002000000110001000100000003000000fe0001000400000001000000000000005200480500010000006800060001000000020000	ffd8ffe000104a46494600010101006000600000ffe100164578696600004d4d002a0000000800060100000002000000110001000100000003000000fe0001000400000001000000000000005200480500010000006800060001000000020000	1000000
+2	1	22	大段文章、长篇小说、大型报告等等。它不像整数类型有固定的数值范围，而是根据实际文本长度来决定占用的存储空间。	Hello, this is a sample text message	ffd8ffe000104a46494600010101006000600000ffe100164578696600004d4d002a0000000800060100000002000000110001000100000003000000fe0001000400000001000000000000005200480500010000006800060001000000020000	ffd8ffe000104a46494600010101006000600000ffe100164578696600004d4d002a0000000800060100000002000000110001000100000003000000fe0001000400000001000000000000005200480500010000006800060001000000020000	1000000
+DROP TABLE IF EXISTS t1;
+create table t1 (
+result varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'result关键字',
+traceId varchar(36) DEFAULT NULL,
+move varchar(64) DEFAULT NULL,
+action varchar(32) DEFAULT NULL,
+createTime datetime DEFAULT NULL,
+days datetime DEFAULT NULL,
+query tinyint(1) NOT NULL,
+sequence varchar(36) DEFAULT NULL,
+minValue varchar(36) DEFAULT NULL,
+scope varchar(36) DEFAULT NULL,
+offset varchar(20) DEFAULT NULL,
+cycle varchar(36) DEFAULT NULL,
+limit varchar(36) DEFAULT NULL
+);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+result	varchar(36)	YES		NULL	
+traceId	varchar(36)	YES		NULL	
+move	varchar(64)	YES		NULL	
+action	varchar(32)	YES		NULL	
+createTime	timestamp	YES		NULL	
+days	timestamp	YES		NULL	
+query	int(1)	NO		NULL	
+sequence	varchar(36)	YES		NULL	
+minValue	varchar(36)	YES		NULL	
+scope	varchar(36)	YES		NULL	
+offset	varchar(20)	YES		NULL	
+cycle	varchar(36)	YES		NULL	
+limit	varchar(36)	YES		NULL	
+DROP TABLE IF EXISTS `t1`;
+create table t1 (
+`result` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'result关键字',
+`traceId` varchar(36) DEFAULT NULL COMMENT 'traceId关键字',
+`move` varchar(64) DEFAULT NULL COMMENT 'move关键字',
+`action` varchar(32) DEFAULT NULL COMMENT 'action关键字',
+`createTime` datetime DEFAULT NULL COMMENT 'createTime关键字',
+`days` datetime DEFAULT NULL COMMENT 'days关键字',
+`query` tinyint(1) NOT NULL COMMENT 'query关键字',
+`sequence` varchar(36) DEFAULT NULL COMMENT 'sequence关键字',
+`minValue` varchar(36) DEFAULT NULL COMMENT 'minValue关键字',
+`scope` varchar(36) DEFAULT NULL COMMENT 'scope关键字',
+`offset` varchar(20) DEFAULT NULL COMMENT 'offset关键字',
+`cycle` varchar(36) DEFAULT NULL COMMENT 'cycle关键字'
+);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+result	varchar(36)	YES		NULL	
+traceId	varchar(36)	YES		NULL	
+move	varchar(64)	YES		NULL	
+action	varchar(32)	YES		NULL	
+createTime	timestamp	YES		NULL	
+days	timestamp	YES		NULL	
+query	int(1)	NO		NULL	
+sequence	varchar(36)	YES		NULL	
+minValue	varchar(36)	YES		NULL	
+scope	varchar(36)	YES		NULL	
+offset	varchar(20)	YES		NULL	
+cycle	varchar(36)	YES		NULL	
+DROP TABLE IF EXISTS t1,t2;
+CREATE TABLE `t1` ( `id` varchar(64) NOT NULL PRIMARY KEY);
+CREATE TABLE t2 (
+id varchar(64) NOT NULL,
+docCat varchar(255) DEFAULT NULL,
+docDate datetime DEFAULT NULL,
+docSourceType varchar(36) DEFAULT NULL,
+fmLotNum varchar(255) DEFAULT NULL,
+fmMaterielId varchar(36) DEFAULT NULL,
+toLotNum varchar(255) DEFAULT NULL,
+toMaterielId varchar(36) DEFAULT NULL,
+transactionType varchar(36) NOT NULL,
+fmUomId varchar(64) DEFAULT NULL,
+toUomId varchar(64) DEFAULT NULL,
+fmWarehouseCode varchar(36) DEFAULT NULL,
+toWarehouseCode varchar(36) DEFAULT NULL,
+PRIMARY KEY (id),
+KEY FK_3n0lsnpngy4r2nhlpdeciix4p (fmUomId),
+KEY FK_qqr5bhqcvx1ampdnfaedik1vy (toUomId),
+KEY t2_idx_fmMatId (fmMaterielId),
+KEY t2_idx_toMatId (toMaterielId),
+KEY t2_tln_idx (fmLotNum),
+KEY t2_fln_idx (toLotNum),
+KEY t2_tt_idx (transactionType),
+KEY t2_dd_idx (docDate),
+KEY t2_dc_idx (docCat),
+KEY t2_dst_idx (docSourceType),
+KEY t2_fmwc_idx (fmWarehouseCode),
+KEY t2_towc_idx (toWarehouseCode),
+KEY FK13(toWarehouseCode),
+KEY FK14(toWarehouseCode),
+KEY FK15 (toWarehouseCode),
+CONSTRAINT FK_3n0lsnpngy4r2nhlpdeciix4p FOREIGN KEY (fmUomId) REFERENCES t1 (id),
+CONSTRAINT FK_qqr5bhqcvx1ampdnfaedik1vy FOREIGN KEY (toUomId) REFERENCES t1 (id)
+) ;
+show index on t2;
+index_name	status	index_type
+__3019__idx__FK_3n0lsnpngy4r2nhlpdeciix4p	1	0
+__3019__idx__FK_qqr5bhqcvx1ampdnfaedik1vy	1	0
+__3019__idx__t2_idx_fmMatId	1	0
+__3019__idx__t2_idx_toMatId	1	0
+__3019__idx__t2_tln_idx	1	0
+__3019__idx__t2_fln_idx	1	0
+__3019__idx__t2_tt_idx	1	0
+__3019__idx__t2_dd_idx	1	0
+__3019__idx__t2_dc_idx	1	0
+__3019__idx__t2_dst_idx	1	0
+__3019__idx__t2_fmwc_idx	1	0
+__3019__idx__t2_towc_idx	1	0
+__3019__idx__FK13	1	0
+__3019__idx__FK14	1	0
+__3019__idx__FK15	1	0
+show create table t2;
+Table	Create Table
+test.t2	CREATE TABLE t2 (
+id VARCHAR (64) COLLATE 'utf8mb4_general_ci' NOT NULL,
+docCat VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+docDate DATETIME,
+docSourceType VARCHAR (36) COLLATE 'utf8mb4_general_ci',
+fmLotNum VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+fmMaterielId VARCHAR (36) COLLATE 'utf8mb4_general_ci',
+toLotNum VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+toMaterielId VARCHAR (36) COLLATE 'utf8mb4_general_ci',
+transactionType VARCHAR (36) COLLATE 'utf8mb4_general_ci' NOT NULL,
+fmUomId VARCHAR (64) COLLATE 'utf8mb4_general_ci',
+toUomId VARCHAR (64) COLLATE 'utf8mb4_general_ci',
+fmWarehouseCode VARCHAR (36) COLLATE 'utf8mb4_general_ci',
+toWarehouseCode VARCHAR (36) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id),
+ CONSTRAINT FK_3n0lsnpngy4r2nhlpdeciix4p FOREIGN KEY (fmUomId) REFERENCES test.t1(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ CONSTRAINT FK_qqr5bhqcvx1ampdnfaedik1vy FOREIGN KEY (toUomId) REFERENCES test.t1(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ KEY FK_3n0lsnpngy4r2nhlpdeciix4p(fmUomId, id),
+ KEY FK_qqr5bhqcvx1ampdnfaedik1vy(toUomId, id),
+ KEY t2_idx_fmMatId(fmMaterielId, id),
+ KEY t2_idx_toMatId(toMaterielId, id),
+ KEY t2_tln_idx(fmLotNum, id),
+ KEY t2_fln_idx(toLotNum, id),
+ KEY t2_tt_idx(transactionType, id),
+ KEY t2_dd_idx(docDate, id),
+ KEY t2_dc_idx(docCat, id),
+ KEY t2_dst_idx(docSourceType, id),
+ KEY t2_fmwc_idx(fmWarehouseCode, id),
+ KEY t2_towc_idx(toWarehouseCode, id),
+ KEY FK13(toWarehouseCode, id),
+ KEY FK14(toWarehouseCode, id),
+ KEY FK15(toWarehouseCode, id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE IF EXISTS t2;
+DROP TABLE IF EXISTS t1;
+CREATE TABLE `t1` ( 
+`id` varchar(64) NOT NULL,
+`name` varchar(64) NOT NULL,
+PRIMARY KEY (id),
+KEY FK1 (id),
+KEY FK2 (id),
+KEY FK3 (id),
+KEY FK4 (id),
+KEY FK5 (id),
+KEY FK6 (id),
+KEY FK7 (id),
+KEY FK8 (id),
+KEY FK9 (id),
+KEY FK10 (name),
+KEY FK11 (name),
+KEY FK12 (name),
+KEY FK13 (name),
+KEY FK14 (name),
+KEY FK15 (name),
+KEY FK16 (name),
+KEY FK17 (name)
+);
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1 (
+id varchar(64) NOT NULL,
+bizOrgCode varchar(36) DEFAULT NULL,
+PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS t2;
+CREATE TABLE t2 (
+id varchar(64) NOT NULL,
+inCheckId varchar(36) DEFAULT NULL,
+PRIMARY KEY (id),
+KEY FK_rtvexgd7o9yhbf9bjohjvcm7x (inCheckId),
+CONSTRAINT FK_rtvexgd7o9yhbf9bjohjvcm7x FOREIGN KEY (inCheckId) REFERENCES t1 (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE unique_table (
+id INT PRIMARY KEY,
+unique_nullable_column INT NULL,
+other_column VARCHAR(255),
+UNIQUE KEY idx_unique_nullable_column (unique_nullable_column)
+);
+INSERT INTO unique_table VALUES(1,NULL, 'data1'),(2,123, 'data2'),(3,NULL, 'data3'),(4,456, 'data4'),(5,NULL, 'data5');
+select * from unique_table;
+id	unique_nullable_column	other_column
+1	NULL	data1
+2	123	data2
+3	NULL	data3
+4	456	data4
+5	NULL	data5
+CREATE TABLE parent_table1 (
+parent_id VARCHAR(10) AUTO_INCREMENT PRIMARY KEY,
+data VARCHAR(50)
+);
+ERROR HY000: YAO-5006: Incorrect column specifier for column 'parent_id'
+CREATE TABLE child_table1 (
+child_id INT AUTO_INCREMENT PRIMARY KEY,
+parent_id VARCHAR(15),
+FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id)
+);
+ERROR HY000: YAO-18: parent table don't exists
+CREATE TABLE parent_table (
+parent_id VARCHAR(10) PRIMARY KEY,
+data VARCHAR(50)
+);
+CREATE TABLE child_table (
+child_id INT PRIMARY KEY,
+parent_id VARCHAR(15),
+FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id) 
+);
+show create table child_table;
+Table	Create Table
+test.child_table	CREATE TABLE child_table (
+child_id INT(10),
+parent_id VARCHAR (15) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(child_id),
+ CONSTRAINT child_table_ybfk_1766585791942916 FOREIGN KEY (parent_id) REFERENCES test.parent_table(parent_id) ON UPDATE RESTRICT ON DELETE RESTRICT
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO parent_table (parent_id, data) VALUES ('parent_1', 'Parent Data 1'),('parent_2', 'Parent Data 2'),('parent_3', 'Parent Data 3');
+INSERT INTO child_table (child_id, parent_id) VALUES (1, 'parent_1'),(2, 'parent_2');
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_2
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_add');
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_1');
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_2
+3	parent_1
+UPDATE parent_table SET parent_id = 'new_parent_id_exceeding_length_limit' WHERE parent_id = 'parent_1';
+ERROR 25S03: YAO-119: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+UPDATE parent_table SET parent_id = 'new_parent' WHERE parent_id = 'parent_1';
+ERROR 25S03: YAO-119: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_2
+3	parent_1
+UPDATE child_table SET parent_id = 'parent_10' WHERE child_id = 1;
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+UPDATE child_table SET parent_id = 'parent_3' WHERE child_id = 2;
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_3
+3	parent_1
+DELETE FROM parent_table WHERE parent_id = 'parent_3';
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+DELETE FROM child_table WHERE parent_id = 'parent_2';
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_3
+3	parent_1
+drop table parent_table;
+ERROR HY000: YAO-16: parent table can not be dropped, table_name=test.parent_table
+drop table child_table;
+drop table parent_table;
+CREATE TABLE parent_table (
+parent_id VARCHAR(10) PRIMARY KEY,
+data VARCHAR(50)
+);
+CREATE TABLE child_table (
+child_id INT PRIMARY KEY,
+parent_id VARCHAR(15),
+FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+show create table child_table;
+Table	Create Table
+test.child_table	CREATE TABLE child_table (
+child_id INT(10),
+parent_id VARCHAR (15) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(child_id),
+ CONSTRAINT child_table_ybfk_1766585795798450 FOREIGN KEY (parent_id) REFERENCES test.parent_table(parent_id) ON UPDATE CASCADE ON DELETE CASCADE
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO parent_table (parent_id, data) VALUES ('parent_1', 'Parent Data 1'),('parent_2', 'Parent Data 2'),('parent_3', 'Parent Data 3');
+INSERT INTO child_table (child_id, parent_id) VALUES (1, 'parent_1'),(2, 'parent_2');
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_2
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_add');
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_1');
+SELECT * FROM parent_table;
+parent_id	data
+parent_1	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	parent_1
+2	parent_2
+3	parent_1
+UPDATE parent_table SET parent_id = 'new_parent_id_exceeding_length_limit' WHERE parent_id = 'parent_1';
+ERROR 25S03: YAO-119: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+UPDATE parent_table SET parent_id = 'new_parent' WHERE parent_id = 'parent_1';
+SELECT * FROM parent_table;
+parent_id	data
+new_parent	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	new_parent
+2	parent_2
+3	new_parent
+UPDATE child_table SET parent_id = 'parent_10' WHERE child_id = 1;
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+UPDATE child_table SET parent_id = 'parent_3' WHERE child_id = 2;
+SELECT * FROM parent_table;
+parent_id	data
+new_parent	Parent Data 1
+parent_2	Parent Data 2
+parent_3	Parent Data 3
+SELECT * FROM child_table;
+child_id	parent_id
+1	new_parent
+2	parent_3
+3	new_parent
+DELETE FROM parent_table WHERE parent_id = 'parent_3';
+DELETE FROM child_table WHERE parent_id = 'parent_2';
+SELECT * FROM parent_table;
+parent_id	data
+new_parent	Parent Data 1
+parent_2	Parent Data 2
+SELECT * FROM child_table;
+child_id	parent_id
+1	new_parent
+3	new_parent
+drop table parent_table;
+ERROR HY000: YAO-16: parent table can not be dropped, table_name=test.parent_table
+drop table child_table;
+drop table parent_table;
+SHOW GLOBAL STATUS;
+Variable_name	Value
+SHOW STATUS;
+Variable_name	Value
+SHOW PRIVILEGES;
+Privilege	Context	Comment
+Alter	Tables	To alter the table
+Create	Databases,Tables,Indexes	To create new databases and tables
+Create user	Server Admin	To create new users
+Delete	Tables	To delete existing rows
+Drop	Databases,Tables	To drop databases, tables, and views
+Grant option	Databases,Tables,Functions,Procedures	To give to other users those privileges you possess
+Insert	Tables	To insert data into tables
+Select	Tables	To retrieve rows from table
+Update	Tables	To update existing rows
+Index	Tables	To create or drop indexes
+SHOW CREATE DATABASE test;
+Database	Create Database
+test	CREATE DATABASE test COLLATE 'utf8mb4_general_ci'
+SHOW PLUGINS;
+Plugin	Version	Type	Library	License	Status
+SHOW GRANTS FOR 'admin'@'%';
+grants
+GRANT ALL PRIVILEGES,GRANT OPTION ON * TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON yao.* TO 'admin'
+GRANT SELECT ON trash.* TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.* TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.t3 TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.t1 TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.t2 TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.__3054__idx__FK_rtvexgd7o9yhbf9bjohjvcm7x TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.unique_table TO 'admin'
+GRANT ALL PRIVILEGES,GRANT OPTION ON test.__3056__idx__idx_unique_nullable_column TO 'admin'
+create database test1;
+DROP SCHEMA `test1`;
+create table test(c1 int);
+show create table test;
+Table	Create Table
+test.test	CREATE TABLE test (
+c1 INT(10)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE test.NewTable (
+Column1 INT auto_increment NOT NULL,  
+Column2 varchar(100) DEFAULT 000 NULL, 
+Column3 BOOL NULL,  
+Column4 TIMESTAMP NULL, 
+Column5 varchar(100) NULL,  
+Column6 varchar(100) NOT NULL,  
+CONSTRAINT NewTable_pk PRIMARY KEY (Column1), 
+CONSTRAINT NewTable_unique UNIQUE KEY (Column6) ) ENGINE=InnoDB;
+SHOW WARNINGS;
+level	code	message
+create table tbl1(c1 int,c2 int,c3 int);
+ALTER TABLE test.tbl1 MODIFY COLUMN c3 VARCHAR(10) NULL;
+ALTER TABLE test.tbl1 CHANGE c3 c33 int NOT NULL;
+desc tbl1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c33	int(10)	YES		NULL	
+insert into tbl1 values(1,1,1);
+ALTER TABLE test.tbl1 CHANGE c33 c3 int NOT NULL;
+desc tbl1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	int(10)	YES		NULL	
+create database test1;
+use test1;
+create procedure test1.p(aaa int) 
+begin 
+select aaa; 
+set aaa=2; 
+end;//
+call test1.p(9)//
+aaa
+9
+call p(9)//
+aaa
+9
+call yao.p(9)//
+ERROR HY000: YAO-5727: procedure yao.p does not exist
+drop table test.NewTable;
+CREATE TABLE test.NewTable (  
+Column1 INT auto_increment NOT NULL,  
+CONSTRAINT NewTable_pk PRIMARY KEY (Column1) 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+CREATE TABLE test_auto_increment (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(50)
+) ENGINE=InnoDB;
+INSERT INTO test_auto_increment (name) VALUES ('Alice');
+INSERT INTO test_auto_increment (name) VALUES ('Bob');
+INSERT INTO test_auto_increment (name) VALUES ('Charlie');
+SELECT * FROM test_auto_increment;
+id	name
+1	Alice
+2	Bob
+3	Charlie
+SELECT MAX(id) FROM test_auto_increment;
+MAX(id)
+3
+TRUNCATE TABLE test_auto_increment;
+ALTER TABLE test.test_auto_increment AUTO_INCREMENT=21;
+INSERT INTO test_auto_increment (name) VALUES ('David');
+INSERT INTO test_auto_increment (name) VALUES ('Eva');
+SELECT * FROM test_auto_increment;
+id	name
+1	David
+2	Eva
+create table test.tbl2(c1 int,c2 varchar(25));
+create index test.idx1 on test.tbl2(c1);
+show index on test.tbl2;
+index_name	status	index_type
+__3068__idx__idx1	4	0
+create or replace sequence test.seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 18 cycle;
+CREATE TABLE NUMERIC_TABLE  (
+ID number(10) NOT NULL COMMENT '数值类型，最大10位数字，主键，不允许为空',
+EXACT_NUMBER number(10, 2) NULL COMMENT '数值类型，最大10位数字，其中2位为小数',
+ANY_PRECISION_NUMBER number NULL COMMENT '数值类型，不带精度',
+APPROXIMATE_NUMBER FLOAT NULL COMMENT '浮点数，精度为6',
+PRIMARY KEY (ID)
+) COMMENT = '包含不同类型数值数据的示例表';
+SHOW KEYS FROM `NUMERIC_TABLE` FROM `test1`;
+Table	Non_unique	Key_name	Seq_in_index	Column_name	Collation	Cardinality	Sub_part	Packed	Null	Index_type	Comment	Index_comment	Visible	Expression
+NUMERIC_TABLE	0	PRIMARY	1	ID	A	0	NULL	NULL		BTREE			YES	NULL
+SHOW FULL TABLES FROM `test1` LIKE 'NUMERIC_TABLE';
+Tables_in_test1 (NUMERIC_TABLE)	Table_type
+NUMERIC_TABLE	BASE TABLE
+SHOW FULL COLUMNS FROM `NUMERIC_TABLE` FROM `test1` LIKE '%';
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+ID	decimal(10,0)	NULL	NO	PRI	NULL		select,insert,update,references	数值类型，最大10位数字，主键，不允许为空
+EXACT_NUMBER	decimal(10,2)	NULL	YES		NULL		select,insert,update,references	数值类型，最大10位数字，其中2位为小数
+ANY_PRECISION_NUMBER	decimal(65,40)	NULL	YES		NULL		select,insert,update,references	数值类型，不带精度
+APPROXIMATE_NUMBER	float	NULL	YES		NULL		select,insert,update,references	浮点数，精度为6

@@ -1,0 +1,240 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+create index il0 on t1(c2) storing (c3);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	1	0
+update t1 set c2=10 where c1=1;
+__3001__idx__il0
+select * from __3001__idx__il0;
+c1	c2	c3
+2	2	2
+3	3	3
+1	10	1
+drop table t1;
+set autocommit=0;
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+insert into t1 values(4,4,4);
+replace into t1 values(5,5,5);
+replace into t1 values(6,6,6),(7,7,7),(8,8,8);
+commit;
+create index il0 on t1(c2) storing (c3);
+select * from t1;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+4	4	4
+5	5	5
+6	6	6
+7	7	7
+8	8	8
+select * from t1 where c1=1;
+c1	c2	c3
+1	1	1
+select * from t1 where c2=2;
+c1	c2	c3
+2	2	2
+"merge"
+major_freeze...
+merge: DONE
+set autocommit=0;
+show index on t1;
+index_name	status	index_type
+__3003__idx__il0	1	0
+update t1 set c2=10 where c1=1;
+select * from t1;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+4	4	4
+5	5	5
+6	6	6
+7	7	7
+8	8	8
+select * from t1 where c1=1;
+c1	c2	c3
+1	10	1
+select * from t1 where c2=2 or c1=1;
+c1	c2	c3
+1	10	1
+2	2	2
+select * from __3003__idx__il0;
+c1	c2	c3
+2	2	2
+3	3	3
+4	4	4
+5	5	5
+6	6	6
+7	7	7
+8	8	8
+1	10	1
+commit;
+select * from __3003__idx__il0;
+c1	c2	c3
+2	2	2
+3	3	3
+4	4	4
+5	5	5
+6	6	6
+7	7	7
+8	8	8
+1	10	1
+update t1 set c2=20 where c1=2;
+select * from t1 where c1=2;
+c1	c2	c3
+2	20	2
+commit;
+select * from __3003__idx__il0;
+c1	c2	c3
+3	3	3
+4	4	4
+5	5	5
+6	6	6
+7	7	7
+8	8	8
+1	10	1
+2	20	2
+drop table t1;
+commit;
+set autocommit=1;
+create table t1 (c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+create index il0 on t1(c2) storing (c3);
+update t1 set c2=10 where c1=1;
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3005__idx__il0	1	0
+select * from t1;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+select * from t1 where c1=1 between 1 and 3;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+set autocommit = 0;
+select * from t1 where c1 between 1 and 3;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+select * from __3005__idx__il0;
+c1	c2	c3
+2	2	2
+3	3	3
+1	10	1
+commit;
+select * from __3005__idx__il0;
+c1	c2	c3
+2	2	2
+3	3	3
+1	10	1
+set autocommit = 1;
+create index il2 on t1(c2);
+"merge"
+major_freeze...
+merge: DONE
+set autocommit = 0;
+update t1 set c2=10 where c1=2;
+select * from t1 where c1=2;
+c1	c2	c3
+2	10	2
+show index on t1;
+index_name	status	index_type
+__3005__idx__il0	1	0
+__3005__idx__il2	1	0
+select * from __3005__idx__il2;
+c1	c2	yao_virtual_col
+3	3	NULL
+1	10	NULL
+2	10	NULL
+commit;
+create index il3 on t1(c2);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3005__idx__il0	1	0
+__3005__idx__il2	1	0
+__3005__idx__il3	1	0
+select * from __3005__idx__il3;
+c1	c2	yao_virtual_col
+3	3	NULL
+1	10	NULL
+2	10	NULL
+commit;
+select * from __3005__idx__il3;
+c1	c2	yao_virtual_col
+3	3	NULL
+1	10	NULL
+2	10	NULL
+set autocommit = 1;
+update t1 set c3=100 where c1=2;
+select * from __3005__idx__il3;
+c1	c2	yao_virtual_col
+3	3	NULL
+1	10	NULL
+2	10	NULL
+drop table t1;
+create table t1 (c1 int primary key,c2 decimal(3,2),c3 bool,c4 datetime);
+insert into t1 values(1,1.23,1,'2012-09-08 12:00:22'),(2,1.23,1,'2012-09-08 12:00:22');
+create index il0 on t1(c4,c2) storing(c3);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3009__idx__il0	1	0
+update t1 set c2=3.22 where c1=2;
+select * from __3009__idx__il0;
+c1	c2	c3	c4
+1	1.23	1	2012-09-08 12:00:22.000000
+2	3.22	1	2012-09-08 12:00:22.000000
+select * from t1;
+c1	c2	c3	c4
+1	1.23	1	2012-09-08 12:00:22.000000
+2	3.22	1	2012-09-08 12:00:22.000000
+select * from t1 where c1=2;
+c1	c2	c3	c4
+2	3.22	1	2012-09-08 12:00:22.000000
+create index il1 on t1(c3,c2,c1) storing(c4);
+"merge"
+major_freeze...
+merge: DONE
+select * from __3009__idx__il0;
+c1	c2	c3	c4
+1	1.23	1	2012-09-08 12:00:22.000000
+2	3.22	1	2012-09-08 12:00:22.000000
+select * from t1;
+c1	c2	c3	c4
+1	1.23	1	2012-09-08 12:00:22.000000
+2	3.22	1	2012-09-08 12:00:22.000000
+select * from t1 where c1=2;
+c1	c2	c3	c4
+2	3.22	1	2012-09-08 12:00:22.000000
+select * from __3009__idx__il1;
+c1	c2	c3	c4
+1	1.23	1	2012-09-08 12:00:22.000000
+2	3.22	1	2012-09-08 12:00:22.000000

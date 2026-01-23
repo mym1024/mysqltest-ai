@@ -1,0 +1,2119 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create database d1;
+using database d1;
+drop table if exists t1,t2,t3,t4,t5,t6;
+create table
+create table t1(id varchar(50) not null primary key, name varchar(20) not null);
+create table t2(pid int primary key not null,pname varchar(20) not null,psex bool not null,pdate datetime not null,psalary_d double not null,psalary_f float not null);
+create table t3(id number(10) not null primary key,name varchar(20) not null);
+create table t4(id number(10) not null primary key,name varchar(20) not null);
+create table t5(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+create table t6(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+insert data
+insert into t1 values(1,'abcbcbc');
+insert into t2 values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+insert into t3 values(1,'abcbcbc');
+insert into t4 values(1,'bc');
+insert into t5 values(1,2.2,4.5,5.6,'新增函数测试id=1');
+insert into t6 values(11,2.2,4.5,5.6,'426数据库yaobase');
+start instr
+select instr(null,'bc',1,1) from t1;
+instr(null,'bc',1,1)
+NULL
+select instr(name,null,1,1) from t1;
+instr(name,null,1,1)
+NULL
+select instr(name,'bc',null,1) from t1;
+instr(name,'bc',null,1)
+NULL
+select instr(name,'bc',1,null) from t1;
+instr(name,'bc',1,null)
+NULL
+select instr(null,null,1,1) from t1;
+instr(null,null,1,1)
+NULL
+select instr(null,'bc',null,1) from t1;
+instr(null,'bc',null,1)
+NULL
+select instr(null,'bc',1,null) from t1;
+instr(null,'bc',1,null)
+NULL
+select instr(name,null,null,1) from t1;
+instr(name,null,null,1)
+NULL
+select instr(name,null,1,null) from t1;
+instr(name,null,1,null)
+NULL
+select instr(name,'bc',null,null) from t1;
+instr(name,'bc',null,null)
+NULL
+select instr(null,null,null,1) from t1;
+instr(null,null,null,1)
+NULL
+select instr(null,null,1,null) from t1;
+instr(null,null,1,null)
+NULL
+select instr(null,'bc',null,null) from t1;
+instr(null,'bc',null,null)
+NULL
+select instr(name,null,null,null) from t1;
+instr(name,null,null,null)
+NULL
+select instr(null,null,null,null) from t1;
+instr(null,null,null,null)
+NULL
+select instr(name,'bc',1,1) from t1;
+instr(name,'bc',1,1)
+2
+select instr() from t1;
+ERROR HY000: YAO-5054: Param num of function 'instr' not enough, ret=-5054
+select instr(name) from t1;
+ERROR HY000: YAO-5054: Param num of function 'instr' not enough, ret=-5054
+select instr(name,'bc') from t1;
+instr(name,'bc')
+2
+select instr(name,'bc',3) from t1;
+instr(name,'bc',3)
+4
+select instr(name,'bc',-3,2,1) from t1;
+ERROR HY000: YAO-5054: Param num of function 'instr' is overmuch, ret=-5054
+select instr(3121212,12,3,2);
+instr(3121212,12,3,2)
+6
+select instr(name,'bc',3,2) from t1;
+instr(name,'bc',3,2)
+6
+select instr('1998-09-03 00:00:00','00',1,2) from t1;
+instr('1998-09-03 00:00:00','00',1,2)
+15
+select instr(cast(3.141 as float),'14',1,1) from t1;
+instr(cast(3.141 as float),'14',1,1)
+3
+select instr(cast(3.141 as double),'14',1,1) from t1;
+instr(cast(3.141 as double),'14',1,1)
+3
+select instr('trueasdtrue',true,3,1) from t1;
+instr('trueasdtrue',true,3,1)
+0
+select instr(name,'bc',2,2) from t1;
+instr(name,'bc',2,2)
+4
+select instr(name,'bc','2','2') from t1;
+instr(name,'bc','2','2')
+4
+select instr(name,'bc','2','1998-10-22') from t1;
+instr(name,'bc','2','1998-10-22')
+0
+select instr(name,'bc','2',cast(2.141 as float)) from t1;
+instr(name,'bc','2',cast(2.141 as float))
+4
+select instr(name,'bc','2',cast(2.141 as double)) from t1;
+instr(name,'bc','2',cast(2.141 as double))
+4
+select instr(name,'bc','2',true) from t1;
+instr(name,'bc','2',true)
+2
+select instr('','bc',2,2) from t1;
+instr('','bc',2,2)
+0
+select instr('abcbcbc','bc',1,1.6) from dual;
+instr('abcbcbc','bc',1,1.6)
+2
+select instr(name,'',2,2) from t1;
+instr(name,'',2,2)
+1
+select instr(name,'bc',0,1) from t1;
+instr(name,'bc',0,1)
+0
+select instr(name,'bc',200,2) from t1;
+instr(name,'bc',200,2)
+0
+select instr(name,'bc',-200,2) from t1;
+instr(name,'bc',-200,2)
+0
+select instr(name,'bc',2,0) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2,-2) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2,100) from t1;
+instr(name,'bc',2,100)
+0
+select instr('bcabcb','b',-1,1) from t1;
+instr('bcabcb','b',-1,1)
+6
+select instr('bcabcb','b',-2,1) from t1;
+instr('bcabcb','b',-2,1)
+4
+select instr('bcabcb','b',-3,1) from t1;
+instr('bcabcb','b',-3,1)
+4
+select instr('bcabcb','b',-4,1) from t1;
+instr('bcabcb','b',-4,1)
+1
+select instr('bcabcb','b',-5,1) from t1;
+instr('bcabcb','b',-5,1)
+1
+select instr('bcabcb','b',-6,1) from t1;
+instr('bcabcb','b',-6,1)
+1
+select instr('bcabcb','b',-7,1) from t1;
+instr('bcabcb','b',-7,1)
+0
+select instr('bcabbc','bc',-1,1) from t1;
+instr('bcabbc','bc',-1,1)
+5
+select instr('bcabbc','bc',-2,1) from t1;
+instr('bcabbc','bc',-2,1)
+5
+select instr('bcabbc','bc',-3,1) from t1;
+instr('bcabbc','bc',-3,1)
+1
+select instr('bcabbc','b',-4,1) from t1;
+instr('bcabbc','b',-4,1)
+1
+select instr('bcabbc','bc',-5,1) from t1;
+instr('bcabbc','bc',-5,1)
+1
+select instr('bcabbc','bc',-6,1) from t1;
+instr('bcabbc','bc',-6,1)
+1
+select instr('bcabbc','bc',-7,1) from t1;
+instr('bcabbc','bc',-7,1)
+0
+select instr(name,'bc',2*2,1) from t1;
+instr(name,'bc',2*2,1)
+4
+select instr(name,'bc',4/2,2/1) from t1;
+instr(name,'bc',4/2,2/1)
+4
+select instr(name,'bc',1+2,1+1) from t1;
+instr(name,'bc',1+2,1+1)
+6
+select instr(name,'bc',3-2,2-1) from t1;
+instr(name,'bc',3-2,2-1)
+2
+select instr(name,'bc',5 mod 2,3 mod 2) from t1;
+instr(name,'bc',5 mod 2,3 mod 2)
+2
+select instr(name,'bc',2=2,1=1) from t1;
+instr(name,'bc',2=2,1=1)
+2
+select instr(name,'bc',2<2,1<1) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2>2,1>1) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2>=2,1>=1) from t1;
+instr(name,'bc',2>=2,1>=1)
+2
+select instr(name,'bc',2<=2,1<=1) from t1;
+instr(name,'bc',2<=2,1<=1)
+2
+select instr(name,'bc',2!=2,1!=1) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2<>2,1<>1) from t1;
+ERROR HY000: YAO-2: occurrence must greater than zero
+select instr(name,'bc',2||2,1||1) from t1;
+instr(name,'bc',2||2,1||1)
+2
+select * from t1 where id =  instr(name,'bc',1,1)-1;
+id	name
+1	abcbcbc
+update t1 set id=instr(name,'bc',1,1)-1 where name='abcbcbc';
+select id from t1 group by id having id > (instr('abcbcbc', 'bc',1,1)-2);
+id
+1
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) order by id;
+name
+abcbcbc
+insert into t1 values(2,instr('abcbcbc', 'bc',1,1));
+delete from t1 where id=instr('abcbcbc', 'bc',1,1);
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) union select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+name
+abcbcbc
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) intersect select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+name
+abcbcbc
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) except select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+name
+select instr('abcbcbc','bc',2,count(id)) from t1;
+instr('abcbcbc','bc',2,count(id))
+2
+select instr(substr('abcbcbc',2,4),'bc',2,1) from t1;
+instr(substr('abcbcbc',2,4),'bc',2,1)
+3
+select instr('abcbcbc',substr('abcbcbc',2,2),2,1) from t1;
+instr('abcbcbc',substr('abcbcbc',2,2),2,1)
+2
+select instr('aljingbljing' ,pname,2,1) from t2;
+instr('aljingbljing' ,pname,2,1)
+3
+select instr('531513' ,pid,-3,1) from t2;
+instr('531513' ,pid,-3,1)
+3
+select instr(psalary_d ,'24',-3,1) from t2;
+instr(psalary_d ,'24',-3,1)
+4
+select instr(psalary_f ,'24',-3,1) from t2;
+instr(psalary_f ,'24',-3,1)
+2
+select instr('trueututrue' ,psex,-6,1) from t2;
+instr('trueututrue' ,psex,-6,1)
+0
+select instr('531513' ,pid,-3,pid) from t2;
+instr('531513' ,pid,-3,pid)
+3
+select instr(psalary_d ,'24',-3,psalary_d-10323) from t2;
+instr(psalary_d ,'24',-3,psalary_d-10323)
+4
+select instr(psalary_f ,'24',-3,psalary_f) from t2;
+instr(psalary_f ,'24',-3,psalary_f)
+0
+select instr(psalary_d ,'24',-3,psalary_d-10323) from t2;
+instr(psalary_d ,'24',-3,psalary_d-10323)
+4
+select instr('531513' ,pid,-3,pid+1) from t2;
+instr('531513' ,pid,-3,pid+1)
+0
+select instr('531513' ,pid,-1,pid*2) from t2;
+instr('531513' ,pid,-1,pid*2)
+3
+select instr('51315113' ,pid,-4/2,pid) from t2;
+instr('51315113' ,pid,-4/2,pid)
+7
+select instr('51315113' ,'1',2,sum(id)) from t1;
+instr('51315113' ,'1',2,sum(id))
+2
+select instr('51315113' ,'1',2,max(id)) from t1;
+instr('51315113' ,'1',2,max(id))
+2
+select instr('51315113' ,'1',2,min(id)) from t1;
+instr('51315113' ,'1',2,min(id))
+2
+select instr(t3.name, t4.name,t3.id,t4.id) from t3,t4;
+instr(t3.name, t4.name,t3.id,t4.id)
+2
+select distinct t3.name from t3,t4 where t3.id=instr(t3.name, t4.name,t3.id,t4.id)-1;
+name
+abcbcbc
+select instr('数数据库数数','数',2,1) from dual;
+instr('数数据库数数','数',2,1)
+2
+select instr('数数据库数数','数',1,1) from dual;
+instr('数数据库数数','数',1,1)
+1
+select instr('数数据库数数','数',2,1) from dual;
+instr('数数据库数数','数',2,1)
+2
+select instr('数数据库数数','数',3,2) from dual;
+instr('数数据库数数','数',3,2)
+6
+select instr('数数据库数数','数',5,2) from dual;
+instr('数数据库数数','数',5,2)
+6
+select instr('数数据库数数','数',6,1) from dual;
+instr('数数据库数数','数',6,1)
+6
+select instr('数数据库数数','数',-2,1) from dual;
+instr('数数据库数数','数',-2,1)
+5
+select instr('数数据库数数','数',-1,1) from dual;
+instr('数数据库数数','数',-1,1)
+6
+select instr('数数据库数数','数',-2,2) from dual;
+instr('数数据库数数','数',-2,2)
+2
+select instr('数数据库数数','数',-3,2) from dual;
+instr('数数据库数数','数',-3,2)
+1
+select instr('数数据库数数','数',-5,2) from dual;
+instr('数数据库数数','数',-5,2)
+1
+select instr('数数据库数数','数',-6,1) from dual;
+instr('数数据库数数','数',-6,1)
+1
+select instr('数1数1据库数1数1','数1',-3,2) from dual;
+instr('数1数1据库数1数1','数1',-3,2)
+3
+drop table t1,t2,t3,t4;
+start instr
+select substring(null,1,2);
+substring(null,1,2)
+NULL
+select substring('数据库db',null,2);
+substring('数据库db',null,2)
+NULL
+select substring('数据库db',1,null);
+substring('数据库db',1,null)
+NULL
+select substring('数据库db',null,null);
+substring('数据库db',null,null)
+NULL
+select substring(null,1,null);
+substring(null,1,null)
+NULL
+select substring(null,null,1);
+substring(null,null,1)
+NULL
+select substring(null,null,null);
+substring(null,null,null)
+NULL
+select substring();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select substring('abc');
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',1);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',1)
+新增函数测试-_{db数据库}yaobase-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',0);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',0)
+
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.6);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.6)
+测试-_{db数据库}yaobase-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.4);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.4)
+数测试-_{db数据库}yaobase-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.5);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.5)
+测试-_{db数据库}yaobase-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',100);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',100)
+
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-5);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-5)
+，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.2);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.2)
+e-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.5);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.5)
+se-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.7);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.7)
+se-！ ，。426
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-100);
+substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-100)
+
+select substring('123测试67',-7);
+substring('123测试67',-7)
+123测试67
+select substring('123测试67',-6.5);
+substring('123测试67',-6.5)
+123测试67
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,0);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,0)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,14);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,14)
+新增函数测试-_{db数据库
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.5)
+新增函数测试-_{db
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.3);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.3)
+新增函数测试-_{d
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.6);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.6)
+新增函数测试-_{db
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,-1);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,-1)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,100);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,100)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',-1,100);
+substring('新增函数测试-_{db数据库}yaobase！，。426',-1,100)
+6
+select substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5)
+函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2)
+。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',5 mod 2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',5 mod 2)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5)
+新增函
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5-10);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5-10)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,5 mod 2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,5 mod 2)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1=1);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1=1)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1>1);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1>1)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',10>3.14);
+substring('新增函数测试-_{db数据库}yaobase！，。426',10>3.14)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2>3.14);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2>3.14)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=(10+2*1.5));
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=(10+2*1.5))
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5))
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5)/10);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5)/10)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(1+2*(0.5*2)/1));
+substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(1+2*(0.5*2)/1))
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1<>1);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1<>1)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1<>2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1<>2)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1||2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1||2)
+新增函数测试-_{db数据库}yaobase！，。426
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2=2);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2=2)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5=2.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5=2.5*2.5)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>2.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>2.5*2.5)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>5.5*2.5)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>1.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>1.5*2.5)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<2.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<2.5*2.5)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<5.5*2.5)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<5.5*2.5)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5>=5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5>=5.5*2.5)
+新
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<=5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<=5.5*2.5)
+
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5!=5.5*2.5);
+substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5!=5.5*2.5)
+新
+select substring(c_varchar,c_int,c_double) from t5;
+substring(c_varchar,c_int,c_double)
+新增函数
+select substring(c_varchar,c_float,c_double) from t5;
+substring(c_varchar,c_float,c_double)
+增函数测
+select substring(c_varchar,c_float,c_decimal) from t5;
+substring(c_varchar,c_float,c_decimal)
+增函数测试i
+select substring(c_float,1) from t5;
+substring(c_float,1)
+2.200000
+select substring(c_double,1) from t5;
+substring(c_double,1)
+4.500000
+select substring(c_int,1) from t5;
+substring(c_int,1)
+1
+select substring(c_decimal,1) from t5;
+substring(c_decimal,1)
+5.600
+select substring(c_varchar,c_float*2-1,c_decimal) from t5;
+substring(c_varchar,c_float*2-1,c_decimal)
+函数测试id
+select substring(c_varchar,c_float*2-1,c_decimal-1*2) from t5;
+substring(c_varchar,c_float*2-1,c_decimal-1*2)
+函数测试
+select substring(c_varchar+'abc',1) from t5;
+substring(c_varchar+'abc',1)
+0
+select substring(c_varchar+123,1) from t5;
+substring(c_varchar+123,1)
+123
+select substring(c_decimal+2.5,1) from t5;
+substring(c_decimal+2.5,1)
+8.100
+select substring(c_float+2.5,1) from t5;
+substring(c_float+2.5,1)
+4.700000
+select substring(c_double*2.5,1) from t5;
+substring(c_double*2.5,1)
+11.250000
+select substring(concat(c_varchar,'123'),1) from t5;
+substring(concat(c_varchar,'123'),1)
+新增函数测试id=1123
+select substring(upper(c_varchar),1) from t5;
+substring(upper(c_varchar),1)
+新增函数测试ID=1
+update t5  set c_int=3 where substring(c_varchar,1,1)='新';
+update t5 set c_varchar=substring('426数据库yaobase',1) where c_int=3;
+insert into t5 values(1,2.2,4.5,5.6,substring('新增函数测试id=2',1));
+delete from t5 where c_varchar=substring('新增函数测试id=2',1);
+select c_int from t5 where c_varchar=substring('426数据库yaobase',1) union select c_int from t6 where c_varchar=substring('426数据库yaobase',1);
+c_int
+3
+11
+select c_int from t5 where c_varchar=substring('426数据库yaobase',1) intersect select c_int from t6 where c_varchar=substring('426数据库yaobase',1);
+c_int
+select t5.c_int,t6.c_int from t5,t6 where substring(t5.c_varchar,1)=substring(t6.c_varchar,1);
+c_int	c_int
+3	11
+drop table t5,t6;
+create table
+create table t1(c1 varchar(256));
+create table t2(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+create table t3(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+insert data
+insert into t2 values(1,2.2,4.4,5.4,'分布式数据库id=1');
+insert into t2 values(2,2.5,4.5,5.5,'分布式数据库id=1');
+insert into t3 values(11,2.2,4.5,5.6,'426数据库yaobase');
+start right
+select right('abc',2);
+right('abc',2)
+bc
+select right('abc测试',3.4);
+right('abc测试',3.4)
+c测试
+select right('abc测试',3.5);
+right('abc测试',3.5)
+bc测试
+select right('abc测试',12.5);
+right('abc测试',12.5)
+abc测试
+select right('abc测试',0);
+right('abc测试',0)
+
+select right('abc测试',-1);
+right('abc测试',-1)
+
+select right('abc');
+ERROR HY000: YAO-5054: Param num of function 'right' must be 2, ret=-5054
+insert into t1 values (right('abc测试',5));
+select * from t1;
+c1
+abc测试
+update t1 set c1=right('123',3) where c1='abc测试';
+select * from t1;
+c1
+123
+delete from t1 where c1=right('123',3);
+select right(null,1);
+right(null,1)
+NULL
+select right('ABC',null);
+right('ABC',null)
+NULL
+select right(null,null);
+right(null,null)
+NULL
+select right();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select right('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+right('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2)
+
+select right('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2);
+right('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2)
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',1=1);
+right('分布式数据库-_{db数据库}yaobase！，。426',1=1)
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',10>3.14);
+right('分布式数据库-_{db数据库}yaobase！，。426',10>3.14)
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14);
+right('分布式数据库-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14)
+
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3)
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5))
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10)
+6
+select right('分布式数据库-_{db数据库}yaobase！，。426',1<>1);
+right('分布式数据库-_{db数据库}yaobase！，。426',1<>1)
+
+select right('分布式数据库-_{db数据库}yaobase！，。426',1||2);
+right('分布式数据库-_{db数据库}yaobase！，。426',1||2)
+6
+select right(c_varchar,c_int) from t2;
+right(c_varchar,c_int)
+1
+=1
+select right(c_varchar,c_float) from t2;
+right(c_varchar,c_float)
+=1
+=1
+select right(c_varchar,c_double) from t2;
+right(c_varchar,c_double)
+id=1
+id=1
+select right(c_varchar,c_decimal) from t2;
+right(c_varchar,c_decimal)
+库id=1
+据库id=1
+select right(c_varchar+'abc',1) from t2;
+right(c_varchar+'abc',1)
+0
+0
+select right(c_varchar+123,10) from t2;
+right(c_varchar+123,10)
+123
+123
+select right(c_decimal+2.5,10) from t2;
+right(c_decimal+2.5,10)
+7.900
+8.000
+select right(c_float+2.5,10) from t2;
+right(c_float+2.5,10)
+4.700000
+5
+select right(c_double*2.5,10) from t2;
+right(c_double*2.5,10)
+11
+11.250000
+select right(c_int,5) from t2;
+right(c_int,5)
+1
+2
+select right(concat(c_varchar,'123'),10) from t2;
+right(concat(c_varchar,'123'),10)
+数据库id=1123
+数据库id=1123
+select right(right('abc',1),1);
+right(right('abc',1),1)
+c
+select substring(right('abc',3),1);
+substring(right('abc',3),1)
+abc
+select right(substring('abc',1),1);
+right(substring('abc',1),1)
+c
+select right(left('abc',2),1);
+right(left('abc',2),1)
+b
+select right(upper(c_varchar),10) from t2;
+right(upper(c_varchar),10)
+分布式数据库ID=1
+分布式数据库ID=1
+update t2 set c_int=3 where right(c_varchar,1)='1';
+update t2 set c_varchar=right('426数据库yaobase',100) where c_int=3;
+insert into t2 values(4,2.2,4.5,5.6,right('分布式数据库id=2',3));
+delete from t2 where c_varchar=right('id=2',3);
+select c_int from t2 where c_varchar=right('426数据库yaobase',100) union select c_int from t3 where c_varchar=right('426数据库yaobase',100);
+c_int
+3
+11
+select c_int from t2 where c_varchar=right('426数据库yaobase',100) intersect select c_int from t3 where c_varchar=right('426数据库yaobase',100);
+c_int
+select t2.c_int,t3.c_int from t2,t3 where right(t2.c_varchar,10)=right(t3.c_varchar,10);
+c_int	c_int
+3	11
+3	11
+drop table t1,t2,t3;
+create table
+create table t4(c1 varchar(256));
+create table t5(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+insert data
+insert into t5 values(1,2.2,4.5,5.6,'分布式数据库id=1');
+start left
+select left('abc',2);
+left('abc',2)
+ab
+select left('abc测试',3.4);
+left('abc测试',3.4)
+abc
+select left('abc测试',3.5);
+left('abc测试',3.5)
+abc测
+select left('abc测试',12.5);
+left('abc测试',12.5)
+abc测试
+select left('abc测试',0);
+left('abc测试',0)
+
+select left('abc测试',-1);
+left('abc测试',-1)
+
+select left('abc');
+ERROR HY000: YAO-5054: Param num of function 'left' must be 2, ret=-5054
+insert into t4 values (left('abc测试',5));
+update t4 set c1=left('123',3) where c1='abc测试';
+select * from t4;
+c1
+123
+delete from t4 where c1=left('123',3);
+select left(null,1);
+left(null,1)
+NULL
+select left('ABC',null);
+left('ABC',null)
+NULL
+select left(null,null);
+left(null,null)
+NULL
+select left();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select left('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+left('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2)
+
+select left('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2);
+left('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',1=1);
+left('分布式数据库-_{db数据库}yaobase！，。426',1=1)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',10>3.14);
+left('分布式数据库-_{db数据库}yaobase！，。426',10>3.14)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2);
+left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5))
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',1<>2);
+left('分布式数据库-_{db数据库}yaobase！，。426',1<>2)
+分
+select left('分布式数据库-_{db数据库}yaobase！，。426',1||2);
+left('分布式数据库-_{db数据库}yaobase！，。426',1||2)
+分
+select left(c_varchar,c_int) from t5;
+left(c_varchar,c_int)
+分
+select left(c_varchar,c_float) from t5;
+left(c_varchar,c_float)
+分布
+select left(c_varchar+'abc',1) from t5;
+left(c_varchar+'abc',1)
+0
+select left(c_varchar+123,10) from t5;
+left(c_varchar+123,10)
+123
+select left(c_decimal+2.5,10) from t5;
+left(c_decimal+2.5,10)
+8.100
+select left(c_float+2.5,10) from t5;
+left(c_float+2.5,10)
+4.700000
+select left(c_double*2.5,10) from t5;
+left(c_double*2.5,10)
+11.250000
+select left(c_int,5) from t5;
+left(c_int,5)
+1
+select left(concat(c_varchar,'123'),10) from t5;
+left(concat(c_varchar,'123'),10)
+分布式数据库id=1
+select left(right('abc',1),1);
+left(right('abc',1),1)
+c
+select substring(left('abc',3),1);
+substring(left('abc',3),1)
+abc
+select left(substring('abc',1),1);
+left(substring('abc',1),1)
+a
+select left(left('abc',2),1);
+left(left('abc',2),1)
+a
+select left(upper(c_varchar),10) from t5;
+left(upper(c_varchar),10)
+分布式数据库ID=1
+update t5  set c_int=3 where left(c_varchar,1)='分';
+update t5 set c_varchar=left('426数据库yaobase',100) where c_int=3;
+insert into t5 values(1,2.2,4.5,5.6,left('分布式数据库id=2',100));
+delete from t5 where c_varchar=left('分布式数据库id=2',100);
+create table t6(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+insert into t6 values(11,2.2,4.5,5.6,'426数据库yaobase');
+select c_int from t5 where c_varchar=left('426数据库yaobase',100) union select c_int from t6 where c_varchar=left('426数据库yaobase',100);
+c_int
+3
+11
+select c_int from t5 where c_varchar=left('426数据库yaobase',100) intersect select c_int from t6 where c_varchar=left('426数据库yaobase',100);
+c_int
+select t5.c_int,t6.c_int from t5,t6 where left(t5.c_varchar,10)=left(t6.c_varchar,10);
+c_int	c_int
+3	11
+drop table t4,t5,t6;
+create table
+create table t1(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+create table t2(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+insert data
+insert into t1 values(1,'测试','2022-12-12',1.1,11.11,TRUE);
+insert into t1 values(2,'abc','2022-12-12',2.2,22.22,FALSE);
+insert into t1 values(49,'测试','2022-12-12',5.5,5.5,true);
+insert into t1 values(50,'测试','2022-12-12',5.5,5.5,true);
+insert into t2 values(1,'测试','2022-12-12',1.1,11.11,TRUE);
+insert into t2 values(2,'abc','2022-12-12',2.2,22.22,FALSE);
+insert into t2 values(49,'测试','2022-12-12',5.5,5.5,true);
+start ord
+select ord('多字节');
+ord('多字节')
+15049882
+select ord('text');
+ord('text')
+116
+select ord(null);
+ord(null)
+NULL
+select ord('');
+ord('')
+0
+select ord('『');
+ord('『')
+14909582
+select ord();
+ERROR HY000: YAO-5054: Param num of function 'ord' must be 1, ret=-5054
+select ord(1,2);
+ERROR HY000: YAO-5054: Param num of function 'ord' must be 1, ret=-5054
+select ord(123);
+ord(123)
+49
+select ord(-1);
+ord(-1)
+45
+select ord(' ');
+ord(' ')
+32
+select ord(now());
+ord(now())
+50
+select ord(cast(1.5 as float));
+ord(cast(1.5 as float))
+49
+select ord(cast(1.5 as double));
+ord(cast(1.5 as double))
+49
+select ord(2.37e-2);
+ord(2.37e-2)
+48
+select ord(TRUE);
+ord(TRUE)
+49
+select ord(NULL);
+ord(NULL)
+NULL
+insert into t1(c1,c2) values(3,ord(null)),(ord(null),ord(null));
+select * from t1 where c1=ord(null);
+c1	c2	c3	c4	c5	c6
+delete from t1 where c1=ord(null);
+delete from t1 where c1 is ord(null);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select ord(2*2),ord(2*null),ord(2*'3'),ord(2*'abc'),ord('abc'*2);
+ord(2*2)	ord(2*null)	ord(2*'3')	ord(2*'abc')	ord('abc'*2)
+52	NULL	54	48	48
+select ord(2*'测试'),2*ord('测试'),ord('测试'*'测试');
+ord(2*'测试')	2*ord('测试')	ord('测试'*'测试')
+48	30239510	48
+select ord(2/2),ord(2/null),ord(2/'abc'),ord('abc'/2);
+ord(2/2)	ord(2/null)	ord(2/'abc')	ord('abc'/2)
+49	NULL	NULL	48
+select ord(2/'测试'),ord('测试')/2,ord('测试'/'测试');
+ord(2/'测试')	ord('测试')/2	ord('测试'/'测试')
+NULL	7559877.5	NULL
+select ord(1+1),ord(2+null),ord(2+'3'),ord(2+'abc'),ord('abc'+2);
+ord(1+1)	ord(2+null)	ord(2+'3')	ord(2+'abc')	ord('abc'+2)
+50	NULL	53	50	50
+select ord(2+'测试'),ord('测试')+2,ord('测试'+'测试');
+ord(2+'测试')	ord('测试')+2	ord('测试'+'测试')
+50	15119757	48
+select ord(2-1),ord(2-null),ord(2-'3');
+ord(2-1)	ord(2-null)	ord(2-'3')
+49	NULL	45
+select ord(2-'abc'),ord(2-'测试'),2-ord('测试'),ord('测试'-'测试');
+ord(2-'abc')	ord(2-'测试')	2-ord('测试')	ord('测试'-'测试')
+50	50	-15119753	48
+select ord(2%5),ord(2%null),ord(2%'3'),ord('abc'%2),ord('测试')%2;
+ord(2%5)	ord(2%null)	ord(2%'3')	ord('abc'%2)	ord('测试')%2
+50	NULL	50	48	1
+select ord('测试'%'测试');
+ERROR 22012: YAO-78: Divided by zero
+select ord(1=1);
+ord(1=1)
+49
+select ord(1=2);
+ord(1=2)
+48
+select ord(1<2);
+ord(1<2)
+49
+select ord(1>2);
+ord(1>2)
+48
+select ord(1>=2);
+ord(1>=2)
+48
+select ord(1<=2);
+ord(1<=2)
+49
+select ord(1!=2);
+ord(1!=2)
+49
+select ord(1<>2);
+ord(1<>2)
+49
+update t1 set c2='修改' where c1=ord(1);
+update t1 set c2=ord(1) where c1=49;
+update t1 set c2=ord('测试') where c1=49;
+select c1 from t1 having ord(2)>ord(1);
+c1
+1
+2
+49
+50
+3
+NULL
+select c1 from t1 group by c1 having c1 < ord(1);
+c1
+1
+2
+3
+select c1 from t1 where c1=ord(1) order by c1;
+c1
+49
+select c1 from t1 where c2=ord('测试')  order by c1 desc;
+c1
+49
+insert into t1(c1,c2) values(ord(2),ord('测试'));
+delete from t1 where c1=ord(2);
+delete from t1 where c1=ord(1) and c2=ord('测试');
+(select c1 from t1 where c1=1) union (select c1 from t2 where c1=ord(1));
+c1
+1
+49
+(select c1 from t1 where c1=1) intersect (select c1 from t2 where c1=ord(1));
+c1
+(select c1 from t1 where c1=1) except (select c1 from t2 where c1=ord(1));
+c1
+1
+select ord(ord(c1)) from t1;
+ord(ord(c1))
+52
+53
+53
+NULL
+select ord(sum(c1)) from t1;
+ord(sum(c1))
+54
+select ord(count(c1)) from t1 where c1=2;
+ord(count(c1))
+49
+select ord(avg(c1)) from t1;
+ord(avg(c1))
+50
+select ord(max(c1)) from t1;
+ord(max(c1))
+51
+select c1 from t1 where c1 between 2 and ord(1);
+c1
+2
+3
+select c1 from t1 where c1 between ord(null) and ord(1);
+c1
+select c1 from t1 where c1 between ord('\0') and ord(1);
+c1
+1
+2
+3
+select ord(substr('abcdefg',3,5)) from t1;
+ord(substr('abcdefg',3,5))
+99
+99
+99
+99
+select ord(substr('数据库数据库数据库',1,3)) from t1;
+ord(substr('数据库数据库数据库',1,3))
+15111600
+15111600
+15111600
+15111600
+select ord(replace('xxx数据库测试','xxx','数据库')) from t1;
+ord(replace('xxx数据库测试','xxx','数据库'))
+15111600
+15111600
+15111600
+15111600
+select ord(upper('a')) from t1;
+ord(upper('a'))
+65
+65
+65
+65
+select ord(c1-c1) from t1;
+ord(c1-c1)
+48
+48
+48
+NULL
+select ord(c1+c1) from t1;
+ord(c1+c1)
+50
+52
+54
+NULL
+select ord(c1*c1) from t1;
+ord(c1*c1)
+49
+52
+57
+NULL
+select ord(c1/c1) from t1;
+ord(c1/c1)
+49
+49
+49
+NULL
+select ord(c5-c1) from t1;
+ord(c5-c1)
+49
+50
+NULL
+NULL
+select ord(c4+c1) from t1;
+ord(c4+c1)
+50
+52
+NULL
+NULL
+select ord(c2*c1) from t1;
+ord(c2*c1)
+48
+48
+NULL
+NULL
+select ord(c1/c6) from t1;
+ord(c1/c6)
+49
+NULL
+NULL
+NULL
+select c1 from t1 where c1+49 in (select ord(c1) from t1);
+c1
+1
+2
+select ord(t1.c1) from t1 join t2 on t1.c1=t2.c1;
+ord(t1.c1)
+49
+50
+select t1.c1 from t1,t2 where ord(t1.c1)=ord(t2.c1);
+c1
+1
+2
+drop table t1,t2;
+create table
+create table t3(c1_int int primary key,c2_varchar varchar(40),c3_float float,c4_double double,c5_bool bool,c6_timestamp timestamp,c7_date date,c8_time time,c9_decimal decimal(38,30));
+insert data
+insert into t3 values(1001,'123456789.123',123.456,1234567.123456,true,'2023-01-01 01:01:08.123456','2275-03-05','04:08:01',123.12345678910111213141516171819);
+insert into t3 values(-1001,'-123456789.123',-123.456,-1234567.123456,false,'1518-04-09 07:16:23.123456','1770-06-13','10:23:16',-123.12345678910111213141516171819);
+insert into t3 values(-1002,NULL,-123.457,-12345678.123456,false,'1013-07-17 13:31:38.123456','1265-09-21','16:38:31',-1234.12345678910111213141516171819);
+insert into t3 values(1002,'-123456789.123456',123.457,12345678.123456,true,'0508-10-25 19:46:53.123456','0760-12-29','22:53:46',1234.12345678910111213141516171819);
+start trunc
+select trunc(null);
+trunc(null)
+NULL
+select trunc(null,null);
+trunc(null,null)
+NULL
+select trunc(current_timestamp(),null);
+trunc(current_timestamp(),null)
+NULL
+select trunc(null,'month');
+trunc(null,'month')
+NULL
+select trunc();
+ERROR HY000: YAO-5054: Param num of function 'trunc' can not be less than 1 or more than 2, ret=-5054
+select trunc(123);
+trunc(123)
+123
+select trunc('');
+ERROR HY000: YAO-2: Invalid argument
+select trunc('year');
+ERROR HY000: YAO-2: Invalid argument
+select trunc('123456.123456');
+trunc('123456.123456')
+123456
+select trunc(123.456);
+trunc(123.456)
+123
+select trunc(-1234567.123456);
+trunc(-1234567.123456)
+-1234567
+select trunc(true);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(current_timestamp());
+trunc(current_timestamp())
+2023-02-20 00:00:00.000000
+select trunc(current_date());
+trunc(current_date())
+2023-02-20 00:00:00.000000
+select trunc(current_time());
+trunc(current_time())
+2023-02-20 00:00:00.000000
+select trunc(1.23456789e-2);
+trunc(1.23456789e-2)
+0
+select trunc(1234,-1.123);
+trunc(1234,-1.123)
+1230
+select trunc(1234.123,-1.123);
+trunc(1234.123,-1.123)
+1230
+select trunc(-123456.123456,123456.123456);
+trunc(-123456.123456,123456.123456)
+-123456.123456
+select trunc(-1.12345678910111213141516171819,-1);
+trunc(-1.12345678910111213141516171819,-1)
+0
+select trunc(12.12345678910111213141516171819,'');
+ERROR HY000: YAO-2: Invalid argument
+select trunc(-1.12345678910111213141516171819,'abc123');
+ERROR HY000: YAO-2: Invalid argument
+select trunc(-1.12345678910111213141516171819,false);
+ERROR HY004: YAO-1: Object type error
+select trunc(12.12345678910111213141516171819,current_timestamp());
+ERROR HY004: YAO-1: Object type error
+select trunc(-1.12345678910111213141516171819,current_date());
+ERROR HY004: YAO-1: Object type error
+select trunc(12.12345678910111213141516171819,current_time());
+ERROR HY004: YAO-1: Object type error
+select trunc('','');
+ERROR HY000: YAO-2: Invalid argument
+select trunc('',2);
+ERROR HY000: YAO-2: Invalid argument
+select trunc('abc123',-2);
+ERROR HY000: YAO-2: Invalid argument
+select trunc('123456',-2);
+trunc('123456',-2)
+123400
+select trunc('123456','-2');
+trunc('123456','-2')
+123400
+select trunc('2022-11-24 22:34:39','iyyyy');
+ERROR HY000: YAO-2: Invalid argument
+select trunc('1234',true);
+ERROR HY004: YAO-1: Object type error
+select trunc('1234',current_timestamp());
+ERROR HY004: YAO-1: Object type error
+select trunc('-1234.123',current_date());
+ERROR HY004: YAO-1: Object type error
+select trunc('1234.123456',current_time());
+ERROR HY004: YAO-1: Object type error
+select trunc('-1234.1234567891011',1.12345678910111213141516171819);
+trunc('-1234.1234567891011',1.12345678910111213141516171819)
+-1234.1
+select trunc('1234.1234567891011',-1.23456781011e3);
+trunc('1234.1234567891011',-1.23456781011e3)
+0
+select trunc(true,-1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(false,'');
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(current_timestamp(),-1);
+ERROR HY004: YAO-1: the second argument is invalid type=1
+select trunc(current_timestamp(),'');
+ERROR HY000: YAO-2: Invalid argument
+select trunc(current_timestamp(),'abc123');
+ERROR HY000: YAO-2: Invalid argument
+select trunc(current_timestamp(),'scc'),trunc(current_timestamp(),'yyyy'),trunc(current_timestamp(),'iyyy'),trunc(current_timestamp(),'q'),trunc(current_timestamp(),'mm'),trunc(current_timestamp(),'ww');
+trunc(current_timestamp(),'scc')	trunc(current_timestamp(),'yyyy')	trunc(current_timestamp(),'iyyy')	trunc(current_timestamp(),'q')	trunc(current_timestamp(),'mm')	trunc(current_timestamp(),'ww')
+2001-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	2025-12-29 00:00:00.000000	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260
+select trunc(current_timestamp(),'iw'),trunc(current_timestamp(),'w'),trunc(current_timestamp(),'dd'),trunc(current_timestamp(),'dy'),trunc(current_timestamp(),'hh'),trunc(current_timestamp(),'mi'),trunc(current_timestamp(),'ss');
+trunc(current_timestamp(),'iw')	trunc(current_timestamp(),'w')	trunc(current_timestamp(),'dd')	trunc(current_timestamp(),'dy')	trunc(current_timestamp(),'hh')	trunc(current_timestamp(),'mi')	trunc(current_timestamp(),'ss')
+2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260
+select trunc(current_date(),'cc'),trunc(current_date(),'syyyy'),trunc(current_date(),'iyy'),trunc(current_date(),'month'),trunc(current_date(),'ddd'),trunc(current_date(),'day'),trunc(current_date(),'hh24');
+trunc(current_date(),'cc')	trunc(current_date(),'syyyy')	trunc(current_date(),'iyy')	trunc(current_date(),'month')	trunc(current_date(),'ddd')	trunc(current_date(),'day')	trunc(current_date(),'hh24')
+2001-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	2025-12-29 00:00:00.000000	2023-02-01 00:00:00.000000	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260
+select trunc(current_time(),'cc'),trunc(current_time(),'year'),trunc(current_time(),'i'),trunc(current_time(),'mon'),trunc(current_time(),'j'),trunc(current_time(),'d'),trunc(current_time(),'hh12');
+trunc(current_time(),'cc')	trunc(current_time(),'year')	trunc(current_time(),'i')	trunc(current_time(),'mon')	trunc(current_time(),'j')	trunc(current_time(),'d')	trunc(current_time(),'hh12')
+2001-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	2025-12-29 00:00:00.000000	2023-02-01 00:00:00.000000	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260	2023-02-20 14:30:25.932260
+select trunc(123.123,1.23,-3);
+ERROR HY000: YAO-5054: Param num of function 'trunc' can not be less than 1 or more than 2, ret=-5054
+select trunc(current_timestamp(),'yyyy','hh');
+ERROR HY000: YAO-5054: Param num of function 'trunc' can not be less than 1 or more than 2, ret=-5054
+select trunc(9223372036854775807,-9223372036854775808);
+trunc(9223372036854775807,-9223372036854775808)
+0
+select trunc(1.9999999999999999999999999999999999999,-1.9999999999999999999999999999999999999);
+trunc(1.9999999999999999999999999999999999999,-1.9999999999999999999999999999999999999)
+0
+select trunc(1.9999999999999999999999999999999999999,-1.99999999999999999999999999999999999991);
+trunc(1.9999999999999999999999999999999999999,-1.99999999999999999999999999999999999991)
+0
+select trunc(cast('9999-12-31 23:59:59.999999' as timestamp),'mi');
+trunc(cast('9999-12-31 23:59:59.999999' as timestamp),'mi')
+9999-12-31 23:59:00.000000
+select trunc(cast('10000-12-31 23:59:59.999999' as timestamp),'dd');
+trunc(cast('10000-12-31 23:59:59.999999' as timestamp),'dd')
+NULL
+select trunc(cast('0000-01-01 00:00:00.000000' as timestamp),'w');
+trunc(cast('0000-01-01 00:00:00.000000' as timestamp),'w')
+-1-12-26 00:00:00.000000
+select trunc(3+4,1+0.23);
+trunc(3+4,1+0.23)
+7
+select trunc(3+null,null+1.23);
+trunc(3+null,null+1.23)
+NULL
+select trunc(3-4,1-0.23);
+trunc(3-4,1-0.23)
+-1
+select trunc(3-null,null-1.23);
+trunc(3-null,null-1.23)
+NULL
+select trunc(-3*4,-1*1.23);
+trunc(-3*4,-1*1.23)
+-10
+select trunc(-3*null,null*1.23);
+trunc(-3*null,null*1.23)
+NULL
+select trunc(-3/4.0,1/0.23);
+trunc(-3/4.0,1/0.23)
+-0.75
+select trunc(null/4.0,null/1.23);
+trunc(null/4.0,null/1.23)
+NULL
+select trunc(-3/0,1.23/0);
+trunc(-3/0,1.23/0)
+NULL
+select trunc(34 mod(5),-12 mod(3));
+trunc(34 mod(5),-12 mod(3))
+4
+select trunc(null mod(5),null mod(1.23));
+trunc(null mod(5),null mod(1.23))
+NULL
+select trunc(34%5,12%3);
+trunc(34%5,12%3)
+4
+select trunc(null%5,null%1.23);
+trunc(null%5,null%1.23)
+NULL
+select trunc(-((123+123.123-'456.123')*'-1000.123'/(456%5.0)+123456.123456*1.123456789101112),-((3+4.123-'1000.1')*'-1000.1'/(5%2)-123456.123456+1.123456789101112));
+trunc(-((123+123.123-'456.123')*'-1000.123'/(456%5.0)+123456.123456*1.123456789101112),-((3+4.123-'1000.1')*'-1000.1'/(5%2)-123456.123456+1.123456789101112))
+0
+select trunc(1=1,1=1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1<1,1<1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1>1,1>1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1>=1,1>=1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1<=1,1<=1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1!=1,1!=1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(1<>1,1<>1);
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+update t3 set c3_float=123.458 where c1_int=trunc(1001.123,0);
+update t3 set c4_double=1234567.123458 where c2_varchar=trunc('123456789.123456',3);
+update t3 set c3_float=trunc(123.456789,3) where c1_int=1001;
+update t3 set c4_double=trunc(1234567.12345678,6.123) where c2_varchar='123456789.123';
+select c1_int,c2_varchar,c3_float from t3 where c1_int=trunc(-1001.123,0.123);
+c1_int	c2_varchar	c3_float
+-1001	-123456789.123	-123.456
+select c1_int,c2_varchar,c3_float from t3 where c2_varchar=trunc('-123456789.123456',3.123);
+c1_int	c2_varchar	c3_float
+-1001	-123456789.123	-123.456
+select c1_int,c2_varchar,c3_float from t3 having c1_int < trunc(1002.123,-0.123);
+c1_int	c2_varchar	c3_float
+-1002	NULL	-123.457
+-1001	-123456789.123	-123.456
+1001	123456789.123	123.456
+select c1_int,c6_timestamp,trunc(c6_timestamp,'ww') from t3 order by c1_int;
+c1_int	c6_timestamp	trunc(c6_timestamp,'ww')
+-1002	1013-07-17 13:31:38.123456	1013-07-16 00:00:00.000000
+-1001	1518-04-09 07:16:23.123456	1518-04-09 00:00:00.000000
+1001	2023-01-01 01:01:08.123456	2023-01-01 00:00:00.000000
+1002	0508-10-25 19:46:53.123456	0508-10-21 00:00:00.000000
+select c1_int,c7_date,trunc(c7_date,'iw') from t3 order by c1_int desc;
+c1_int	c7_date	trunc(c7_date,'iw')
+1002	0760-12-29	0760-12-26 00:00:00.000000
+1001	2275-03-05	2275-03-01 00:00:00.000000
+-1001	1770-06-13	1770-06-11 00:00:00.000000
+-1002	1265-09-21	1265-09-21 00:00:00.000000
+select c1_int,c8_time,trunc(c8_time,'mi') from t3 order by c1_int;
+c1_int	c8_time	trunc(c8_time,'mi')
+-1002	16:38:31	2023-02-20 14:30:25.000000
+-1001	10:23:16	2023-02-20 14:30:25.000000
+1001	04:08:01	2023-02-20 14:30:25.000000
+1002	22:53:46	2023-02-20 14:30:25.000000
+insert into t3 values(1003,'12345678910',trunc(-123.4567,1.23),trunc(-1234567.12345678,3.123),true,trunc(current_timestamp()), NULL,NULL,trunc(123456.123456789101112));
+delete from t3 where c1_int=trunc(1003.123,-0.123);
+delete from t3 where c2_varchar=trunc('12345678910.123',-1.23);
+(select c1_int,trunc(c6_timestamp,'w'),trunc(c9_decimal,10.123) from t3 where c1_int=1001) union (select c1_int,trunc(c6_timestamp,'w'),trunc(c9_decimal,10.123) from t3 where c2_varchar='-123456789.123');
+c1_int	trunc(c6_timestamp,'w')	trunc(c9_decimal,10.123)
+-1001	1518-04-08 00:00:00.000000	-123.1234567891
+1001	2023-01-01 00:00:00.000000	123.1234567891
+(select trunc(c8_time,'dy'),trunc(c3_float,-2.123) from t3 where c1_int=1001) intersect (select trunc(c8_time,'dy'),trunc(c3_float,-2.123) from t3 where c2_varchar='-123456789.123456');
+trunc(c8_time,'dy')	trunc(c3_float,-2.123)
+2023-02-20 00:00:00.000000	100
+(select trunc(c7_date,'d'),trunc(c4_double,-10.12345) from t3 where c1_int<2000) except (select trunc(c7_date,'d'),trunc(c4_double,-10.12345) from t3 where c2_varchar=NULL);
+trunc(c7_date,'d')	trunc(c4_double,-10.12345)
+0760-12-25 00:00:00.000000	0
+1265-09-20 00:00:00.000000	0
+1770-06-10 00:00:00.000000	0
+2275-02-28 00:00:00.000000	0
+select c1_int,c6_timestamp from t3 where c1_int between trunc(-1234,-3.123) and trunc(1234,3.123);
+c1_int	c6_timestamp
+1001	2023-01-01 01:01:08.123456
+1002	0508-10-25 19:46:53.123456
+select c1_int,c6_timestamp from t3 where c6_timestamp between trunc(cast('2000-12-13 14:15:16.123456' as timestamp),'yyyy') and trunc(cast('2050-01-02 13:14:15.123456' as timestamp),'yyyy');
+c1_int	c6_timestamp
+1001	2023-01-01 01:01:08.123456
+select trunc(trunc(-123456.123456,5.123),trunc(12.34,1));
+trunc(trunc(-123456.123456,5.123),trunc(12.34,1))
+-123456.12345
+select trunc(trunc(cast('2000-12-13 14:15:16.123456' as timestamp),'dd'),'mm');
+trunc(trunc(cast('2000-12-13 14:15:16.123456' as timestamp),'dd'),'mm')
+2000-12-01 00:00:00.000000
+select round(-1234.567,1),trunc(-round(1234.567,1),-1);
+round(-1234.567,1)	trunc(-round(1234.567,1),-1)
+-1234.6	-1230
+select trunc(-123456.7891011,5.123),round(trunc(-123456.7891011,5.123),2);
+trunc(-123456.7891011,5.123)	round(trunc(-123456.7891011,5.123),2)
+-123456.7891	-123456.79
+select ceil(-1234.567),trunc(-ceil(1234.567),-1);
+ceil(-1234.567)	trunc(-ceil(1234.567),-1)
+-1234	-1230
+select trunc(-123456.7891011,-1.23),ceil(trunc(-123456.7891011,-1.23));
+trunc(-123456.7891011,-1.23)	ceil(trunc(-123456.7891011,-1.23))
+-123450	-123450
+select trunc(current_timestamp(),'day');
+trunc(current_timestamp(),'day')
+2023-02-20 00:00:00.000000
+select trunc(current_date(),'iy');
+trunc(current_date(),'iy')
+2025-12-29 00:00:00.000000
+select trunc(current_time(),'mi');
+trunc(current_time(),'mi')
+2023-02-20 00:00:00.000000
+select trunc(now(),'syear');
+trunc(now(),'syear')
+2026-01-01 00:00:00.000000
+select trunc(c5_bool)from t3;
+ERROR HY000: YAO-5006: system function trunc parameters type invalid
+select trunc(c1_int+c4_double,c1_int+c3_float) from t3;
+trunc(c1_int+c4_double,c1_int+c3_float)
+0
+0
+1235568.123456
+12346680.123456
+select trunc(c1_int-c3_float,c1_int-c4_double) from t3;
+trunc(c1_int-c3_float,c1_int-c4_double)
+-878.542999
+-877.543999
+0
+0
+select trunc(c1_int*c4_double,c1_int*c3_float) from t3;
+trunc(c1_int*c4_double,c1_int*c3_float)
+12370369479.702911
+1235801690.579456
+1235801690.579456
+12370369479.702911
+select trunc(c3_float/c1_int,c4_double/c1_int) from t3;
+trunc(c3_float/c1_int,c4_double/c1_int)
+0.123211
+0.123333
+0.123333
+0.123211
+select trunc(c4_double%c1_int,c3_float%c1_int) from t3;
+trunc(c4_double%c1_int,c3_float%c1_int)
+0
+0
+334
+36
+select trunc(c4_double mod(c1_int),c3_float mod(c1_int)) from t3;
+trunc(c4_double mod(c1_int),c3_float mod(c1_int))
+0
+0
+334
+36
+select trunc(c9_decimal+(c1_int*(c1_int-c4_double)+c3_float/c1_int)*(c4_double%c1_int),c9_decimal-(c1_int*(c2_varchar-c4_double)+c3_float/c1_int)+(c4_double%c1_int)) from t3;
+trunc(c9_decimal+(c1_int*(c1_int-c4_double)+c3_float/c1_int)*(c4_double%c1_int),c9_decimal-(c1_int*(c2_varchar-c4_double)+c3_float/c1_int)+(c4_double%c1_int))
+NULL
+0
+0
+-445297155886.745728
+select c1_int, trunc(max(c1_int),-0.123),trunc(max(c2_varchar),1.23),trunc(max(c3_float),2.123),trunc(max(c4_double),3.123),trunc(max(c6_timestamp),'scc'),trunc(max(c7_date),'cc'),trunc(max(c8_time),'syyyy'),trunc(max(c9_decimal),4.123) from t3 group by c1_int;
+c1_int	trunc(max(c1_int),-0.123)	trunc(max(c2_varchar),1.23)	trunc(max(c3_float),2.123)	trunc(max(c4_double),3.123)	trunc(max(c6_timestamp),'scc')	trunc(max(c7_date),'cc')	trunc(max(c8_time),'syyyy')	trunc(max(c9_decimal),4.123)
+-1002	-1002	NULL	-123.45	-12345678.123	1001-01-01 00:00:00.000000	1201-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	-1234.1234
+-1001	-1001	-123456789.1	-123.45	-1234567.123	1501-01-01 00:00:00.000000	1701-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	-123.1234
+1001	1001	123456789.1	123.45	1234567.123	2001-01-01 00:00:00.000000	2201-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	123.1234
+1002	1002	-123456789.1	123.45	12345678.123	0501-01-01 00:00:00.000000	0701-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	1234.1234
+select c1_int, trunc(min(c1_int),-0.123),trunc(min(c2_varchar),1.23),trunc(min(c3_float),2.123),trunc(min(c4_double),3.123),trunc(min(c6_timestamp),'syear'),trunc(min(c7_date),'yyyy'),trunc(min(c8_time),'yyy'),trunc(min(c9_decimal),4.123) from t3 group by c1_int;
+c1_int	trunc(min(c1_int),-0.123)	trunc(min(c2_varchar),1.23)	trunc(min(c3_float),2.123)	trunc(min(c4_double),3.123)	trunc(min(c6_timestamp),'syear')	trunc(min(c7_date),'yyyy')	trunc(min(c8_time),'yyy')	trunc(min(c9_decimal),4.123)
+-1002	-1002	NULL	-123.45	-12345678.123	1013-01-01 00:00:00.000000	1265-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	-1234.1234
+-1001	-1001	-123456789.1	-123.45	-1234567.123	1518-01-01 00:00:00.000000	1770-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	-123.1234
+1001	1001	123456789.1	123.45	1234567.123	2023-01-01 00:00:00.000000	2275-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	123.1234
+1002	1002	-123456789.1	123.45	12345678.123	0508-01-01 00:00:00.000000	0760-01-01 00:00:00.000000	2026-01-01 00:00:00.000000	1234.1234
+select c1_int, trunc(sum(c1_int),-0.123),trunc(sum(c2_varchar),1.23),trunc(sum(c3_float),2.123),trunc(sum(c4_double),3.123),trunc(sum(c9_decimal),4.123) from t3 group by c1_int;
+c1_int	trunc(sum(c1_int),-0.123)	trunc(sum(c2_varchar),1.23)	trunc(sum(c3_float),2.123)	trunc(sum(c4_double),3.123)	trunc(sum(c9_decimal),4.123)
+-1002	-1002	NULL	-123.45	-12345678.123	-1234.1234
+-1001	-1001	-123456789.1	-123.45	-1234567.123	-123.1234
+1001	1001	123456789.1	123.45	1234567.123	123.1234
+1002	1002	-123456789.1	123.45	12345678.123	1234.1234
+select c1_int, trunc(avg(c1_int),-0.123),trunc(avg(c2_varchar),1.23),trunc(avg(c3_float),2.123),trunc(avg(c4_double),3.123),trunc(avg(c9_decimal),4.123) from t3 group by c1_int;
+c1_int	trunc(avg(c1_int),-0.123)	trunc(avg(c2_varchar),1.23)	trunc(avg(c3_float),2.123)	trunc(avg(c4_double),3.123)	trunc(avg(c9_decimal),4.123)
+-1002	-1002	NULL	-123.45	-12345678.123	-1234.1234
+-1001	-1001	-123456789.1	-123.45	-1234567.123	-123.1234
+1001	1001	123456789.1	123.45	1234567.123	123.1234
+1002	1002	-123456789.1	123.45	12345678.123	1234.1234
+select c1_int, trunc(count(c1_int),-0.123),trunc(count(c2_varchar),1.23),trunc(count(c3_float),2.123),trunc(count(c4_double),3.123),trunc(count(c9_decimal),4.123) from t3 group by c1_int;
+c1_int	trunc(count(c1_int),-0.123)	trunc(count(c2_varchar),1.23)	trunc(count(c3_float),2.123)	trunc(count(c4_double),3.123)	trunc(count(c9_decimal),4.123)
+-1002	1	0	1	1	1
+-1001	1	1	1	1	1
+1001	1	1	1	1	1
+1002	1	1	1	1	1
+select c1_int,c2_varchar,trunc(max(c6_timestamp),'iyyy'),trunc(min(c7_date),'iyy'),trunc(sum(c3_float),-1.23),trunc(avg(c4_double),-2.123),trunc(count(c8_time),1.23) from t3 group by c1_int,c2_varchar;
+c1_int	c2_varchar	trunc(max(c6_timestamp),'iyyy')	trunc(min(c7_date),'iyy')	trunc(sum(c3_float),-1.23)	trunc(avg(c4_double),-2.123)	trunc(count(c8_time),1.23)
+-1002	NULL	1013-01-04 00:00:00.000000	1264-12-29 00:00:00.000000	-120	-12345600	1
+-1001	-123456789.123	1517-12-31 00:00:00.000000	1770-01-01 00:00:00.000000	-120	-1234500	1
+1001	123456789.123	2022-01-03 00:00:00.000000	2275-01-04 00:00:00.000000	120	1234500	1
+1002	-123456789.123456	0508-01-02 00:00:00.000000	0760-01-04 00:00:00.000000	120	12345600	1
+select c6_timestamp from t3 where c1_int in (select trunc(c1_int,1.23) from t3);
+c6_timestamp
+1013-07-17 13:31:38.123456
+1518-04-09 07:16:23.123456
+2023-01-01 01:01:08.123456
+0508-10-25 19:46:53.123456
+select c1_int from t3 where c6_timestamp in (select trunc(c6_timestamp,'dd') from t3);
+c1_int
+select t1.c1_int,t2.c1_int,trunc(t1.c1_int,0.123),trunc(t2.c2_varchar,-1.23),trunc(t1.c3_float,2.123),trunc(t2.c6_timestamp,'ww') from t3 as t1,t3 as t2 where t1.c1_int<t2.c1_int;
+c1_int	c1_int	trunc(t1.c1_int,0.123)	trunc(t2.c2_varchar,-1.23)	trunc(t1.c3_float,2.123)	trunc(t2.c6_timestamp,'ww')
+-1002	-1001	-1002	-123456780	-123.45	1518-04-09 00:00:00.000000
+-1002	1001	-1002	123456780	-123.45	2023-01-01 00:00:00.000000
+-1002	1002	-1002	-123456780	-123.45	0508-10-21 00:00:00.000000
+-1001	1001	-1001	123456780	-123.45	2023-01-01 00:00:00.000000
+-1001	1002	-1001	-123456780	-123.45	0508-10-21 00:00:00.000000
+1001	1002	1001	-123456780	123.45	0508-10-21 00:00:00.000000
+select t1.c2_varchar,t2.c2_varchar,trunc(t1.c4_double,3.123),trunc(t2.c7_date,'iw'),trunc(t1.c8_time,'w'),trunc(t2.c9_decimal,10) from t3 as t1,t3 as t2 where t1.c2_varchar<t2.c2_varchar;
+c2_varchar	c2_varchar	trunc(t1.c4_double,3.123)	trunc(t2.c7_date,'iw')	trunc(t1.c8_time,'w')	trunc(t2.c9_decimal,10)
+-123456789.123	123456789.123	-1234567.123	2275-03-01 00:00:00.000000	2023-02-15 00:00:00.000000	123.1234567891
+-123456789.123	-123456789.123456	-1234567.123	0760-12-26 00:00:00.000000	2023-02-15 00:00:00.000000	1234.1234567891
+-123456789.123456	123456789.123	12345678.123	2275-03-01 00:00:00.000000	2023-02-15 00:00:00.000000	123.1234567891
+select t1.c1_int,t2.c1_int from t3 as t1 join t3 as t2 on t1.c1_int<trunc(t2.c1_int,-0.123);
+c1_int	c1_int
+-1002	-1001
+-1002	1001
+-1002	1002
+-1001	1001
+-1001	1002
+1001	1002
+select t1.c6_timestamp,t2.c6_timestamp from t3 as t1 join t3 as t2 on t1.c6_timestamp<trunc(t2.c6_timestamp,'d');
+c6_timestamp	c6_timestamp
+1013-07-17 13:31:38.123456	1518-04-09 07:16:23.123456
+1013-07-17 13:31:38.123456	2023-01-01 01:01:08.123456
+1518-04-09 07:16:23.123456	2023-01-01 01:01:08.123456
+0508-10-25 19:46:53.123456	1013-07-17 13:31:38.123456
+0508-10-25 19:46:53.123456	1518-04-09 07:16:23.123456
+0508-10-25 19:46:53.123456	2023-01-01 01:01:08.123456
+drop table t3;
+drop table if exists test1,test2,t1,t2,t3;
+create table test1(c1 int primary key not null,c2 varchar(20) not null,c3 bool not null,c4 datetime not null,c5 double not null,c6 float not null);
+create table test2(c1  int not null primary key, c2 VARCHAR(20) not null);
+create table t1 (c1 int not null, c2 int default null,  c3 int default null,  primary key (c1));
+create table t2(c1 int primary key ,c2 varchar(1000),c3 varchar(1000));
+create table t3 (c1 int not null, c2 varchar(10) default null,  c3 varchar(10) default null,  primary key (c1));
+insert into test1 values(1,'aaa',true,'2020-04-21',100.83,12439.9);
+insert into test1 values(2,'bbb',false,'2019-04-21',10.83,12439.9);
+insert into test1 values(3,'ccc',true,'2018-04-21',1.83,12439.9);
+insert into test1 values(4,'zzz',false,'2017-04-21',10000.83,12439.9);
+insert into test2 values(1,'abcbcbc');
+insert into t1(c1) values(1);
+insert into t2 values(1,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+(2,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+(3,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+insert into t3 values(1,'aa','bb'),(2,'aa','cc'),(3,'bb','cc'),(4,'bb','cc'),(5,'aa','cc');
+select group_concat(null order by c5 desc separator '*') from test1  group by c3;
+group_concat(null order by c5 desc separator '*')
+NULL
+NULL
+select group_concat() from test1 group by c3;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select group_concat(c2,c3 order by c1) from t3 group by c3;
+group_concat(c2,c3 order by c1)
+aabb
+aacc,bbcc,bbcc,aacc
+select group_concat(distinct c2,c3 order by c1) from t3 group by c3;
+group_concat(distinct c2,c3 order by c1)
+aabb
+aacc,bbcc
+select group_concat(c2) from test1 group by c3;
+group_concat(c2)
+bbb,zzz
+aaa,ccc
+select group_concat(c2,c1,c3) from test1 group by c3;
+group_concat(c2,c1,c3)
+bbb20,zzz40
+aaa11,ccc31
+select group_concat(c2,c1 order by c5 desc) from test1 group by c3;
+group_concat(c2,c1 order by c5 desc)
+zzz4,bbb2
+aaa1,ccc3
+select group_concat(c2  separator '*') from test1 group by c3;
+group_concat(c2  separator '*')
+bbb*zzz
+aaa*ccc
+select group_concat(c1,c2 order by c5  asc separator '-') from test1 group by c3;
+group_concat(c1,c2 order by c5  asc separator '-')
+2bbb-4zzz
+3ccc-1aaa
+select group_concat(c1,c2 order by c5 desc separator '*') from test1 group by c6;
+group_concat(c1,c2 order by c5 desc separator '*')
+4zzz*1aaa*2bbb*3ccc
+select group_concat(c1 order by c5 asc separator '-') from test1 group by c2;
+group_concat(c1 order by c5 asc separator '-')
+1
+2
+3
+4
+insert into test1 values(5,'aaa',true,'2020-04-21',100.83,12439.9);
+insert into test1 values(6,'bbb',false,'2019-04-21',10.83,12439.9);
+insert into test1 values(7,'ccc',true,'2018-04-21',1.83,12439.9);
+insert into test1 values(8,'zzz',false,'2017-04-21',10000.83,12439.9);
+select group_concat(distinct c2 order by c5 desc separator '*') from test1 group by c3;
+group_concat(distinct c2 order by c5 desc separator '*')
+zzz*bbb
+aaa*ccc
+select group_concat(distinct c2 order by c5 separator '-') from test1 group by c3;
+group_concat(distinct c2 order by c5 separator '-')
+bbb-zzz
+ccc-aaa
+select group_concat(distinct c1 order by c5 desc separator '*') from test1 group by c3;
+group_concat(distinct c1 order by c5 desc separator '*')
+4*8*2*6
+1*5*3*7
+select group_concat(distinct c1,c2 order by c5 separator '-') from test1 group by c3;
+group_concat(distinct c1,c2 order by c5 separator '-')
+2bbb-6bbb-4zzz-8zzz
+3ccc-7ccc-1aaa-5aaa
+select group_concat(c1) from test1 group by c3;
+group_concat(c1)
+2,4,6,8
+1,3,5,7
+select group_concat(c2) from test1;
+group_concat(c2)
+aaa,bbb,ccc,zzz,aaa,bbb,ccc,zzz
+select group_concat(c4) from test1 group by c3;
+group_concat(c4)
+2019-04-21 00:00:00.000000,2017-04-21 00:00:00.000000,2019-04-21 00:00:00.000000,2017-04-21 00:00:00.000000
+2020-04-21 00:00:00.000000,2018-04-21 00:00:00.000000,2020-04-21 00:00:00.000000,2018-04-21 00:00:00.000000
+select group_concat(c3) from test1 group by c3;
+group_concat(c3)
+0,0,0,0
+1,1,1,1
+select group_concat('') from test1 group by c3;
+group_concat('')
+,,,
+,,,
+select group_concat(c1*c1) from test1 group by c3;
+group_concat(c1*c1)
+4,16,36,64
+1,9,25,49
+select group_concat(c1+c1) from test1 group by c3;
+group_concat(c1+c1)
+4,8,12,16
+2,6,10,14
+select group_concat(c1 mod 2) from test1 group by c3;
+group_concat(c1 mod 2)
+0,0,0,0
+1,1,1,1
+select group_concat(c1=c1) from test1 group by c3;
+group_concat(c1=c1)
+1,1,1,1
+1,1,1,1
+select group_concat(c1<c1) from test1 group by c3;
+group_concat(c1<c1)
+0,0,0,0
+0,0,0,0
+select group_concat(c1<=c1) from test1 group by c3;
+group_concat(c1<=c1)
+1,1,1,1
+1,1,1,1
+select group_concat(c1!=c1) from test1 group by c3;
+group_concat(c1!=c1)
+0,0,0,0
+0,0,0,0
+select group_concat(c1<>c1) from test1 group by c3;
+group_concat(c1<>c1)
+0,0,0,0
+0,0,0,0
+update test2 set c2 = ( select group_concat(c2) from test1) where c1 =1;
+ERROR 25S03: YAO-119: Varchar is too long, tname[d1.test2], cname[c2], clength[31]
+select * from test2;
+c1	c2
+1	abcbcbc
+select c1 from test2 group by c1 having c1 > (select group_concat(c2) from test1);
+c1
+1
+select c3,group_concat(c2 order by c5 desc separator '*') from test1 group by c3 order by c3 desc;
+c3	group_concat(c2 order by c5 desc separator '*')
+1	aaa*aaa*ccc*ccc
+0	zzz*zzz*bbb*bbb
+insert into test2 values(2,(select group_concat(c2) from test1));
+ERROR HY000: YAO-5006: Sub-query is illeagal in INSERT/UPDATE statement or AGGREGATION function
+select * from test2;
+c1	c2
+1	abcbcbc
+delete from test2 where c2=(select group_concat(c2) from test1);
+select group_concat(c2,c1 order by c5 desc  ) from test1;
+group_concat(c2,c1 order by c5 desc  )
+zzz4,zzz8,aaa1,aaa5,bbb2,bbb6,ccc3,ccc7
+select group_concat(null order by c5 desc separator '*') from test1;
+group_concat(null order by c5 desc separator '*')
+NULL
+select group_concat() from test1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select group_concat(c1/c1) from test1;
+group_concat(c1/c1)
+0.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000
+select group_concat(c1 order by c5 desc ), group_concat(c1)  from test1 ;
+group_concat(c1 order by c5 desc )	group_concat(c1)
+4,8,1,5,2,6,3,7	1,2,3,4,5,6,7,8
+select group_concat(c2,c1,c3) from t3 group by c1;
+group_concat(c2,c1,c3)
+aa1bb
+aa2cc
+bb3cc
+bb4cc
+aa5cc
+select group_concat('a') from test1 ;
+group_concat('a')
+a,a,a,a,a,a,a,a
+select group_concat(cast(2.141 as double)) from test1 ;
+group_concat(cast(2.141 as double))
+2.141,2.141,2.141,2.141,2.141,2.141,2.141,2.141
+select group_concat(1-1) from test1 ;
+group_concat(1-1)
+0,0,0,0,0,0,0,0
+select group_concat(2/2) from test1 ;
+group_concat(2/2)
+0.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000
+select c1 from test2 group by c1 having c1 > (select group_concat(c2) from test1);
+c1
+1
+select * from test2 where c2 > (select group_concat(c2) from test1);
+c1	c2
+1	abcbcbc
+select group_concat(c1) c from test1 group by c3 having c='2,4';
+c
+select group_concat(c1) c from test1 group by c3 order by c;
+c
+1,3,5,7
+2,4,6,8
+select group_concat(c2) from test1  group by c3 union select group_concat(c1) from test1  group by c3;
+group_concat(c2)
+1,3,5,7
+2,4,6,8
+aaa,ccc,aaa,ccc
+bbb,zzz,bbb,zzz
+select substr(group_concat(c2),2,2) from test1 group by c3;
+substr(group_concat(c2),2,2)
+bb
+aa
+select group_concat(c1 order by c5), group_concat(c1 order by c5 desc),group_concat(c1 order by c4  desc )  from test1 group by c3;
+group_concat(c1 order by c5)	group_concat(c1 order by c5 desc)	group_concat(c1 order by c4  desc )
+2,6,4,8	4,8,2,6	2,6,4,8
+3,7,1,5	1,5,3,7	1,5,3,7
+select group_concat(c1 order by c5), group_concat(c1 order by c5 desc )  from test1 ;
+group_concat(c1 order by c5)	group_concat(c1 order by c5 desc )
+3,7,2,6,1,5,4,8	4,8,1,5,2,6,3,7
+select  sum (c1),group_concat(c1 order by c5  ), group_concat(c1 order by c5  desc),group_concat(c1 order by c4 desc )  from test1 group by c3;
+sum (c1)	group_concat(c1 order by c5  )	group_concat(c1 order by c5  desc)	group_concat(c1 order by c4 desc )
+20	2,6,4,8	4,8,2,6	2,6,4,8
+16	3,7,1,5	1,5,3,7	1,5,3,7
+select c1,c2,c3,group_concat(c1,c2),rank()over(partition by c3 order by c1),rank()over(partition by c2 order by c1) from t3 group by c2,c1;
+c1	c2	c3	group_concat(c1,c2)	rank()over(partition by c3 order by c1)	rank()over(partition by c2 order by c1)
+1	aa	bb	1aa	1	1
+2	aa	cc	2aa	1	2
+5	aa	cc	5aa	4	3
+3	bb	cc	3bb	2	1
+4	bb	cc	4bb	3	2
+select 1,group_concat(c2,c2,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3) from t2 group by c2;
+1	group_concat(c2,c2,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3)
+1	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+select group_concat(c1,c2) from t1;
+group_concat(c1,c2)
+NULL
+select group_concat(c2,c2) from t1;
+group_concat(c2,c2)
+NULL
+prepare stmt from select c1,c2,c3,group_concat(c1,c2),group_concat(c2,c3 order by c3) from t3 group by c1;
+execute stmt;
+c1	c2	c3	group_concat(c1,c2)	group_concat(c2,c3 order by c3)
+1	aa	bb	1aa	aabb
+2	aa	cc	2aa	aacc
+3	bb	cc	3bb	bbcc
+4	bb	cc	4bb	bbcc
+5	aa	cc	5aa	aacc
+prepare stmt from select c1,c2,c3,group_concat(c1,c2),rank()over(partition by c3 order by c1),rank()over(partition by c2 order by c1),group_concat(c2,c3 order by c3) from t3 group by c1;
+execute stmt;
+c1	c2	c3	group_concat(c1,c2)	rank()over(partition by c3 order by c1)	rank()over(partition by c2 order by c1)	group_concat(c2,c3 order by c3)
+1	aa	bb	1aa	1	1	aabb
+2	aa	cc	2aa	1	2	aacc
+5	aa	cc	5aa	4	3	aacc
+3	bb	cc	3bb	2	1	bbcc
+4	bb	cc	4bb	3	2	bbcc
+drop table if exists test1,test2,t1,t2,t3;
+create table test1(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+create table test2(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+insert into test1 values(1,'expr1','2023-8-7',1.1,11.11,TRUE);
+insert into test1 values(2,'expr2','2023-7-7',2.2,22.22,FALSE);
+insert into test1 values(3,'expr3','2023-6-6',3.3,33.33,true);
+insert into test2 values(1,'expr1','2023-8-7',1.1,11.11,TRUE);
+insert into test2 values(2,'expr2','2023-7-7',2.2,22.22,FALSE);
+insert into test2 values(3,'expr3','2023-6-6',3.3,33.33,true);
+select concat();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select concat('aaa');
+concat('aaa')
+aaa
+select concat(cast(1.5 as double));
+concat(cast(1.5 as double))
+1.500000
+select concat(now());
+concat(now())
+2023-11-23 14:22:08.665511
+select concat(2.5/2-1);
+concat(2.5/2-1)
+0.25000
+select concat('测试');
+concat('测试')
+测试
+select concat(true);
+concat(true)
+1
+select concat(null);
+concat(null)
+NULL
+select concat('2023-11-23 14:22:08.665511','expr2');
+concat('2023-11-23 14:22:08.665511','expr2')
+2023-11-23 14:22:08.665511expr2
+select concat(cast(1.5 as double),false);
+concat(cast(1.5 as double),false)
+1.5000000
+select concat(true,'你好',null,cast(3.14 as float));
+concat(true,'你好',null,cast(3.14 as float))
+NULL
+select concat('');
+concat('')
+
+select concat('expr1',2+3*null);
+concat('expr1',2+3*null)
+NULL
+select concat(2=2,'expr2',3=2);
+concat(2=2,'expr2',3=2)
+1expr20
+select concat(4=4);
+concat(4=4)
+1
+select concat(1<2,2<1,'expr3');
+concat(1<2,2<1,'expr3')
+10expr3
+select concat(1e3<2);
+concat(1e3<2)
+0
+select concat('expr1',2.55>1,1>1.5);
+concat('expr1',2.55>1,1>1.5)
+expr110
+select concat(2.55>1);
+concat(2.55>1)
+1
+select concat(1>=2e3,1.5e4>=1.5,'expr3');
+concat(1>=2e3,1.5e4>=1.5,'expr3')
+01expr3
+select concat(1>=2e3);
+concat(1>=2e3)
+0
+select concat(1<=2,2<=1,'expr3');
+concat(1<=2,2<=1,'expr3')
+10expr3
+select concat(1<=6.66);
+concat(1<=6.66)
+1
+select concat(1!=2,2!=2,'expr3');
+concat(1!=2,2!=2,'expr3')
+10expr3
+select concat(1!=2.22);
+concat(1!=2.22)
+1
+select concat(1<>2,2<>2,'expr3');
+concat(1<>2,2<>2,'expr3')
+10expr3
+select concat(1<>1);
+concat(1<>1)
+0
+update test1 set c2=concat('expr2-','update') where c3=concat('2023-','7-','7');
+select * from test1 where c1=concat(2);
+c1	c2	c3	c4	c5	c6
+2	expr2-update	2023-07-07	2.2	22.22	0
+select * from test1 group by c1 having c3=concat('2023-','8-','7');
+c1	c2	c3	c4	c5	c6
+1	expr1	2023-08-07	1.1	11.11	1
+select c1 from test1 where c6=concat(true) order by c1;
+c1
+1
+3
+insert into test1(c1,c2,c3) values(concat(5),concat('expr',5),concat('2023-','5-','6'));
+delete from test1 where c3=concat('2023-5-6');
+(select c1 from test1 where c1=concat(1)) union (select c1 from test2 where c3=concat('2023-6-6'));
+c1
+1
+3
+select * from test1 where c1>=concat(1) intersect select * from test1 where c1<=concat(2);
+c1	c2	c3	c4	c5	c6
+1	expr1	2023-08-07	1.1	11.11	1
+2	expr2-update	2023-07-07	2.2	22.22	0
+(select * from test1 where c1>=concat(1)) except (select * from test1 where c3=concat('2023-6-6'));
+c1	c2	c3	c4	c5	c6
+1	expr1	2023-08-07	1.1	11.11	1
+2	expr2-update	2023-07-07	2.2	22.22	0
+select concat(concat('2023'),concat('-8-7')) from test1;
+concat(concat('2023'),concat('-8-7'))
+2023-8-7
+2023-8-7
+2023-8-7
+select concat(count(c1)) from test1 where c1=concat(2);
+concat(count(c1))
+1
+select concat(avg(c5)) from test2;
+concat(avg(c5))
+22.220000
+select concat(replace('xxx数据库测试','xxx','数据库')) from test1;
+concat(replace('xxx数据库测试','xxx','数据库'))
+数据库数据库测试
+数据库数据库测试
+数据库数据库测试
+select concat(upper('a')) from test1;
+concat(upper('a'))
+A
+A
+A
+select concat(c2,c1,c4,c3,c6,c5) from test2;
+concat(c2,c1,c4,c3,c6,c5)
+expr111.1000002023-08-07111.110000
+expr222.2000002023-07-07022.220000
+expr333.3000002023-06-06133.330000
+select concat(c2*c1) from test2;
+concat(c2*c1)
+0
+0
+0
+select concat(c1,c3) from test2 where concat(c3) in (select concat('2023','-08-07') from test2);
+concat(c1,c3)
+12023-08-07
+select concat(c5+c1,',',c5*c1,',',c1/c1,',',c1/c6) from test2;
+concat(c5+c1,',',c5*c1,',',c1/c1,',',c1/c6)
+12.110000,11.110000,1.0000,1.0000
+NULL
+36.330000,99.990000,1.0000,3.0000
+select concat(test1.c1) from test1 join test2 on concat(test1.c1)=concat(test2.c1);
+concat(test1.c1)
+1
+2
+3
+drop table if exists test1,test2;
+create table test1 (strlist varchar(100), i int);
+insert into test1 values('d,a,34,c,355,b',-1);
+insert into test1 values('a,b,d,544,c,423',-1);
+insert into test1 values('b,a,3553,c',-1);
+select find_in_set();
+ERROR HY000: YAO-5054: Param num of function 'find_in_set' must be 2, ret=-5054
+select find_in_set('');
+ERROR HY000: YAO-5054: Param num of function 'find_in_set' must be 2, ret=-5054
+select find_in_set('xxx');
+ERROR HY000: YAO-5054: Param num of function 'find_in_set' must be 2, ret=-5054
+select find_in_set('',' ');
+find_in_set('',' ')
+0
+select find_in_set(' ','');
+find_in_set(' ','')
+0
+select find_in_set('23','23,3');
+find_in_set('23','23,3')
+1
+select find_in_set('数学','语文,数学,英语,化学');
+find_in_set('数学','语文,数学,英语,化学')
+2
+select find_in_set('c',',,c');
+find_in_set('c',',,c')
+3
+select find_in_set('abc',' abc,abc , abc ,a b c');
+find_in_set('abc',' abc,abc , abc ,a b c')
+0
+select find_in_set(',',',');
+find_in_set(',',',')
+0
+select find_in_set(',,',',,');
+find_in_set(',,',',,')
+0
+select find_in_set('xx','xxx');
+find_in_set('xx','xxx')
+0
+select find_in_set('hello,','hello,');
+find_in_set('hello,','hello,')
+0
+set sql_mode='ANTI_ANSI_AS_QUOTE';
+select find_in_set(concat(char(0),"x"),'x');
+find_in_set(concat(char(0),"x"),'x')
+0
+select find_in_set(null,null);
+find_in_set(null,null)
+NULL
+select find_in_set('你^D好','你很好,你好');
+find_in_set('你^D好','你很好,你好')
+0
+select find_in_set(8,8);
+find_in_set(8,8)
+1
+select find_in_set(8,'8.0,8');
+find_in_set(8,'8.0,8')
+2
+select find_in_set(-123456789.0,'-123456789,-123456789.00,-123456789.0');
+find_in_set(-123456789.0,'-123456789,-123456789.00,-123456789.0')
+3
+select find_in_set(false, '00,false,0');
+find_in_set(false, '00,false,0')
+3
+select find_in_set(0.12345678910111213141516171819, '0.1234567891011121314151617181920,0.12345678910111213141516171819');
+find_in_set(0.12345678910111213141516171819, '0.1234567891011121314151617181920,0.12345678910111213141516171819')
+2
+select find_in_set(convert('2023-8-30 11:11:11', datetime),'2023-8-30 11:11:11,2023-08-30 11:11:11.000000,2023-08-30 11:11:11');
+find_in_set(convert('2023-8-30 11:11:11', datetime),'2023-8-30 11:11:11,2023-08-30 11:11:11.000000,2023-08-30 11:11:11')
+2
+select find_in_set(6*-6,'36,- 36,-36');
+find_in_set(6*-6,'36,- 36,-36')
+3
+select find_in_set(concat('a', 'b', 'c'), 'a,b,c,abc');
+find_in_set(concat('a', 'b', 'c'), 'a,b,c,abc')
+4
+select find_in_set('abc', concat_WS(',', 'qwe', 'rty', 'abc', '123')) ;
+find_in_set('abc', concat_WS(',', 'qwe', 'rty', 'abc', '123'))
+3
+select find_in_set(UPPER('abcd'), 'abcd,ABCD,abCD') ;
+find_in_set(UPPER('abcd'), 'abcd,ABCD,abCD')
+1
+select find_in_set(LOWER('ab'), 'aB,ab') ;
+find_in_set(LOWER('ab'), 'aB,ab')
+1
+create table t (name varchar(100));
+insert into t values('a');
+insert into t values('b');
+insert into t values('c');
+select find_in_set('b',GROUP_concat(name)) from t;
+find_in_set('b',GROUP_concat(name))
+2
+update test1 set i=find_in_set('d',strlist);
+select * from test1;
+strlist	i
+d,a,34,c,355,b	1
+a,b,d,544,c,423	3
+b,a,3553,c	0
+select * from test1 where find_in_set('d',strlist) > 0;
+strlist	i
+d,a,34,c,355,b	1
+a,b,d,544,c,423	3
+insert into test1 values('8,8,f,34,sffs,53', find_in_set('sffs','8,8,f,34,sffs,53'));
+select * from test1;
+strlist	i
+d,a,34,c,355,b	1
+a,b,d,544,c,423	3
+b,a,3553,c	0
+8,8,f,34,sffs,53	5
+delete from test1 where find_in_set('d',strlist) > 0;
+select * from test1;
+strlist	i
+b,a,3553,c	0
+8,8,f,34,sffs,53	5
+(select * from test1 where find_in_set('b',strlist) = 1) UNION (select * from test1 where find_in_set('b',strlist) = 2);
+strlist	i
+b,a,3553,c	0
+(select * from test1 where find_in_set('b',strlist) <= 6) EXCEPT (select * from test1 where find_in_set('b',strlist) <= 4);
+strlist	i
+(select * from test1 where find_in_set('b',strlist) <= 6) EXCEPT (select * from test1 where find_in_set('b',strlist) >= 2);
+strlist	i
+8,8,f,34,sffs,53	5
+b,a,3553,c	0
+drop table if exists test2;
+create table test2 (a float, b float);
+insert into test2 values (1230.123456789,1230);
+insert into test2 values (111.123456789,111.123456789);
+select a, b, find_in_set(a, b) from test2;
+a	b	find_in_set(a, b)
+1230.12	1230	0
+111.123	111.123	1
+drop table if exists test4;
+create table test4 (d date);
+insert into test4 values ('2012-11-12');
+insert into test4 values ('2023-9-1');
+select d, find_in_set(d, '2023-09-01,2012-11-12') from test4;
+d	find_in_set(d, '2023-09-01,2012-11-12')
+2012-11-12	2
+2023-09-01	1
+drop table if exists test2;
+create table test2 (a varchar(255), b varchar(255), c int);
+insert into test2 values ('aa','a,aa,aaa',1);
+insert into test2 values ('bbb','b,bb,bbb',2);
+select * from test2 where c in (select find_in_set(a,b) from test2);
+a	b	c
+bbb	b,bb,bbb	2
+drop table if exists test2;
+create table test2 (a varchar(255), b varchar(255), c int);
+insert into test2 values ('aa','a,aa,aaa',1);
+insert into test2 values ('bbb','b,bb,bbb',3);
+drop table if exists test3;
+create table test3 (a varchar(255), b varchar(255), c int);
+insert into test3 values ('aa','a,aa,aaa',2);
+insert into test3 values ('bbb','b,bb,bbb',3);
+select test2.a, test2.b, test3.c from test2, test3 where test2.a = test3.a and test2.c = find_in_set(test2.a, test2.b) ;
+a	b	c
+bbb	b,bb,bbb	3
+drop table if exists test4;
+create table test4 (belts varchar(255));
+insert into test4 values ('red,white,yellow');
+insert into test4 values ('orange,white,pink');
+insert into test4 values ('white');
+insert into test4 values ('purple,orange,white');
+insert into test4 values ('black,brown,white');
+insert into test4 values ('yellow,red,white');
+select find_in_set('white', belts) as position, count(*) as count from test4 group by position order by position;
+position	count
+1	1
+2	2
+3	3
+drop table if exists t,test1,test2,test3,test4;
+drop database d1;

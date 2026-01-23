@@ -1,0 +1,168 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：2个数据库多张表中测试 show indexs：显示当前系统所有的索引信息
+#                show [invalid/valid/init] indexs [like 'pattern' /where expr] 都会在下列case中测试到
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：429
+###5.预计运行时间：1624 s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-03-30
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+drop table if exists t5;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='1s' server_type=yaodatasvr;
+
+#显示当前数据库
+show current database;
+
+#建表（多表单索引）
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t2 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t3 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t2 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t3 values(1,1,'a','b',12,'2019-09-07',0);
+
+show indexs;
+create index i1 on t1(c2);
+create index i2 on t1(c3);
+create index i1 on t2(c2);
+create index i1 on t3(c2);
+create index i2 on t3(c3);
+create index i3 on t3(c4);
+create index i4 on t3(c5);
+
+show indexs;
+show invalid indexs;
+show valid indexs;
+show init indexs;
+
+#test1下操作
+#建库
+show current database;
+create database test1;
+using database test1;
+show current database;
+#刷新schema
+--echo refresh_schema
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t2 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t3 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t2 values(1,1,'a','b',12,'2019-09-07',0);
+insert into t3 values(1,1,'a','b',12,'2019-09-07',0);
+
+show indexs;
+create index i1 on t1(c2);
+create index i2 on t1(c3);
+create index i1 on t3(c2);
+create index i2 on t3(c3);
+create index i3 on t3(c4);
+
+show indexs;
+show invalid indexs;
+show init indexs where db_name ='test';
+show init indexs where data_table_name='t2';
+
+
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show valid indexs;
+show init indexs;
+
+update __first_tablet_entry set index_status = 2 where table_id = 3004;
+update __index_process_info set status = 2 where index_id = 3004;
+update __first_tablet_entry set index_status = 2 where table_id = 3005;
+update __index_process_info set status = 2 where index_id = 3005;
+
+show indexs where status = 2;
+
+#刷新schema
+--echo refresh_schema
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+show indexs where status = 2;
+show valid indexs;
+show invalid indexs;
+
+
+create table t4 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t5 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t6 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+create table t7 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+
+create index i1 on t2(c2);
+create index i2 on t2(c3);
+create index i3 on t2(c4);
+create index i4 on t2(c5);
+create index i5 on t2(c6);
+create index i6 on t2(c7);
+create index i1 on t7(c2);
+
+show indexs;
+show invalid indexs;
+show valid indexs;
+show init indexs;
+
+
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show indexs;
+show invalid indexs;
+show valid indexs;
+show init indexs;
+
+update __first_tablet_entry set index_status = 2 where table_id = 3011;
+update __index_process_info set status = 2 where index_id = 3011;
+show indexs where status = 2;
+
+#刷新schema
+--echo refresh_schema
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+show indexs;
+show valid indexs;
+show invalid indexs;
+
+
+show indexs where db_name = 'test';
+show indexs where db_name = 'test1';
+show indexs like '%3010%';
+show indexs like '%3008%';
+
+show indexs where data_table_name = 't3';
+show indexs where data_table_name = 't4';
+
+show invalid indexs;
+show init indexs where data_table_name = 't2';

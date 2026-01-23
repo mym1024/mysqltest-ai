@@ -1,0 +1,509 @@
+##############################################################################################
+###1.测试功能点：测试临时表功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2025-01-17
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+source $LOCAL_DIR/../yaobase/bin/default_srs_data_mysql.sql;
+
+set names utf8mb4;
+###创建临时表
+create temporary table t1 (c1 int, c2 varchar(10), primary key(c1,c2));
+create temporary table t2 (c1 int auto_increment, c2 varchar(10) default '22', primary key(c1,c2));
+create temporary table t3 (a int not null, b char (10) not null);
+drop temporary table t1,t2,t3;
+
+###普通表和临时表重名
+create table t1(c1 int);
+create temporary table t1 (a int not null, b char (10) not null);
+drop table t1;
+drop temporary table t1;
+
+###主键非空检查
+create temporary table t1 (c1 int primary key,c2 int not null);
+--error 5869
+insert into temporary t1 values(null,1);
+
+###主键重复检查
+drop temporary table t1;
+create temporary table t1 (c1 int, c2 varchar(10), primary key(c1,c2));
+insert into temporary t1 values(1,'aa');
+--error 5024
+insert into temporary t1 values(1,'aa');
+
+###主键在输入项中的重复检查
+drop temporary table t1;
+create temporary table t1 (c1 int, c2 varchar(10), primary key(c1,c2));
+--error 5024
+insert into temporary t1 values(1,'agh'),(2,'agh'),(1,'agh');
+
+###非空列检查
+drop temporary table t1;
+create temporary table t1(c1 int not null ,c2 varchar(12));
+--error 5500
+insert into temporary t1 values(null,2);
+
+###视图引用临时表
+drop temporary table t1;
+create temporary table t1(c1 int not null ,c2 varchar(12));
+--error 5866
+create view v1 as select * from temporary t1;
+
+###不能有分区
+--error 5867
+CREATE temporary TABLE employees ( id INT PRIMARY KEY, fname VARCHAR(30), lname VARCHAR(30), jobs_code INT NOT NULL,  store_id INT NOT NULL ) PARTITION BY RANGE (id)  ( PARTITION p0 VALUES LESS THAN (6), PARTITION p1 VALUES LESS THAN (11),  PARTITION p2 VALUES LESS THAN (16), PARTITION p3 VALUES LESS THAN MAXVALUE );
+
+###不能包含外键
+CREATE temporary TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL
+);
+--error 5868
+CREATE temporary TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATETIME NOT NULL,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+###数据类型支持测试
+####整形数据类型
+create temporary table integer_table(c1 int primary key ,c2 tinyint,c3 SMALLINT,c4 MEDIUMINT, c5 INTEGER, c6 BIGINT);
+--error 79
+insert into temporary integer_table values(1,12412512512,124125,521512,5125125,521512);
+insert into temporary integer_table values(1,124,124125,521512,5125125,521512);
+
+####字符型数据类型
+create temporary table char_table(c1 varchar(10), c2 CHARACTER(10), c3 binary(11), c4 NVARCHAR(12), c5 TINYTEXT, c6 TEXT, c7 MEDIUMTEXT, c8 LONGTEXT);
+desc temporary char_table;
+insert into temporary char_table values('gwehe','hwehwe','hweww','hwehwe','hgwehwe','text type','medium text','long text');
+select * from temporary char_table;
+--error 5611
+insert into temporary char_table values('gwehe','hw hhhhhhehwe','hweww','hwehwe','hgwehwe','text type','medium text','long text');
+
+####时间类型
+create temporary table date_table( c1 date, c2 datetime, c3 time, c4 timestamp);
+insert into temporary date_table values('2012-11-11', current_date,current_timestamp,current_timestamp);
+--replace_column 2 '固定2025-01-01 00:00:00.000000' 3 '固定值' 4 '固定值'
+select * from temporary date_table;
+
+####bit类型
+CREATE temporary TABLE order_state (
+  order_id INT NOT NULL PRIMARY KEY,
+  state BIT(3) NOT NULL
+);
+INSERT INTO temporary order_state (order_id, state) VALUES (1, 3),(2, b'011'),(3, B'011'),(4, 0b011);
+SELECT order_id,state + 0,BIN(state),OCT(state),HEX(state) FROM temporary order_state;
+SELECT * FROM temporary order_state WHERE state = 3;
+SELECT * FROM temporary order_state WHERE state = (3);
+SELECT * FROM temporary order_state WHERE state = b'011';
+SELECT * FROM temporary order_state WHERE state = B'011';
+SELECT * FROM temporary order_state WHERE state = 0b011;
+
+####json类型
+CREATE temporary TABLE `t_json_tbl` (   `id` bigint NOT NULL AUTO_INCREMENT,   `json_obj` json COMMENT 'json 对象字段',   `json_arr` json COMMENT 'json 数组字段',   `json_str` varchar(255) COMMENT 'json 格式字符串字段',   PRIMARY KEY (`id`) );
+insert into temporary t_json_tbl(id, json_obj, json_arr, json_str)    values(1,'{"name":"tom", "age":21, "tags":["a", "b"]}', '["aa", "bb", "cc"]', '{"name":"jj"}');
+select * from temporary t_json_tbl;
+insert into temporary t_json_tbl(id, json_obj, json_arr, json_str)   values(2, JSON_OBJECT('name', 'jerry', 'tags', JSON_ARRAY('c', 'd')), JSON_ARRAY('xx', 'yy', 'cc'), JSON_OBJECT('name', 'jack'));
+select * from temporary t_json_tbl;
+select json_obj->'$.name' `name`, json_obj->'$.tags[0]' `tags0`, json_arr->'$[0]' xx from temporary t_json_tbl;
+update temporary t_json_tbl set json_obj = JSON_SET(json_obj, '$.name', 'Merry'),json_arr = JSON_SET(json_arr, '$[0]', 'aa2222', '$[2]', 'gggg', '$[7]', 'fdsfd')where id = 2;
+select * from temporary t_json_tbl;
+
+####lob类型
+create temporary table lob_table(c1 int primary key, c2 tinytext,c3 TEXT,c4 MEDIUMTEXT, c5 LONGTEXT, c6 TINYBLOB, c7 BLOB, c8 MEDIUMBLOB,c9 LONGBLOB);
+desc temporary lob_table;
+--error 5007
+insert into temporary lob_table values(1,'xxxx','xxxx','xxxx','xxxx','xxxx','xxxx','xxxx','xxxx','xxxx');
+insert into temporary lob_table values(1,'xxxx','xxxx','xxxx','xxxx','xxxx','xxxx','xxxx','xxxx');
+select * from temporary lob_table;
+
+###插入数据
+####无主键表插入
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(1));
+insert into temporary t1 values(3,'a'), (2,'b'),(4,'g'),(5,'g');
+select * from temporary t1;
+
+####无主键表插入
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(1));
+insert into temporary t1 values(3,'a'), (2,'b'),(4,'g'),(5,'g');
+select * from temporary t1;
+
+####联合主键且有普通列
+drop temporary table t1;
+create temporary table t1 (c1 int ,c2 varchar(1), c3 varchar(10), primary key (c1,c2));
+--error 5024
+insert into temporary t1 values(1,'a','jack'),(2,'b','lucy'),(3,'c','frank'),(3,'c','elon');
+insert into temporary t1 values(1,'a','jack'),(2,'b','lucy'),(3,'c','frank'),(3,'d','elon');
+select * from  temporary t1;
+
+####只有主键表（没有普通列）插入
+create temporary table only_pk_tbl(c1 int ,c2 text, primary key(c1, c2));
+insert into temporary only_pk_tbl values(1,'xxxxxxxxxxxxxxxxxxxxxxx. xxxxxxxxxxxxxxxxxxxxxxxx.        xxxxxxxxxxxxxxxxxxxx.');
+select * from temporary only_pk_tbl;
+
+####无主键表+NOT NULL约束
+drop temporary table t1;
+create temporary table t1(c1 int not null, c2 varchar(2));
+--error 5500
+insert into temporary t1 values(null,'aa');
+insert into temporary t1 values(1, null);
+insert into temporary t1 values(2, 'xx');
+select * from temporary t1;
+
+####联合主键表+auto_increment字段
+drop temporary table t1;
+create temporary table t1(c1 int auto_increment, c2 varchar(2), c3 text, primary key(c1,c2));
+insert into temporary t1 values(1,'a','test'),(2,'a','test');
+--error 5024
+insert into temporary t1 values(1,'ab','test'),(2,'a','test');
+insert into temporary t1(c2,c3) values('a','test'),('a','test');
+insert into temporary t1(c2,c3) values('a','test');
+select * from temporary t1;
+
+####一列主键表+auto_increment字段
+drop temporary table t1;
+create temporary table t1(c1 int auto_increment primary key, c2 varchar(2), c3 text);
+insert into temporary t1 values(1,'a','test'),(2,'a','test');
+--error 5024
+insert into temporary t1 values(1,'ab','test'),(2,'a','test');
+insert into temporary t1(c2,c3) values('a','test'),('a','test');
+insert into temporary t1(c2,c3) values('a','test');
+select * from temporary t1;
+
+####无主键表+默认值
+drop temporary table t1;
+create temporary table t1(c1 int default 1,c2 varchar(2) default 'aa', c3 int default 2);
+insert into temporary t1(c3) values(3);
+insert into temporary t1(c3) values(4);
+insert into temporary t1(c1,c3) values(1,3),(3,3);
+select * from temporary t1;
+
+####使用insert ... select ...形式
+create table normal_tbl(c1 int auto_increment primary key,c2 varchar(2));
+insert into normal_tbl(c2) values('aa');
+insert into normal_tbl(c2) values('bb');
+insert into normal_tbl(c2) values('cc');
+select * from normal_tbl;
+create temporary table temporary_tbl (c1 int auto_increment primary key,c2 varchar(2));
+insert into temporary temporary_tbl select * from normal_tbl;
+select * from temporary temporary_tbl;
+
+####有主键列也有普通列，且主键列为一列
+drop temporary table t1;
+create temporary table t1 (c1 int primary key, c2 json);
+insert into temporary t1 values(1,'{"name":"tom", "age":21, "tags":["a", "b"]}');
+select * from temporary t1;
+
+###create temporary table xxx as select xxx语法
+####table_elements中的列 与select语句列中重复
+drop temporary table t1;
+create table t2 (c1 int,c2 varchar(2));
+create temporary table t1(c1 int) select * from t2;
+desc temporary t1;
+
+####table_elements中没有列，select语句中有
+drop temporary table t1;
+create temporary table t1 as select * from t2;
+desc temporary t1;
+
+####table_elements中有列与select语句列中不重复
+drop temporary table t1;
+create temporary table t1(c3 int) select * from t2;
+desc temporary t1;
+
+####table_elements中有列与select语句列为常量表达式
+drop temporary table t1;
+create temporary table t1(c3 int) select 1+1 from t2;
+desc temporary t1;
+
+####table_elements中有列与select语句列为列引用表达式
+drop temporary table t1;
+create temporary table t1(c3 int) select c1 from t2;
+desc temporary t1;
+
+####table_elements中有列 与select语句列为系统函数表达式：
+drop temporary table t1;
+create temporary table t1(c3 int) select current_timestamp() from t2;
+desc temporary t1;		
+		
+####使用create as创建临时表（其中列为字符型）
+drop table normal_tbl;
+drop temporary table temporary_tbl;
+create table normal_tbl (c1 varchar(10),c2 varchar2(10),c3 text);
+insert into normal_tbl values('xx','xx','xx');
+insert into normal_tbl values('xx','xx','xx');
+insert into normal_tbl values('xx','xx','xx');
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为整型）
+drop temporary table temporary_tbl;
+drop table normal_tbl;
+create table normal_tbl (c1 int,c2 tinyint,c3 bigint);
+insert into normal_tbl values(1,2,3);
+insert into normal_tbl values(1,2,3);
+insert into normal_tbl values(1,2,3);
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为浮点型）
+drop temporary table temporary_tbl;
+drop table normal_tbl;
+create table normal_tbl (c1 float,c2 double,c3 decimal(10,2));
+insert into normal_tbl values(1.2,2,3);
+insert into normal_tbl values(2.2,2.2,3.111);
+insert into normal_tbl values(1,2,3);
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为json）
+drop temporary table temporary_tbl;
+drop table normal_tbl;
+create table normal_tbl (c1 int primary key,c2 json);
+insert into normal_tbl values(1,JSON_OBJECT('id', 87, 'name', 'carrot'));
+insert into normal_tbl values(2,JSON_OBJECT('id', 89, 'name', 'jam'));
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为时间类型）
+drop temporary table temporary_tbl;
+drop table normal_tbl;
+create table normal_tbl (c1 int primary key,c2 date, c3 time,c4 datetime,c5 timestamp);
+insert into normal_tbl values(1,'2021-11-11','12:21:21',current_timestamp,current_timestamp);
+--replace_column 4 '固定值' 5 '固定值' 
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+--replace_column 4 '固定值' 5 '固定值'
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为bit类型）
+drop temporary table temporary_tbl;
+drop table normal_tbl;
+create table normal_tbl (c1 int primary key,c2 bit(3));
+insert into normal_tbl(`c1`,`c2`) values(1,3);
+insert into normal_tbl(`c1`,`c2`) values(2,b'011');
+insert into normal_tbl(`c1`,`c2`) values(3,0b011);
+select * from normal_tbl;
+create temporary table temporary_tbl as select * from normal_tbl;
+select * from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc normal_tbl;
+
+####使用create as创建临时表（其中列为geo类型）
+drop temporary table temporary_tbl;
+CREATE TABLE z_gis (`id` varchar(45) NOT NULL, `name` varchar(10) NOT NULL COMMENT '姓名',`gis` geometry NOT NULL COMMENT '空间位置信息',PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8mb4 COMMENT='空间位置信息';
+insert into z_gis(id,name,gis) values (replace(uuid(),'-',''),'张三',st_geometryfromtext('point(108.9498710632 34.2588125935)')), (replace(uuid(),'-',''),'李四',st_geometryfromtext('point(108.9465236664 34.2598766768)')), (replace(uuid(),'-',''),'王五',st_geometryfromtext('point(108.9477252960 34.2590342786)')), (replace(uuid(),'-',''),'赵六',st_geometryfromtext('point(108.9437770844 34.2553719653)')), (replace(uuid(),'-',''),'小七',st_geometryfromtext('point(108.9443349838 34.2595663206)')), (replace(uuid(),'-',''),'孙八',st_geometryfromtext('point(108.9473497868 34.2643456798)')), (replace(uuid(),'-',''),'十九',st_geometryfromtext('point(108.9530360699 34.2599476152)'));
+--replace_column 1 '固定值' 
+select id,name,st_astext(gis) from z_gis;
+create temporary table temporary_tbl as select * from z_gis;
+select st_astext(gis) from temporary temporary_tbl;
+desc temporary temporary_tbl;
+desc z_gis;
+
+###select临时表
+####查询单个临时表
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+select * from temporary t1;
+
+####查询项有聚合函数max：
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+select max(c1) from temporary t1;
+
+####查询项有聚合函数min
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+select min(c1) from temporary t1;
+
+####查询项有聚合函数count
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+select count(c1) from temporary t1;
+
+####查询项有聚合函数sum
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(11224,'aa'),(-4212,'bb');
+select sum(c1) from temporary t1;
+
+####查询项有聚合函数avg
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(11224,'aa'),(-4212,'bb');
+select avg(c1) from temporary t1;
+
+####查询项有聚合函数var
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select var(c1) from temporary t1;
+
+####查询项有聚合函数variance
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select variance(c1) from temporary t1;
+
+####查询项有聚合函数stddev
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select stddev(c1) from temporary t1;
+
+####查询项有聚合函数cavg
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select cavg(c1) from temporary t1;
+
+####查询项有聚合函数covar：
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select covar(c1,c1) from temporary t1;
+
+####查询项有聚合函数listagg
+drop temporary table t1;
+create temporary table t1(c1 int,c2 varchar(2));
+insert into temporary t1 values(1,'aa'),(2,'bb');
+insert into temporary t1 values(11,'aa'),(-2,'bb');
+insert into temporary t1 values(22,'aa'),(-12,'bb');
+select listagg(c1) from temporary t1;
+
+####查询项有聚合函数json_arrayagg
+DROP temporary TABLE IF EXISTS `student_score`;
+CREATE temporary TABLE `student_score` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `subject` VARCHAR(255) NOT NULL,
+    `score` INT NOT NULL
+);
+INSERT INTO temporary `student_score` (`name`, `subject`, `score`) VALUES ('Tom', 'Math', 80), ('Tom', 'English', 90),('Tim', 'English', 98);
+SELECT name AS `Name`,JSON_ARRAYAGG(subject) AS `Subjects` FROM temporary student_score GROUP BY name;
+
+####查询子句包含limit
+drop temporary table if exists t1;
+create temporary table t1(c1 int primary key auto_increment);
+insert into temporary t1 values(1),(2),(3);
+select * from temporary t1 limit 2;
+
+####查询子句包含offset / limit 子句：
+select * from temporary t1 limit 1 offset 2;
+
+####无主键表查询
+drop temporary table if exists t1;
+create temporary table t1(c1 int, c2 text, c3 json);
+insert into temporary t1 values(1,'aaa',JSON_OBJECT('id', 87, 'name', 'carrot'));
+select * from temporary t1;
+
+####单一主键字段查询
+drop temporary table if exists t1;
+create temporary table t1(c1 int primary key, c2 text, c3 json);
+insert into temporary t1 values(1,'aaa',JSON_OBJECT('id', 87, 'name', 'carrot')),(2,'aaa',JSON_OBJECT('id', 87, 'name', 'carrot'));
+select * from temporary t1 where c1 > 1;
+
+####联合主键查询
+drop temporary table if exists t1;
+create temporary table t1(c1 int, c2 text, c3 json, primary key(c1,c3));
+insert into temporary t1 values(1,'aaa',JSON_OBJECT('id', 87, 'name', 'carrot')),(2,'aaa',JSON_OBJECT('id', 87, 'name', 'Dragon'));
+select * from temporary t1 where c1 > 1;
+
+####包含主键自增字段的查询
+drop temporary table if exists t1;
+create temporary table t1(c1 int auto_increment, c2 text, c3 json, primary key(c1,c3));
+insert into temporary t1(c2,c3) values('aaa',JSON_OBJECT('id', 87, 'name', 'carrot')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon2')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon1'));
+select * from temporary t1 where c1 > 1;
+
+###prepare临时表
+###prepare+创建临时表
+#--error 5006
+PREPARE stmt1 FROM 'create temporary table t2(c1 int)';
+#--error 5043
+execute stmt1;
+
+####prepare+查询包含主键的临时表
+drop temporary table if exists t1;
+create temporary table t1(c1 int auto_increment, c2 text, c3 json, primary key(c1,c3));
+insert into temporary t1(c2,c3) values('aaa',JSON_OBJECT('id', 87, 'name', 'carrot')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon2')),('aaa',JSON_OBJECT('id', 87, 'name', 'Dragon1'));
+PREPARE stmt1 FROM 'select * from temporary t1';
+execute stmt1;
+
+####update之后在执行前一个prepare stmt
+update temporary t1 set c3= JSON_OBJECT('id', 87, 'name', 'New Dragon') where c1 = 1;
+execute stmt1;
+
+####delete之后在执行前一个prepare stmt
+delete from temporary t1 where c1 = 1;
+execute stmt1;
+
+####prepare + update
+PREPARE stmt1 FROM update temporary t1 set c3=JSON_OBJECT('id', 87, 'name', 'prepare+update') where c1 = 2;
+execute stmt1;
+
+####prepare+无主键临时表
+drop temporary table if exists t2;
+create temporary table t2(c1 int,c2 timestamp);
+insert into temporary t2 values(1,current_timestamp);
+insert into temporary t2 values(1,current_timestamp);
+insert into temporary t2 values(1,current_timestamp);
+--replace_column 2 '固定值'
+select * from temporary t2;
+prepare stmt2 from select * from temporary t2;
+--replace_column 2 '固定值'
+execute stmt2;
+
+####prepare + delete
+PREPARE stmt1 FROM delete from temporary t1 where c1 = 2;
+execute stmt1;
+select * from temporary t1;

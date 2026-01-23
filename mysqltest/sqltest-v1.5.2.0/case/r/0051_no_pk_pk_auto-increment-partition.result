@@ -1,0 +1,662 @@
+set yao_read_consistency=4;
+create hash partition function h(x) 'x+1';
+create table test_no_pk(c1 int,c2 varchar(10)) partition by(hs,h,c1);
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+create table test_no_pk(c1 int) partition by(hs,h,c1);
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by(hs,h,c1);
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('a'),('c'),('a'),('c'),('b'),('d');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_auto;
+c1	c2
+1	a
+2	a
+3	c
+4	a
+5	c
+6	b
+7	d
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+c1	c2
+1	dd
+2	a
+3	c
+4	a
+5	c
+6	b
+7	d
+select * from test_auto where c1=1;
+c1	c2
+1	dd
+select count(*) from test_auto;
+count(*)
+7
+show create table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE test_auto (
+c1 INT(10) AUTO_INCREMENT,
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (hs,h,c1)
+/*h(x) = x+1*/;
+truncate table test_auto;
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	varchar(10)	YES		NULL	
+drop table if exists test_auto;
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by(hs,h,c1);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	c
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	dd
+select * from test_pk where c1=1;
+c1	c2
+1	a
+1	aa
+select count(*) from test_pk;
+count(*)
+3
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (hs,h,c1)
+/*h(x) = x+1*/;
+drop table if exists test_pk;
+create table test_pk(c1 int  primary key) partition by(hs,h,c1);
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_pk;
+c1
+1
+2
+3
+4
+11
+select * from test_pk where c1=1;
+c1
+1
+select count(*) from test_pk;
+count(*)
+5
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (hs,h,c1)
+/*h(x) = x+1*/;
+drop table if exists test_pk;
+create enum partition function e1(x) '[(1),(2),(3),(4),(5)]';
+create table test_no_pk(c1 int,c2 varchar(10)) partition by(em,e1,c1);
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+create table test_no_pk(c1 int) partition by(em,e1,c1);
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by(em,e1,c1);
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('b'),('c'),('d'),('e');
+insert into test_auto(c2) values('f'),('g'),('h');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_auto;
+c1	c2
+1	a
+2	b
+3	c
+4	d
+5	e
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+c1	c2
+1	dd
+2	b
+3	c
+4	d
+5	e
+select * from test_auto where c1=1;
+c1	c2
+1	dd
+select count(*) from test_auto;
+count(*)
+5
+show create table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE test_auto (
+c1 INT(10) AUTO_INCREMENT,
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (em,e1,c1)
+/*e1(x) = [(1),(2),(3),(4),(5)]*/;
+truncate table test_auto;
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	varchar(10)	YES		NULL	
+drop table if exists test_auto;
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by(em,e1,c1);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	c
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	dd
+select * from test_pk where c1=1;
+c1	c2
+1	a
+1	aa
+select count(*) from test_pk;
+count(*)
+3
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (em,e1,c1)
+/*e1(x) = [(1),(2),(3),(4),(5)]*/;
+drop table if exists test_pk;
+create table test_pk(c1 int  primary key) partition by(em,e1,c1);
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from test_pk;
+c1
+1
+select * from test_pk where c1=1;
+c1
+1
+select count(*) from test_pk;
+count(*)
+1
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (em,e1,c1)
+/*e1(x) = [(1),(2),(3),(4),(5)]*/;
+drop table if exists test_pk;
+create table test_no_pk(c1 int,c2 varchar(10)) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+create table test_no_pk(c1 int) partition by list(c1) (partition q0 values in(1,2,3,4,5)) ;
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by list(c1) (partition q0 values in(1,2,3,4,5)) ;
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('b'),('c'),('d'),('e');
+insert into test_auto(c2) values('f'),('g'),('h');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+select * from test_auto;
+c1	c2
+1	a
+2	b
+3	c
+4	d
+5	e
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+c1	c2
+1	dd
+2	b
+3	c
+4	d
+5	e
+select * from test_auto where c1=1;
+c1	c2
+1	dd
+select count(*) from test_auto;
+count(*)
+5
+show create table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE test_auto (
+c1 INT(10) AUTO_INCREMENT,
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY LIST(c1)
+(PARTITION q0 VALUES IN ((1),(2),(3),(4),(5)))WITH PREFIX(test_auto);
+truncate table test_auto;
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	varchar(10)	YES		NULL	
+drop table if exists test_auto;
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+test_pk#q0	2	1	NULL
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	c
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	dd
+select * from test_pk where c1=1;
+c1	c2
+1	a
+1	aa
+select count(*) from test_pk;
+count(*)
+3
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY LIST(c1)
+(PARTITION q0 VALUES IN ((1),(2),(3),(4),(5)))WITH PREFIX(test_pk);
+drop table if exists test_pk;
+create table test_pk(c1 int  primary key) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+test_pk#q0	2	1	NULL
+select * from test_pk;
+c1
+1
+select * from test_pk where c1=1;
+c1
+1
+select count(*) from test_pk;
+count(*)
+1
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY LIST(c1)
+(PARTITION q0 VALUES IN ((1),(2),(3),(4),(5)))WITH PREFIX(test_pk);
+drop table if exists test_pk;
+create table test_no_pk(c1 int,c2 varchar(10)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+create table test_no_pk(c1 int) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue) ;
+ERROR HY000: YAO-5081: parameter[c1] is not rowkey
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue) ;
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('a'),('c'),('a'),('c'),('b'),('d');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+test_auto#r0	2	1	NULL
+test_auto#r1	2	0	NULL
+test_pk#q0	2	1	NULL
+select * from test_auto;
+c1	c2
+1	a
+2	a
+3	c
+4	a
+5	c
+6	b
+7	d
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+c1	c2
+1	dd
+2	a
+3	c
+4	a
+5	c
+6	b
+7	d
+select * from test_auto where c1=1;
+c1	c2
+1	dd
+select count(*) from test_auto;
+count(*)
+7
+show create table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE test_auto (
+c1 INT(10) AUTO_INCREMENT,
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE(c1)
+(PARTITION r0 VALUES LESS THAN (6)
+,PARTITION r1 VALUES LESS THAN (maxvalue))WITH PREFIX(test_auto);
+truncate table test_auto;
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	varchar(10)	YES		NULL	
+drop table if exists test_auto;
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+test_auto#r0	2	1	NULL
+test_auto#r1	2	0	NULL
+test_pk#q0	2	1	NULL
+test_pk#r0	2	1	NULL
+test_pk#r1	2	0	NULL
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	c
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	dd
+select * from test_pk where c1=1;
+c1	c2
+1	a
+1	aa
+select count(*) from test_pk;
+count(*)
+3
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE(c1)
+(PARTITION r0 VALUES LESS THAN (6)
+,PARTITION r1 VALUES LESS THAN (maxvalue))WITH PREFIX(test_pk);
+drop table if exists test_pk;
+create table test_pk(c1 int primary key) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+test_auto#q0	2	0	NULL
+test_auto#r0	2	1	NULL
+test_auto#r1	2	0	NULL
+test_pk#q0	2	1	NULL
+test_pk#r0	2	1	NULL
+test_pk#r1	2	0	NULL
+select * from test_pk;
+c1
+1
+2
+3
+4
+11
+select * from test_pk where c1=1;
+c1
+1
+select count(*) from test_pk;
+count(*)
+5
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE(c1)
+(PARTITION r0 VALUES LESS THAN (6)
+,PARTITION r1 VALUES LESS THAN (maxvalue))WITH PREFIX(test_pk);
+drop table if exists test_pk;

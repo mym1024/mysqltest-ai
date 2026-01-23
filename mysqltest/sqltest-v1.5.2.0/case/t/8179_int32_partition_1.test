@@ -1,0 +1,335 @@
+##############################################################################################
+###1.测试功能点：在不同分区规则下，测试int32
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-02
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists test_key1;
+drop table if exists test_key2;
+drop table if exists test_key3;
+--enable_warnings
+
+###2-1：
+create table test_key1(co1 int primary key,co2 bigint,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date) partition by range(co1)(partition q1 values less than(2),partition q3 values less than(10),partition q2 values less than maxvalue);
+create table test_key2(co1 bigint primary key,co2 int,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date) partition by range(co1)(partition s1 values less than(5),partition s2 values less than(10),partition s3 values less than(15),partition s4 values less than maxvalue);
+create table test_key3(co1 bigint,co2 int,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date,primary key(co1,co2,co3)) partition by range(co1)(partition g1 values less than(10),partition g2 values less than(20),partition g3 values less than maxvalue);
+--real_sleep 5
+desc test_key1;
+desc test_key1;
+insert into test_key1 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key1 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+--error 5047
+insert into test_key1 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+--error 5047
+insert into test_key1 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values('596',1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key1 values(true,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+--error 5047
+insert into test_key1 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+--error 5047
+insert into test_key1 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+desc test_key2;
+desc test_key2;
+insert into test_key2 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key2 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('596',1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key2 values(true,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+desc test_key3;
+desc test_key3;
+insert into test_key3 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key3 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('596',1,2.88,'int32 test',false,'2015-10-13');
+--error 5024
+insert into test_key3 values(true,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+
+drop table if exists test_airthemetic;
+create table test_airthemetic(co1 int primary key,c_int int,c_bigint bigint,c_float float,c_double double,c_datetime timestamp,c_timestamp timestamp,c_varchar varchar(256),c_ctime createtime,c_mtime modifytime,c_bool bool,c_decimal decimal(10,5),c_date date,c_time time) partition by range(co1)(partition r1 values less than(5),partition r2 values less than(10),partition r3 values less than(20),partition r4 values less than maxvalue);
+--real_sleep 5
+insert into test_airthemetic(co1) values(1);
+select co1+c_int from test_airthemetic;
+select co1-c_int from test_airthemetic;
+select co1*c_int from test_airthemetic;
+select co1/c_int from test_airthemetic;
+select c_int+c_bigint from test_airthemetic;
+select c_int-c_bigint from test_airthemetic;
+select c_int*c_bigint from test_airthemetic;
+select c_int/c_bigint from test_airthemetic;
+select c_int+c_float from test_airthemetic;
+select c_int-c_float from test_airthemetic;
+select c_int*c_float from test_airthemetic;
+select c_int/c_float from test_airthemetic;
+select c_int+c_double from test_airthemetic;
+select c_int-c_double from test_airthemetic;
+select c_int*c_double from test_airthemetic;
+select c_int/c_double from test_airthemetic;
+#--error 5023
+select c_int+c_datetime from test_airthemetic;
+#--error 5023
+select c_int-c_datetime from test_airthemetic;
+#--error 5023
+select c_int*c_datetime from test_airthemetic;
+#--error 5023
+select c_int/c_datetime from test_airthemetic;
+#--error 5023
+select c_int+c_timestamp from test_airthemetic;
+#--error 5023
+select c_int-c_timestamp from test_airthemetic;
+#--error 5023
+select c_int*c_timestamp from test_airthemetic;
+#--error 5023
+select c_int/c_timestamp from test_airthemetic;
+select c_int+c_varchar from test_airthemetic;
+select c_int-c_varchar from test_airthemetic;
+select c_int*c_varchar from test_airthemetic;
+select c_int/c_varchar from test_airthemetic;
+select c_int+c_bool from test_airthemetic;
+select c_int-c_bool from test_airthemetic;
+select c_int*c_bool from test_airthemetic;
+select c_int/c_bool from test_airthemetic;
+select c_int+c_decimal from test_airthemetic;
+select c_int-c_decimal from test_airthemetic;
+select c_int*c_decimal from test_airthemetic;
+select c_int/c_decimal from test_airthemetic;
+#--error 5023
+select c_int+c_date from test_airthemetic;
+#--error 5023
+select c_int-c_date from test_airthemetic;
+#--error 5023
+select c_int*c_date from test_airthemetic;
+#--error 5023
+select c_int/c_date from test_airthemetic;
+#--error 5023
+select c_int+c_time from test_airthemetic;
+#--error 5023
+select c_int-c_time from test_airthemetic;
+#--error 5023
+select c_int*c_time from test_airthemetic;
+#--error 5023
+select c_int/c_time from test_airthemetic;
+drop table if exists test_airthemetic;
+
+create table test_airthemetic(co1 int primary key,c_int int,c_bigint bigint,c_float float,c_double double,c_datetime timestamp,c_timestamp timestamp,c_varchar varchar(256),c_ctime createtime,c_mtime modifytime,c_bool bool,c_decimal decimal(10,5),c_date date,c_time time) partition by range(co1)(partition w1 values less than(3),partition w2 values less than(5),partition w3 values less than maxvalue);
+--real_sleep 5
+insert into test_airthemetic(co1,c_int,c_bigint,c_float,c_double,c_datetime,c_timestamp,c_varchar,c_bool,c_decimal,c_date,c_time) values (1,1,5,1.1,1.1234567,'1970-01-01 08:00:00','2015-10-09 10:24:32.123456','test int32',true,1256.668,'1998-10-24','09:44:11');
+insert into test_airthemetic(co1,c_int,c_bigint,c_float,c_double,c_datetime,c_timestamp,c_varchar,c_bool,c_decimal,c_date,c_time) values (2,2,5,1.1,1.1234567,'1970-01-01 08:00:00','2015-10-09 10:24:32.123456','1258',true,1256.668,'1998-10-24','09:44:11');
+insert into test_airthemetic(co1,c_int) values(3,0);
+select co1+c_int from test_airthemetic where co1=1;
+select co1-c_int from test_airthemetic where co1=1;
+select co1*c_int from test_airthemetic where co1=1;
+select co1/c_int from test_airthemetic where co1=1;
+#--error 78
+select co1/c_int from test_airthemetic where co1=3;
+select c_int+c_bigint from test_airthemetic where co1=1;
+select c_int-c_bigint from test_airthemetic where co1=1;
+select c_int*c_bigint from test_airthemetic where co1=1;
+select c_int/c_bigint from test_airthemetic where co1=1;
+select c_int+c_float from test_airthemetic where co1=1;
+select c_int-c_float from test_airthemetic where co1=1;
+select c_int*c_float from test_airthemetic where co1=1;
+select c_int/c_float from test_airthemetic where co1=1;
+select c_int+c_double from test_airthemetic where co1=1;
+select c_int-c_double from test_airthemetic where co1=1;
+select c_int*c_double from test_airthemetic where co1=1;
+select c_int/c_double from test_airthemetic where co1=1;
+#--error 5023
+select c_int+c_datetime from test_airthemetic where co1=1;
+#--error 5023
+select c_int-c_datetime from test_airthemetic where co1=1;
+#--error 5023
+select c_int*c_datetime from test_airthemetic where co1=1;
+#--error 5023
+select c_int/c_datetime from test_airthemetic where co1=1;
+#--error 5023
+select c_int+c_timestamp from test_airthemetic where co1=1;
+#--error 5023
+select c_int-c_timestamp from test_airthemetic where co1=1;
+#--error 5023
+select c_int*c_timestamp from test_airthemetic where co1=1;
+#--error 5023
+select c_int/c_timestamp from test_airthemetic where co1=1;
+#--error 7
+select c_int+c_varchar from test_airthemetic where co1=1;
+#--error 7
+select c_int-c_varchar from test_airthemetic where co1=1;
+#--error 7
+select c_int*c_varchar from test_airthemetic where co1=1;
+select c_int/c_varchar from test_airthemetic where co1=1;
+select c_int+c_varchar from test_airthemetic where co1=2;
+select c_int-c_varchar from test_airthemetic where co1=2;
+select c_int*c_varchar from test_airthemetic where co1=2;
+select c_int/c_varchar from test_airthemetic where co1=2;
+--error 5023
+select c_int+c_ctime from test_airthemetic;
+--error 5023
+select c_int-c_ctime from test_airthemetic;
+--error 5023
+select c_int*c_ctime from test_airthemetic;
+--error 5023
+select c_int/c_ctime from test_airthemetic;
+--error 5023
+select c_int+c_mtime from test_airthemetic;
+--error 5023
+select c_int-c_mtime from test_airthemetic;
+--error 5023
+select c_int*c_mtime from test_airthemetic;
+--error 5023
+select c_int/c_mtime from test_airthemetic;
+select c_int+c_bool from test_airthemetic;
+select c_int-c_bool from test_airthemetic;
+select c_int*c_bool from test_airthemetic;
+select c_int/c_bool from test_airthemetic;
+select c_int+c_decimal from test_airthemetic;
+select c_int-c_decimal from test_airthemetic;
+select c_int*c_decimal from test_airthemetic;
+select c_int/c_decimal from test_airthemetic;
+#--error 5023
+select c_int+c_date from test_airthemetic;
+#--error 5023
+select c_int-c_date from test_airthemetic;
+#--error 5023
+select c_int*c_date from test_airthemetic;
+#--error 5023
+select c_int/c_date from test_airthemetic;
+#--error 5023
+select c_int+c_time from test_airthemetic;
+#--error 5023
+select c_int-c_time from test_airthemetic;
+#--error 5023
+select c_int*c_time from test_airthemetic;
+#--error 5023
+select c_int/c_time from test_airthemetic;
+drop table if exists test_bound;
+create table test_bound(id int primary key,co1 int) partition by list(id)(partition r1 values in(1,3),partition r2 values in(2,4));
+--real_sleep 5
+insert into test_bound values (1,2147483647);
+--error 79
+insert into test_bound values (2,2147483648);
+insert into test_bound values (3,-2147483648);
+--error 79
+insert into test_bound values (4,-2147483649);
+drop table if exists test_update;
+create table test_update(co1 bigint primary key,co2 int) partition by range(co1)(partition p1 values less than(5),partition p2 values less than(10),partition p3 values less than maxvalue);
+create or replace sequence seq;
+--real_sleep 5
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+
+update test_update set co2=null where co1=1;
+select * from test_update;
+update test_update set co2=12345 where co1=1;
+select * from test_update;
+--error 79
+update test_update set co2=12345678910 where co1=1;
+select * from test_update;
+update test_update set co2=123.0 where co1=1;
+select * from test_update;
+update test_update set co2=123.0 where co1=1;
+select * from test_update;
+update test_update set co2=123.0000000000000001 where co1=1;
+select * from test_update;
+--error 79
+update test_update set co2=12345678919.0000000000001 where co1=1;
+select * from test_update;
+update test_update set co2='1345.' where co1=1;
+select * from test_update;
+update test_update set co2='1345.' where co1=1;
+select * from test_update;
+update test_update set co2='321' where co1=1;
+select * from test_update;
+--error 19
+update test_update set co2='98765432112345' where co1=1;
+select * from test_update;
+--error 7
+update test_update set co2='abc' where co1=1;
+select * from test_update;
+update test_update set co2=true where co1=2;
+select * from test_update;
+update test_update set co2=false where co1=2;
+select * from test_update;
+update test_update set co2='2015-12-12 12:21:16.1234' where co1=2;
+select * from test_update;
+update test_update set co2='2015-12-12' where co1=2;
+select * from test_update;
+update test_update set co2='12:21:32' where co1=2;
+select * from test_update;
+
+drop table if exists test_delete;
+create table test_delete(co1 bigint primary key,co2 int) partition by range(co1)(partition v1 values less than(3),partition v2 values less than(6),partition v3 values less than(10),partition v4 values less than maxvalue);
+create or replace sequence seq;
+--real_sleep 5
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+
+delete from test_delete where co1=1;
+select * from test_delete;
+
+delete from test_delete where co1>9;
+select * from test_delete;
+delete from test_delete where co1<3;
+select * from test_delete;
+delete from test_delete where co1>=9;
+select * from test_delete;
+delete from test_delete where co1<=3;
+select * from test_delete;
+delete from test_delete where co1 between 4 and 5;
+select * from test_delete;
+delete from test_delete where co1 in(7,8);
+select * from test_delete;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

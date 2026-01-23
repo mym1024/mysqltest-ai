@@ -1,0 +1,1684 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create table t1(c1 int,c2 varchar(10),c3 decimal(5,2));
+insert into t1 (c1, c2, c3) values (1, 'aaa', 10.55),(2, 'bbb', 15.44),(3, 'ccc', 9.99);
+select round(10.6);
+round(10.6)
+11
+select round(10.4);
+round(10.4)
+10
+select round(-10.6);
+round(-10.6)
+-11
+select round(-10.4);
+round(-10.4)
+-10
+select round(0);
+round(0)
+0
+select round(10.678, 2);
+round(10.678, 2)
+10.68
+select round(10.674, 2);
+round(10.674, 2)
+10.67
+select round(-10.678, 2);
+round(-10.678, 2)
+-10.68
+select round(-10.674, 2);
+round(-10.674, 2)
+-10.67
+select round(0, 2);
+round(0, 2)
+0
+select round(10.678, -2);
+round(10.678, -2)
+0
+select round(10.674, -2);
+round(10.674, -2)
+0
+select round(-10.678, -2);
+round(-10.678, -2)
+0
+select round(-10.674, -2);
+round(-10.674, -2)
+0
+select round(0, -2);
+round(0, -2)
+0
+select round(10.678, 5);
+round(10.678, 5)
+10.678
+select round(10.674, 5);
+round(10.674, 5)
+10.674
+select round(-10.678, 5);
+round(-10.678, 5)
+-10.678
+select round(-10.674, 5);
+round(-10.674, 5)
+-10.674
+select round(0, 5);
+round(0, 5)
+0
+select round(12345, -5);
+round(12345, -5)
+0
+select round(12345, -1);
+round(12345, -1)
+12350
+select round(-12345, -5);
+round(-12345, -5)
+0
+select round(-12345, -1);
+round(-12345, -1)
+-12340
+select round(0, -5);
+round(0, -5)
+0
+select c2, round(c3) as rounded_c3 from t1;
+c2	rounded_c3
+aaa	11
+bbb	15
+ccc	10
+update t1 SET c3 = round(c3, 2);
+delete from t1 where c3 < 10;
+select count(*), round(sum(c3)) from t1;
+count(*)	round(sum(c3))
+2	26
+select c2, round(c3 + 5.99, 2) from t1;
+c2	round(c3 + 5.99, 2)
+aaa	16.54
+bbb	21.43
+select c2, round(c3 * c1) from t1 where c1 > 0;
+c2	round(c3 * c1)
+aaa	11
+bbb	31
+select round(avg(c3), 2) from t1;
+round(avg(c3), 2)
+13.00
+drop table t1;
+create table t1(c1 int,c2 float,c3 double,c4 decimal(10,5));
+insert into t1 values(1,2.5,3.5,4.5),(2,5.5,6.5,7.5),(3,10.5,12.5,22.5),(0,0,0,0);
+select 2 div 2;
+2 div 2
+1
+select 5 div 2;
+5 div 2
+2
+select 5 div 10;
+5 div 10
+0
+select 5 div -10;
+5 div -10
+0
+select 5 div -2;
+5 div -2
+-2
+select 5 div -3;
+5 div -3
+-1
+select -10 div 4;
+-10 div 4
+-2
+select -10 div 3;
+-10 div 3
+-3
+select -10 div -10;
+-10 div -10
+1
+select -10 div -100;
+-10 div -100
+0
+select -10 div 0;
+-10 div 0
+NULL
+select  2 div 2.2 ;
+2 div 2.2
+0
+select 5 div 2.5;
+5 div 2.5
+2
+select 5 div -1.0;
+5 div -1.0
+-5
+select 1 div;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select 5.5 div 4;
+5.5 div 4
+1
+select 2.5 div 4;
+2.5 div 4
+0
+select -8.0 div 4;
+-8.0 div 4
+-2
+select -8.0 div 8.0;
+-8.0 div 8.0
+-1
+select -8.0 div 19.0;
+-8.0 div 19.0
+0
+select 8.0 div 5.0;
+8.0 div 5.0
+1
+select (1+2+3) div (2+1);
+(1+2+3) div (2+1)
+2
+select (1+2+3) div (2+1+0.5);
+(1+2+3) div (2+1+0.5)
+1
+select (2*5.2) div (2+1+0.5);
+(2*5.2) div (2+1+0.5)
+2
+select (2*5.2) div (2+1-0.5*6);
+(2*5.2) div (2+1-0.5*6)
+NULL
+select c1 div 2 from t1;
+c1 div 2
+0
+1
+1
+0
+select c1 div -0.5 from t1;
+c1 div -0.5
+-2
+-4
+-6
+0
+select c2 div 2 from t1;
+c2 div 2
+1
+2
+5
+0
+select c2 div -2.2 from t1;
+c2 div -2.2
+-1
+-2
+-4
+0
+select c3 div -2.2 from t1;
+c3 div -2.2
+-1
+-2
+-5
+0
+select c3 div 1.5 from t1;
+c3 div 1.5
+2
+4
+8
+0
+select (c3+1.5) div 2 from t1;
+(c3+1.5) div 2
+2
+4
+7
+0
+select (c4+11) div 2 from t1;
+(c4+11) div 2
+7
+9
+16
+5
+select (c4+11) div -3 from t1;
+(c4+11) div -3
+-5
+-6
+-11
+-3
+select (c4+11) div (c1-1) from t1;
+(c4+11) div (c1-1)
+NULL
+18
+16
+-11
+select (c4+2.6) div (c1-1) from t1;
+(c4+2.6) div (c1-1)
+NULL
+10
+12
+-2
+create view v1(a) as select (c4+2.6) div (c1-1) from t1;
+select * from v1;
+a
+NULL
+10
+12
+-2
+select '10' div 2;
+'10' div 2
+5
+select '-10' div 2;
+'-10' div 2
+-5
+select '10+2+2.5+10' div 4;
+'10+2+2.5+10' div 4
+2
+select 10  div '2.5';
+10  div '2.5'
+4
+select 10  div '2.5+1';
+10  div '2.5+1'
+4
+select '10+2.5' div 5.5;
+'10+2.5' div 5.5
+1
+select '+10+2.5' div 5.5;
+'+10+2.5' div 5.5
+1
+select '   -10+2.5  ' div 5.5;
+'   -10+2.5  ' div 5.5
+-1
+select '   20+2.5  ' div 5.5;
+'   20+2.5  ' div 5.5
+3
+select '   20+2.5  ' div '5+0.5';
+'   20+2.5  ' div '5+0.5'
+4
+select '   20+2.5  ' div c4 from t1;
+'   20+2.5  ' div c4
+4
+2
+0
+NULL
+select '   20+2.5  ' div c3 from t1;
+'   20+2.5  ' div c3
+5
+3
+1
+NULL
+select '    ' div c3 from t1;
+'    ' div c3
+0
+0
+0
+NULL
+select '6.123' div '2a.swjdifjwi';
+'6.123' div '2a.swjdifjwi'
+3
+select 'asjijds.wdi' div '2.2adadw';
+'asjijds.wdi' div '2.2adadw'
+0
+select ' abc ' div c3 from t1;
+' abc ' div c3
+0
+0
+0
+NULL
+select ('10'+'0') div 10;
+('10'+'0') div 10
+1
+select ('10'+'0'+'2') div 2;
+('10'+'0'+'2') div 2
+6
+select ('10'+'a'+'b') div 2;
+('10'+'a'+'b') div 2
+5
+select left('10.5',3) div 5;
+left('10.5',3) div 5
+2
+select left('10.5',3) div right('5.20',2);
+left('10.5',3) div right('5.20',2)
+0
+select (11 mod 3 ) div 2;
+(11 mod 3 ) div 2
+1
+select (1 and 1) div 1;
+(1 and 1) div 1
+1
+insert into t1 values(100 div 20,20 div 20,30 div 15,40 div 2);
+select * from t1 where c1 = (20 div 20);
+c1	c2	c3	c4
+1	2.5	3.5	4.5
+delete from t1 where c1 = (6 div 2 );
+drop table t1;
+create table test1(id int,c1 varchar(36));
+create table test2(id int,c1 varchar(35));
+insert into test1 values(1,'uuid');
+insert into test2 values(1,'uuid');
+select uuid();
+uuid()
+ef6b39a3-8764-11ee-841b-f02f74977060
+select uuid('');
+ERROR HY000: YAO-5054: Param num of function 'uuid' must be 0, ret=-5054
+select uuid(null);
+ERROR HY000: YAO-5054: Param num of function 'uuid' must be 0, ret=-5054
+select uuid('expr1',2+3*null);
+ERROR HY000: YAO-5054: Param num of function 'uuid' must be 0, ret=-5054
+select uuid(4+3-7);
+ERROR HY000: YAO-5054: Param num of function 'uuid' must be 0, ret=-5054
+update test1 set c1=uuid() where id=1;
+update test1 set id=10 where c1=uuid();
+select * from test1 group by c1 having c1=uuid();
+id	c1
+select id from test1 where c1=uuid() order by c1;
+id
+insert into test1(id,c1) values(2,uuid());
+insert into test1(id,c1) values(3,uuid()),(4,uuid());
+select * from test1 order by uuid();
+id	c1
+1	ef6c32d7-8764-11ee-841b-f02f74977060
+2	ef6c32d7-8764-11ee-841b-f02f74977060
+3	ef6c32d7-8764-11ee-841b-f02f74977060
+4	ef6c32d7-8764-11ee-841b-f02f74977060
+insert into test2(id,c1) values(2,uuid());
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.test2], cname[c1], clength[36]
+delete from test1 where c1=uuid();
+(select c1 from test1 where c1=uuid()) union (select c1 from test2 where c1=uuid());
+c1
+select * from test1 where c1=uuid() intersect select * from test1 where c1=uuid();
+id	c1
+select * from test1 where id=1 except (select * from test1 where c1=uuid());
+id	c1
+1	ef6c32d7-8764-11ee-841b-f02f74977060
+select substr(uuid(),9) from test1;
+substr(uuid(),9)
+-8764-11ee-841b-f02f74977060
+-8764-11ee-841b-f02f74977060
+-8764-11ee-841b-f02f74977060
+-8764-11ee-841b-f02f74977060
+select concat(uuid(),'base');
+concat(uuid(),'base')
+efa60538-8764-11ee-841b-f02f74977060base
+select concat_ws(';',uuid(),'yao');
+concat_ws(';',uuid(),'yao')
+efa62121-8764-11ee-841b-f02f74977060;yao
+select upper(uuid());
+upper(uuid())
+EFA63A04-8764-11EE-841B-F02F74977060
+drop table if exists test1,test2;
+select ceiling(3.85);
+ceiling(3.85)
+4
+select ceiling();
+ERROR HY000: YAO-5054: Param num of function 'ceiling' must be 1, ret=-5054
+select ceiling('');
+ERROR HY000: YAO-2: Invalid argument
+select ceiling(NULL);
+ceiling(NULL)
+NULL
+select ceiling('工');
+ceiling('工')
+0
+select ceiling(678);
+ceiling(678)
+678
+select ceiling('abc');
+ceiling('abc')
+0
+select ceiling('9.6');
+ceiling('9.6')
+10
+select ceiling(true);
+ceiling(true)
+1
+select ceiling(false);
+ceiling(false)
+0
+select ceiling('1998-09-03 00:00:00') res;
+res
+1998
+select ceiling(cast(1.23 as float)) res;
+res
+2
+select ceiling(cast(1.23 as double)) res;
+res
+2
+select ceiling(1e3);
+ceiling(1e3)
+1000
+create table student(id int,name varchar(25),age int,sex varchar(5));
+insert into student values(1,'aaa',22,'男'),(2,'bbb',20,'男'),(3,'ccc',27,'女'),(4,'ddd',25,'女');
+create table teacher(id int,name varchar(25),age int);
+insert into teacher values(1,'Tom',22),(2,'Jack',20),(3,'Mary',27);
+update student set name = 'Jack' where id = ceiling(3.45);
+update student set age = ceiling(20.3) where id = 1;
+select * from student;
+id	name	age	sex
+1	aaa	21	男
+2	bbb	20	男
+3	ccc	27	女
+4	Jack	25	女
+select * from student where id > ceiling(3.0) order by age;
+id	name	age	sex
+4	Jack	25	女
+insert into student values(5,'测试',ceiling(18.3),'男');
+delete from student where id=ceiling(1.0);
+select * from student;
+id	name	age	sex
+2	bbb	20	男
+3	ccc	27	女
+4	Jack	25	女
+5	测试	19	男
+(select name from student where age=ceiling(19.5)) union (select name from student where id=2);
+name
+bbb
+(select name from student where age=ceiling(26.7)) intersect (select name from student where age>=20);
+name
+ccc
+(select name from student where age>=19) except (select name from student where age=ceiling('26.7'));
+name
+bbb
+Jack
+测试
+select ceiling(ceiling(-5.6));
+ceiling(ceiling(-5.6))
+-5
+select ceiling(replace('bc45','bc','23')) res;
+res
+2345
+select s.name,t.name from student s,teacher t where t.id=ceiling('1.5') and s.id=ceiling(3.2);
+name	name
+Jack	Jack
+select ceiling(1<2) res;
+res
+1
+select ceiling(1>=2) res;
+res
+0
+select ceiling(1!=2) res;
+res
+1
+select ceiling(1=1) res;
+res
+1
+select ceiling(1+1.7) res;
+res
+3
+select ceiling(9.0/2) res;
+res
+5
+select ceiling(id-1) from student;
+ceiling(id-1)
+1
+2
+3
+4
+select ceiling(id*2) from student;
+ceiling(id*2)
+4
+6
+8
+10
+select ceiling(id%10) from student;
+ceiling(id%10)
+2
+3
+4
+5
+select ceiling(sum(id)) from student;
+ceiling(sum(id))
+14
+select ceiling(min(id)) from student;
+ceiling(min(id))
+2
+select ceiling(id<=2) from student;
+ceiling(id<=2)
+1
+0
+0
+0
+select ceiling(id!=2) from student;
+ceiling(id!=2)
+0
+1
+1
+1
+select ceiling(id<>2) from student;
+ceiling(id<>2)
+0
+1
+1
+1
+select ceiling(1=2) from student;
+ceiling(1=2)
+0
+0
+0
+0
+insert into teacher values(4,'Tom',ceiling(28-1));
+insert into teacher values(5,'test1',ceiling('1998-09-03 00:00:00'));
+insert into teacher values(6,'test2',ceiling(2+1.6));
+insert into teacher values(7,'Bob',ceiling(23.3));
+insert into teacher values(8,substr('abcdTom',ceiling(4.1)),22);
+select ceiling((select age from student where id =1));
+ceiling((select age from student where id =1))
+NULL
+select ceiling((select name from student where id =1));
+ceiling((select name from student where id =1))
+NULL
+select ceiling(age) from student;
+ceiling(age)
+20
+27
+25
+19
+select ceiling(id) from student;
+ceiling(id)
+2
+3
+4
+5
+select ceiling(name) from student;
+ceiling(name)
+0
+0
+0
+0
+select ceiling(cast(id as float))  from student;
+ceiling(cast(id as float))
+2
+3
+4
+5
+select ceiling(cast(id as double)) from student;
+ceiling(cast(id as double))
+2
+3
+4
+5
+select ceiling(id) from student;
+ceiling(id)
+2
+3
+4
+5
+select ceiling(id) from student;
+ceiling(id)
+2
+3
+4
+5
+select ceiling(student.id) from student, teacher;
+ceiling(student.id)
+2
+2
+2
+2
+2
+2
+2
+2
+3
+3
+3
+3
+3
+3
+3
+3
+4
+4
+4
+4
+4
+4
+4
+4
+5
+5
+5
+5
+5
+5
+5
+5
+create table test(name varchar(25),num double);
+insert into test values('jack',pi()),('bbb',1),('ccc',6);
+create table multi(name varchar(25),num double);
+insert into multi values('jack',pi()),('bbb',1),('ccc',6);
+select pi();
+pi()
+3.141592
+select pi(1);
+ERROR HY000: YAO-5054: Param num of function 'pi' must be 0, ret=-5054
+select pi()+0.0000000;
+pi()+0.0000000
+3.1415926
+select pi()+0.000000;
+pi()+0.000000
+3.141592
+select pi()+0.00000000000000000;
+pi()+0.00000000000000000
+3.141592653589793
+SELECT ROUND(2*PI(),2);
+ROUND(2*PI(),2)
+6.28
+update test set name='abcd' where num=pi();
+update test set num=pi() where name='abcd';
+select * from test having num = pi();
+name	num
+abcd	3.141592
+select * from test where num > pi() order by num;
+name	num
+ccc	6
+insert into test values('aaa', pi());
+delete from test where num=pi();
+(select name from test where num=pi()) union (select name from test where num=2);
+name
+(select name from test where num=pi()) intersect (select name from test where num=3);
+name
+(select name from test where num>=pi()) except (select name from test where num=pi());
+name
+ccc
+select ceil(pi());
+ceil(pi())
+4
+select name from test where num between pi() and 5;
+name
+select s.name,t.name from test s,multi t where t.num=pi() and s.num>=pi();
+name	name
+ccc	jack
+SELECT MOD(10, 3);
+MOD(10, 3)
+1
+SELECT MOD(-10, 3);
+MOD(-10, 3)
+-1
+SELECT MOD(0, 3);
+MOD(0, 3)
+0
+SELECT MOD(10.5, 3.2);
+MOD(10.5, 3.2)
+1
+SELECT MOD(10, -3);
+MOD(10, -3)
+1
+SELECT MOD(-10, -3);
+MOD(-10, -3)
+-1
+SELECT MOD(1234567890123456789, 1234);
+MOD(1234567890123456789, 1234)
+1097
+SELECT MOD(5, 8);
+MOD(5, 8)
+5
+SELECT MOD(10, 1234567890123456789);
+MOD(10, 1234567890123456789)
+10
+SELECT -9223372036854775808 MOD -1;
+-9223372036854775808 MOD -1
+0
+SELECT -9223372036854775808999 MOD -1;
+-9223372036854775808999 MOD -1
+0
+SELECT -9223372036854775808 MOD -1;
+-9223372036854775808 MOD -1
+0
+CREATE TABLE test_table (id INT PRIMARY KEY,value INT);
+INSERT INTO test_table (id, value) VALUES (1, 10), (2, 20), (3, 30), (4, 40);
+SELECT * FROM test_table WHERE MOD(value, 3) = 0;
+id	value
+3	30
+UPDATE test_table SET value = MOD(value, 5) WHERE id = 2;
+DELETE FROM test_table WHERE id = 4 AND MOD(value, 10) = 4;
+SELECT * FROM test_table WHERE MOD(ABS(value), 5) = 0;
+id	value
+1	10
+2	0
+3	30
+4	40
+SELECT * FROM test_table WHERE MOD(CONCAT(id, value), 10) = 3;
+id	value
+create table test1(c1_int int primary key,c2_varchar varchar(40),c3_float float,c4_double double,c5_bool bool,c6_timestamp timestamp,c7_datetime datetime,c8_date date,c9_time time,c10_decimal decimal(38,37));
+insert into test1 values(1001,'123456789',123.456,1234567.123456, true,'2022-12-30 22:34:39','2022-12-30 22:34:39','2022-12-30','22:34:39',0.12345678910111213141516171819);
+insert into test1 values(-1001,'-123456789',-123.456,-1234567.123456,false,'2021-12-30 22:34:39','2021-12-30 22:34:39', '2021-12-30','21:34:39',-0.12345678910111213141516171819);
+insert into test1 values(-1002,NULL,-123.457,-12345678.123456, false,'2022-12-30 02:34:39','2022-12-03 22:34:39','2022-01-30','22:04:39',-1.12345678910111213141516171819);
+insert into test1 values(1002,'-123456789.123456',123.457, 12345678.123456,true,'2022-12-30 02:34:39','2022-12-03 22:34:39', '2022-01-30','22:04:39',1.12345678910111213141516171819);
+select abs(null);
+abs(null)
+NULL
+select abs();
+ERROR HY000: YAO-5054: Param num of function 'abs' must be 1, ret=-5054
+select abs(1,2);
+ERROR HY000: YAO-5054: Param num of function 'abs' must be 1, ret=-5054
+select abs(0);
+abs(0)
+0
+select abs(111);
+abs(111)
+111
+select abs(-999);
+abs(-999)
+999
+select abs('');
+ERROR HY000: YAO-16: Invalid Type=6!
+select abs('abc');
+ERROR HY000: YAO-16: Invalid Type=6!
+select abs('-123456');
+abs('-123456')
+123456
+select abs(true);
+ERROR HY000: YAO-16: Invalid Type=11!
+select abs(to_timestamp('2022-12-30 22:34:39','yyyy-mm-dd hh:mm:ss'));
+ERROR HY000: YAO-16: Invalid Type=5!
+select abs(0.12345678910111213141516171819);
+abs(0.12345678910111213141516171819)
+0.12345678910111213141516171819
+select abs(-0.12345678910111213141516171819);
+abs(-0.12345678910111213141516171819)
+0.12345678910111213141516171819
+select abs(1.2345e3);
+abs(1.2345e3)
+1234.5
+select abs(-1.2345e-2);
+abs(-1.2345e-2)
+0.012345
+select abs(9223372036854775807);
+abs(9223372036854775807)
+9223372036854775807
+select abs(-9223372036854775807);
+abs(-9223372036854775807)
+9223372036854775807
+select abs(0.9999999999999999999999999999999999999);
+abs(0.9999999999999999999999999999999999999)
+0.9999999999999999999999999999999999999
+select abs(0.99999999999999999999999999999999999991);
+abs(0.99999999999999999999999999999999999991)
+0.99999999999999999999999999999999999991
+select abs(3+4);
+abs(3+4)
+7
+select abs(-3*null);
+abs(-3*null)
+NULL
+select abs(-3/4.0);
+abs(-3/4.0)
+0.75
+select abs(null/4.0);
+abs(null/4.0)
+NULL
+select abs(-3/0);
+abs(-3/0)
+NULL
+select abs(34 mod(5));
+abs(34 mod(5))
+4
+select abs(null mod(5));
+abs(null mod(5))
+NULL
+select abs(34%5);
+abs(34%5)
+4
+select abs(null%5);
+abs(null%5)
+NULL
+select abs(-((3+4.123-'1000.1')*'-1000.1'/(5%2)-123456.123456+1.123456789101112));
+abs(-((3+4.123-'1000.1')*'-1000.1'/(5%2)-123456.123456+1.123456789101112))
+869621.2977007891
+select abs(-((123+123.123-'456.123')*'-1000.123'/(456%5.0)+123456.123456*1.123456789101112));
+abs(-((123+123.123-'456.123')*'-1000.123'/(456%5.0)+123456.123456*1.123456789101112))
+348723.45005274826
+select abs(1<=1);
+ERROR HY000: YAO-16: Invalid Type=11!
+select abs(1!=1);
+ERROR HY000: YAO-16: Invalid Type=11!
+select abs(1<>1);
+ERROR HY000: YAO-16: Invalid Type=11!
+update test1 set c3_float=123.458 where c1_int=abs(-1001);
+update test1 set c3_float=abs(-123.456) where c2_varchar='123456789';
+select c1_int,c2_varchar,c3_float from test1 where c1_int=abs(-1001);
+c1_int	c2_varchar	c3_float
+1001	123456789	123.456
+select c1_int,c2_varchar,c3_float from test1 having c1_int < abs(-1002);
+c1_int	c2_varchar	c3_float
+-1002	NULL	-123.457
+-1001	-123456789	-123.456
+1001	123456789	123.456
+select abs(c1_int),c2_varchar,c3_float from test1 order by c1_int desc;
+abs(c1_int)	c2_varchar	c3_float
+1002	-123456789.123456	123.457
+1001	123456789	123.456
+1001	-123456789	-123.456
+1002	NULL	-123.457
+insert into test1 values(1003,'12345678910',abs(-123.4567),abs(-1234567.12345678),true,NULL,NULL,NULL,NULL,NULL);
+delete from test1 where c1_int=abs(-1003);
+delete from test1 where c2_varchar=abs('12345678910');
+(select c1_int,abs(c1_int),c2_varchar from test1 where c1_int=1001) union (select c1_int,abs(c1_int),c2_varchar from test1 where c1_int=-1001);
+c1_int	abs(c1_int)	c2_varchar
+-1001	1001	-123456789
+1001	1001	123456789
+(select c1_int,abs(c1_int),c2_varchar from test1 where c2_varchar='123456789') union (select c1_int,abs(c1_int),c2_varchar from test1 where c2_varchar='-123456789');
+c1_int	abs(c1_int)	c2_varchar
+-1001	1001	-123456789
+1001	1001	123456789
+(select abs(c1_int),abs(c2_varchar) from test1 where c2_varchar='123456789') intersect (select abs(c1_int),abs(c2_varchar) from test1 where c2_varchar='-123456789');
+abs(c1_int)	abs(c2_varchar)
+1001	123456789
+(select c1_int,abs(c1_int),c2_varchar from test1 where c1_int<1001) except (select c1_int,abs(c1_int),c2_varchar from test1 where c1_int=-1001);
+c1_int	abs(c1_int)	c2_varchar
+-1002	1002	NULL
+select c1_int,c2_varchar,c3_float from test1 where c1_int between abs(-1000) and abs(-2000);
+c1_int	c2_varchar	c3_float
+1001	123456789	123.456
+1002	-123456789.123456	123.457
+select c1_int,c2_varchar,c3_float from test1 where c3_float between abs(-100.456) and abs(-200.456);
+c1_int	c2_varchar	c3_float
+1001	123456789	123.456
+1002	-123456789.123456	123.457
+select abs(abs(abs(-123456.123456)));
+abs(abs(abs(-123456.123456)))
+123456.123456
+select length('yaobase_test'),abs(length('yaobase_test'));
+length('yaobase_test')	abs(length('yaobase_test'))
+12	12
+select round(-1234.567,1),abs(-round(1234.567,1));
+round(-1234.567,1)	abs(-round(1234.567,1))
+-1234.6	1234.6
+select abs(-123456.7891011),ceil(abs(-123456.7891011));
+abs(-123456.7891011)	ceil(abs(-123456.7891011))
+123456.7891011	123457
+select floor(-1234.567),abs(floor(-1234.567));
+floor(-1234.567)	abs(floor(-1234.567))
+-1235	1235
+select abs(-123456.7891011),floor(abs(-123456.7891011));
+abs(-123456.7891011)	floor(abs(-123456.7891011))
+123456.7891011	123456
+select c3_float,abs(c3_float) from test1;
+c3_float	abs(c3_float)
+-123.457	123.457
+-123.456	123.456
+123.456	123.456
+123.457	123.457
+select c4_double,abs(c4_double) from test1;
+c4_double	abs(c4_double)
+-12345678.123456	12345678.123456
+-1234567.123456	1234567.123456
+1234567.123456	1234567.123456
+12345678.123456	12345678.123456
+select c5_bool,abs(c5_bool) from test1;
+ERROR HY000: YAO-16: Invalid Type=11!
+select c6_timestamp,abs(c6_timestamp) from test1;
+ERROR HY000: YAO-16: Invalid Type=5!
+select c10_decimal,abs(c10_decimal) from test1;
+c10_decimal	abs(c10_decimal)
+-1.12345678910111213141516171819	1.12345678910111213141516171819
+-0.12345678910111213141516171819	0.12345678910111213141516171819
+0.12345678910111213141516171819	0.12345678910111213141516171819
+1.12345678910111213141516171819	1.12345678910111213141516171819
+select abs(c1_int),abs(c3_float),abs(c4_double),abs(c10_decimal) from test1;
+abs(c1_int)	abs(c3_float)	abs(c4_double)	abs(c10_decimal)
+1002	123.457	12345678.123456	1.12345678910111213141516171819
+1001	123.456	1234567.123456	0.12345678910111213141516171819
+1001	123.456	1234567.123456	0.12345678910111213141516171819
+1002	123.457	12345678.123456	1.12345678910111213141516171819
+select c4_double mod(c1_int),abs(c4_double mod(c1_int)) from test1;
+c4_double mod(c1_int)	abs(c4_double mod(c1_int))
+-36	36
+-334	334
+334	334
+36	36
+select abs(c10_decimal+(c1_int*(c1_int-c4_double)+c3_float/c1_int)*(c4_double%c1_int)) abs from test1;
+abs
+445297157119.7457
+412423096278.2216
+412423096278.2216
+445297157119.7457
+select abs(c10_decimal-(c1_int*(c2_varchar-c4_double)+c3_float/c1_int)+(c4_double%c1_int)) abs from test1;
+abs
+NULL
+122344444432.66734
+122344443764.42043
+136074072218.40607
+select c1_int,c2_varchar,abs(max(c1_int)),abs(min(c4_double)),abs(sum(c3_float)),abs(avg(c1_int)),abs(count(c2_varchar)) from test1 group by c1_int,c2_varchar;
+c1_int	c2_varchar	abs(max(c1_int))	abs(min(c4_double))	abs(sum(c3_float))	abs(avg(c1_int))	abs(count(c2_varchar))
+-1002	NULL	1002	12345678.123456	123.457	1002.0000	0
+-1001	-123456789	1001	1234567.123456	123.456	1001.0000	1
+1001	123456789	1001	1234567.123456	123.456	1001.0000	1
+1002	-123456789.123456	1002	12345678.123456	123.457	1002.0000	1
+select c2_varchar from test1 where c1_int in (select abs(c1_int) from test1);
+c2_varchar
+123456789
+-123456789.123456
+select t1.c1_int,t2.c1_int,abs(t1.c2_varchar) from test1 as t1,test1 as t2 where t1.c1_int<t2.c1_int;
+c1_int	c1_int	abs(t1.c2_varchar)
+-1002	-1001	NULL
+-1002	1001	NULL
+-1002	1002	NULL
+-1001	1001	123456789
+-1001	1002	123456789
+1001	1002	123456789
+select abs(t1.c1_int),t1.c2_varchar,t2.c2_varchar from test1 as t1,test1 as t2 where t1.c2_varchar<t2.c2_varchar;
+abs(t1.c1_int)	c2_varchar	c2_varchar
+1001	-123456789	123456789
+1001	-123456789	-123456789.123456
+1002	-123456789.123456	123456789
+select t1.c1_int,t2.c1_int,abs(t1.c2_varchar) from test1 as t1 join test1 as t2 on t1.c1_int<abs(t2.c1_int);
+c1_int	c1_int	abs(t1.c2_varchar)
+-1002	-1002	NULL
+-1002	-1001	NULL
+-1002	1001	NULL
+-1002	1002	NULL
+-1001	-1002	123456789
+-1001	-1001	123456789
+-1001	1001	123456789
+-1001	1002	123456789
+1001	-1002	123456789
+1001	1002	123456789
+select abs(t1.c1_int),t1.c2_varchar,t2.c2_varchar from test1 as t1 join test1 as t2 on t1.c2_varchar<abs(t2.c2_varchar);
+abs(t1.c1_int)	c2_varchar	c2_varchar
+1001	-123456789	-123456789
+1001	-123456789	123456789
+1001	-123456789	-123456789.123456
+1001	123456789	-123456789.123456
+1002	-123456789.123456	-123456789
+1002	-123456789.123456	123456789
+1002	-123456789.123456	-123456789.123456
+drop table test1;
+create table test1(c1_int int,c2_varchar varchar(40),c3_float float,c4_double double,c5_bool bool,c6_timestamp timestamp,c7_datetime datetime,c8_date date,c9_time time,c10_decimal decimal(38,37));
+insert into test1 values(1,'2',3.33,4.4444, true,'2022-12-30 22:34:39','2022-12-30 22:34:39','2022-12-30','22:34:39',5.12345678910111213141516171819);
+insert into test1 values(-1,'-2',-3.33,-4.4444,false,'2021-12-30 22:34:39','2021-12-30 22:34:39', '2021-12-30','21:34:39',-5.12345678910111213141516171819);
+insert into test1 values(1,'4',4.44,6.6666, true,'2023-12-30 22:34:39','2023-12-30 22:34:39','2023-12-30','22:34:39',6.12345678910111213141516171819);
+insert into test1 values(-1,'3',5.55,7.7777,false,'2024-12-30 22:34:39','2024-12-30 22:34:39', '2024-12-30','21:34:39',7.12345678910111213141516171819);
+select log10(null);
+log10(null)
+NULL
+select log10();
+ERROR HY000: YAO-5054: Param num of function 'log10' must be 1, ret=-5054
+select log10(1,2);
+ERROR HY000: YAO-5054: Param num of function 'log10' must be 1, ret=-5054
+select log10(0),log10(-1),log10(1),log10(111),log10(-999);
+log10(0)	log10(-1)	log10(1)	log10(111)	log10(-999)
+NULL	NULL	0	2.0453229787866576	NULL
+select log10('');
+log10('')
+NULL
+select log10('abc');
+log10('abc')
+NULL
+select log10('-123456.123456');
+log10('-123456.123456')
+NULL
+select log10(123.4567);
+log10(123.4567)
+2.0915146640862625
+select log10(true);
+log10(true)
+0
+select log10(false);
+log10(false)
+NULL
+select log10(to_timestamp('2022-12-30 22:34:39','yyyy-mm-dd hh:mm:ss'));
+log10(to_timestamp('2022-12-30 22:34:39','yyyy-mm-dd hh:mm:ss'))
+15.223342983964661
+select log10(to_date('2022-12-30','yyyy-mm-dd'));
+log10(to_date('2022-12-30','yyyy-mm-dd'))
+15.223321876783746
+select log10(1.2345e3);
+log10(1.2345e3)
+3.091491094267951
+select log10(-1.2345e-2);
+log10(-1.2345e-2)
+NULL
+select log10(9223372036854775808);
+log10(9223372036854775808)
+18.964889726830815
+select log10(-9223372036854775807);
+log10(-9223372036854775807)
+NULL
+select log10(0.9999999999999999999999999999999999999);
+log10(0.9999999999999999999999999999999999999)
+0
+select log10(0.99999999999999999999999999999999999991);
+log10(0.99999999999999999999999999999999999991)
+0
+select log10(3+4),log10(3-4),log10(-3*4),log10(-3/4.0);
+log10(3+4)	log10(3-4)	log10(-3*4)	log10(-3/4.0)
+0.8450980400142568	NULL	NULL	NULL
+select log10(-3*null),log10(null/4.0),log10(3-null),log10(3+null);
+log10(-3*null)	log10(null/4.0)	log10(3-null)	log10(3+null)
+NULL	NULL	NULL	NULL
+select log10(-3/0);
+log10(-3/0)
+NULL
+select log10(34 mod(5)),log10(null mod(5)),log10(null%5);
+log10(34 mod(5))	log10(null mod(5))	log10(null%5)
+0.6020599913279624	NULL	NULL
+select log10(((123+123.123+'456.123')*'1000.123'/(456%5.0)+123456.123456*1.123456789101112));
+log10(((123+123.123+'456.123')*'1000.123'/(456%5.0)+123456.123456*1.123456789101112))
+5.924811485690798
+select log10(1=1),log10(1<1),log10(1>=1),log10(1!=1),log10(1<>1);
+log10(1=1)	log10(1<1)	log10(1>=1)	log10(1!=1)	log10(1<>1)
+0	NULL	0	NULL	NULL
+update test1 set c3_float=8.88 where c2_varchar=log10('100');
+update test1 set c3_float=log10(7777.888888) where c1_int=1;
+update test1 set c3_float=log10(1) where c2_varchar='-2';
+select c1_int,c2_varchar,c3_float from test1 where c2_varchar=log10(100);
+c1_int	c2_varchar	c3_float
+1	2	3.89086
+select c1_int,c2_varchar,c3_float from test1 having c1_int < log10(1000);
+c1_int	c2_varchar	c3_float
+1	2	3.89086
+-1	-2	0
+1	4	3.89086
+-1	3	5.55
+select log10(c1_int),c2_varchar,c3_float from test1 order by c1_int;
+log10(c1_int)	c2_varchar	c3_float
+NULL	-2	0
+NULL	3	5.55
+0	2	3.89086
+0	4	3.89086
+insert into test1 values(2,'-2',log10(100),log10(1000),true,NULL,NULL,NULL,NULL,NULL);
+delete from test1 where c1_int=log10(10);
+delete from test1 where c2_varchar=log10(100);
+insert into test1 values(1,'4',4.44,6.6666, true,'2023-12-30 22:34:39','2023-12-30 22:34:39','2023-12-30','22:34:39',6.12345678910111213141516171819);
+(select c1_int,log10(c1_int),c2_varchar from test1 where c2_varchar='2') union (select c1_int,log10(c1_int),c2_varchar from test1 where c2_varchar='-2');
+c1_int	log10(c1_int)	c2_varchar
+-1	NULL	-2
+2	0.3010299956639812	-2
+(select log10(c1_int),log10(c2_varchar) from test1 where c1_int=1) intersect (select log10(c1_int),log10(c2_varchar) from test1);
+log10(c1_int)	log10(c2_varchar)
+0	0.6020599913279624
+(select c1_int,log10(c1_int),c2_varchar from test1 where c1_int<1001) except (select c1_int,log10(c1_int),c2_varchar from test1 where c2_varchar='2');
+c1_int	log10(c1_int)	c2_varchar
+-1	NULL	-2
+-1	NULL	3
+1	0	4
+2	0.3010299956639812	-2
+select c1_int,c2_varchar,c3_float from test1 where c1_int between log10(1) and log10(10000);
+c1_int	c2_varchar	c3_float
+2	-2	2
+1	4	4.44
+select c1_int,c2_varchar,c3_float from test1 where c3_float between log10(0.0000001) and log10(10000000);
+c1_int	c2_varchar	c3_float
+-1	-2	0
+-1	3	5.55
+2	-2	2
+1	4	4.44
+select length('yaobase_test'),log10(length('yaobase_test'));
+length('yaobase_test')	log10(length('yaobase_test'))
+12	1.0791812460476249
+select round(1234.567,1),log10(round(1234.567,1));
+round(1234.567,1)	log10(round(1234.567,1))
+1234.6	3.0915262726310906
+select log10(123456.7891011),round(log10(123456.7891011),2);
+log10(123456.7891011)	round(log10(123456.7891011),2)
+5.091514977524919	5.09
+select ceil(9999.5555555555),log10(ceil(9999.5555555555));
+ceil(9999.5555555555)	log10(ceil(9999.5555555555))
+10000	4
+select log10(9999.9999),ceil(log10(9999.9999));
+log10(9999.9999)	ceil(log10(9999.9999))
+3.9999999956570553	4
+select floor(10.1),log10(floor(10.1)),log10(10),floor(log10(10)),log10(log10(log10(0.1))),log10(log10(100));
+floor(10.1)	log10(floor(10.1))	log10(10)	floor(log10(10))	log10(log10(log10(0.1)))	log10(log10(100))
+10	1	1	1	NULL	0.3010299956639812
+select c2_varchar,log10(c2_varchar) from test1;
+c2_varchar	log10(c2_varchar)
+-2	NULL
+3	0.47712125471966244
+-2	NULL
+4	0.6020599913279624
+select c5_bool,log10(c5_bool) from test1;
+c5_bool	log10(c5_bool)
+0	NULL
+0	NULL
+1	0
+1	0
+select c6_timestamp,log10(c6_timestamp) from test1;
+c6_timestamp	log10(c6_timestamp)
+2021-12-30 22:34:39.000000	15.215075466225807
+2024-12-30 22:34:39.000000	15.239441954156609
+NULL	NULL
+2023-12-30 22:34:39.000000	15.231456051395012
+select c7_datetime,log10(c7_datetime) from test1;
+c7_datetime	log10(c7_datetime)
+2021-12-30 22:34:39.000000	15.215075466225807
+2024-12-30 22:34:39.000000	15.239441954156609
+NULL	NULL
+2023-12-30 22:34:39.000000	15.231456051395012
+select c8_date,log10(c8_date) from test1;
+c8_date	log10(c8_date)
+2021-12-30	15.215053953375604
+2024-12-30	15.23942161509657
+NULL	NULL
+2023-12-30	15.231435334867083
+select c9_time,log10(c9_time) from test1;
+c9_time	log10(c9_time)
+21:34:39	10.890303626049313
+21:34:39	10.890303626049313
+NULL	NULL
+22:34:39	10.90997835171699
+select log10(c1_int),log10(c3_float),log10(c4_double),log10(c10_decimal) from test1;
+log10(c1_int)	log10(c3_float)	log10(c4_double)	log10(c10_decimal)
+NULL	NULL	NULL	NULL
+NULL	0.7442929980479189	0.8908511876083981	0.8526907942147526
+0.3010299956639812	0.3010299956639812	0.47712125471966244	NULL
+0	0.6473829757115859	0.8239043979777848	0.7869966575390399
+select c2_varchar mod(c1_int),log10(c2_varchar mod(c1_int)) from test1;
+c2_varchar mod(c1_int)	log10(c2_varchar mod(c1_int))
+0	NULL
+0	NULL
+0	NULL
+0	NULL
+select log10(c10_decimal+(c1_int*(c1_int-c4_double)+c2_varchar/c1_int)*(c2_varchar%c1_int)) log10 from test1;
+log10
+NULL
+0.8526907942147526
+NULL
+0.7869966575390399
+select log10(c10_decimal-(c1_int*(c2_varchar-c4_double)+c3_float/c1_int)+(c2_varchar%c1_int)) log10 from test1;
+log10
+NULL
+0.8973937729011406
+NULL
+0.6384949209045345
+select c1_int,c2_varchar,log10(max(c1_int)),log10(min(c4_double)),log10(sum(c3_float)),log10(avg(c1_int)),log10(count(c2_varchar)) from test1 group by c1_int,c2_varchar;
+c1_int	c2_varchar	log10(max(c1_int))	log10(min(c4_double))	log10(sum(c3_float))	log10(avg(c1_int))	log10(count(c2_varchar))
+-1	-2	NULL	NULL	NULL	NULL	0
+-1	3	NULL	0.8908511876083981	0.7442929980479189	NULL	0
+1	4	0	0.8239043979777848	0.6473829757115859	0	0
+2	-2	0.3010299956639812	0.47712125471966244	0.3010299956639812	0.3010299956639812	0
+select c2_varchar from test1 where c1_int in (select log10(100) from test1);
+c2_varchar
+-2
+select c1_int from test1 where c2_varchar in (select log10(100) from test1);
+c1_int
+select t1.c1_int,t2.c1_int,log10(t1.c2_varchar) from test1 as t1,test1 as t2 where t1.c1_int<t2.c1_int;
+c1_int	c1_int	log10(t1.c2_varchar)
+-1	2	NULL
+-1	1	NULL
+-1	2	0.47712125471966244
+-1	1	0.47712125471966244
+1	2	0.6020599913279624
+select log10(t1.c1_int),t1.c2_varchar,t2.c2_varchar from test1 as t1,test1 as t2 where t1.c2_varchar<t2.c2_varchar;
+log10(t1.c1_int)	c2_varchar	c2_varchar
+NULL	-2	3
+NULL	-2	4
+NULL	3	4
+0.3010299956639812	-2	3
+0.3010299956639812	-2	4
+select t1.c1_int,t2.c1_int,log10(t1.c2_varchar) from test1 as t1 join test1 as t2 on t1.c1_int<log10(t2.c1_int);
+c1_int	c1_int	log10(t1.c2_varchar)
+-1	2	NULL
+-1	1	NULL
+-1	2	0.47712125471966244
+-1	1	0.47712125471966244
+select log10(t1.c1_int),t1.c2_varchar,t2.c2_varchar from test1 as t1 join test1 as t2 on t1.c2_varchar<log10(t2.c2_varchar);
+log10(t1.c1_int)	c2_varchar	c2_varchar
+NULL	-2	3
+NULL	-2	4
+0.3010299956639812	-2	3
+0.3010299956639812	-2	4
+drop table if exists test,test1,test2;
+create table test(id int primary key,score int,weight float,name varchar(1));
+create table test1(id int primary key,grade double,date_ date,time_ time,datetime_ datetime,hight decimal(7,2));
+create table test2(id int primary key,score int);
+CREATE TABLE sales (product_id INT,sale_amount DECIMAL(10,2));
+CREATE TABLE variance_results (product_id INT,expected_variance DECIMAL(10,2));
+insert into test values (1,12,54.2,'a'),(2,13,44.2,'a'),(3,34,56.2,'b'),(4,89,67.1,'c'),(5,59,40.1,'c'),(6,45,78.8,'d');
+insert into test1 values (1,1.23,'2019-03-15','18:23:41','2019-03-15 18:23:41',54.21),(2,13.1,'2019-12-21','23:12:21','2019-12-21  23:12:21',44.29),(3,34.009,'2019-11-28','10:45:23','2019-11-28 10:45:23',56.20),(4,89.7,'2019-01-12','13:23:34','2019-01-12 13:23:34',67.18),(5,59.7,'2017-09-16','21:23:54','2017-09-16 21:23:54',40.1);
+insert into test2 values (1,null),(2,34),(3,66),(4,88),(5,99),(6,null);
+INSERT INTO sales (product_id, sale_amount) VALUES(1, 100.00),(1, 150.00),(1, 200.00),(2, 90.00),(2, 120.00),(2, 140.00);
+INSERT INTO variance_results (product_id, expected_variance) VALUES(1, 1666.67),(2, 1120.00);
+select variance(score, weight) from test;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select 1 + variance(score+2) + 1 from test;
+1 + variance(score+2) + 1
+720.6666666666665
+select 2 * variance(score*3) * 4 from test;
+2 * variance(score*3) * 4
+51744
+select 2 * variance(score*3) / 4 from test;
+2 * variance(score*3) / 4
+3234
+select 20 - variance(score-3) - 4 from test;
+20 - variance(score-3) - 4
+-702.6666666666665
+select variance(score) from test2;
+variance(score)
+616.1875
+select var(score) from test;
+var(score)
+718.6666666666665
+select var(weight) from test;
+var(weight)
+172.47557719760744
+select var(score + weight) from test;
+var(score + weight)
+1129.2755306582985
+select var(score * weight) from test;
+var(score * weight)
+3440244.26990615
+select var(score - weight) from test;
+var(score - weight)
+653.0089570702471
+select var(score / weight) from test;
+var(score / weight)
+0.23213167134675172
+select var(score+weight*12+length(name)) from test;
+var(score+weight*12+length(name))
+28412.749224650557
+select var(score*2) from test;
+var(score*2)
+2874.666666666666
+select var(score*4-10) from test;
+var(score*4-10)
+11498.666666666664
+select var(score),avg(score),sum(score),min(score),max(score) from test;
+var(score)	avg(score)	sum(score)	min(score)	max(score)
+718.6666666666665	42	252	12	89
+select var(score) from test group by name;
+var(score)
+0.25
+0
+225
+0
+select var(weight) from test group by name;
+var(weight)
+25
+0
+182.25
+0
+select var(10) from test;
+var(10)
+0
+insert into test values (7,2147483647,3.4e38,'a');
+select var(score) from test;
+var(score)
+5.6469622454005734e17
+select var(weight) from test;
+var(weight)
+1.4155101642344913e76
+insert into test values (8,-2147483648,1.1754e-38,'b');
+select var(weight) from test;
+var(weight)
+1.2643749644073712e76
+select var(grade) from test1;
+var(grade)
+1023.9545113600002
+select var(hight) from test1;
+var(hight)
+90.64530400000058
+select var(grade+5) from test1;
+var(grade+5)
+1023.9545113600009
+select var(hight*2) from test1;
+var(hight*2)
+362.5812160000023
+select var(grade+hight) from test1;
+var(grade+hight)
+1361.586397760002
+select var(grade*hight) from test1;
+var(grade*hight)
+4386863.679114675
+select var(grade/hight) from test1;
+var(grade/hight)
+0.32891099103686217
+select var(year(date_)) from test1;
+var(year(date_))
+0.6400000005960464
+select var(month(date_)) from test1;
+var(month(date_))
+19.36
+select var(day(date_)) from test1;
+var(day(date_))
+31.440000000000055
+insert into test values (9,NULL,89.9,'l');
+select var(score) from test;
+var(score)
+1.1529215040699768e18
+delete from test2;
+select var(score) from test2;
+var(score)
+NULL
+select var(date_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select var(time_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select var(datetime_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select variance(distinct score) from test;
+variance(distinct score)
+1.1529215040699768e18
+SELECT name,score FROM test WHERE score<(SELECT variance(score) FROM test);
+name	score
+a	12
+a	13
+b	34
+c	89
+c	59
+d	45
+a	2147483647
+b	-2147483648
+SELECT name FROM test GROUP BY name HAVING variance(score)>=1;
+name
+a
+b
+c
+SELECT name,score FROM test WHERE score in (SELECT variance(score) FROM test);
+name	score
+SELECT name,score FROM test WHERE exists (SELECT variance(score) FROM test where id = 1);
+name	score
+a	12
+a	13
+b	34
+c	89
+c	59
+d	45
+a	2147483647
+b	-2147483648
+l	NULL
+select a.product_id,a.expected_variance,b.v from variance_results as a join (select product_id,variance(sale_amount) as v from sales group by product_id) b on a.product_id = b.product_id where abs(a.expected_variance - b.v) < 0.1;
+product_id	expected_variance	v
+1	1666.67	1666.6666666666679
+select product_id as id,expected_variance,(select variance(sale_amount) as v from sales group by product_id having product_id = 1 order by product_id) as Ev from variance_results where product_id = 1;
+id	expected_variance	Ev
+1	1666.67	1666.6666666666679
+drop view v1;
+create view v1 as select variance(score) from test;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+variance(score)	double	NO		NULL	
+select * from v1;
+variance(score)
+1.1529215040699768e18
+PREPARE stmt1 FROM 'select variance(?) from test';
+set @a=2;
+execute stmt1 using @a;
+variance(?)
+0
+select stddev(score) from test;
+stddev(score)
+1073741823.7500004
+select stddev(weight) from test;
+stddev(weight)
+1.0685168987534299e38
+select stddev(score + weight) from test;
+stddev(score + weight)
+1.124444291375687e38
+select stddev(score * weight) from test;
+stddev(score * weight)
+2.414725727691791e47
+select stddev(score - weight) from test;
+stddev(score - weight)
+1.124444291375687e38
+select stddev(score / weight) from test;
+stddev(score / weight)
+6.042312688472438e46
+select stddev(score + weight * 12+length(name)) from test;
+stddev(score + weight * 12+length(name))
+1.3493331496508246e39
+select stddev(score * 2) from test;
+stddev(score * 2)
+2147483647.5000007
+select stddev(score * 4 - 10) from test;
+stddev(score * 4 - 10)
+4294967295.0000014
+insert into test2 values (1,null),(2,34),(3,66),(4,88),(5,99),(6,null);
+select stddev(score) from test2;
+stddev(score)
+24.823124299733102
+select stddev(score) from test group by name;
+stddev(score)
+1012333493.6280556
+1073741841
+15
+0
+NULL
+select stddev(weight) from test group by name;
+stddev(weight)
+1.6027753481301446e38
+28.100000381469727
+13.5
+0
+0
+select stddev(10) from test;
+stddev(10)
+0
+select stddev(score) from test;
+stddev(score)
+1073741823.7500004
+select stddev(weight) from test;
+stddev(weight)
+1.0685168987534299e38
+select stddev(grade) from test1;
+stddev(grade)
+31.999289232106392
+select stddev(hight) from test1;
+stddev(hight)
+9.520782740930526
+select stddev(grade + 5) from test1;
+stddev(grade + 5)
+31.999289232106403
+select stddev(hight * 2) from test1;
+stddev(hight * 2)
+19.041565481861053
+select stddev(grade + hight) from test1;
+stddev(grade + hight)
+36.899680185063964
+select stddev(grade * hight) from test1;
+stddev(grade * hight)
+2094.4841081074537
+select stddev(grade / hight) from test1;
+stddev(grade / hight)
+0.5735076207312874
+select stddev(year(date_)) from test1;
+stddev(year(date_))
+0.800000000372529
+select stddev(month(date_)) from test1;
+stddev(month(date_))
+4.4
+select stddev(day(date_)) from test1;
+stddev(day(date_))
+5.607138307550479
+select stddev(score) from test;
+stddev(score)
+1073741823.7500004
+delete from test2;
+select stddev(score) from test2;
+stddev(score)
+NULL
+select stddev(date_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select stddev(time_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select stddev(datetime_) from test1;
+ERROR HY000: YAO-2: Invalid argument
+select stddev(distinct score) from test;
+stddev(distinct score)
+1073741823.7500004
+SELECT name,score FROM test WHERE score<(SELECT stddev(score) FROM test);
+name	score
+a	12
+a	13
+b	34
+c	89
+c	59
+d	45
+b	-2147483648
+SELECT name FROM test GROUP BY name HAVING stddev(score)>=1;
+name
+a
+b
+c
+SELECT name,score FROM test WHERE score in (SELECT stddev(score) FROM test);
+name	score
+SELECT name,score FROM test WHERE exists (SELECT stddev(score) FROM test where id = 1);
+name	score
+a	12
+a	13
+b	34
+c	89
+c	59
+d	45
+a	2147483647
+b	-2147483648
+l	NULL
+select a.product_id,a.expected_variance,b.v from variance_results as a join (select product_id,stddev(sale_amount) as v from sales group by product_id) b on a.product_id = b.product_id where abs(a.expected_variance - b.v) < 0.1;
+product_id	expected_variance	v
+select product_id as id,expected_variance,(select stddev(sale_amount) as v from sales group by product_id having product_id = 1 order by product_id) as Ev from variance_results where product_id = 1;
+id	expected_variance	Ev
+1	1666.67	40.82482904638632
+drop view v1;
+create view v1 as select stddev(score) from test;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+stddev(score)	double	NO		NULL	
+select * from v1;
+stddev(score)
+1073741823.7500004
+PREPARE stmt1 FROM 'select stddev(?) from test';
+set @a=2;
+execute stmt1 using @a;
+stddev(?)
+0
+create table num (id int primary key,itest int,ftest float,doutest double,detest decimal(9,2));
+insert into num values (1,1,1.1,1.2,1.3), (2,2,2.1,2.2,2.3), (3,3,3.1,3.2,3.3);
+insert into num values(4,4,4.6,3.5,6.9);
+insert into num values(5,-5,-3.3,-9.9,-2.34);
+insert into num values(6,-7,-3.13,-4.9,-2.15);
+insert into num values(7,-7,-3.73,-9.3,-2.15);
+insert into num values(8,-7,-3.73,-9.9,4.5);
+select covar(itest,itest) from num;
+covar(itest,itest)
+21.25
+select covar(itest,ftest) from num;
+covar(itest,ftest)
+14.7062499076128
+select covar(itest,doutest) from num;
+covar(itest,doutest)
+24.950000000000003
+select covar(itest,detest) from num;
+covar(itest,detest)
+9.627500000000001
+select covar(ftest,itest) from num;
+covar(ftest,itest)
+14.7062499076128
+select covar(ftest,ftest) from num;
+covar(ftest,ftest)
+10.473148261882368
+select covar(ftest,doutest) from num;
+covar(ftest,doutest)
+17.83129669222981
+select covar(ftest,detest) from num;
+covar(ftest,detest)
+7.284240557961167
+select covar(doutest,itest) from num;
+covar(doutest,itest)
+24.950000000000003
+select covar(doutest,ftest) from num;
+covar(doutest,ftest)
+17.83129669222981
+select covar(doutest,doutest) from num;
+covar(doutest,doutest)
+32.98609375
+select covar(doutest,detest) from num;
+covar(doutest,detest)
+10.66378125
+select covar(detest,itest) from num;
+covar(detest,itest)
+9.627500000000001
+select covar(detest,ftest) from num;
+covar(detest,ftest)
+7.284240557961167
+select covar(detest,detest) from num;
+covar(detest,detest)
+10.432018750000001
+select covar(detest,itest) from num;
+covar(detest,itest)
+9.627500000000001
+select covar(doutest,ftest) from num;
+covar(doutest,ftest)
+17.83129669222981
+select covar(ftest,itest) from num;
+covar(ftest,itest)
+14.7062499076128
+select covar(itest,doutest) from num;
+covar(itest,doutest)
+24.950000000000003
+select covar(detest,doutest) from num;
+covar(detest,doutest)
+10.66378125
+select covar(cast(itest as double),itest) from num;
+covar(cast(itest as double),itest)
+21.25
+select covar(cast(ftest as double),itest) from num;
+covar(cast(ftest as double),itest)
+14.7062499076128
+select covar(itest,cast(detest as double)) from num;
+covar(itest,cast(detest as double))
+9.627499999999998
+select covar(cast(detest as double),doutest) from num;
+covar(cast(detest as double),doutest)
+10.66378125
+select covar(itest+1,doutest+1) from num;
+covar(itest+1,doutest+1)
+24.950000000000003
+select covar(itest+1,doutest-1) from num;
+covar(itest+1,doutest-1)
+24.950000000000003
+select covar(itest-1,doutest-1) from num;
+covar(itest-1,doutest-1)
+24.950000000000003
+select covar(itest*2-1,doutest-1) from num;
+covar(itest*2-1,doutest-1)
+49.900000000000006
+select covar(itest+1,(doutest+1)/2) from num;
+covar(itest+1,(doutest+1)/2)
+12.475000000000001
+select covar(itest*3,doutest/2) from num;
+covar(itest*3,doutest/2)
+37.425
+select covar(itest) from num;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select covar(itest,doutest,ftest) from num;
+ERROR HY000: YAO-5006: Wrong type in expression
+select covar(null,itest) from num;
+covar(null,itest)
+NULL
+select covar(itest,null) from num;
+covar(itest,null)
+NULL
+select covar(null,null) from num;
+covar(null,null)
+NULL
+select covar('a',detest) from num;
+ERROR HY000: YAO-2: Invalid argument
+select id,doutest from num where doutest < (select covar(itest,detest) from num);
+id	doutest
+1	1.2
+2	2.2
+3	3.2
+4	3.5
+5	-9.9
+6	-4.9
+7	-9.3
+8	-9.9
+select round(covar(itest, detest),2) from num group by id;
+round(covar(itest, detest),2)
+0
+0
+0
+0
+0
+0
+0
+0
+select itest,detest from num group by id having covar(itest, detest) > 1;
+itest	detest
+select itest,detest from num where detest in(select covar(itest,detest) from num);
+itest	detest
+select itest,detest from num where  exists (select avg(itest*detest) - avg(itest)*avg(detest) from num);
+itest	detest
+1	1.3
+2	2.3
+3	3.3
+4	6.9
+-5	-2.34
+-7	-2.15
+-7	-2.15
+-7	4.5
+select a.product_id,a.expected_variance,b.v from variance_results as a join (select product_id,avg(product_id*sale_amount) - avg(product_id)*avg(sale_amount) as v from sales group by product_id) b on a.product_id = b.product_id where abs(a.expected_variance - b.v) < 0.1;
+product_id	expected_variance	v
+insert into test2 values (1,null),(2,34),(3,66),(4,88),(5,99),(6,null);
+select covar(id,score) from test2;
+covar(id,score)
+27.125
+select covar(score,weight) ,covar(score,weight),covar(score,weight)from test;
+covar(score,weight)	covar(score,weight)	covar(score,weight)
+9.126805252760729e46	9.126805252760729e46	9.126805252760729e46

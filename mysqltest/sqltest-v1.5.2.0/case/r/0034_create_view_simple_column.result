@@ -1,0 +1,2055 @@
+drop table if exists t1;
+drop view if exists v1;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+create view v1 as select * from t1;
+select * from v1;
+c1	c2	c3	c4	c5	c6
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+select * from t1;
+c1	c2	c3	c4	c5	c6
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create table v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+create table t2 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+create table t3 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+insert into t2 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+insert into t3 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+create view v1 as select t1.c1,t1.c2,t1.c3,t2.c4,t2.c1 as c5,t3.c6 as c6 from t1,t2,t3;
+create view v2 as select t2.c1,t1.c2,t1.c3,t3.c4,t3.c1 as c5 from t1,t2,t3;
+create view v3 as select t2.c1,t1.c2,t1.c3,t3.c4,t3.c1 as c5 from t1,t2,t3;
+select * from v1;
+c1	c2	c3	c4	c5	c6
+-1	-1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	0
+-1	-1	-1	-1	-1	1
+-1	-1	-1	0	0	-1
+-1	-1	-1	0	0	0
+-1	-1	-1	0	0	1
+-1	-1	-1	1	1	-1
+-1	-1	-1	1	1	0
+-1	-1	-1	1	1	1
+0	0	0	-1	-1	-1
+0	0	0	-1	-1	0
+0	0	0	-1	-1	1
+0	0	0	0	0	-1
+0	0	0	0	0	0
+0	0	0	0	0	1
+0	0	0	1	1	-1
+0	0	0	1	1	0
+0	0	0	1	1	1
+1	1	1	-1	-1	-1
+1	1	1	-1	-1	0
+1	1	1	-1	-1	1
+1	1	1	0	0	-1
+1	1	1	0	0	0
+1	1	1	0	0	1
+1	1	1	1	1	-1
+1	1	1	1	1	0
+1	1	1	1	1	1
+select t1.c1,t1.c2,t1.c3,t2.c4,t2.c1 as c5,t3.c6 as c6 from t1,t2,t3;
+c1	c2	c3	c4	c5	c6
+-1	-1	-1	-1	-1	-1
+-1	-1	-1	-1	-1	0
+-1	-1	-1	-1	-1	1
+-1	-1	-1	0	0	-1
+-1	-1	-1	0	0	0
+-1	-1	-1	0	0	1
+-1	-1	-1	1	1	-1
+-1	-1	-1	1	1	0
+-1	-1	-1	1	1	1
+0	0	0	-1	-1	-1
+0	0	0	-1	-1	0
+0	0	0	-1	-1	1
+0	0	0	0	0	-1
+0	0	0	0	0	0
+0	0	0	0	0	1
+0	0	0	1	1	-1
+0	0	0	1	1	0
+0	0	0	1	1	1
+1	1	1	-1	-1	-1
+1	1	1	-1	-1	0
+1	1	1	-1	-1	1
+1	1	1	0	0	-1
+1	1	1	0	0	0
+1	1	1	0	0	1
+1	1	1	1	1	-1
+1	1	1	1	1	0
+1	1	1	1	1	1
+select * from v2;
+c1	c2	c3	c4	c5
+-1	-1	-1	-1	-1
+-1	-1	-1	0	0
+-1	-1	-1	1	1
+0	-1	-1	-1	-1
+0	-1	-1	0	0
+0	-1	-1	1	1
+1	-1	-1	-1	-1
+1	-1	-1	0	0
+1	-1	-1	1	1
+-1	0	0	-1	-1
+-1	0	0	0	0
+-1	0	0	1	1
+0	0	0	-1	-1
+0	0	0	0	0
+0	0	0	1	1
+1	0	0	-1	-1
+1	0	0	0	0
+1	0	0	1	1
+-1	1	1	-1	-1
+-1	1	1	0	0
+-1	1	1	1	1
+0	1	1	-1	-1
+0	1	1	0	0
+0	1	1	1	1
+1	1	1	-1	-1
+1	1	1	0	0
+1	1	1	1	1
+select t2.c1,t1.c2,t1.c3,t3.c4,t3.c1 as c5 from t1,t2,t3;
+c1	c2	c3	c4	c5
+-1	-1	-1	-1	-1
+-1	-1	-1	0	0
+-1	-1	-1	1	1
+0	-1	-1	-1	-1
+0	-1	-1	0	0
+0	-1	-1	1	1
+1	-1	-1	-1	-1
+1	-1	-1	0	0
+1	-1	-1	1	1
+-1	0	0	-1	-1
+-1	0	0	0	0
+-1	0	0	1	1
+0	0	0	-1	-1
+0	0	0	0	0
+0	0	0	1	1
+1	0	0	-1	-1
+1	0	0	0	0
+1	0	0	1	1
+-1	1	1	-1	-1
+-1	1	1	0	0
+-1	1	1	1	1
+0	1	1	-1	-1
+0	1	1	0	0
+0	1	1	1	1
+1	1	1	-1	-1
+1	1	1	0	0
+1	1	1	1	1
+select * from v3;
+c1	c2	c3	c4	c5
+-1	-1	-1	-1	-1
+-1	-1	-1	0	0
+-1	-1	-1	1	1
+0	-1	-1	-1	-1
+0	-1	-1	0	0
+0	-1	-1	1	1
+1	-1	-1	-1	-1
+1	-1	-1	0	0
+1	-1	-1	1	1
+-1	0	0	-1	-1
+-1	0	0	0	0
+-1	0	0	1	1
+0	0	0	-1	-1
+0	0	0	0	0
+0	0	0	1	1
+1	0	0	-1	-1
+1	0	0	0	0
+1	0	0	1	1
+-1	1	1	-1	-1
+-1	1	1	0	0
+-1	1	1	1	1
+0	1	1	-1	-1
+0	1	1	0	0
+0	1	1	1	1
+1	1	1	-1	-1
+1	1	1	0	0
+1	1	1	1	1
+select t2.c1,t1.c2,t1.c3,t3.c4,t3.c1 as c5 from t1,t2,t3;
+c1	c2	c3	c4	c5
+-1	-1	-1	-1	-1
+-1	-1	-1	0	0
+-1	-1	-1	1	1
+0	-1	-1	-1	-1
+0	-1	-1	0	0
+0	-1	-1	1	1
+1	-1	-1	-1	-1
+1	-1	-1	0	0
+1	-1	-1	1	1
+-1	0	0	-1	-1
+-1	0	0	0	0
+-1	0	0	1	1
+0	0	0	-1	-1
+0	0	0	0	0
+0	0	0	1	1
+1	0	0	-1	-1
+1	0	0	0	0
+1	0	0	1	1
+-1	1	1	-1	-1
+-1	1	1	0	0
+-1	1	1	1	1
+0	1	1	-1	-1
+0	1	1	0	0
+0	1	1	1	1
+1	1	1	-1	-1
+1	1	1	0	0
+1	1	1	1	1
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t2"."c4" as "c4", "test"."t2"."c1" as "c5", "test"."t3"."c6" as "c6" from "test"."t1", "test"."t2", "test"."t3"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t2"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t3"."c4" as "c4", "test"."t3"."c1" as "c5" from "test"."t1", "test"."t2", "test"."t3"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t2"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t3"."c4" as "c4", "test"."t3"."c1" as "c5" from "test"."t1", "test"."t2", "test"."t3"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 decimal(38,0) primary key,c2 decimal(38,1),c3 decimal(38,2),c4 decimal(38,3),c5 decimal(38,4),c6 decimal(38,5));
+create table t2 (c1 decimal(38,37) primary key,c2 decimal(38,36),c3 decimal(38,35),c4 decimal(38,34),c5 decimal(38,33),c6 decimal(38,32));
+create table t3 (c1 decimal(1,0) primary key,c2 decimal(10,2),c3 decimal(5,0),c4 decimal(3,2),c5 decimal(23,20),c6 decimal(12,5));
+create view v1 as select * from t1;
+create view v2 as select * from t2;
+create view v3 as select * from t3;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(38,0)	YES		NULL	
+c2	decimal(38,1)	YES		NULL	
+c3	decimal(38,2)	YES		NULL	
+c4	decimal(38,3)	YES		NULL	
+c5	decimal(38,4)	YES		NULL	
+c6	decimal(38,5)	YES		NULL	
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(38,0)	YES	PRI	NULL	
+c2	decimal(38,1)	YES		NULL	
+c3	decimal(38,2)	YES		NULL	
+c4	decimal(38,3)	YES		NULL	
+c5	decimal(38,4)	YES		NULL	
+c6	decimal(38,5)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(38,37)	YES		NULL	
+c2	decimal(38,36)	YES		NULL	
+c3	decimal(38,35)	YES		NULL	
+c4	decimal(38,34)	YES		NULL	
+c5	decimal(38,33)	YES		NULL	
+c6	decimal(38,32)	YES		NULL	
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(38,37)	YES	PRI	NULL	
+c2	decimal(38,36)	YES		NULL	
+c3	decimal(38,35)	YES		NULL	
+c4	decimal(38,34)	YES		NULL	
+c5	decimal(38,33)	YES		NULL	
+c6	decimal(38,32)	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(10,2)	YES		NULL	
+c3	decimal(5,0)	YES		NULL	
+c4	decimal(3,2)	YES		NULL	
+c5	decimal(23,20)	YES		NULL	
+c6	decimal(12,5)	YES		NULL	
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES	PRI	NULL	
+c2	decimal(10,2)	YES		NULL	
+c3	decimal(5,0)	YES		NULL	
+c4	decimal(3,2)	YES		NULL	
+c5	decimal(23,20)	YES		NULL	
+c6	decimal(12,5)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3012	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"
+3013	0	1	select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3", "test"."t2"."c4" as "c4", "test"."t2"."c5" as "c5", "test"."t2"."c6" as "c6" from "test"."t2"
+3014	0	1	select "test"."t3"."c1" as "c1", "test"."t3"."c2" as "c2", "test"."t3"."c3" as "c3", "test"."t3"."c4" as "c4", "test"."t3"."c5" as "c5", "test"."t3"."c6" as "c6" from "test"."t3"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3", "test"."t2"."c4" as "c4", "test"."t2"."c5" as "c5", "test"."t2"."c6" as "c6" from "test"."t2"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t3"."c1" as "c1", "test"."t3"."c2" as "c2", "test"."t3"."c3" as "c3", "test"."t3"."c4" as "c4", "test"."t3"."c5" as "c5", "test"."t3"."c6" as "c6" from "test"."t3"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1;
+drop view if exists v1;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(2,1),c3 decimal(3,2),c4 decimal(4,3),c5 decimal(5,4),c6 decimal(6,5));
+create view v1 as select c1,c2,c5 from t1 as t2;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(2,1)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES	PRI	NULL	
+c2	decimal(2,1)	YES		NULL	
+c3	decimal(3,2)	YES		NULL	
+c4	decimal(4,3)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+c6	decimal(6,5)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3016	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2", "t2"."c5" as "c5" from "test"."t1" as "t2"
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(2,1),c3 decimal(3,2),c4 decimal(4,3),c5 decimal(5,4),c6 decimal(6,5));
+insert into t1 values(1,1.1,1.11,1.111,1.111,1.1111);
+insert into t1 values(2,2.2,2.22,2.222,2.222,2.2222);
+create view v1 as select c1,c2,c5 from (select * from t1);
+create view v2 as select c1,c2 from v1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES	PRI	NULL	
+c2	decimal(2,1)	YES		NULL	
+c3	decimal(3,2)	YES		NULL	
+c4	decimal(4,3)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+c6	decimal(6,5)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(2,1)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(2,1)	YES		NULL	
+select c1,c2,c5 from (select * from t1);
+c1	c2	c5
+1	1.1	1.111
+2	2.2	2.222
+select * from v1;
+c1	c2	c5
+1	1.1	1.111
+2	2.2	2.222
+select c1,c2 from v1;
+c1	c2
+1	1.1
+2	2.2
+select * from v2;
+c1	c2
+1	1.1
+2	2.2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3018	0	0	select "c1" as "c1", "c2" as "c2", "c5" as "c5" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1")
+3019	0	0	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1 (c1 decimal(1,0) primary key,c2 decimal(2,1),c3 decimal(3,2),c4 decimal(4,3),c5 decimal(5,4),c6 decimal(6,5));
+insert into t1 values(1,1.1,1.11,1.111,1.111,1.1111);
+insert into t1 values(2,2.2,2.22,2.222,2.222,2.2222);
+create view v1 as select c1,c2,c5 from (select * from t1);
+create view v2 as select c1,c2 from v1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES	PRI	NULL	
+c2	decimal(2,1)	YES		NULL	
+c3	decimal(3,2)	YES		NULL	
+c4	decimal(4,3)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+c6	decimal(6,5)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(2,1)	YES		NULL	
+c5	decimal(5,4)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(1,0)	YES		NULL	
+c2	decimal(2,1)	YES		NULL	
+select c1,c2,c5 from (select * from t1);
+c1	c2	c5
+1	1.1	1.111
+2	2.2	2.222
+select * from v1;
+c1	c2	c5
+1	1.1	1.111
+2	2.2	2.222
+select c1,c2 from v1;
+c1	c2
+1	1.1
+2	2.2
+select * from v2;
+c1	c2
+1	1.1
+2	2.2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3021	0	0	select "c1" as "c1", "c2" as "c2", "c5" as "c5" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1")
+3022	0	0	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1 (c1 binary primary key,c2 char,c3 varbinary(0),c4 varchar(0));
+insert into t1 values (1,1,'',''),(2,2,'','');
+create view v1 as select c1,c2 from (select * from t1);
+create view v2 as select c1,c2 from v1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(1)	YES	PRI	NULL	
+c2	varchar(1)	YES		NULL	
+c3	varchar(0)	YES		NULL	
+c4	varchar(0)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(1)	YES		NULL	
+c2	varchar(1)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(1)	YES		NULL	
+c2	varchar(1)	YES		NULL	
+select c1,c2,c3 from (select * from t1);
+c1	c2	c3
+1	1	
+2	2	
+select * from v1;
+c1	c2
+1	1
+2	2
+select c1,c2 from v1;
+c1	c2
+1	1
+2	2
+select * from v2;
+c1	c2
+1	1
+2	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3024	0	0	select "c1" as "c1", "c2" as "c2" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4" from "test"."t1")
+3025	0	0	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+drop table if exists t1;
+drop view if exists v1,v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 varchar(9223372936854775807) primary key,c2 varchar(9223372936854775807));
+create table t2 (c1 binary primary key,c2 char,c3 varbinary(11),c4 varchar(11));
+insert into t1 values ('cbase','create view');
+insert into t2 values ('A','C','create','drop');
+create view v1 as select * from (select t1.c1 as c1,t2.c1 as c2 from t1,t2);
+create view v2 as select * from v1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(9223372036854775807)	YES	PRI	NULL	
+c2	varchar(9223372036854775807)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(4294967295)	YES		NULL	
+c2	varchar(1)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(4294967295)	YES		NULL	
+c2	varchar(1)	YES		NULL	
+select * from (select t1.c1 as c1,t2.c1 as c2 from t1,t2);
+c1	c2
+cbase	A
+select * from v1;
+c1	c2
+cbase	A
+select * from v1;
+c1	c2
+cbase	A
+select * from v2;
+c1	c2
+cbase	A
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3028	0	0	select "c1" as "c1", "c2" as "c2" from (select "test"."t1"."c1" as "c1", "test"."t2"."c1" as "c2" from "test"."t1", "test"."t2")
+3029	0	0	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 varchar(9223372936854775807) primary key,c2 varchar(12));
+insert into t1 values ('cbase','create view'),('A','C');
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(9223372036854775807)	YES	PRI	NULL	
+c2	varchar(12)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(4294967295)	YES		NULL	
+c2	varchar(12)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(4294967295)	YES		NULL	
+c2	varchar(12)	YES		NULL	
+select * from t1 as t2;
+c1	c2
+A	C
+cbase	create view
+select * from v1;
+c1	c2
+A	C
+cbase	create view
+select * from v1;
+c1	c2
+A	C
+cbase	create view
+select * from v2;
+c1	c2
+A	C
+cbase	create view
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3031	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3032	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bool primary key,c2 bool);
+insert into t1 values (true,false),(false,false);
+create view v1 as select * from t1 as t2;
+create view v2 as select * from (select * from t1);
+create view v3 as select * from t1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	bool	YES	PRI	NULL	
+c2	bool	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(1)	YES		NULL	
+c2	int(1)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(1)	YES		NULL	
+c2	int(1)	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(1)	YES		NULL	
+c2	int(1)	YES		NULL	
+select * from t1 as t2;
+c1	c2
+0	0
+1	0
+select * from v1;
+c1	c2
+0	0
+1	0
+select * from (select * from t1);
+c1	c2
+0	0
+1	0
+select * from v2;
+c1	c2
+0	0
+1	0
+select * from t1;
+c1	c2
+0	0
+1	0
+select * from v3;
+c1	c2
+0	0
+1	0
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3034	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3035	0	0	select "c1" as "c1", "c2" as "c2" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1")
+3036	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 bool primary key,c2 bool);
+insert into t1 values (true,true),(false,true);
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 where c1='true';
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	bool	YES	PRI	NULL	
+c2	bool	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(1)	YES		NULL	
+c2	int(1)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(1)	YES		NULL	
+c2	int(1)	YES		NULL	
+select * from t1 as t2;
+c1	c2
+0	1
+1	1
+select * from v1;
+c1	c2
+0	1
+1	1
+select * from v1 where c1='true';
+c1	c2
+1	1
+select * from v2;
+c1	c2
+1	1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3038	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3039	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1" where (("test"."v1"."c1" = 'true'))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 createtime);
+insert into t1 (c1) values (1),(2),(3),(2147483647),(-2147483648);
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 where c1 not in(1,3);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c2	createtime	YES		NULL	
+c1	int(10)	YES	PRI	NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c2	createtime	YES		NULL	
+c1	int(10)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c2	createtime	YES		NULL	
+c1	int(10)	YES		NULL	
+select * from t1 as t2;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	3
+2021-03-24 09:05:07.438641	2147483647
+select * from v1;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	3
+2021-03-24 09:05:07.438641	2147483647
+select * from v1 where c1 not in(1,3);
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	2147483647
+select * from v2;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	2147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3041	0	1	select "t2"."c2" as "c2", "t2"."c1" as "c1" from "test"."t1" as "t2"
+3042	0	1	select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1" where ("test"."v1"."c1" not in (1, 3))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "t2"."c2" as "c2", "t2"."c1" as "c1" from "test"."t1" as "t2"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1" where ("test"."v1"."c1" not in (1, 3))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 modifytime);
+insert into t1 (c1) values (1),(2),(3),(2147483647),(-2147483648);
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 where c1 not in(1,3);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c2	modifytime	YES		NULL	
+c1	int(10)	YES	PRI	NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c2	modifytime	YES		NULL	
+c1	int(10)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c2	modifytime	YES		NULL	
+c1	int(10)	YES		NULL	
+select * from t1 as t2;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	3
+2021-03-24 09:05:07.438641	2147483647
+select * from v1;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	3
+2021-03-24 09:05:07.438641	2147483647
+select * from v1 where c1 not in(1,3);
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	2147483647
+select * from v2;
+c2	c1
+2021-03-24 09:05:07.438641	-2147483648
+2021-03-24 09:05:07.438641	2
+2021-03-24 09:05:07.438641	2147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3044	0	1	select "t2"."c2" as "c2", "t2"."c1" as "c1" from "test"."t1" as "t2"
+3045	0	1	select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1" where ("test"."v1"."c1" not in (1, 3))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "t2"."c2" as "c2", "t2"."c1" as "c1" from "test"."t1" as "t2"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1" where ("test"."v1"."c1" not in (1, 3))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 datetime,c3 timestamp);
+insert into t1 values (1,'2021-01-20 16:36:37.146254','2021-01-20 16:36:37.146254'),(2,'9999-12-31 23:59:59.999999','0001-01-01 00:00:00.000000');
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 ;
+create view v3 as select * from v2 where c1 >1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	timestamp	YES		NULL	
+c3	timestamp	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	timestamp	YES		NULL	
+c3	timestamp	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	timestamp	YES		NULL	
+c3	timestamp	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	timestamp	YES		NULL	
+c3	timestamp	YES		NULL	
+select * from t1 as t2;
+c1	c2	c3
+1	2021-01-20 16:36:37.146254	2021-03-24 09:05:07.438641
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from v1;
+c1	c2	c3
+1	2021-01-20 16:36:37.146254	2021-03-24 09:05:07.438641
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from v1;
+c1	c2	c3
+1	2021-01-20 16:36:37.146254	2021-03-24 09:05:07.438641
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from v2;
+c1	c2	c3
+1	2021-01-20 16:36:37.146254	2021-03-24 09:05:07.438641
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from v2 where c1>1;
+c1	c2	c3
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from v3;
+c1	c2	c3
+2	9999-12-31 23:59:59.999999	2021-03-24 09:05:07.438641
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3047	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2", "t2"."c3" as "c3" from "test"."t1" as "t2"
+3048	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3" from "test"."v1"
+3049	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3" from "test"."v2" where (("test"."v2"."c1" > 1))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 date);
+insert into t1 values (1,'2021-01-20'),(2,'9999-12-31'),(3,'0001-01-01');
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 ;
+create view v3 as select * from v2 where c1 >1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	date	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	date	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	date	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	date	YES		NULL	
+select * from t1 as t2;
+c1	c2
+1	2021-01-20
+2	9999-12-31
+3	0001-01-01
+select * from v1;
+c1	c2
+1	2021-01-20
+2	9999-12-31
+3	0001-01-01
+select * from v1;
+c1	c2
+1	2021-01-20
+2	9999-12-31
+3	0001-01-01
+select * from v2;
+c1	c2
+1	2021-01-20
+2	9999-12-31
+3	0001-01-01
+select * from v2 where c1>1;
+c1	c2
+2	9999-12-31
+3	0001-01-01
+select * from v3;
+c1	c2
+2	9999-12-31
+3	0001-01-01
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3051	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3052	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3053	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2" where (("test"."v2"."c1" > 1))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 time);
+insert into t1 values (1,'16:36:37'),(2,'00:00:00'),(3,'23:59:59');
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 ;
+create view v3 as select * from v2 where c1 >1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	time	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	time	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	time	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	time	YES		NULL	
+select * from t1 as t2;
+c1	c2
+1	16:36:37
+2	00:00:00
+3	23:59:59
+select * from v1;
+c1	c2
+1	16:36:37
+2	00:00:00
+3	23:59:59
+select * from v1;
+c1	c2
+1	16:36:37
+2	00:00:00
+3	23:59:59
+select * from v2;
+c1	c2
+1	16:36:37
+2	00:00:00
+3	23:59:59
+select * from v2 where c1>1;
+c1	c2
+2	00:00:00
+3	23:59:59
+select * from v3;
+c1	c2
+2	00:00:00
+3	23:59:59
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3055	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3056	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3057	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2" where (("test"."v2"."c1" > 1))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 int primary key,c2 double,c3 real);
+insert into t1 values(1,1.111,1.111111),(2,2.22,2.22222),(3,3.3333,3.333333333);
+create view v1 as select * from t1 as t2;
+create view v2 as select * from v1 ;
+create view v3 as select * from v2 where c1 >1;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+select * from t1 as t2;
+c1	c2	c3
+1	1.111	1.111111
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from v1;
+c1	c2	c3
+1	1.111	1.111111
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from v1;
+c1	c2	c3
+1	1.111	1.111111
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from v2;
+c1	c2	c3
+1	1.111	1.111111
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from v2 where c1>1;
+c1	c2	c3
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from v3;
+c1	c2	c3
+2	2.22	2.22222
+3	3.3333	3.333333333
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3059	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2", "t2"."c3" as "c3" from "test"."t1" as "t2"
+3060	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3" from "test"."v1"
+3061	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3" from "test"."v2" where (("test"."v2"."c1" > 1))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (c1 float primary key,c2 float);
+insert into t1 values(1.111,1.111111),(2.22,2.22222),(3.3333,3.333333333);
+create view v1 as select * from t1 as t2 where c1>=2;
+create view v2 as select * from v1 ;
+create view v3 as select * from v2 where c1 >3;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	float	YES	PRI	NULL	
+c2	float	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	float	YES		NULL	
+c2	float	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	float	YES		NULL	
+c2	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	float	YES		NULL	
+c2	float	YES		NULL	
+select * from t1 as t2 where c1>=2;
+c1	c2
+2.22	2.22222
+3.3333	3.33333
+select * from v1;
+c1	c2
+2.22	2.22222
+3.3333	3.33333
+select * from v2;
+c1	c2
+2.22	2.22222
+3.3333	3.33333
+select * from v1;
+c1	c2
+2.22	2.22222
+3.3333	3.33333
+select * from v2 where c1>3;
+c1	c2
+3.3333	3.33333
+select * from v3;
+c1	c2
+3.3333	3.33333
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3063	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2" where (("t2"."c1" >= 2))
+3064	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3065	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2" where (("test"."v2"."c1" > 3))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0),(2,2,2,2,2,2),(3,3,3,3,3,3),(-2,-2,-2,-2,-2,-2),(-3,-3,-3,-3,-3,-3);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select * from v3;
+create view v5 as select * from v4;
+create view v6 as select * from v5;
+create view v7 as select * from v6;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v1;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v2;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v3;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v4;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v5;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v6;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+select * from v7;
+c1	c2	c3	c4	c5	c6
+-3	-3	-3	-3	-3	-3
+-2	-2	-2	-2	-2	-2
+-1	-1	-1	-1	-1	-1
+0	0	0	0	0	0
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3", "test"."v1"."c4" as "c4", "test"."v1"."c5" as "c5", "test"."v1"."c6" as "c6" from "test"."v1"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3", "test"."v2"."c4" as "c4", "test"."v2"."c5" as "c5", "test"."v2"."c6" as "c6" from "test"."v2"	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2", "test"."v3"."c3" as "c3", "test"."v3"."c4" as "c4", "test"."v3"."c5" as "c5", "test"."v3"."c6" as "c6" from "test"."v3"	utf8mb4	utf8mb4_general_ci
+show create view v5;
+View	Create View	character_set_client	collation_connection
+test.v5	create view `test`.`v5` as select "test"."v4"."c1" as "c1", "test"."v4"."c2" as "c2", "test"."v4"."c3" as "c3", "test"."v4"."c4" as "c4", "test"."v4"."c5" as "c5", "test"."v4"."c6" as "c6" from "test"."v4"	utf8mb4	utf8mb4_general_ci
+show create view v6;
+View	Create View	character_set_client	collation_connection
+test.v6	create view `test`.`v6` as select "test"."v5"."c1" as "c1", "test"."v5"."c2" as "c2", "test"."v5"."c3" as "c3", "test"."v5"."c4" as "c4", "test"."v5"."c5" as "c5", "test"."v5"."c6" as "c6" from "test"."v5"	utf8mb4	utf8mb4_general_ci
+show create view v7;
+View	Create View	character_set_client	collation_connection
+test.v7	create view `test`.`v7` as select "test"."v6"."c1" as "c1", "test"."v6"."c2" as "c2", "test"."v6"."c3" as "c3", "test"."v6"."c4" as "c4", "test"."v6"."c5" as "c5", "test"."v6"."c6" as "c6" from "test"."v6"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,0) primary key,c2 decimal(38,1),c3 decimal(38,2),c4 decimal(38,3),c5 decimal(38,4),c6 decimal(38,5));
+create table t2 (c1 decimal(38,37) primary key,c2 decimal(38,36),c3 decimal(38,35),c4 decimal(38,34),c5 decimal(38,33),c6 decimal(38,32));
+create table t3 (c1 decimal(1,0) primary key,c2 decimal(10,2),c3 decimal(5,0),c4 decimal(3,2),c5 decimal(23,20),c6 decimal(12,5));
+insert into t1 values(1,1.1,1.1,1.1,1.1,1.1),(-1,-1.1,-1.1,-1.1,-1.1,-1.1),(0,0,0,0,0,0),(2,2.2,2.2,2.2,2.2,2.2),(3,3.3,3.3,3.3,3.3,3.3),(-2,-2.2,-2.2,-2.2,-2.2,-2.2),(-3,-3.3,-3.3,-3.3,-3.3,-3.3);
+insert into t2 values(1,1.1,1.1,1.1,1.1,1.1),(-1,-1.1,-1.1,-1.1,-1.1,-1.1),(0,0,0,0,0,0),(2,2.2,2.2,2.2,2.2,2.2),(3,3.3,3.3,3.3,3.3,3.3),(-2,-2.2,-2.2,-2.2,-2.2,-2.2),(-3,-3.3,-3.3,-3.3,-3.3,-3.3);
+insert into t3 values(1,1.1,1.1,1.1,1.1,1.1),(-1,-1.1,-1.1,-1.1,-1.1,-1.1),(0,0,0,0,0,0),(2,2.2,2.2,2.2,2.2,2.2),(3,3.3,3.3,3.3,3.3,3.3),(-2,-2.2,-2.2,-2.2,-2.2,-2.2),(-3,-3.3,-3.3,-3.3,-3.3,-3.3);
+create view v1 as select * from t1;
+create view v2 as select * from t2;
+create view v3 as select * from t3;
+create view vv1 as select * from v1 where c1>0;
+create view vv2 as select * from v2 where c1=0;
+create view vv3 as select * from v3 where c1<0;
+select * from v1 where c1>0;
+c1	c2	c3	c4	c5	c6
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from vv1;
+c1	c2	c3	c4	c5	c6
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v1 where c1=0;
+c1	c2	c3	c4	c5	c6
+0	0	0	0	0	0
+select * from vv2;
+c1	c2	c3	c4	c5	c6
+0	0	0	0	0	0
+select * from v1 where c1<0;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+select * from vv3;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3	-3.3	-3.3	-3.3
+-2	-2.2	-2	-2.2	-2.2	-2.2
+-1	-1.1	-1	-1.1	-1.1	-1.1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3077	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"
+3078	0	1	select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3", "test"."t2"."c4" as "c4", "test"."t2"."c5" as "c5", "test"."t2"."c6" as "c6" from "test"."t2"
+3079	0	1	select "test"."t3"."c1" as "c1", "test"."t3"."c2" as "c2", "test"."t3"."c3" as "c3", "test"."t3"."c4" as "c4", "test"."t3"."c5" as "c5", "test"."t3"."c6" as "c6" from "test"."t3"
+3080	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3", "test"."v1"."c4" as "c4", "test"."v1"."c5" as "c5", "test"."v1"."c6" as "c6" from "test"."v1" where (("test"."v1"."c1" > 0))
+3081	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3", "test"."v2"."c4" as "c4", "test"."v2"."c5" as "c5", "test"."v2"."c6" as "c6" from "test"."v2" where (("test"."v2"."c1" = 0))
+3082	0	1	select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2", "test"."v3"."c3" as "c3", "test"."v3"."c4" as "c4", "test"."v3"."c5" as "c5", "test"."v3"."c6" as "c6" from "test"."v3" where (("test"."v3"."c1" < 0))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+create table t1 (c1 decimal(38,0) primary key,c2 decimal(38,1),c3 decimal(38,2),c4 decimal(38,3),c5 decimal(38,4),c6 decimal(38,5));
+insert into t1 values(1,1.1,1.1,1.1,1.1,1.1),(-1,-1.1,-1.1,-1.1,-1.1,-1.1),(0,0,0,0,0,0),(2,2.2,2.2,2.2,2.2,2.2),(3,3.3,3.3,3.3,3.3,3.3),(-2,-2.2,-2.2,-2.2,-2.2,-2.2),(-3,-3.3,-3.3,-3.3,-3.3,-3.3);
+create view v1 as select * from t1;
+create view v2 as select * from v1 where c1!=0;
+create view v3 as select * from v2 where c1<0;
+create view v4 as select * from v3 where c1<-1;
+create view v5 as select * from v2 where c1>0;
+create view v6 as select * from v5 where c1>1;
+select * from v1;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+0	0	0	0	0	0
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from t1;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+0	0	0	0	0	0
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v2;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v1 where c1!=0;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v3;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+select * from v2 where c1<0;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+-1	-1.1	-1.1	-1.1	-1.1	-1.1
+select * from v4;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+select * from v3 where c1<-1;
+c1	c2	c3	c4	c5	c6
+-3	-3.3	-3.3	-3.3	-3.3	-3.3
+-2	-2.2	-2.2	-2.2	-2.2	-2.2
+select * from v5;
+c1	c2	c3	c4	c5	c6
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v2 where c1>0;
+c1	c2	c3	c4	c5	c6
+1	1.1	1.1	1.1	1.1	1.1
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v6;
+c1	c2	c3	c4	c5	c6
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from v5 where c1>1;
+c1	c2	c3	c4	c5	c6
+2	2.2	2.2	2.2	2.2	2.2
+3	3.3	3.3	3.3	3.3	3.3
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3084	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t1"."c4" as "c4", "test"."t1"."c5" as "c5", "test"."t1"."c6" as "c6" from "test"."t1"
+3085	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3", "test"."v1"."c4" as "c4", "test"."v1"."c5" as "c5", "test"."v1"."c6" as "c6" from "test"."v1" where (("test"."v1"."c1" != 0))
+3086	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3", "test"."v2"."c4" as "c4", "test"."v2"."c5" as "c5", "test"."v2"."c6" as "c6" from "test"."v2" where (("test"."v2"."c1" < 0))
+3087	0	1	select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2", "test"."v3"."c3" as "c3", "test"."v3"."c4" as "c4", "test"."v3"."c5" as "c5", "test"."v3"."c6" as "c6" from "test"."v3" where (("test"."v3"."c1" < -1))
+3088	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3", "test"."v2"."c4" as "c4", "test"."v2"."c5" as "c5", "test"."v2"."c6" as "c6" from "test"."v2" where (("test"."v2"."c1" > 0))
+3089	0	1	select "test"."v5"."c1" as "c1", "test"."v5"."c2" as "c2", "test"."v5"."c3" as "c3", "test"."v5"."c4" as "c4", "test"."v5"."c5" as "c5", "test"."v5"."c6" as "c6" from "test"."v5" where (("test"."v5"."c1" > 1))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+create table t1 (c1 varchar(9223372936854775807) primary key,c2 varchar(9223372936854775807));
+insert into t1 values ('cbase','create view'),('function','drop view');
+create view v1 as select * from t1;
+create view v2 as select * from t1 as t2;
+create view v3 as select * from (select * from t1) t2;
+create view v4 as select * from v1;
+create view v5 as select * from v2;
+create view v6 as select * from (select * from v3);
+select * from v1;
+c1	c2
+cbase	create view
+function	drop view
+select * from t1;
+c1	c2
+cbase	create view
+function	drop view
+select * from v2;
+c1	c2
+cbase	create view
+function	drop view
+select * from t1 as t2;
+c1	c2
+cbase	create view
+function	drop view
+select * from v3;
+c1	c2
+cbase	create view
+function	drop view
+select * from (select * from t1) t2;
+c1	c2
+cbase	create view
+function	drop view
+select * from v4;
+c1	c2
+cbase	create view
+function	drop view
+select * from v1;
+c1	c2
+cbase	create view
+function	drop view
+select * from v5;
+c1	c2
+cbase	create view
+function	drop view
+select * from v2;
+c1	c2
+cbase	create view
+function	drop view
+select * from v6;
+c1	c2
+cbase	create view
+function	drop view
+select * from (select * from v3);
+c1	c2
+cbase	create view
+function	drop view
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3091	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3092	0	1	select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"
+3093	0	0	select "t2"."c1" as "c1", "t2"."c2" as "c2" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1") as "t2"
+3094	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3095	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3096	0	0	select "c1" as "c1", "c2" as "c2" from (select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2" from "test"."v3")
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "t2"."c1" as "c1", "t2"."c2" as "c2" from "test"."t1" as "t2"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "t2"."c1" as "c1", "t2"."c2" as "c2" from (select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1") as "t2"	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"	utf8mb4	utf8mb4_general_ci
+show create view v5;
+View	Create View	character_set_client	collation_connection
+test.v5	create view `test`.`v5` as select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"	utf8mb4	utf8mb4_general_ci
+show create view v6;
+View	Create View	character_set_client	collation_connection
+test.v6	create view `test`.`v6` as select "c1" as "c1", "c2" as "c2" from (select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2" from "test"."v3")	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 varchar(9223372936854775807) primary key,c2 varchar(9223372936854775807));
+insert into t1 values ('cbase','view'),('function','drop view');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select * from v3;
+create view v5 as select * from v4;
+create view v6 as select * from v5;
+create view v7 as select * from v6;
+create view v8 as select * from v7;
+create view v9 as select * from v8;
+select * from t1;
+c1	c2
+cbase	view
+function	drop view
+select * from v1;
+c1	c2
+cbase	view
+function	drop view
+select * from v2;
+c1	c2
+cbase	view
+function	drop view
+select * from v3;
+c1	c2
+cbase	view
+function	drop view
+select * from v4;
+c1	c2
+cbase	view
+function	drop view
+select * from v5;
+c1	c2
+cbase	view
+function	drop view
+select * from v6;
+c1	c2
+cbase	view
+function	drop view
+select * from v7;
+c1	c2
+cbase	view
+function	drop view
+select * from v8;
+c1	c2
+cbase	view
+function	drop view
+select * from v9;
+c1	c2
+cbase	view
+function	drop view
+desc v9;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(4294967295)	YES		NULL	
+c2	varchar(4294967295)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3098	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3099	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3100	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3101	0	1	select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2" from "test"."v3"
+3102	0	1	select "test"."v4"."c1" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"
+3103	0	1	select "test"."v5"."c1" as "c1", "test"."v5"."c2" as "c2" from "test"."v5"
+3104	0	1	select "test"."v6"."c1" as "c1", "test"."v6"."c2" as "c2" from "test"."v6"
+3105	0	1	select "test"."v7"."c1" as "c1", "test"."v7"."c2" as "c2" from "test"."v7"
+3106	0	1	select "test"."v8"."c1" as "c1", "test"."v8"."c2" as "c2" from "test"."v8"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 bool);
+insert into t1 values (1,true),(2,false);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select * from v3;
+create view v5 as select * from v4;
+create view v6 as select * from v5;
+create view v7 as select * from v6;
+create view v8 as select * from v7;
+create view v9 as select * from v8;
+select * from t1;
+c1	c2
+1	1
+2	0
+select * from v1;
+c1	c2
+1	1
+2	0
+select * from v2;
+c1	c2
+1	1
+2	0
+select * from v3;
+c1	c2
+1	1
+2	0
+select * from v4;
+c1	c2
+1	1
+2	0
+select * from v5;
+c1	c2
+1	1
+2	0
+select * from v6;
+c1	c2
+1	1
+2	0
+select * from v7;
+c1	c2
+1	1
+2	0
+select * from v8;
+c1	c2
+1	1
+2	0
+select * from v9;
+c1	c2
+1	1
+2	0
+desc v9;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(1)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3108	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3109	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3110	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3111	0	1	select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2" from "test"."v3"
+3112	0	1	select "test"."v4"."c1" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"
+3113	0	1	select "test"."v5"."c1" as "c1", "test"."v5"."c2" as "c2" from "test"."v5"
+3114	0	1	select "test"."v6"."c1" as "c1", "test"."v6"."c2" as "c2" from "test"."v6"
+3115	0	1	select "test"."v7"."c1" as "c1", "test"."v7"."c2" as "c2" from "test"."v7"
+3116	0	1	select "test"."v8"."c1" as "c1", "test"."v8"."c2" as "c2" from "test"."v8"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 createtime);
+insert into t1(c1) values (1),(2);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select * from v3;
+create view v5 as select * from v4;
+create view v6 as select * from v5;
+create view v7 as select * from v6;
+create view v8 as select * from v7;
+create view v9 as select * from v8;
+select * from t1;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v1;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v2;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v3;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v4;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v5;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v6;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v7;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v8;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v9;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+desc v9;
+Field	Type	Null	Key	Default	Extra
+c2	createtime	YES		NULL	
+c1	int(10)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3118	0	1	select "test"."t1"."c2" as "c2", "test"."t1"."c1" as "c1" from "test"."t1"
+3119	0	1	select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1"
+3120	0	1	select "test"."v2"."c2" as "c2", "test"."v2"."c1" as "c1" from "test"."v2"
+3121	0	1	select "test"."v3"."c2" as "c2", "test"."v3"."c1" as "c1" from "test"."v3"
+3122	0	1	select "test"."v4"."c2" as "c2", "test"."v4"."c1" as "c1" from "test"."v4"
+3123	0	1	select "test"."v5"."c2" as "c2", "test"."v5"."c1" as "c1" from "test"."v5"
+3124	0	1	select "test"."v6"."c2" as "c2", "test"."v6"."c1" as "c1" from "test"."v6"
+3125	0	1	select "test"."v7"."c2" as "c2", "test"."v7"."c1" as "c1" from "test"."v7"
+3126	0	1	select "test"."v8"."c2" as "c2", "test"."v8"."c1" as "c1" from "test"."v8"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 timestamp);
+insert into t1 values (1,'2021-01-21 15:20:47.535848'),(2,'2021-01-21 15:20:00.888888');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+create view v5 as select c3 as c1,c2 as c2 from v4;
+select * from v1;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from t1;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from v2;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from v1;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from v3;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from v2;
+c1	c2
+1	2021-01-21 15:20:47.535848
+2	2021-01-21 15:20:00.888888
+select * from v4;
+c2	c3
+2021-01-21 15:20:47.535848	2021-01-21 15:20:47.535848
+2021-01-21 15:20:00.888888	2021-01-21 15:20:47.535848
+select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+c2	c3
+2021-01-21 15:20:47.535848	2021-01-21 15:20:47.535848
+2021-01-21 15:20:00.888888	2021-01-21 15:20:47.535848
+select * from v5;
+c1	c2
+2021-01-21 15:20:47.535848	2021-01-21 15:20:47.535848
+2021-01-21 15:20:47.535848	2021-01-21 15:20:00.888888
+select c3 as c1,c2 as c2 from v4;
+c1	c2
+2021-01-21 15:20:47.535848	2021-01-21 15:20:47.535848
+2021-01-21 15:20:47.535848	2021-01-21 15:20:00.888888
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c2	timestamp	YES		NULL	
+c3	varchar(26)	NO		NULL	
+desc v5;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(26)	NO		NULL	
+c2	timestamp	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3128	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3129	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3130	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3131	0	0	select "test"."t1"."c2" as "c2", '2021-01-21 15:20:47.535848' as "c3" from "test"."t1"
+3132	0	0	select "test"."v4"."c3" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 date);
+insert into t1 values (1,'2021-01-21'),(2,'1111-11-11');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+create view v5 as select c3 as c1,c2 as c2 from v4;
+select * from v1;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from t1;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from v2;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from v1;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from v3;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from v2;
+c1	c2
+1	2021-01-21
+2	1111-11-11
+select * from v4;
+c2	c3
+2021-01-21	2021-01-21 15:20:47.535848
+1111-11-11	2021-01-21 15:20:47.535848
+select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+c2	c3
+2021-01-21	2021-01-21 15:20:47.535848
+1111-11-11	2021-01-21 15:20:47.535848
+select * from v5;
+c1	c2
+2021-01-21 15:20:47.535848	2021-01-21
+2021-01-21 15:20:47.535848	1111-11-11
+select c3 as c1,c2 as c2 from v4;
+c1	c2
+2021-01-21 15:20:47.535848	2021-01-21
+2021-01-21 15:20:47.535848	1111-11-11
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c2	date	YES		NULL	
+c3	varchar(26)	NO		NULL	
+desc v5;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(26)	NO		NULL	
+c2	date	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3134	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3135	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3136	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3137	0	0	select "test"."t1"."c2" as "c2", '2021-01-21 15:20:47.535848' as "c3" from "test"."t1"
+3138	0	0	select "test"."v4"."c3" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c2" as "c2", '2021-01-21 15:20:47.535848' as "c3" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v5;
+View	Create View	character_set_client	collation_connection
+test.v5	create view `test`.`v5` as select "test"."v4"."c3" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 time);
+insert into t1 values (1,'15:20:47'),(2,'15:30:53');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+create view v5 as select c3 as c1,c2 as c2 from v4;
+select * from v1;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from t1;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from v2;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from v1;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from v3;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from v2;
+c1	c2
+1	15:20:47
+2	15:30:53
+select * from v4;
+c2	c3
+15:20:47	2021-01-21 15:20:47.535848
+15:30:53	2021-01-21 15:20:47.535848
+select c2,'2021-01-21 15:20:47.535848' as c3 from t1;
+c2	c3
+15:20:47	2021-01-21 15:20:47.535848
+15:30:53	2021-01-21 15:20:47.535848
+select * from v5;
+c1	c2
+2021-01-21 15:20:47.535848	15:20:47
+2021-01-21 15:20:47.535848	15:30:53
+select c3 as c1,c2 as c2 from v4;
+c1	c2
+2021-01-21 15:20:47.535848	15:20:47
+2021-01-21 15:20:47.535848	15:30:53
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c2	time	YES		NULL	
+c3	varchar(26)	NO		NULL	
+desc v5;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(26)	NO		NULL	
+c2	time	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3140	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3141	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3142	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+3143	0	0	select "test"."t1"."c2" as "c2", '2021-01-21 15:20:47.535848' as "c3" from "test"."t1"
+3144	0	0	select "test"."v4"."c3" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c2" as "c2", '2021-01-21 15:20:47.535848' as "c3" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v5;
+View	Create View	character_set_client	collation_connection
+test.v5	create view `test`.`v5` as select "test"."v4"."c3" as "c1", "test"."v4"."c2" as "c2" from "test"."v4"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 double);
+create table t2 (c1 int primary key,c2 double,c3 double);
+create table t3 (c1 int primary key,c2 double,c3 double);
+insert into t1 values (1,23.357),(2,3.1415926535);
+insert into t2 values (111,111.111,111.1111111),(2,22.222222,22222222.22222);
+insert into t3 values (999999,999.9999999,99999999.999),(100000000,1000000000.000000001,12356789.12378956);
+create view v1 as select t1.c2 as c1,t2.c2 as c2,t2.c3 as c3 from t1,t2,t3;
+create view v2 as select t2.c2 as c4,t2.c3 as c5,t3.c3 as c6 from t1,t2,t3;
+create view v3 as select t2.c1 as c1,t2.c2 as c2,t3.c2 as c3 from t1,t2,t3;
+create view v4 as select * from v1;
+create view v5 as select c4 as c2,c5 from v2;
+create view v6 as select c1,c2 as c2 from v3;
+select * from v1;
+c1	c2	c3
+23.357	22.222222	22222222.22222
+23.357	22.222222	22222222.22222
+23.357	111.111	111.1111111
+23.357	111.111	111.1111111
+3.1415926535	22.222222	22222222.22222
+3.1415926535	22.222222	22222222.22222
+3.1415926535	111.111	111.1111111
+3.1415926535	111.111	111.1111111
+select t1.c2 as c1,t2.c2 as c2,t2.c3 as c3 from t1,t2,t3;
+c1	c2	c3
+23.357	22.222222	22222222.22222
+23.357	22.222222	22222222.22222
+23.357	111.111	111.1111111
+23.357	111.111	111.1111111
+3.1415926535	22.222222	22222222.22222
+3.1415926535	22.222222	22222222.22222
+3.1415926535	111.111	111.1111111
+3.1415926535	111.111	111.1111111
+select * from v2;
+c4	c5	c6
+22.222222	22222222.22222	99999999.999
+22.222222	22222222.22222	12356789.12378956
+111.111	111.1111111	99999999.999
+111.111	111.1111111	12356789.12378956
+22.222222	22222222.22222	99999999.999
+22.222222	22222222.22222	12356789.12378956
+111.111	111.1111111	99999999.999
+111.111	111.1111111	12356789.12378956
+select t2.c2 as c4,t2.c3 as c5,t3.c3 as c6 from t1,t2,t3;
+c4	c5	c6
+22.222222	22222222.22222	99999999.999
+22.222222	22222222.22222	12356789.12378956
+111.111	111.1111111	99999999.999
+111.111	111.1111111	12356789.12378956
+22.222222	22222222.22222	99999999.999
+22.222222	22222222.22222	12356789.12378956
+111.111	111.1111111	99999999.999
+111.111	111.1111111	12356789.12378956
+select * from v3;
+c1	c2	c3
+2	22.222222	999.9999999
+2	22.222222	1000000000
+111	111.111	999.9999999
+111	111.111	1000000000
+2	22.222222	999.9999999
+2	22.222222	1000000000
+111	111.111	999.9999999
+111	111.111	1000000000
+select t2.c1 as c1,t2.c2 as c2,t3.c2 as c3 from t1,t2,t3;
+c1	c2	c3
+2	22.222222	999.9999999
+2	22.222222	1000000000
+111	111.111	999.9999999
+111	111.111	1000000000
+2	22.222222	999.9999999
+2	22.222222	1000000000
+111	111.111	999.9999999
+111	111.111	1000000000
+select * from v4;
+c1	c2	c3
+23.357	22.222222	22222222.22222
+23.357	22.222222	22222222.22222
+23.357	111.111	111.1111111
+23.357	111.111	111.1111111
+3.1415926535	22.222222	22222222.22222
+3.1415926535	22.222222	22222222.22222
+3.1415926535	111.111	111.1111111
+3.1415926535	111.111	111.1111111
+select * from v1;
+c1	c2	c3
+23.357	22.222222	22222222.22222
+23.357	22.222222	22222222.22222
+23.357	111.111	111.1111111
+23.357	111.111	111.1111111
+3.1415926535	22.222222	22222222.22222
+3.1415926535	22.222222	22222222.22222
+3.1415926535	111.111	111.1111111
+3.1415926535	111.111	111.1111111
+select * from v5;
+c2	c5
+22.222222	22222222.22222
+22.222222	22222222.22222
+111.111	111.1111111
+111.111	111.1111111
+22.222222	22222222.22222
+22.222222	22222222.22222
+111.111	111.1111111
+111.111	111.1111111
+select c4 as c2,c5 from v2;
+c2	c5
+22.222222	22222222.22222
+22.222222	22222222.22222
+111.111	111.1111111
+111.111	111.1111111
+22.222222	22222222.22222
+22.222222	22222222.22222
+111.111	111.1111111
+111.111	111.1111111
+select * from v6;
+c1	c2
+2	22.222222
+2	22.222222
+111	111.111
+111	111.111
+2	22.222222
+2	22.222222
+111	111.111
+111	111.111
+select c1,c2 as c2 from v3;
+c1	c2
+2	22.222222
+2	22.222222
+111	111.111
+111	111.111
+2	22.222222
+2	22.222222
+111	111.111
+111	111.111
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	double	YES		NULL	
+c2	double	YES		NULL	
+c3	double	YES		NULL	
+desc v5;
+Field	Type	Null	Key	Default	Extra
+c2	double	YES		NULL	
+c5	double	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3148	0	0	select "test"."t1"."c2" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3" from "test"."t1", "test"."t2", "test"."t3"
+3149	0	0	select "test"."t2"."c2" as "c4", "test"."t2"."c3" as "c5", "test"."t3"."c3" as "c6" from "test"."t1", "test"."t2", "test"."t3"
+3150	0	0	select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t3"."c2" as "c3" from "test"."t1", "test"."t2", "test"."t3"
+3151	0	0	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3" from "test"."v1"
+3152	0	0	select "test"."v2"."c4" as "c2", "test"."v2"."c5" as "c5" from "test"."v2"
+3153	0	0	select "test"."v3"."c1" as "c1", "test"."v3"."c2" as "c2" from "test"."v3"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 float);
+insert into t1 values (1,2.2),(2,3.3);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+select * from v1;
+c1	c2
+1	2.2
+2	3.3
+select * from t1;
+c1	c2
+1	2.2
+2	3.3
+select * from v2;
+c1	c2
+1	2.2
+2	3.3
+select * from v1;
+c1	c2
+1	2.2
+2	3.3
+select * from v3;
+c1	c2
+1	2.2
+2	3.3
+select * from v2;
+c1	c2
+1	2.2
+2	3.3
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	float	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3155	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2" from "test"."t1"
+3156	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2" from "test"."v1"
+3157	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2" from "test"."v2"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,v8,v9,vv1,vv2,vv3;
+create table t1 (c1 int primary key,c2 modifytime);
+insert into t1(c1) values (1),(2);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select * from v2;
+create view v4 as select * from v3;
+create view v5 as select * from v4;
+create view v6 as select * from v5;
+create view v7 as select * from v6;
+create view v8 as select * from v7;
+create view v9 as select * from v8;
+select * from t1;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v1;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v2;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v3;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v4;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v5;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v6;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v7;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v8;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+select * from v9;
+c2	c1
+2021-03-24 09:05:07.438641	1
+2021-03-24 09:05:07.438641	2
+desc v9;
+Field	Type	Null	Key	Default	Extra
+c2	modifytime	YES		NULL	
+c1	int(10)	YES		NULL	
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3159	0	1	select "test"."t1"."c2" as "c2", "test"."t1"."c1" as "c1" from "test"."t1"
+3160	0	1	select "test"."v1"."c2" as "c2", "test"."v1"."c1" as "c1" from "test"."v1"
+3161	0	1	select "test"."v2"."c2" as "c2", "test"."v2"."c1" as "c1" from "test"."v2"
+3162	0	1	select "test"."v3"."c2" as "c2", "test"."v3"."c1" as "c1" from "test"."v3"
+3163	0	1	select "test"."v4"."c2" as "c2", "test"."v4"."c1" as "c1" from "test"."v4"
+3164	0	1	select "test"."v5"."c2" as "c2", "test"."v5"."c1" as "c1" from "test"."v5"
+3165	0	1	select "test"."v6"."c2" as "c2", "test"."v6"."c1" as "c1" from "test"."v6"
+3166	0	1	select "test"."v7"."c2" as "c2", "test"."v7"."c1" as "c1" from "test"."v7"
+3167	0	1	select "test"."v8"."c2" as "c2", "test"."v8"."c1" as "c1" from "test"."v8"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5,v6,v7,vv1,vv2,vv3;

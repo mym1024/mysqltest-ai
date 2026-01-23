@@ -1,0 +1,57 @@
+drop table if exists t1;
+test connction close
+#########################
+connction conn1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+connction conn2;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int primary key,b int);
+select * from t1;
+a	b
+drop table t1;
+#########################
+test table exists
+#########################
+connction conn2;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int primary key,b int);
+create table t1(a int primary key,b int);
+ERROR 42S01: YAO-5025: table 't1' already exists
+drop table t1;
+#########################
+test table does not exists
+#########################
+select * from t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+#########################
+test use keyword
+#########################
+create table t1(int int);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+#########################
+test no primary key
+#########################
+create table t1(a int);
+#########################
+test primary key null
+#########################
+create table t1(a int primary key,b int);
+ERROR 42S01: YAO-5025: table 't1' already exists
+insert into t1(b) values(1);
+ERROR 42S22: YAO-5009: Unknown column name b
+drop table t1;
+create table t1(a int primary key,b int);
+insert into t1(a) values(NULL);
+drop table t1;
+create table t1(a int,b int,primary key(a,b),c int);
+insert into t1(a,b) values(NULL,1);
+insert into t1(a,b) values(1,NULL);
+drop table t1;
+#########################
+test syntax err
+#########################
+create ;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+#########################

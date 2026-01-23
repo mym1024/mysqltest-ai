@@ -1,0 +1,200 @@
+##############################################################################################
+###1.测试功能点：在回收站关闭开启时，purge的功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：xxx
+###7.编写/修改日期：xxx
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists tl,t2,t3,t4 purge;
+--enable_warnings
+
+###2-1:测试purge
+--echo -- open trash
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set global trash_bin_switch = true;
+
+#CASE1:use drop_name purge table
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn2;
+--echo use drop_name purge table
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval purge table $drop_name;
+select drop_name,object_name,type from __all_trash;
+show tables;
+purge recyclebin;
+
+#CASE2:use drop_name purge table has index
+--echo use drop_name purge table has index
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+create index t1_idx on t1(c1);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval purge table $drop_name;
+select drop_name,object_name,type from __all_trash;
+show tables;
+purge recyclebin;
+
+#CASE3:use drop_name purge on table database
+--echo use drop_name purge on table database
+connection conn2;
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval purge database $drop_name;
+select drop_name,object_name,type from __all_trash;
+show databases;
+purge recyclebin;
+
+#CASE4:use purge trashbin purge tables and databases
+--echo use purge trashbin purge tables and databases
+connection conn2;
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+purge recyclebin;
+select drop_name,object_name,type from __all_trash;
+
+#CASE5:use purge trashbin purge tables and databases
+--echo use purge trashbin purge tables and databases
+connection conn2;
+create table t1(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+purge recyclebin;
+select drop_name,object_name,type from __all_trash;
+
+#CASE6:use drop_name purge on tables
+--echo use drop_name purge on tables
+connection conn2;
+drop table if exists t1,t2 purge;
+create table t1(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+let $drop_name1 = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+let $drop_name2 = query_get_value(select drop_name from __all_trash where object_name = 't2',drop_name,1);
+eval purge table $drop_name1,$drop_name2;
+show recyclebin;
+show tables;
+select drop_name,object_name,type from __all_trash;
+
+###2-2:测试purge 异常系
+#CASE1:purge not existed table in trash
+#connection conn2;
+purge recyclebin;
+--error 5019
+purge table a;
+
+#CASE2:purge not existed database in trash
+connection conn2;
+purge recyclebin;
+--error 5602
+purge database a;
+
+#CASE3:purge database has table in trash
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+--error 5604
+eval purge database $drop_name;
+eval flashback database $drop_name to before drop;
+show recyclebin;
+show tables;
+using database test1;
+drop table t1 purge;
+drop database test1 purge;
+show recyclebin;
+
+#CASE4:purge trashbin but database has table in trash
+connection conn2;
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+--error 5604
+purge recyclebin;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop;
+show recyclebin;
+show tables;
+using database test1;
+drop table t1 purge;
+drop database test1 purge;
+show recyclebin;
+
+#CASE5:purge tables but one table not exists
+--echo purge tables but one table not exists
+connection conn2;
+drop table if exists t1,t2 purge;
+using database test;
+create table t1(c1 int,c2 int primary key);
+drop table t1;
+let $drop_name1 = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+--error 5019
+eval purge table $drop_name1,$drop_name2;
+show tables;
+select drop_name,object_name,type from __all_trash;
+
+###2-3:测试purge 权限
+connection conn2;
+create database test1;
+create database test2;
+drop database test1;
+drop database test2;
+let $drop_name1 = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+let $drop_name2 = query_get_value(select drop_name from __all_trash where object_name = 'test2',drop_name,1);
+create user 'u1' identified by 'pass-12345';
+grant purge on * to 'u1';
+connect (conn3,$OBMYSQL_MS0,u1,pass-12345,test,$OBMYSQL_PORT);
+connection conn3;
+eval purge database $drop_name1;
+
+connection conn2;
+revoke purge on * from 'u1';
+
+connection conn3;
+--error 5036
+eval purge database $drop_name2;
+
+connection conn2;
+purge recyclebin;
+drop user 'u1';
+set global trash_bin_switch = false;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

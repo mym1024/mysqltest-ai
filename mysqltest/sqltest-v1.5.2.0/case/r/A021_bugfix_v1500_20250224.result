@@ -1,0 +1,2700 @@
+select user();
+user()
+admin@192.168.16.102
+CREATE USER 'test_user1'@'localhost' IDENTIFIED BY 'test@123';
+CREATE USER 'test_user2'@'%' IDENTIFIED BY 'test@123';
+GRANT SELECT ON *.* TO 'test_user1'@'localhost';
+GRANT SELECT ON *.* TO 'test_user2'@'%';
+select user();
+user()
+test_user1@192.168.16.102
+select user();
+user()
+test_user2@192.168.16.102
+create table test_table (id int,name varchar(10));
+SHOW FULL TABLES FROM test LIKE 'TEST_TABLE';
+Tables_in_test (TEST_TABLE)	Table_type
+test_table	BASE TABLE
+SHOW FULL TABLES FROM test LIKE 'test_table';
+Tables_in_test (test_table)	Table_type
+test_table	BASE TABLE
+CREATE TABLE xhr_seq(name_ varchar(50) ,next_val_ int8 NOT NULL,cache_size_ int4 NOT NULL);
+INSERT INTO xhr_seq VALUES ('article', 1305, 0);
+INSERT INTO xhr_seq VALUES ('article_custom', 498, 0);
+INSERT INTO xhr_seq VALUES ('article_file', 3, 0);
+SELECT t.name_, t.next_val_, t.cache_size_ FROM xhr_seq t WHERE t.name_ ='article'  FOR UPDATE;
+name_	next_val_	cache_size_
+article	1305	0
+CREATE TABLE flw_channel_definition(id_ varchar(255) ,name_ varchar(255) ,version_ int4,key_ varchar(255) ,category_ varchar(255) ,deployment_id_ varchar(255) ,create_time_ timestamp(3),tenant_id_ varchar(255) ,resource_name_ varchar(255) ,description_ varchar(255) ,type_ varchar(255) ,implementation_ varchar(255));
+insert into flw_channel_definition values
+('222','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('111','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('444','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('333','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('222','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('111','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('444','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国'),
+('333','中国',1,'中国','中国','中国','2022-1-1','中国','中国','中国','中国','中国')
+;
+SELECT RES.* from FLW_CHANNEL_DEFINITION  RES WHERE  RES.VERSION_ = (select max(VERSION_) from FLW_CHANNEL_DEFINITION where KEY_ = RES.KEY_  and ( (TENANT_ID_ IS NOT NULL and TENANT_ID_ = RES.TENANT_ID_) or (TENANT_ID_ IS NULL and RES.TENANT_ID_ IS NULL) )) order by RES.ID_ asc;
+id_	name_	version_	key_	category_	deployment_id_	create_time_	tenant_id_	resource_name_	description_	type_	implementation_
+111	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+111	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+222	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+222	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+333	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+333	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+444	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+444	中国	1	中国	中国	中国	2022-01-01 00:00:00.000	中国	中国	中国	中国	中国
+set names utf8mb4;
+CREATE TABLE users (
+id INT PRIMARY KEY,
+username VARCHAR(50),
+used INT DEFAULT 0
+);
+CREATE TABLE orders (
+id INT PRIMARY KEY,
+user_id INT,
+order_date DATE
+);
+INSERT INTO users (id, username) VALUES (275, '王五'),(276, '赵六');
+INSERT INTO orders VALUES(1, 275, '2023-01-01'),(2, 275, '2023-02-01');
+SELECT id, username, used AS "更新前" FROM users WHERE id IN (275, 276);
+id	username	更新前
+275	王五	0
+276	赵六	0
+UPDATE users SET used = CASE WHEN EXISTS (SELECT 1 FROM orders WHERE orders.user_id =275) THEN 1 ELSE 0 END WHERE id IN (275);
+SELECT id, username, used AS "更新后" FROM users WHERE id IN (275, 276);
+id	username	更新后
+275	王五	1
+276	赵六	0
+drop table users,orders;
+CREATE TABLE departments (
+dept_id INT PRIMARY KEY,
+dept_name VARCHAR(100)
+);
+CREATE TABLE employees (
+emp_id INT PRIMARY KEY,
+emp_name VARCHAR(100),
+dept_id INT,
+FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+INSERT INTO employees (emp_id, emp_name, dept_id)VALUES (1, '张三', NULL);
+select * from employees;
+emp_id	emp_name	dept_id
+1	张三	NULL
+drop table employees;
+drop table departments;
+CREATE TABLE orders (
+order_id INT,
+customer_name VARCHAR(50)
+);
+CREATE TABLE order_items (
+order_id INT,
+product_id INT,
+quantity INT
+);
+CREATE TABLE products(
+product_id int,
+name varchar(30)
+);
+INSERT INTO products VALUES (1, '苹果'), (2, '香蕉'), (3, '橙子');
+INSERT INTO orders VALUES (1001, '张三'), (1002, '李四');
+INSERT INTO order_items SELECT o.order_id, p.product_id, 1 FROM orders o CROSS JOIN products p WHERE o.order_id = 1002;
+SELECT * FROM order_items;
+order_id	product_id	quantity
+1002	1	1
+1002	2	1
+1002	3	1
+drop table order_items;
+set yao_enable_query_optimizer=false;
+set sql_mode='ANTI_ANSI_AS_QUOTE';
+create table test2(c1 int primary key,`creation_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间');
+insert into test2(c1) values(1);
+select * from test2;
+c1	creation_ts
+1	2025-12-24 15:08:38.040427
+drop table test2;
+CREATE TABLE `flyway_history_lss_asset_1.0`  (
+`version_rank` int NOT NULL,
+`installed_rank` int NOT NULL
+);
+show create table `flyway_history_lss_asset_1.0`;
+Table	Create Table
+test.flyway_history_lss_asset_1.0	CREATE TABLE `flyway_history_lss_asset_1.0` (
+`version_rank` INT(10) NOT NULL,
+`installed_rank` INT(10) NOT NULL
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+set sql_quote_show_create=0;
+show create table `flyway_history_lss_asset_1.0`;
+Table	Create Table
+test.flyway_history_lss_asset_1.0	CREATE TABLE flyway_history_lss_asset_1.0 (
+version_rank INT(10) NOT NULL,
+installed_rank INT(10) NOT NULL
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE `se_schedule` (
+`schedule_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '计划ID',
+`schedule_title` varchar(100) CHARACTER SET utf8mb4 NOT NULL COMMENT '计划标题',
+`parent_id` varchar(40) CHARACTER SET utf8mb4 DEFAULT NULL,
+PRIMARY KEY (`schedule_id`)
+);
+insert into se_schedule values('0e161aab-e9f7-11eb-8148-0242ac110003','120天贷后检查',NULL);
+insert into se_schedule values('3b85e3de-a3f0-11eb-ac9f-0242ac110003','正常结清通知',NULL);
+WITH RECURSIVE cte AS (SELECT t.schedule_id FROM se_schedule t WHERE t.schedule_id = '3b85e3de-a3f0-11eb-ac9f-0242ac110003' UNION ALL SELECT t.schedule_id FROM se_schedule t INNER JOIN cte ON t.parent_id = cte.schedule_id) SELECT schedule_id FROM cte;
+schedule_id
+3b85e3de-a3f0-11eb-ac9f-0242ac110003
+drop table se_schedule;
+select DATE_SUB( CURDATE( ), INTERVAL 5 DAY );
+DATE_SUB( CURDATE( ), INTERVAL 5 DAY )
+2025-12-19
+select DATE_SUB( CURDATE(), INTERVAL 90 DAY );
+DATE_SUB( CURDATE(), INTERVAL 90 DAY )
+2025-09-25
+select date_format(date_add(curdate(), interval 2 MONTH), '%Y-%m-%d');
+date_format(date_add(curdate(), interval 2 MONTH), '%Y-%m-%d')
+2026-02-24
+select date_format ( sysdate(), '%Y年%m月%d日' ) currentTime, date_format ( date_add( sysdate(), INTERVAL 8 HOUR ), '%Y%m%d%H%i%S' ) timeStampStr;
+currentTime	timeStampStr
+2025年12月24日	20251224230839
+DROP TABLE IF EXISTS `lss_project_info`;
+CREATE TABLE `lss_project_info`  (
+`project_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`init_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`project_approval_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_name` varchar(200) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_code` varchar(200) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_amount` decimal(18, 2) NULL DEFAULT NULL,
+`lessee_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`business_model` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`lease_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_type` json NULL,
+`quote_calculator_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`main_manager_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`vice_manager_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`dept_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`change_type` varchar(256) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`source_bill_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`source_bill_type` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`org_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`new_flag` smallint NULL DEFAULT NULL,
+`valid_state` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`busi_status_id` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`bill_status` varchar(30) CHARACTER SET utf8mb4  NOT NULL,
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`creation_ts` datetime NULL DEFAULT NULL,
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`updation_ts` datetime NULL DEFAULT NULL,
+`data_version` bigint NOT NULL,
+`leasehold_post` smallint NULL DEFAULT NULL,
+`leasehold_categy` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_reply_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '批复主键',
+`change_description` varchar(2000) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`tenant_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`settlement_flag` smallint NULL DEFAULT NULL COMMENT '项目结清标识',
+`whether_approval_liberty` smallint NULL DEFAULT NULL,
+`if_change_reply` smallint NULL DEFAULT NULL,
+`pranayama_way` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`project_batch` int NULL DEFAULT NULL,
+`pranayama_method` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`customer_channel` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '客户渠道(\"核心业务系统数据,\"融E租\",\"睿银\",\"沃银\",\"蜂云\",\"禾急贝兼\",\"天合\",\"96获客\",\"科技金融业务系统\")',
+`technology_pro_attributes` varchar(200) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`pranayama_type` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '调息方法（明确利率法( pmt)、本金不变法）',
+`busi_type` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '业务类型',
+`lease_type` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '租赁类型',
+`joint_lease_amount` decimal(18, 2) NULL DEFAULT NULL COMMENT '联合租赁金额',
+`joint_loan_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '联合租赁投放模式',
+`joint_collection_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '联合租赁收款模式',
+`joint_risk_taking_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '联合租赁风险承担模式',
+`joint_billing_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '联合租赁开票模式',
+`verification_method` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '核销方法',
+`profit_trans_type` json NULL COMMENT '分润交易类别',
+`new_column` int NULL DEFAULT NULL,
+`remark` varchar(2000) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '备注',
+`leaseing_mode` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '承租模式',
+`history_business` varchar(30) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '历史业务',
+`judge_man` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '主审人',
+`retrial_man` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '复审人',
+`develop_man` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '开发人',
+`duty_man` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '责任人',
+`implement_man` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL COMMENT '执行人',
+`three_months` smallint NULL DEFAULT NULL COMMENT '执行人',
+PRIMARY KEY (`project_id`),
+UNIQUE INDEX `cons_project_id`(`project_id` ),
+INDEX `conts_lessee_id`(`lessee_id` ),
+INDEX `conts_quote_calculator_id`(`quote_calculator_id`) 
+);
+INSERT INTO `lss_project_info` VALUES ('029626ff-bacd-4963-b0fe-e11f80ca1543', '262da62a-53ac-4d11-a412-ccfddd9bcb71', '9ec303dd-f961-48b6-8839-a0960757bea5', '重庆聚狮新材料科技有限公司回租第1单6000万', 'FL20230528021', 60000000.00, 'b5b568f8-bfda-4e0d-8e7f-ac2a28f2a682', 'FinLease', 'BACK', NULL, '1783b45b-d345-4416-bb93-76cb590dae94', '191e6828-1489-4ea7-a1cb-5d1fda3320ec', 'fabc3886-cfa7-4ec7-a131-ab9d9b452bf8', '3d5a5aa6-2603-4de7-acae-6369c4e69ed4', NULL, NULL, 'PROJECT_INFO', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 1, 'VALID', NULL, 'PASS', 'cd327370-ee3f-4eba-ad3a-70991802e4dd', '2023-05-28 22:35:33', '03fe135f-1976-457f-aab5-9b76f6e981a0', '2024-02-26 11:28:54', 5, 0, 'zlwfl0211', NULL, NULL, '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 0, NULL, NULL, NULL, 1, NULL, 'SYSTEM', 'OTHER', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'INDEPENDENT', 'STOCKBUSINESS', NULL, NULL, NULL, NULL, NULL, 1);
+INSERT INTO `lss_project_info` VALUES ('0a4540fb-5ad8-491e-a557-f17aaf387a7d', 'd2b9d57c-7508-4fe8-b94c-289891f1d50b', '808ff4a5-40ed-4a60-bb98-1ac1bea45858', '遵义市供水有限责任公司回租第1单5000万', 'FL20230527025', 50000000.00, '501fe5e1-86b8-469e-af52-96b399198155', 'FinLease', 'BACK', NULL, 'e1e2c765-c7c8-4a57-be97-3f8a43b1583b', '48173192-6c00-4d32-873c-f9b8f14d3f25', '4a1cceb7-dd17-4b98-aac5-94ca8f351842', '4e322b3b-ed6c-47dd-b45d-f0d9a52a6dc6', NULL, NULL, 'PROJECT_INFO', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 1, 'VALID', NULL, 'PASS', '48173192-6c00-4d32-873c-f9b8f14d3f25', '2023-05-27 22:16:57', 'f014a6a8-f5d1-4a1e-bf2c-54362592c155', '2024-03-11 14:12:59', 5, 0, 'zlwfl0702', NULL, NULL, '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 0, NULL, NULL, NULL, 1, NULL, 'SYSTEM', 'OTHER', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'INDEPENDENT', 'STOCKBUSINESS', NULL, NULL, NULL, NULL, NULL, 1);
+INSERT INTO `lss_project_info` VALUES ('0af05dae-b2a5-4f3b-b99b-44ee8cae6060', 'aba7b5bc-5f8e-46f5-882b-d6f5d88a53d9', 'b12fb1db-9ec6-4e14-9065-64e69af30186', '遵义市公共交通（集团）有限责任公司回租第5单3600万', 'FL20230528015', 36000000.00, '5ffc8043-735b-4adb-b0c7-84aae7652cc2', 'FinLease', 'BACK', '[\"030202\"]', 'd2aebf4a-f530-43a4-b3b8-f4586c9629a6', '48173192-6c00-4d32-873c-f9b8f14d3f25', '4a1cceb7-dd17-4b98-aac5-94ca8f351842', '4e322b3b-ed6c-47dd-b45d-f0d9a52a6dc6', NULL, NULL, 'PROJECT_INFO', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 1, 'VALID', NULL, 'PASS', '48173192-6c00-4d32-873c-f9b8f14d3f25', '2023-05-28 20:06:14', 'f014a6a8-f5d1-4a1e-bf2c-54362592c155', '2024-03-11 14:12:59', 4, 0, 'zlwfl030302', NULL, NULL, '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 0, NULL, NULL, NULL, 5, NULL, 'SYSTEM', 'OTHER', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'INDEPENDENT', 'STOCKBUSINESS', NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO `lss_project_info` VALUES ('0d08c55b-5585-4cbb-8d1a-daed50b8b39d', 'c14271bd-d630-4203-867a-9403daa918b2', 'efaf9bab-2087-49d0-96e3-79b07201a0ce', '重庆市铜梁区瑞程汽车租赁有限公司回租第1单1700万', 'FL20230529007', 17000000.00, '07fd76cb-c0e5-4edd-9483-f71c85ac2f95', 'FinLease', 'BACK', NULL, '13beb02b-0b40-4714-b044-dc22c35b03ce', '0cb3edaf-7664-476e-a6d5-a3778ce41b7f', '191e6828-1489-4ea7-a1cb-5d1fda3320ec', '3d5a5aa6-2603-4de7-acae-6369c4e69ed4', NULL, NULL, 'PROJECT_INFO', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 1, 'VALID', NULL, 'PASS', '0cb3edaf-7664-476e-a6d5-a3778ce41b7f', '2023-05-29 16:43:39', '0cb3edaf-7664-476e-a6d5-a3778ce41b7f', '2023-05-29 16:58:28', 3, 0, 'zlwfl030302', NULL, NULL, '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 0, NULL, NULL, NULL, 1, NULL, 'SYSTEM', 'OTHER', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'INDEPENDENT', 'STOCKBUSINESS', NULL, NULL, NULL, NULL, NULL, 0);
+SELECT pi.*  FROM (  SELECT lpi.lease_mode, round( sum( lpi.project_amount )/ 10000, 2 ) AS project_amount, sum( 1 ) AS project_count   FROM lss_project_info lpi  WHERE lpi.bill_status = 'PASS'  AND lpi.tenant_id = '74a03e75-c696-4ba6-a4c8-30e0ce48f526'   AND date_format( lpi.updation_ts, '%Y-%m-%d' ) >= '2022-03-01'  AND date_format( lpi.updation_ts, '%Y-%m-%d' ) <= '2025-03-31'  AND (  ( lpi.org_id IN ( 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8' ) )  )   GROUP BY lpi.lease_mode  ) AS pi INNER JOIN ( SELECT 'DIRECT' AS lease_mode, 1 AS order_num  UNION SELECT 'BACK', 2  UNION SELECT 'SAME_TRADE', 3  UNION SELECT 'TRANSFER', 4   ) AS lm ON lm.lease_mode = pi.lease_mode  ORDER BY lm.order_num;
+lease_mode	project_amount	project_count
+BACK	16300	4
+select @@sql_safe_updates;
+@@sql_safe_updates
+0
+select @@transaction_read_only;
+@@transaction_read_only
+0
+select @@transaction_isolation;
+@@transaction_isolation
+READ-COMMITTED
+SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY;
+@@GLOBAL.ENFORCE_GTID_CONSISTENCY
+OFF
+select version();
+version()
+5.7.36
+select database();
+database()
+test
+select schema();
+schema()
+test
+use test;
+create table test19(`checksum` int,`success` varchar(10));
+SELECT `checksum`,`success` FROM `test`.`test19`;
+checksum	success
+SELECT RELEASE_LOCK('Flyway--1515583348');
+RELEASE_LOCK('Flyway--1515583348')
+NULL
+SELECT GET_LOCK('Flyway--1515583348',10);
+GET_LOCK('Flyway--1515583348',10)
+1
+DROP TABLE IF EXISTS `sys_operation`;
+CREATE TABLE `sys_operation`  (
+`operation_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '操作ID',
+`operation_code` varchar(50) CHARACTER SET utf8mb4  NOT NULL COMMENT '操作代码',
+`operation_name` varchar(300) CHARACTER SET utf8mb4  NOT NULL COMMENT '操作名称',
+`applet_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '所属应用ID',
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '创建人',
+`creation_ts` datetime NOT NULL COMMENT '创建时间',
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '最后修改人',
+`updation_ts` datetime NOT NULL COMMENT '最后修改时间',
+`data_version` bigint NOT NULL COMMENT '数据版本',
+`tenant_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '租户ID',
+PRIMARY KEY (`operation_id`) 
+) ;
+INSERT INTO `sys_operation` VALUES ('07c593d5-61b5-41f1-af62-c53c7ef8d6f8', 'ACCOUNT_ADD', '新建', '051c1ebc-8b6f-4e40-97be-7fb0b2730533', '000', '2022-04-07 15:22:19', '000', '2022-04-07 15:22:19', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('1eaa3d35-c5c0-47ae-8e3f-2e038ff91709', 'ACCOUNT_DELETE', '删除', '051c1ebc-8b6f-4e40-97be-7fb0b2730533', '000', '2022-04-07 15:22:19', '000', '2022-04-07 15:22:19', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('31c8a34a-207d-4576-bff0-ff1088d3dd9a', 'HANDLE_CLEAN', '流程清除', '5479e649-78a0-4a5e-9924-57133ce0f70b', '8c0e93bb-db21-4480-8d28-bf91cbff2003', '2021-12-29 09:28:18', '8c0e93bb-db21-4480-8d28-bf91cbff2003', '2021-12-29 09:28:18', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('43653a71-e2db-4d4c-b40f-61e07e2c364e', 'ACCOUNT_RECHECK', '复核', '051c1ebc-8b6f-4e40-97be-7fb0b2730533', '000', '2022-04-07 15:22:19', '000', '2022-04-07 15:22:19', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('6bd8aac4-f6c0-464a-8293-f09e67ec7d97', 'BANK_BILL01', '(回单信息编辑)银行到帐单管理权限', '203010', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 04:00:02', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 04:41:54', 4, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('7bb6322f-7f7e-4531-9700-904f0b728326', 'ACCOUNT_EDIT', '编辑', '051c1ebc-8b6f-4e40-97be-7fb0b2730533', '000', '2022-04-07 15:22:19', '000', '2022-04-07 15:22:19', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('a5d3f84f-736f-4657-8bde-cc9d662ec635', 'BANK_BILL', '(到账单详情编辑)银行到帐单管理权限', '203010', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 03:51:01', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 04:41:54', 5, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_operation` VALUES ('f7a9d423-9baa-41fc-8e49-d84c1159991a', 'APPROVE_BATCH', '批量审批', '103030', '8c0e93bb-db21-4480-8d28-bf91cbff2003', '2021-12-29 09:09:58', '8c0e93bb-db21-4480-8d28-bf91cbff2003', '2021-12-29 09:09:58', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+DROP TABLE IF EXISTS `sys_role_operation`;
+CREATE TABLE `sys_role_operation`  (
+`role_operation_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '角色操作权限ID',
+`role_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '角色ID',
+`operation_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '操作ID',
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '创建人',
+`creation_ts` datetime NOT NULL COMMENT '创建时间',
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '最后修改人',
+`updation_ts` datetime NOT NULL COMMENT '最后修改时间',
+`data_version` bigint NOT NULL COMMENT '数据版本',
+`tenant_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '租户ID',
+PRIMARY KEY (`role_operation_id`) 
+) ;
+INSERT INTO `sys_role_operation` VALUES ('02f7a12f-d0e8-41e4-a2f1-d8b3066d6e24', '4a06692f-00ac-4fb1-9b17-5538c371ddb8', 'a5d3f84f-736f-4657-8bde-cc9d662ec635', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 04:40:01', '25fa204f-6300-4017-bbde-f1485a215b59', '2024-12-25 14:39:54', 30, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_role_operation` VALUES ('19346072-ebd8-4fec-b834-6432a5b7fb9c', '1f87e489-74e1-4499-a225-c6bd13bb6121', '43653a71-e2db-4d4c-b40f-61e07e2c364e', '116049f9-7ffd-4d91-a61a-2f8eefc2ef23', '2023-01-17 10:30:26', '116049f9-7ffd-4d91-a61a-2f8eefc2ef23', '2023-01-17 10:30:26', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_role_operation` VALUES ('32afd233-0474-4c93-a5a2-266ab0ca6121', '1f87e489-74e1-4499-a225-c6bd13bb6121', 'a5d3f84f-736f-4657-8bde-cc9d662ec635', '116049f9-7ffd-4d91-a61a-2f8eefc2ef23', '2023-01-17 10:30:26', '116049f9-7ffd-4d91-a61a-2f8eefc2ef23', '2023-01-17 10:30:26', 0, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+INSERT INTO `sys_role_operation` VALUES ('35247e7b-d918-4c29-bdd4-e6f7d74bfa69', '4a06692f-00ac-4fb1-9b17-5538c371ddb8', '07c593d5-61b5-41f1-af62-c53c7ef8d6f8', '000', '2022-10-17 09:57:46', '25fa204f-6300-4017-bbde-f1485a215b59', '2024-12-25 14:39:54', 18, '74a03e75-c696-4ba6-a4c8-30e0ce48f526');
+DROP TABLE IF EXISTS `sys_tenant_operation`;
+CREATE TABLE `sys_tenant_operation`  (
+`tenant_operation_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '租户操作权限ID',
+`tenant_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '租户ID',
+`operation_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '操作ID',
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '创建人ID',
+`creation_ts` datetime NOT NULL COMMENT '创建时间',
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '最后修改人ID',
+`updation_ts` datetime NOT NULL COMMENT '最后修改时间',
+`data_version` bigint NOT NULL COMMENT '数据版本',
+PRIMARY KEY (`tenant_operation_id`) 
+) ;
+INSERT INTO `sys_tenant_operation` VALUES ('2271f97d-768d-47d3-901a-4d87e560311f', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'a5d3f84f-736f-4657-8bde-cc9d662ec635', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 03:51:08', '437bee43-7f8e-4364-84a9-fef1e7332382', '2021-04-09 04:42:19', 1);
+INSERT INTO `sys_tenant_operation` VALUES ('241945e0-f6d3-4fb1-a40a-2035036555a9', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '07c593d5-61b5-41f1-af62-c53c7ef8d6f8', '000', '2022-10-17 09:56:29', '000', '2022-10-17 09:56:29', 0);
+INSERT INTO `sys_tenant_operation` VALUES ('a48f4aad-e1fa-4dfa-9298-0efbffd28e48', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '7bb6322f-7f7e-4531-9700-904f0b728326', '000', '2022-10-17 09:56:29', '000', '2022-10-17 09:56:29', 0);
+INSERT INTO `sys_tenant_operation` VALUES ('c83c7b01-d8c9-4c7b-bf0f-b139a43a3d67', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '1eaa3d35-c5c0-47ae-8e3f-2e038ff91709', '000', '2022-10-17 09:56:29', '000', '2022-10-17 09:56:29', 0);
+INSERT INTO `sys_tenant_operation` VALUES ('f0eae69f-fdb3-44f0-ae3c-008abe875cec', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '43653a71-e2db-4d4c-b40f-61e07e2c364e', '000', '2022-10-17 09:56:29', '000', '2022-10-17 09:56:29', 0);
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_user_role`  (
+`user_role_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`user_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`role_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`creation_ts` datetime NOT NULL,
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`updation_ts` datetime NOT NULL,
+`data_version` bigint NOT NULL,
+`remark` longtext CHARACTER SET utf8mb4  NULL
+);
+INSERT INTO `sys_user_role` VALUES (NULL, '157981f7-901d-46b0-a2f5-b8966e34ae70', '2494eb27-3744-4bd6-9c75-36f5ed72b46d', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-09 16:53:18', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-09 16:53:18', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '157981f7-901d-46b0-a2f5-b8966e34ae70', 'f2aacbbf-c0ab-4003-9ec3-82d6f37752e4', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-09 16:53:18', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-09 16:53:18', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '9035efc1-62cd-42c4-9d0d-57a7d31102da', '84d7e9b1-0521-4dd5-8f70-5b3eb8e39a60', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:07', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:07', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '8d17a1d1-d504-4abd-bbce-02935a9736ea', '556d1769-f1db-4083-9618-b56e79277897', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:17', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:17', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '074393ab-dbaf-4cb0-8028-b7a50c68d15f', 'c8c3a2a2-137b-4ab3-90f8-44349678693c', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:18', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:18', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '8cd8be31-56a3-4641-a892-39104990e3e6', 'f59775ac-9bd1-4752-8318-78ee75532ee5', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:46', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:46', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, '000590f9-976e-4004-a2a8-c57e667e7797', 'a9146aa2-e498-4dec-8695-19af49ce5afb', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:55', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:55', 0, NULL);
+INSERT INTO `sys_user_role` VALUES (NULL, 'bf3b3dbe-9e36-40eb-97fa-a4c87b6c4f84', '1fc28cf6-a79c-4374-b9ab-91aa640ccbb6', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:56', 'a8beb010-fdf7-4d76-93be-5bcc3a08ddbb', '2023-05-24 15:08:56', 0, NULL);
+DROP TABLE IF EXISTS `sys_applet`;
+CREATE TABLE `sys_applet`  (
+`applet_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`applet_code` varchar(50) CHARACTER SET utf8mb4  NOT NULL,
+`applet_name` varchar(200) CHARACTER SET utf8mb4  NOT NULL,
+`route_url` varchar(300) CHARACTER SET utf8mb4  NOT NULL,
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`creation_ts` datetime NOT NULL,
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`updation_ts` datetime NOT NULL,
+`data_version` bigint NOT NULL,
+`app_version` varchar(32) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_describe` longtext CHARACTER SET utf8mb4  NULL,
+`app_introduce` longtext CHARACTER SET utf8mb4  NULL,
+`app_icon` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_info` longtext CHARACTER SET utf8mb4  NULL,
+`version_description` longtext CHARACTER SET utf8mb4  NULL,
+`icon_class` varchar(50) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`type_tags` json,
+`app_img_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`applet_category_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_img` longtext CHARACTER SET utf8mb4  NULL,
+PRIMARY KEY (`applet_id`)
+) ;
+INSERT INTO `sys_applet` VALUES ('00370e6f-bcd6-43fb-a4e6-f4d82c0452b2', '1012-003', '大屏显示', '/joys/joys-report2/#/publish/d3492dda-623a-469a-8ca5-b6bde0571c60', '000', '2019-03-14 21:10:08', '000', '2019-03-14 21:10:08', 0, 'V1.0', NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', NULL, '62a54b20-bd19-4383-a0c6-f6d830d2da05', 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTMwMjM1OTQwIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE4NTY0IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIj48ZGVmcz48c3R5bGUgdHlwZT0idGV4dC9jc3MiPjwvc3R5bGU+PC9kZWZzPjxwYXRoIGQ9Ik0xOTIuOCA4MDUuMmMzNi45IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMzAtNjYuNy02Ni45LTY2LjctMzcgMC02NyAyOS45LTY3IDY2LjcgMCAzNi43IDMwIDY2LjcgNjcgNjYuN3ogbTAgMjAuMWMtNDcuNyAwLTg3LjEgMzUuMS05My44IDgwLjdoMTg3LjVjLTYuNy00NS42LTQ2LjEtODAuNy05My43LTgwLjd6IG0yMTIuOC0yMC4xYzM2LjkgMCA2Ni45LTI5LjkgNjYuOS02Ni43IDAtMzYuOC0zMC02Ni43LTY2LjktNjYuNy0zNyAwLTY3IDI5LjktNjcgNjYuNyAwIDM2LjcgMzAgNjYuNyA2NyA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjggODAuN2gxODcuNGMtNi42LTQ1LjYtNDYtODAuNy05My42LTgwLjd6IG0yMTIuOC0yMC4xYzM3IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMjkuOS02Ni43LTY2LjktNjYuNy0zNyAwLTY3IDI5LjktNjcgNjYuNyAwIDM2LjcgMzAgNjYuNyA2NyA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjggODAuN0g3MTJjLTYuNi00NS42LTQ1LjktODAuNy05My42LTgwLjd6IG0yMTIuOC0yMC4xYzM3IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMjkuOS02Ni43LTY2LjktNjYuNy0zNyAwLTY2LjkgMjkuOS02Ni45IDY2LjcgMCAzNi43IDMwIDY2LjcgNjYuOSA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjcgODAuN2gxODcuNGMtNi42LTQ1LjYtNDUuOS04MC43LTkzLjctODAuN3pNNTEyIDE0NC4xTDY0IDExNy45VjYzM2wzMjIuNS0xMy41aDI1MC45TDk2MCA2MzNWMTE4bC00NDggMjYuMXpNMjM1LjIgNTkyLjdjLTYxLjYgMi42LTExMC44IDQuNi0xMTcuMSA0LjlWMTUzLjVjMTguNiAxLjEgMzk0LjUgMjMgMzk0LjUgMjNzNzguMi00LjYgMTY0LjktOS42TDIzNS4yIDU5Mi43eiBtNjcwLjctNDM5LjFoLTEuOGMwLjcgMCAxLjQtMC4xIDEuOC0wLjF2MC4xeiIgZmlsbD0iIzEyOTZkYiIgcC1pZD0iMTg1NjUiPjwvcGF0aD48L3N2Zz4=');
+INSERT INTO `sys_applet` VALUES ('00cb0194-7de8-41cb-8f74-1e5f723a6ded', '90017', '项目转换率', '/joys/hy-statistic/#/echartsProjectChange', '000', '2019-06-19 19:02:37', '1a17d3d1-5938-44e3-b819-afa6581190c1', '2021-02-03 09:03:40', 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"WIDGET\"]', NULL, '8ab4ef36-6d7d-492c-8885-5420415522aa', 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTM5ODU5MTI1IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE3NzU0OCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNMjEzLjkgNDMzLjRoMTk5LjRjMTIuMiAwIDE5LjUtOS43IDE5LjUtMTkuNSAwLTEyLjItOS43LTE5LjUtMTkuNS0xOS41SDI2MC4yYzQ2LjItOTQuOSAxNDEuMS0xNjAuNSAyNTAuNS0xNjAuNSAxMzguNiAwIDI1NS40IDEwNC42IDI3NC44IDIzOC40aDQxLjNDODA3LjQgMzE2LjYgNjczLjYgMTk1IDUxMC43IDE5NWMtMTE5LjIgMC0yMjEuMyA2NS43LTI3Ny4zIDE2M1YyMTQuNWMwLTkuNy03LjMtMTkuNS0xOS41LTE5LjUtOS43IDAtMTkuNSA5LjctMTkuNSAxOS41djE5OS40YzAuMSAxOS41IDE5LjUgMTkuNSAxOS41IDE5LjVtNTk1LjkgMTU4LjFINjEwLjRjLTEyLjIgMC0xOS41IDkuNy0xOS41IDE5LjUgMCAxMi4yIDkuNyAxOS41IDE5LjUgMTkuNWgxNTAuOGMtNDMuOCA5NC45LTE0MS4xIDE1OC4xLTI1MC41IDE1OC4xLTEzOC42IDAtMjU1LjQtMTA0LjYtMjc0LjgtMjM4LjRIMTk3YzE5LjUgMTU4LjEgMTUzLjIgMjc5LjcgMzEzLjggMjc5LjcgMTE5LjIgMCAyMjMuOC02NS43IDI3Ny4zLTE2M3YxNDMuNWMwIDEyLjIgOS43IDE5LjUgMTkuNSAxOS41IDEyLjIgMCAxOS41LTkuNyAxOS41LTE5LjVWNjEwLjljMi4yLTE5LjQtMTcuMy0xOS40LTE3LjMtMTkuNHoiIGZpbGw9IiMwNDAwMDAiIHAtaWQ9IjE3NzU0OSI+PC9wYXRoPjwvc3ZnPg==');
+INSERT INTO `sys_applet` VALUES ('0458fe15-daf0-4fa0-bb09-1e334054e2c3', '900012', '首页业务总裁', '/joys/joys-admin/#/companyCEO', '000', '2019-12-08 02:23:37', '000', '2019-12-08 02:23:37', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"WIDGET\"]', NULL, '8ab4ef36-6d7d-492c-8885-5420415522aa', NULL);
+INSERT INTO `sys_applet` VALUES ('051c1ebc-8b6f-4e40-97be-7fb0b2730533', '100540', '银行管理', '/joys/joys-master-data/#/bank', '000', '2019-11-19 19:24:40', '000', '2019-11-19 20:01:11', 3, '1', NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', NULL, 'b1657a65-22d5-4182-bfc8-720b5e2af430', NULL);
+select so.operation_id,
+so.operation_code,
+so.operation_name,
+so.applet_id,
+so.creator_id,
+so.creation_ts,
+so.updator_id,
+so.updation_ts,
+so.data_version,
+so.tenant_id,
+app.applet_code,
+app.applet_name
+from sys_operation so inner join sys_applet app on so.applet_id=app.applet_id
+where 1=1
+and exists(select 1 from sys_tenant_operation sto where sto.operation_id=so.operation_id and
+sto.tenant_id='74a03e75-c696-4ba6-a4c8-30e0ce48f526' )
+and exists(select 1 from sys_role_operation sro where sro.operation_id=so.operation_id
+and exists(select 1 from sys_user_role sur where sur.role_id=sro.role_id and
+sur.user_id='25fa204f-6300-4017-bbde-f1485a215b59'));
+operation_id	operation_code	operation_name	applet_id	creator_id	creation_ts	updator_id	updation_ts	data_version	tenant_id	applet_code	applet_name
+select so.operation_id from sys_operation so inner join sys_applet app /***查询已启用的，初始和用不可使用**/ on so.applet_id=app.applet_id;
+operation_id
+07c593d5-61b5-41f1-af62-c53c7ef8d6f8
+1eaa3d35-c5c0-47ae-8e3f-2e038ff91709
+43653a71-e2db-4d4c-b40f-61e07e2c364e
+7bb6322f-7f7e-4531-9700-904f0b728326
+CREATE TABLE `se_schedule` (
+`schedule_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL COMMENT '计划ID',
+`schedule_title` varchar(100) CHARACTER SET utf8mb4 NOT NULL COMMENT '计划标题',
+`parent_id` varchar(40) CHARACTER SET utf8mb4 DEFAULT NULL,
+PRIMARY KEY (`schedule_id`)
+);
+insert into se_schedule values('0e161aab-e9f7-11eb-8148-0242ac110003','120天贷后检查',NULL);
+insert into se_schedule values('3b85e3de-a3f0-11eb-ac9f-0242ac110003','正常结清通知',NULL);
+WITH RECURSIVE cte AS (
+SELECT t.schedule_id
+FROM se_schedule t
+WHERE t.schedule_id = '0e161aab-e9f7-11eb-8148-0242ac110003'
+            UNION ALL
+SELECT t.schedule_id
+FROM se_schedule t
+INNER JOIN cte ON t.parent_id = cte.schedule_id)
+SELECT schedule_id FROM cte;
+schedule_id
+0e161aab-e9f7-11eb-8148-0242ac110003
+drop table se_schedule;
+DROP TABLE IF EXISTS `sys_applet`;
+CREATE TABLE `sys_applet`  (
+`applet_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`applet_code` varchar(50) CHARACTER SET utf8mb4  NOT NULL,
+`applet_name` varchar(200) CHARACTER SET utf8mb4  NOT NULL,
+`route_url` varchar(300) CHARACTER SET utf8mb4  NOT NULL,
+`creator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`creation_ts` datetime NOT NULL,
+`updator_id` varchar(40) CHARACTER SET utf8mb4  NOT NULL,
+`updation_ts` datetime NOT NULL,
+`data_version` bigint NOT NULL,
+`app_version` varchar(32) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_describe` longtext CHARACTER SET utf8mb4  NULL,
+`app_introduce` longtext CHARACTER SET utf8mb4  NULL,
+`app_icon` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_info` longtext CHARACTER SET utf8mb4  NULL,
+`version_description` longtext CHARACTER SET utf8mb4  NULL,
+`icon_class` varchar(50) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`type_tags` json NULL,
+`app_img_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`applet_category_id` varchar(40) CHARACTER SET utf8mb4  NULL DEFAULT NULL,
+`app_img` longtext CHARACTER SET utf8mb4  NULL,
+PRIMARY KEY (`applet_id`)
+) ;
+INSERT INTO `sys_applet` VALUES ('00370e6f-bcd6-43fb-a4e6-f4d82c0452b2', '1012-003', '大屏显示', '/joys/joys-report2/#/publish/d3492dda-623a-469a-8ca5-b6bde0571c60', '000', '2019-03-14 21:10:08', '000', '2019-03-14 21:10:08', 0, 'V1.0', NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', NULL, '62a54b20-bd19-4383-a0c6-f6d830d2da05', 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTMwMjM1OTQwIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE4NTY0IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIj48ZGVmcz48c3R5bGUgdHlwZT0idGV4dC9jc3MiPjwvc3R5bGU+PC9kZWZzPjxwYXRoIGQ9Ik0xOTIuOCA4MDUuMmMzNi45IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMzAtNjYuNy02Ni45LTY2LjctMzcgMC02NyAyOS45LTY3IDY2LjcgMCAzNi43IDMwIDY2LjcgNjcgNjYuN3ogbTAgMjAuMWMtNDcuNyAwLTg3LjEgMzUuMS05My44IDgwLjdoMTg3LjVjLTYuNy00NS42LTQ2LjEtODAuNy05My43LTgwLjd6IG0yMTIuOC0yMC4xYzM2LjkgMCA2Ni45LTI5LjkgNjYuOS02Ni43IDAtMzYuOC0zMC02Ni43LTY2LjktNjYuNy0zNyAwLTY3IDI5LjktNjcgNjYuNyAwIDM2LjcgMzAgNjYuNyA2NyA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjggODAuN2gxODcuNGMtNi42LTQ1LjYtNDYtODAuNy05My42LTgwLjd6IG0yMTIuOC0yMC4xYzM3IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMjkuOS02Ni43LTY2LjktNjYuNy0zNyAwLTY3IDI5LjktNjcgNjYuNyAwIDM2LjcgMzAgNjYuNyA2NyA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjggODAuN0g3MTJjLTYuNi00NS42LTQ1LjktODAuNy05My42LTgwLjd6IG0yMTIuOC0yMC4xYzM3IDAgNjYuOS0yOS45IDY2LjktNjYuNyAwLTM2LjgtMjkuOS02Ni43LTY2LjktNjYuNy0zNyAwLTY2LjkgMjkuOS02Ni45IDY2LjcgMCAzNi43IDMwIDY2LjcgNjYuOSA2Ni43eiBtMCAyMC4xYy00Ny43IDAtODcuMSAzNS4xLTkzLjcgODAuN2gxODcuNGMtNi42LTQ1LjYtNDUuOS04MC43LTkzLjctODAuN3pNNTEyIDE0NC4xTDY0IDExNy45VjYzM2wzMjIuNS0xMy41aDI1MC45TDk2MCA2MzNWMTE4bC00NDggMjYuMXpNMjM1LjIgNTkyLjdjLTYxLjYgMi42LTExMC44IDQuNi0xMTcuMSA0LjlWMTUzLjVjMTguNiAxLjEgMzk0LjUgMjMgMzk0LjUgMjNzNzguMi00LjYgMTY0LjktOS42TDIzNS4yIDU5Mi43eiBtNjcwLjctNDM5LjFoLTEuOGMwLjcgMCAxLjQtMC4xIDEuOC0wLjF2MC4xeiIgZmlsbD0iIzEyOTZkYiIgcC1pZD0iMTg1NjUiPjwvcGF0aD48L3N2Zz4=');
+INSERT INTO `sys_applet` VALUES ('00cb0194-7de8-41cb-8f74-1e5f723a6ded', '90017', '项目转换率', '/joys/hy-statistic/#/echartsProjectChange', '000', '2019-06-19 19:02:37', '1a17d3d1-5938-44e3-b819-afa6581190c1', '2021-02-03 09:03:40', 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"WIDGET\"]', NULL, '8ab4ef36-6d7d-492c-8885-5420415522aa', 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTM5ODU5MTI1IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE3NzU0OCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNMjEzLjkgNDMzLjRoMTk5LjRjMTIuMiAwIDE5LjUtOS43IDE5LjUtMTkuNSAwLTEyLjItOS43LTE5LjUtMTkuNS0xOS41SDI2MC4yYzQ2LjItOTQuOSAxNDEuMS0xNjAuNSAyNTAuNS0xNjAuNSAxMzguNiAwIDI1NS40IDEwNC42IDI3NC44IDIzOC40aDQxLjNDODA3LjQgMzE2LjYgNjczLjYgMTk1IDUxMC43IDE5NWMtMTE5LjIgMC0yMjEuMyA2NS43LTI3Ny4zIDE2M1YyMTQuNWMwLTkuNy03LjMtMTkuNS0xOS41LTE5LjUtOS43IDAtMTkuNSA5LjctMTkuNSAxOS41djE5OS40YzAuMSAxOS41IDE5LjUgMTkuNSAxOS41IDE5LjVtNTk1LjkgMTU4LjFINjEwLjRjLTEyLjIgMC0xOS41IDkuNy0xOS41IDE5LjUgMCAxMi4yIDkuNyAxOS41IDE5LjUgMTkuNWgxNTAuOGMtNDMuOCA5NC45LTE0MS4xIDE1OC4xLTI1MC41IDE1OC4xLTEzOC42IDAtMjU1LjQtMTA0LjYtMjc0LjgtMjM4LjRIMTk3YzE5LjUgMTU4LjEgMTUzLjIgMjc5LjcgMzEzLjggMjc5LjcgMTE5LjIgMCAyMjMuOC02NS43IDI3Ny4zLTE2M3YxNDMuNWMwIDEyLjIgOS43IDE5LjUgMTkuNSAxOS41IDEyLjIgMCAxOS41LTkuNyAxOS41LTE5LjVWNjEwLjljMi4yLTE5LjQtMTcuMy0xOS40LTE3LjMtMTkuNHoiIGZpbGw9IiMwNDAwMDAiIHAtaWQ9IjE3NzU0OSI+PC9wYXRoPjwvc3ZnPg==');
+INSERT INTO `sys_applet` VALUES ('0458fe15-daf0-4fa0-bb09-1e334054e2c3', '900012', '首页业务总裁', '/joys/joys-admin/#/companyCEO', '000', '2019-12-08 02:23:37', '000', '2019-12-08 02:23:37', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"WIDGET\"]', NULL, '8ab4ef36-6d7d-492c-8885-5420415522aa', NULL);
+INSERT INTO `sys_applet` VALUES ('051c1ebc-8b6f-4e40-97be-7fb0b2730533', '100540', '银行管理', '/joys/joys-master-data/#/bank', '000', '2019-11-19 19:24:40', '000', '2019-11-19 20:01:11', 3, '1', NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', NULL, 'b1657a65-22d5-4182-bfc8-720b5e2af430', NULL);
+INSERT INTO `sys_applet` VALUES ('06431c2f-e4a9-4f1c-9da4-098784491836', '200518', '大中通用客户内评', '/joys/hy-customer/#/custGradingLmcommon', '000', '2020-09-22 09:03:42', '000', '2020-09-22 09:03:42', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', NULL, 'b11589f2-e4dc-4c39-b2b3-c6fbe2c67d93', NULL);
+INSERT INTO `sys_applet` VALUES ('100520', '100520', '用户管理', '/joys/joys-master-data/#/user', '000', '2018-11-04 22:00:00', '000', '2019-01-20 20:40:04', 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '[\"NODE\"]', 'eb185f54-d817-4e08-93c6-8ff988a0f94a', 'b1657a65-22d5-4182-bfc8-720b5e2af430', 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTI5MTA1MDgwIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjQ0NjUiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PC9zdHlsZT48L2RlZnM+PHBhdGggZD0iTTY0IDUwOS40NGMwIDI0NS43NiAxOTkuNjggNDQ1LjQ0IDQ0NS40NCA0NDUuNDQgMjQ1Ljc2IDAgNDQ1LjQ0LTE5OS42OCA0NDUuNDQtNDQ1LjQ0IDAtMjQ1Ljc2LTE5OS42OC00NDUuNDQtNDQ1LjQ0LTQ0NS40NFM2NCAyNjMuNjggNjQgNTA5LjQ0eiIgZmlsbD0iIzY4Q0JEMiIgcC1pZD0iNDQ2NiI+PC9wYXRoPjxwYXRoIGQ9Ik02NzUuODQgNzI0LjQ4Yy01My43Ni0yMy4wNC03MS42OC01OC44OC03OS4zNi04OS42IDM4LjQtMzAuNzIgNjkuMTItNzkuMzYgODQuNDgtMTMzLjEyIDE3LjkyLTIzLjA0IDI4LjE2LTQ2LjA4IDI4LjE2LTY0IDAtMTIuOC01LjEyLTIzLjA0LTEyLjgtMzAuNzItMi41Ni0xMTIuNjQtODEuOTItMjAyLjI0LTE4MS43Ni0yMDQuOEg1MTJjLTk3LjI4IDAtMTc2LjY0IDg5LjYtMTgxLjc2IDE5OS42OC0xMi44IDcuNjgtMjAuNDggMTcuOTItMjAuNDggMzMuMjggMCAyMy4wNCAxMi44IDUxLjIgMzUuODQgNzYuOCAxNS4zNiA0Ni4wOCA0My41MiA4OS42IDc2LjggMTE3Ljc2LTUuMTIgMzAuNzItMjMuMDQgNjkuMTItNzkuMzYgOTQuNzItMzAuNzIgMTIuOC04NC40OCAyNS42LTEwNy41MiAzNS44NEMyOTYuOTYgODI5LjQ0IDQwOS42IDg3MC40IDUwNi44OCA4NzAuNGgyLjU2Yzk3LjI4IDAgMjEyLjQ4LTQwLjk2IDI3My45Mi0xMDcuNTItMjMuMDQtMTIuOC03OS4zNi0yNS42LTEwNy41Mi0zOC40eiIgZmlsbD0iIzIwQ0REMSIgcC1pZD0iNDQ2NyI+PC9wYXRoPjxwYXRoIGQ9Ik02NzUuODQgNjk2LjMyYy01My43Ni0yMy4wNC03MS42OC01OC44OC03OS4zNi04OS42IDM4LjQtMzAuNzIgNjkuMTItNzkuMzYgODQuNDgtMTMzLjEyIDE3LjkyLTIzLjA0IDI4LjE2LTQ2LjA4IDI4LjE2LTY0IDAtMTIuOC01LjEyLTIzLjA0LTEyLjgtMzAuNzItMi41Ni0xMTIuNjQtODEuOTItMjAyLjI0LTE4MS43Ni0yMDQuOEg1MTJjLTk3LjI4IDAtMTc2LjY0IDg5LjYtMTgxLjc2IDE5OS42OC0xMi44IDcuNjgtMjAuNDggMTcuOTItMjAuNDggMzMuMjggMCAyMy4wNCAxMi44IDUxLjIgMzUuODQgNzYuOCAxNS4zNiA0Ni4wOCA0My41MiA4OS42IDc2LjggMTE3Ljc2LTUuMTIgMzAuNzItMjMuMDQgNjkuMTItNzkuMzYgOTQuNzItMzAuNzIgMTIuOC04NC40OCAyNS42LTEwNy41MiAzNS44NCA2MS40NCA2Ni41NiAxNzYuNjQgMTA3LjUyIDI3MS4zNiAxMDcuNTJoMi41NmM5Ny4yOCAwIDIxMi40OC00MC45NiAyNzMuOTItMTA3LjUyLTIzLjA0LTEwLjI0LTc5LjM2LTIwLjQ4LTEwNy41Mi0zNS44NHoiIGZpbGw9IiNGRkZGRkYiIHAtaWQ9IjQ0NjgiPjwvcGF0aD48L3N2Zz4=');
+select
+null tenant_id,
+applet_id,
+applet_code,
+applet_name,
+route_url,
+creator_id,
+creation_ts,
+app_describe,
+app_introduce,
+app_icon,
+app_info,
+type_tags,
+applet_category_id,
+app_img,
+version_description
+from sys_applet sa
+where 1=1
+and ( JSON_CONTAINS(type_tags,'["WIDGET"]')
+or JSON_CONTAINS('["WIDGET"]',type_tags)
+)
+and sa.applet_name like '%%'
+        order by sa.applet_code
+LIMIT 99999;
+tenant_id	applet_id	applet_code	applet_name	route_url	creator_id	creation_ts	app_describe	app_introduce	app_icon	app_info	type_tags	applet_category_id	app_img	version_description
+NULL	0458fe15-daf0-4fa0-bb09-1e334054e2c3	900012	首页业务总裁	/joys/joys-admin/#/companyCEO	000	2019-12-08 02:23:37.000000	NULL	NULL	NULL	NULL	["WIDGET"]	8ab4ef36-6d7d-492c-8885-5420415522aa	NULL	NULL
+NULL	00cb0194-7de8-41cb-8f74-1e5f723a6ded	90017	项目转换率	/joys/hy-statistic/#/echartsProjectChange	000	2019-06-19 19:02:37.000000	NULL	NULL	NULL	NULL	["WIDGET"]	8ab4ef36-6d7d-492c-8885-5420415522aa	data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNTg3MTM5ODU5MTI1IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjE3NzU0OCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNMjEzLjkgNDMzLjRoMTk5LjRjMTIuMiAwIDE5LjUtOS43IDE5LjUtMTkuNSAwLTEyLjItOS43LTE5LjUtMTkuNS0xOS41SDI2MC4yYzQ2LjItOTQuOSAxNDEuMS0xNjAuNSAyNTAuNS0xNjAuNSAxMzguNiAwIDI1NS40IDEwNC42IDI3NC44IDIzOC40aDQxLjNDODA3LjQgMzE2LjYgNjczLjYgMTk1IDUxMC43IDE5NWMtMTE5LjIgMC0yMjEuMyA2NS43LTI3Ny4zIDE2M1YyMTQuNWMwLTkuNy03LjMtMTkuNS0xOS41LTE5LjUtOS43IDAtMTkuNSA5LjctMTkuNSAxOS41djE5OS40YzAuMSAxOS41IDE5LjUgMTkuNSAxOS41IDE5LjVtNTk1LjkgMTU4LjFINjEwLjRjLTEyLjIgMC0xOS41IDkuNy0xOS41IDE5LjUgMCAxMi4yIDkuNyAxOS41IDE5LjUgMTkuNWgxNTAuOGMtNDMuOCA5NC45LTE0MS4xIDE1OC4xLTI1MC41IDE1OC4xLTEzOC42IDAtMjU1LjQtMTA0LjYtMjc0LjgtMjM4LjRIMTk3YzE5LjUgMTU4LjEgMTUzLjIgMjc5LjcgMzEzLjggMjc5LjcgMTE5LjIgMCAyMjMuOC02NS43IDI3Ny4zLTE2M3YxNDMuNWMwIDEyLjIgOS43IDE5LjUgMTkuNSAxOS41IDEyLjIgMCAxOS41LTkuNyAxOS41LTE5LjVWNjEwLjljMi4yLTE5LjQtMTcuMy0xOS40LTE3LjMtMTkuNHoiIGZpbGw9IiMwNDAwMDAiIHAtaWQ9IjE3NzU0OSI+PC9wYXRoPjwvc3ZnPg==	NULL
+CREATE TABLE `lss_customer_corp` (
+`id` bigint(20) NOT NULL AUTO_INCREMENT,
+`tenant_id` varchar(36) NOT NULL COMMENT '租户ID',
+`customer_id` varchar(36) NOT NULL COMMENT '客户ID',
+`customer_name` varchar(100) NOT NULL COMMENT '客户名称',
+`customer_status` varchar(20) NOT NULL COMMENT '客户状态(START:启用,STOP:停用)',
+`new_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否新客户(1:是,0:否)',
+`source_bill_type` varchar(50) DEFAULT NULL COMMENT '来源单据类型',
+`customer_role` varchar(255) DEFAULT NULL COMMENT '客户角色(多个角色用逗号分隔)',
+`create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+`update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+PRIMARY KEY (`id`),
+KEY `idx_tenant_id` (`tenant_id`),
+KEY `idx_customer_id` (`customer_id`),
+KEY `idx_customer_status` (`customer_status`)
+) ;
+INSERT INTO `lss_customer_corp` (`tenant_id`, `customer_id`, `customer_name`, `customer_status`, `new_flag`, `source_bill_type`, `customer_role`) VALUES
+('74a03e75-c696-4ba6-a4c8-30e0ce48f521', 'cust001', '供应商A公司', 'START', 1, 'CUSTOMER', 'SUPPLIER,CLIENT'),
+('74a03e75-c696-4ba6-a4c8-30e0ce48f522', 'cust002', '制造商B公司', 'START', 1, 'CUSTOMER', 'MANUFACTURER,DISTRIBUTOR'),
+('74a03e75-c696-4ba6-a4c8-30e0ce48f523', 'cust003', '供应商兼制造商C公司', 'START', 1, 'CUSTOMER', 'SUPPLIER,MANUFACTURER');
+INSERT INTO `lss_customer_corp` (`tenant_id`, `customer_id`, `customer_name`, `customer_status`, `new_flag`, `source_bill_type`, `customer_role`) VALUES
+('74a03e75-c696-4ba6-a4c8-30e0ce48f525', 'cust004', '普通客户D公司', 'START', 0, 'CUSTOMER', 'CLIENT'),  
+('74a03e75-c696-4ba6-a4c8-30e0ce48f529', 'cust005', '停用供应商E公司', 'STOP', 1, 'CUSTOMER', 'SUPPLIER'), 
+('other-tenant-id', 'cust006', '其他租户供应商', 'START', 1, 'CUSTOMER', 'SUPPLIER'),  -- 租户ID不符合
+('74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'cust007', '非客户来源', 'START', 1, 'ORDER', 'SUPPLIER');
+SELECT customer_id,customer_name
+FROM lss_customer_corp
+WHERE tenant_id = '74a03e75-c696-4ba6-a4c8-30e0ce48f526'
+           AND customer_status = 'START'
+           AND new_flag = 1
+AND source_bill_type = 'CUSTOMER'
+           AND (coalesce(position('SUPPLIER' in customer_role), 0) > 0
+OR coalesce(position('MANUFACTURER' in customer_role), 0) > 0);
+customer_id	customer_name
+DROP TABLE IF EXISTS `lss_project_info`;
+DROP TABLE IF EXISTS `sys_item`;
+DROP TABLE IF EXISTS `sys_item_set`;
+CREATE TABLE `sys_item_set` (
+`item_set_id` varchar(36) NOT NULL,
+`set_code` varchar(100) NOT NULL,
+PRIMARY KEY (`item_set_id`)
+);
+CREATE TABLE `sys_item` (
+`item_id` varchar(36) NOT NULL,
+`item_set_id` varchar(36) NOT NULL,
+`item_name` varchar(100) NOT NULL,
+`item_code` varchar(100) NOT NULL,
+PRIMARY KEY (`item_id`),
+KEY `idx_item_set_id` (`item_set_id`),
+KEY `idx_item_code` (`item_code`)
+);
+CREATE TABLE `lss_project_info` (
+`project_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`org_id` varchar(36) NOT NULL,
+`project_amount` decimal(20,2) NOT NULL,
+`leasehold_categy` varchar(100) DEFAULT NULL,
+`bill_status` varchar(50) NOT NULL,
+`updation_ts` datetime NOT NULL,
+PRIMARY KEY (`project_id`),
+KEY `idx_tenant_id` (`tenant_id`),
+KEY `idx_bill_status` (`bill_status`),
+KEY `idx_updation_ts` (`updation_ts`),
+KEY `idx_org_id` (`org_id`)
+);
+INSERT INTO `sys_item_set` VALUES 
+('set1', 'leaseholdCategory'),
+('set2', 'otherCategory');
+INSERT INTO `sys_item` VALUES
+('item1', 'set1', '类别A', 'A1'),
+('item2', 'set1', '类别B', 'B2'),
+('item3', 'set1', '类别C', 'C3'),
+('item4', 'set2', '其他类别', 'D4');
+INSERT INTO `lss_project_info` VALUES
+('proj1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 5000000.00, 'LEASE-A1', 'PASS', '2025-03-15 10:00:00'),
+('proj2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 3000000.00, 'LEASE-B2', 'PASS', '2025-03-20 11:00:00'),
+('proj3', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 7000000.00, 'LEASE-A1', 'PASS', '2025-03-25 12:00:00');
+INSERT INTO `lss_project_info` VALUES
+('proj4', 'other-tenant-id', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 1000000.00, 'LEASE-C3', 'PASS', '2025-03-10 13:00:00'),
+('proj5', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'other-org-id', 2000000.00, 'LEASE-B2', 'PASS', '2025-03-15 14:00:00'),
+('proj6', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 4000000.00, 'LEASE-D4', 'DRAFT', '2025-03-20 15:00:00'),
+('proj7', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'f06b6a4d-fe15-4e5e-9fc3-142531ec64f8', 6000000.00, 'LEASE-A1', 'PASS', '2025-02-28 16:00:00');
+select round(sum(lpi.project_amount)/10000 ,2) as project_amount,ss.item_name as leasehold_category,ss.item_code
+from lss_project_info lpi
+inner join(select item_name, item_code
+from sys_item si
+inner join sys_item_set sis
+on si.item_set_id = sis.item_set_id
+where sis.set_code = 'leaseholdCategory'
+        and item_code=substr(item_code, 1, 2)) as ss on substr(lpi.leasehold_categy, 6, 2) = ss.item_code
+where lpi.bill_status = 'PASS'
+        and lpi.tenant_id = '74a03e75-c696-4ba6-a4c8-30e0ce48f526'
+            and date_format(lpi.updation_ts,'%Y-%m-%d')  >=   '2025-03-01'
+            and date_format(lpi.updation_ts,'%Y-%m-%d')  <=   '2025-03-31'
+            and (
+( lpi.org_id in ('f06b6a4d-fe15-4e5e-9fc3-142531ec64f8') )
+)
+group by ss.item_name,ss.item_code
+order by ss.item_code;
+project_amount	leasehold_category	item_code
+DROP TABLE IF EXISTS `lss_rating_template`;
+DROP TABLE IF EXISTS `sys_item`;
+CREATE TABLE `sys_item` (
+`item_id` varchar(36) NOT NULL,
+`item_code` varchar(100) NOT NULL,
+`item_name` varchar(100) NOT NULL,
+`item_value` varchar(100)  -- 新增item_value字段用于排序
+);
+CREATE TABLE `lss_rating_template` (
+`rating_template_id` varchar(36) NOT NULL,
+`template_id` varchar(36) NOT NULL
+);
+INSERT INTO `sys_item` VALUES 
+('item1', 'CODE001', '项目1', 'B'),
+('item2', 'CODE002', '项目2', 'A'),
+('item3', 'CODE003', '项目3', 'C'),
+('item4', 'CODE004', '项目4', 'A');
+INSERT INTO `lss_rating_template` VALUES
+('temp1', 'item1'),
+('temp2', 'item2'),
+('temp3', 'item3'),
+('temp4', 'item4'),
+('temp5', 'item1');
+select
+tem.rating_template_id,
+si.item_id,
+si.item_code,
+si.item_name
+from lss_rating_template tem
+inner join sys_item si on si.item_id = tem.template_id
+where 1=1
+order by si.item_value;
+rating_template_id	item_id	item_code	item_name
+temp2	item2	CODE002	项目2
+temp4	item4	CODE004	项目4
+temp1	item1	CODE001	项目1
+temp5	item1	CODE001	项目1
+temp3	item3	CODE003	项目3
+DROP TABLE IF EXISTS `sys_item`;
+DROP TABLE IF EXISTS `sys_item_set`;
+CREATE TABLE `sys_item_set` (
+`item_set_id` varchar(36) NOT NULL,
+`set_code` varchar(100) NOT NULL
+);
+CREATE TABLE `sys_item` (
+`item_id` varchar(36) NOT NULL,
+`item_set_id` varchar(36) NOT NULL,
+`parent_id` varchar(36) DEFAULT NULL,
+`item_code` varchar(100) NOT NULL,
+`item_name` varchar(100) NOT NULL,
+`item_value` varchar(100) DEFAULT NULL,
+`order_num` int DEFAULT NULL
+);
+INSERT INTO `sys_item_set` VALUES 
+('set1', 'RATING_QUOTA_CLASSIFY'),
+('set2', 'OTHER_SET');
+INSERT INTO `sys_item` VALUES
+('main1', 'set1', NULL, 'CLASS1', '分类1', NULL, NULL),
+('main2', 'set1', NULL, 'CLASS2', '分类2', NULL, NULL);
+INSERT INTO `sys_item` VALUES
+('score1', 'set1', 'main1', 'SCORE1', '评分项1', '90', 1),
+('score2', 'set1', 'main1', 'SCORE2', '评分项2', '80', 2),
+('score3', 'set1', 'main2', 'SCORE3', '评分项3', 'NULL', 1),
+('score4', 'set1', 'main2', 'SCORE4', '评分项4', '85', 2),
+('other1', 'set2', NULL, 'OTHER1', '其他项', NULL, NULL);
+select
+si.item_id,
+si.item_code,
+si.item_name,
+score.scoreId,
+score.item_code scoreCode,
+score.item_name scoreResult,
+score.score
+from sys_item si
+inner join sys_item_set sit on sit.item_set_id = si.item_set_id
+left join (
+select
+uuid() as scoreId,
+parent_id,
+order_num,
+item_code,
+item_name,
+(case when item_value = 'NULL' then null else item_value end) score
+from sys_item
+) score on score.parent_id = si.item_id
+where 1=1
+and si.parent_id is null and sit.set_code = 'RATING_QUOTA_CLASSIFY'
+        order by score.order_num;
+item_id	item_code	item_name	scoreId	scoreCode	scoreResult	score
+main1	CLASS1	分类1	6726ce21-e097-11f0-b9d7-f82e3f743b4a	SCORE1	评分项1	90
+main2	CLASS2	分类2	6726d04c-e097-11f0-b9d7-f82e3f743b4a	SCORE3	评分项3	NULL
+main1	CLASS1	分类1	6726cf4b-e097-11f0-b9d7-f82e3f743b4a	SCORE2	评分项2	80
+main2	CLASS2	分类2	6726d155-e097-11f0-b9d7-f82e3f743b4a	SCORE4	评分项4	85
+DROP TABLE IF EXISTS `sys_data_privilege_item`;
+DROP TABLE IF EXISTS `sys_data_privilege_subscheme`;
+CREATE TABLE `sys_data_privilege_subscheme` (
+`data_privilege_subscheme_id` varchar(36) NOT NULL,
+`data_privilege_scheme_id` varchar(36) NOT NULL,
+PRIMARY KEY (`data_privilege_subscheme_id`)
+);
+CREATE TABLE `sys_data_privilege_item` (
+`item_id` varchar(36) NOT NULL,
+`data_privilege_subscheme_id` varchar(36) NOT NULL,
+`item_value` varchar(100) DEFAULT NULL,
+PRIMARY KEY (`item_id`),
+KEY `idx_subscheme_id` (`data_privilege_subscheme_id`)
+);
+INSERT INTO `sys_data_privilege_subscheme` VALUES
+('sub1', '0059ae24-6dcd-4f68-a1e4-2ea110cd1489'),
+('sub2', '0059ae24-6dcd-4f68-a1e4-2ea110cd1489'),
+('sub3', 'other-scheme-id');
+INSERT INTO `sys_data_privilege_item` VALUES
+('item1', 'sub1', 'value1'),
+('item2', 'sub1', 'value2'),
+('item3', 'sub2', 'value3'),
+('item4', 'sub3', 'value4'),
+('item5', 'sub3', 'value5');
+delete from sys_data_privilege_item ii 
+where exists (
+select 1 from sys_data_privilege_subscheme sub
+where sub.data_privilege_subscheme_id=ii.data_privilege_subscheme_id
+and sub.data_privilege_scheme_id= '0059ae24-6dcd-4f68-a1e4-2ea110cd1489'
+                     );
+DROP TABLE IF EXISTS `sys_operation_log`;
+CREATE TABLE `sys_operation_log` (
+`log_id` varchar(36) NOT NULL,
+`operation_type` varchar(100) DEFAULT NULL,
+`operation_content` text,
+`creation_ts` datetime NOT NULL,
+PRIMARY KEY (`log_id`),
+KEY `idx_creation_ts` (`creation_ts`)
+);
+INSERT INTO `sys_operation_log` VALUES
+('log1', 'LOGIN', '用户登录', '2023-11-15 09:00:00'),
+('log2', 'UPDATE', '更新数据', '2023-11-15 10:30:00'),
+('log3', 'DELETE', '删除数据', '2023-11-14 15:20:00'),
+('log4', 'CREATE', '创建数据', '2023-11-16 08:00:00'),
+('log5', 'QUERY', '查询数据', '2023-11-15 11:45:00');
+DELETE FROM sys_operation_log sol
+WHERE 1=1
+AND date_format(sol.creation_ts, '%Y-%m-%d') >= date_format(current_date - 0, '%Y-%m-%d')
+AND date_format(sol.creation_ts, '%Y-%m-%d') <= date_format(current_date - 0, '%Y-%m-%d');
+DROP TABLE IF EXISTS `sys_bank_account`;
+DROP TABLE IF EXISTS `SYS_USER_DEPT`;
+DROP TABLE IF EXISTS `sys_dept`;
+DROP TABLE IF EXISTS `SYS_ORG`;
+DROP TABLE IF EXISTS `SYS_ITEM`;
+CREATE TABLE `sys_bank_account` (
+`ACCOUNT_ID` varchar(36) NOT NULL,
+`ACCOUNT_NAME` varchar(100) NOT NULL,
+`ORG_ID` varchar(36) NOT NULL,
+`CREATOR_ID` varchar(36) NOT NULL,
+`COURSE_NUMBER` varchar(50) DEFAULT NULL,
+`SOURCE_BILL_TYPE` varchar(50) NOT NULL
+);
+CREATE TABLE `SYS_USER_DEPT` (
+`USER_ID` varchar(36) NOT NULL,
+`DEPT_ID` varchar(36) NOT NULL,
+`DEFAULT_DEPT` tinyint(1) DEFAULT 0
+);
+CREATE TABLE `sys_dept` (
+`DEPT_ID` varchar(36) NOT NULL,
+`DEPT_NAME` varchar(100) NOT NULL
+);
+CREATE TABLE `SYS_ORG` (
+`ORG_ID` varchar(36) NOT NULL,
+`ORG_NAME` varchar(100) NOT NULL
+);
+CREATE TABLE `SYS_ITEM` (
+`ITEM_ID` varchar(36) NOT NULL,
+`ITEM_CODE` varchar(50) NOT NULL,
+`ITEM_NAME` varchar(100) NOT NULL
+);
+INSERT INTO `SYS_ORG` VALUES 
+('org1', '总公司'),
+('org2', '分公司A'),
+('org3', '分公司B');
+INSERT INTO `sys_dept` VALUES
+('dept1', '财务部'),
+('dept2', '销售部'),
+('dept3', '技术部');
+INSERT INTO `SYS_USER_DEPT` VALUES
+('user1', 'dept1', 1),
+('user2', 'dept2', 1),
+('user3', 'dept3', 0),
+('user4', 'dept1', 1);
+INSERT INTO `SYS_ITEM` VALUES
+('item1', 'COURSE001', '基础课程'),
+('item2', 'COURSE002', '进阶课程'),
+('item3', 'COURSE003', '高级课程');
+INSERT INTO `sys_bank_account` VALUES
+('acct1', '主账户', 'org1', 'user1', 'COURSE001', 'CUST_OPEN_CLOSE'),
+('acct2', '备用账户', 'org2', 'user2', 'COURSE002', 'ORG_BANK'),
+('acct3', '项目账户', 'org1', 'user4', 'COURSE003', 'ORG_BANK');
+INSERT INTO `sys_bank_account` VALUES
+('acct4', '临时账户', 'org3', 'user3', 'COURSE001', 'OTHER_TYPE'),
+('acct5', '测试账户', 'org2', 'user1', 'COURSE002', 'TEST_TYPE');
+SELECT 
+so.ORG_NAME,
+sban.ACCOUNT_NAME,
+si.ITEM_NAME as course_name,
+sban.COURSE_NUMBER
+FROM sys_bank_account sban
+LEFT JOIN SYS_USER_DEPT udt ON udt.USER_ID = sban.CREATOR_ID AND udt.DEFAULT_DEPT = 1
+LEFT JOIN sys_dept dt ON udt.DEPT_ID = dt.DEPT_ID
+LEFT JOIN SYS_ORG so ON so.ORG_ID = sban.ORG_ID
+LEFT JOIN SYS_ITEM si ON si.ITEM_CODE = sban.COURSE_NUMBER
+WHERE 1 = 1 AND sban.SOURCE_BILL_TYPE IN ('CUST_OPEN_CLOSE','ORG_BANK');
+ORG_NAME	ACCOUNT_NAME	course_name	COURSE_NUMBER
+总公司	主账户	基础课程	COURSE001
+分公司A	备用账户	进阶课程	COURSE002
+总公司	项目账户	高级课程	COURSE003
+DROP TABLE IF EXISTS `bpm_task_notice`;
+DROP TABLE IF EXISTS `bpm_busi_type`;
+DROP TABLE IF EXISTS `bpm_act_inst`;
+DROP TABLE IF EXISTS `bpm_process_inst`;
+DROP TABLE IF EXISTS `bpm_delegation`;
+CREATE TABLE `bpm_busi_type` (
+`busi_type_id` varchar(36) NOT NULL,
+`busi_type_name` varchar(100) NOT NULL,
+PRIMARY KEY (`busi_type_id`)
+);
+CREATE TABLE `bpm_process_inst` (
+`process_inst_id` varchar(36) NOT NULL,
+`process_inst_name` varchar(100) NOT NULL,
+`promoter` varchar(36) NOT NULL,
+`creation_ts` datetime NOT NULL,
+`updation_ts` datetime NOT NULL,
+PRIMARY KEY (`process_inst_id`)
+);
+CREATE TABLE `bpm_act_inst` (
+`act_inst_id` varchar(36) NOT NULL,
+`process_inst_id` varchar(36) NOT NULL,
+PRIMARY KEY (`act_inst_id`),
+KEY `idx_process_inst_id` (`process_inst_id`)
+);
+CREATE TABLE `bpm_task_notice` (
+`task_notice_id` varchar(36) NOT NULL,
+`task_notice_id_source` varchar(36) DEFAULT NULL,
+`system_id` varchar(50) NOT NULL,
+`task_inst_id` varchar(36) NOT NULL,
+`busi_id` varchar(36) NOT NULL,
+`busi_type_id` varchar(36) NOT NULL,
+`form_id` varchar(36) DEFAULT NULL,
+`content` text,
+`read_status` varchar(20) DEFAULT NULL,
+`read_time` datetime DEFAULT NULL,
+`sender_id` varchar(36) NOT NULL,
+`owner_id` varchar(36) NOT NULL,
+`accept_time` datetime DEFAULT NULL,
+`handle_time` datetime DEFAULT NULL,
+`handle_status` varchar(20) NOT NULL,
+`task_type` varchar(20) DEFAULT NULL,
+`vote_result` varchar(20) DEFAULT NULL,
+`task_batch` varchar(36) DEFAULT NULL,
+`creator_id` varchar(36) NOT NULL,
+`creation_ts` datetime NOT NULL,
+`updator_id` varchar(36) NOT NULL,
+`updation_ts` datetime NOT NULL,
+`data_version` int(11) NOT NULL,
+PRIMARY KEY (`task_notice_id`),
+KEY `idx_owner_id` (`owner_id`),
+KEY `idx_task_inst_id` (`task_inst_id`),
+KEY `idx_busi_type_id` (`busi_type_id`),
+KEY `idx_handle_status` (`handle_status`),
+KEY `idx_system_id` (`system_id`)
+);
+CREATE TABLE `bpm_delegation` (
+`delegation_id` varchar(36) NOT NULL,
+`delegator_id` varchar(36) NOT NULL,
+`delegatee_id` varchar(36) NOT NULL,
+`status` varchar(20) NOT NULL,
+`start_date` date NOT NULL,
+`end_date` date NOT NULL,
+PRIMARY KEY (`delegation_id`),
+KEY `idx_delegator` (`delegator_id`),
+KEY `idx_delegatee` (`delegatee_id`)
+);
+INSERT INTO `bpm_busi_type` VALUES
+('busi1', '请假审批'),
+('busi2', '费用报销'),
+('busi3', '采购申请');
+INSERT INTO `bpm_process_inst` VALUES
+('proc1', '请假流程', 'user1', '2023-01-01 10:00:00', '2023-01-01 10:00:00'),
+('proc2', '报销流程', 'user2', '2023-01-02 11:00:00', '2023-01-02 11:00:00'),
+('proc3', '采购流程', 'user3', '2023-01-03 12:00:00', '2023-01-03 12:00:00');
+INSERT INTO `bpm_act_inst` VALUES
+('act1', 'proc1'),
+('act2', 'proc2'),
+('act3', 'proc3');
+INSERT INTO `bpm_task_notice` VALUES
+('task1', NULL, 'joys-lss', 'act1', 'busi1', 'busi1', 'form1', '请假申请', 'UNREAD', NULL, 'user1', '25fa204f-6300-4017-bbde-f1485a215b59', NULL, NULL, 'UNHANDLED', 'NORMAL', NULL, 'batch1', 'user1', '2023-01-01 10:00:00', 'user1', '2023-01-01 10:00:00', 1),
+('task2', NULL, 'joys-lss', 'act2', 'busi2', 'busi2', 'form2', '报销申请', 'UNREAD', NULL, 'user2', '25fa204f-6300-4017-bbde-f1485a215b59', NULL, NULL, 'UNHANDLED', 'NORMAL', NULL, 'batch2', 'user2', '2023-01-02 11:00:00', 'user2', '2023-01-02 11:00:00', 1),
+('task3', NULL, 'joys-lss', 'act3', 'busi3', 'busi3', 'form3', '采购申请', 'UNREAD', NULL, 'user3', '25fa204f-6300-4017-bbde-f1485a215b59', NULL, NULL, 'UNHANDLED', 'NORMAL', NULL, 'batch3', 'user3', '2023-01-03 12:00:00', 'user3', '2023-01-03 12:00:00', 1);
+INSERT INTO `bpm_task_notice` VALUES
+('task4', NULL, 'other-system', 'act1', 'busi1', 'busi1', 'form1', '请假申请', 'UNREAD', NULL, 'user1', '25fa204f-6300-4017-bbde-f1485a215b59', NULL, NULL, 'UNHANDLED', 'NORMAL', NULL, 'batch1', 'user1', '2023-01-01 10:00:00', 'user1', '2023-01-01 10:00:00', 1),
+('task5', NULL, 'joys-lss', 'act2', 'busi2', 'busi2', 'form2', '报销申请', 'READ', '2023-01-02 11:30:00', 'user2', '25fa204f-6300-4017-bbde-f1485a215b59', '2023-01-02 11:30:00', '2023-01-02 11:35:00', 'HANDLED', 'NORMAL', NULL, 'batch2', 'user2', '2023-01-02 11:00:00', 'user2', '2023-01-02 11:00:00', 1);
+INSERT INTO `bpm_delegation` VALUES
+('del1', 'user4', '25fa204f-6300-4017-bbde-f1485a215b59', 'ENABLED', '2023-01-01', '2023-12-31'),
+('del2', '25fa204f-6300-4017-bbde-f1485a215b59', 'user5', 'ENABLED', '2023-01-01', '2023-12-31');
+select tm.count,
+t.busi_type_name
+from (select busi_type_id,
+count(1) count
+from (
+select * from (
+select * from (
+select m.task_notice_id,
+m.task_notice_id_source,
+pi.process_inst_id,
+pi.process_inst_name,
+m.system_id,
+m.task_inst_id,
+m.busi_id,
+m.busi_type_id,
+t.busi_type_name,
+m.form_id,
+m.content,
+m.read_status,
+m.read_time,
+m.sender_id,
+m.owner_id,
+m.accept_time,
+m.handle_time,
+m.handle_status,
+m.task_type,
+m.vote_result,
+m.task_batch,
+m.creator_id,
+m.creation_ts,
+m.updator_id,
+m.updation_ts,
+m.data_version,
+1 task_order,
+pi.promoter process_inst_creator_id,
+pi.creation_ts process_inst_creation_ts,
+pi.updation_ts process_inst_updation_ts
+from bpm_task_notice m
+left join bpm_busi_type t
+on t.busi_type_id = m.busi_type_id
+left join bpm_act_inst ai
+on ai.act_inst_id = m.task_inst_id
+left join bpm_process_inst pi
+on pi.process_inst_id = ai.process_inst_id
+where 1=1 and m.owner_id = '25fa204f-6300-4017-bbde-f1485a215b59'
+        union all
+select m.task_notice_id,
+m.task_notice_id_source,
+pi.process_inst_id,
+pi.process_inst_name,
+m.system_id,
+m.task_inst_id,
+m.busi_id,
+m.busi_type_id,
+t.busi_type_name,
+m.form_id,
+m.content,
+m.read_status,
+m.read_time,
+m.sender_id,
+m.owner_id,
+m.accept_time,
+m.handle_time,
+m.handle_status,m.task_type,m.vote_result,m.task_batch,m.creator_id,m.creation_ts,m.updator_id,
+m.updation_ts,
+m.data_version,
+2 task_order,
+pi.promoter process_inst_creator_id,
+pi.creation_ts process_inst_creation_ts,
+pi.updation_ts process_inst_updation_ts
+from bpm_task_notice m
+left join bpm_busi_type t
+on t.busi_type_id = m.busi_type_id
+left join bpm_act_inst ai
+on ai.act_inst_id = m.task_inst_id
+left join bpm_process_inst pi
+on pi.process_inst_id = ai.process_inst_id
+inner join bpm_delegation de
+on de.delegator_id = m.owner_id
+and de.status = 'ENABLED'
+            and de.start_date <= date_format(now(), '%Y-%m-%d')
+and de.end_date >= date_format(now(), '%Y-%m-%d')
+where 1 = 1
+and de.delegatee_id = '25fa204f-6300-4017-bbde-f1485a215b59'
+        and not exists(
+select 1
+from bpm_task_notice m2
+where 1=1
+and m2.owner_id = '25fa204f-6300-4017-bbde-f1485a215b59'
+        and m2.task_inst_id = m.task_inst_id
+)
+) mm order by mm.creation_ts desc
+) m
+) m
+where 1=1
+and handle_status = 'UNHANDLED'
+            and system_id = 'joys-lss'
+        group by busi_type_id) tm
+left join bpm_busi_type t
+on t.busi_type_id = tm.busi_type_id;
+count	busi_type_name
+1	请假审批
+1	费用报销
+1	采购申请
+DROP TABLE IF EXISTS `task_acceptance`;
+CREATE TABLE `task_acceptance` (
+`id` INT AUTO_INCREMENT PRIMARY KEY,
+`task_name` VARCHAR(100) NOT NULL,
+`accept_time` DATETIME NOT NULL,
+`status` VARCHAR(20) NOT NULL,
+`handler_id` VARCHAR(36),
+INDEX `idx_accept_time` (`accept_time`),
+INDEX `idx_status` (`status`)
+);
+INSERT INTO `task_acceptance` (`task_name`, `accept_time`, `status`, `handler_id`) VALUES
+('任务1', NOW() - INTERVAL 1 HOUR, 'ACCEPTED', 'user001'),
+('任务2', NOW() - INTERVAL 30 MINUTE, 'ACCEPTED', 'user002'),
+('任务3', '2023-01-01 10:00:00', 'ACCEPTED', 'user003');
+INSERT INTO `task_acceptance` (`task_name`, `accept_time`, `status`, `handler_id`) VALUES
+('任务4', NOW() + INTERVAL 1 HOUR, 'PENDING', NULL),
+('任务5', NOW() + INTERVAL 2 DAY, 'NEW', NULL);
+SELECT * FROM `task_acceptance`
+WHERE `status` = 'ACCEPTED'
+AND now() - interval 0 hour >= accept_time;
+id	task_name	accept_time	status	handler_id
+1	任务1	2025-12-24 14:09:01.373970	ACCEPTED	user001
+2	任务2	2025-12-24 14:39:01.373970	ACCEPTED	user002
+3	任务3	2023-01-01 10:00:00.000000	ACCEPTED	user003
+DROP TABLE IF EXISTS `sys_applet`;
+CREATE TABLE `sys_applet` (
+`applet_id` varchar(36) NOT NULL,
+`applet_code` varchar(100) NOT NULL,
+`applet_name` varchar(100) NOT NULL,
+`type_tags` json,
+PRIMARY KEY (`applet_id`),
+KEY `idx_applet_code` (`applet_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `sys_applet` VALUES 
+('app1', 'APP001', '节点管理', '["NODE", "SYSTEM"]'),
+('app2', 'APP002', '节点配置', '["NODE"]'),
+('app3', 'APP003', '节点监控', '["NODE", "MONITOR"]');
+INSERT INTO `sys_applet` VALUES
+('app4', 'APP004', '用户管理', '["USER"]'),
+('app5', 'APP005', '系统设置', '["SYSTEM"]'),
+('app6', 'APP006', '数据统计', '["DATA", "STATS"]');
+select sa.applet_id,sa.applet_code,sa.applet_name
+from sys_applet sa
+WHERE  ( JSON_CONTAINS(sa.type_tags,'["NODE"]')
+or JSON_CONTAINS('["NODE"]',sa.type_tags)
+);
+applet_id	applet_code	applet_name
+app1	APP001	节点管理
+app2	APP002	节点配置
+app3	APP003	节点监控
+DROP TABLE IF EXISTS `sys_operation`;
+DROP TABLE IF EXISTS `sys_applet`;
+DROP TABLE IF EXISTS `sys_tenant_operation`;
+DROP TABLE IF EXISTS `sys_role_operation`;
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_applet` (
+`applet_id` varchar(36) NOT NULL,
+`applet_code` varchar(100) NOT NULL,
+`applet_name` varchar(100) NOT NULL,
+PRIMARY KEY (`applet_id`)
+);
+CREATE TABLE `sys_operation` (
+`operation_id` varchar(36) NOT NULL,
+`operation_code` varchar(100) NOT NULL,
+`operation_name` varchar(300) NOT NULL,
+`applet_id` varchar(36) NOT NULL,
+PRIMARY KEY (`operation_id`),
+KEY `idx_applet_id` (`applet_id`)
+);
+CREATE TABLE `sys_tenant_operation` (
+`id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`operation_id` varchar(36) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_tenant_operation` (`tenant_id`, `operation_id`)
+);
+CREATE TABLE `sys_role_operation` (
+`id` varchar(36) NOT NULL,
+`role_id` varchar(36) NOT NULL,
+`operation_id` varchar(36) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_role_operation` (`role_id`, `operation_id`)
+);
+CREATE TABLE `sys_user_role` (
+`id` varchar(36) NOT NULL,
+`user_id` varchar(36) NOT NULL,
+`role_id` varchar(36) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_user_role` (`user_id`, `role_id`)
+);
+INSERT INTO `sys_applet` VALUES 
+('app1', 'APP001', '系统管理'),
+('app2', 'APP002', '用户管理'),
+('app3', 'APP003', '订单管理');
+INSERT INTO `sys_operation` VALUES
+('op1', 'OP001', '创建用户', 'app2'),
+('op2', 'OP002', '编辑用户', 'app2'),
+('op3', 'OP003', '删除用户', 'app2'),
+('op4', 'OP004', '查看订单', 'app3'),
+('op5', 'OP005', '创建订单', 'app3');
+INSERT INTO `sys_tenant_operation` VALUES
+('to1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'op1'),
+('to2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'op2'),
+('to3', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'op4');
+INSERT INTO `sys_tenant_operation` VALUES
+('to4', 'other-tenant-id', 'op3'),
+('to5', 'other-tenant-id', 'op5');
+INSERT INTO `sys_role_operation` VALUES
+('ro1', 'role1', 'op1'),
+('ro2', 'role1', 'op2'),
+('ro3', 'role2', 'op4'),
+('ro4', 'role3', 'op5');
+INSERT INTO `sys_user_role` VALUES
+('ur1', '25fa204f-6300-4017-bbde-f1485a215b59', 'role1'),
+('ur2', '25fa204f-6300-4017-bbde-f1485a215b59', 'role2');
+INSERT INTO `sys_user_role` VALUES
+('ur3', 'other-user-id', 'role1'),
+('ur4', 'other-user-id', 'role3');
+select so.operation_id,
+so.operation_code,
+so.operation_name,
+app.applet_code,
+app.applet_name
+from sys_operation so inner join sys_applet app on so.applet_id=app.applet_id
+where 1=1
+and exists(select 1 from sys_tenant_operation sto where sto.operation_id=so.operation_id and
+sto.tenant_id='74a03e75-c696-4ba6-a4c8-30e0ce48f526' )
+and exists(select 1 from sys_role_operation sro where sro.operation_id=so.operation_id
+and exists(select 1 from sys_user_role sur where sur.role_id=sro.role_id and
+sur.user_id='25fa204f-6300-4017-bbde-f1485a215b59'));
+operation_id	operation_code	operation_name	applet_code	applet_name
+op1	OP001	创建用户	APP002	用户管理
+op2	OP002	编辑用户	APP002	用户管理
+op4	OP004	查看订单	APP003	订单管理
+DROP TABLE IF EXISTS `sys_applet`;
+CREATE TABLE `sys_applet` (
+`applet_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) DEFAULT NULL,
+`applet_code` varchar(100) NOT NULL,
+`applet_name` varchar(100) NOT NULL,
+`type_tags` json ,
+PRIMARY KEY (`applet_id`),
+KEY `idx_applet_name` (`applet_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `sys_applet` VALUES 
+('app1', 'tenant1', 'APP001', 'Node Management', '["NODE", "SYSTEM"]'),
+('app2', 'tenant2', 'APP002', 'Data Analytics', '["DATA", "ANALYTICS"]'),
+('app3', NULL, 'APP003', 'System Dashboard', '["DASHBOARD"]'),
+('app4', 'tenant1', 'APP004', 'User Portal', '["USER", "PORTAL"]'),
+('app5', NULL, 'APP005', 'Node Configuration', '["NODE", "CONFIG"]');
+SELECT count(0) FROM (
+SELECT null tenant_id, type_tags 
+FROM sys_applet sa 
+WHERE 1=1 
+AND sa.applet_name LIKE '%%'
+) table_count;
+count(0)
+5
+DROP TABLE IF EXISTS lss_customer_person;
+DROP TABLE IF EXISTS lss_after_check;
+DROP TABLE IF EXISTS lss_contract;
+DROP TABLE IF EXISTS sys_user;
+DROP TABLE IF EXISTS sys_dept;
+CREATE TABLE lss_customer_person (
+customer_id VARCHAR(50),
+customer_name VARCHAR(100),
+customer_type VARCHAR(50),
+asset_risk_grade VARCHAR(50),
+main_manager_id VARCHAR(50),
+vice_manager_id VARCHAR(50),
+dept_id VARCHAR(50)
+);
+CREATE TABLE lss_after_check (
+customer_id VARCHAR(50),
+check_code VARCHAR(50),
+check_id VARCHAR(50),
+bill_status VARCHAR(50),
+check_type VARCHAR(50),
+check_date DATE,
+check_degree VARCHAR(50),
+check_text TEXT,
+check_cover_date DATE,
+data_version VARCHAR(50),
+lend_reg VARCHAR(10),
+equip_reg VARCHAR(10),
+opera_reg VARCHAR(10),
+safe_reg VARCHAR(10),
+release_reg VARCHAR(10)
+);
+CREATE TABLE lss_contract (
+lessee_id VARCHAR(50),
+cont_status VARCHAR(50)
+);
+CREATE TABLE sys_user (
+user_id VARCHAR(50),
+user_name VARCHAR(100)
+);
+CREATE TABLE sys_dept (
+dept_id VARCHAR(50),
+dept_name VARCHAR(100)
+);
+INSERT INTO lss_customer_person VALUES (
+'C001', '张三', '个人', 'A', 'U001', 'U002', 'D001'
+);
+INSERT INTO lss_after_check VALUES (
+'C001', 'CHK001', 'c2da404d-a4c9-49aa-a147-814b32dd2c6b', '完成', '月度',
+'2024-01-01', '良好', '无异常', '2024-01-02', 'V1',
+'Y', 'N', 'Y', 'Y', 'N'
+);
+INSERT INTO lss_contract VALUES (
+'C001', 'CONT_RENT'
+);
+INSERT INTO sys_user VALUES
+('U001', '李四'),
+('U002', '王五');
+INSERT INTO sys_dept VALUES (
+'D001', '融资一部'
+);
+SELECT DISTINCT
+lcp.customer_id,
+lcp.customer_name,
+lcp.customer_type,
+lcp.asset_risk_grade,
+lac.check_code,
+lac.check_id,
+lac.bill_status,
+lac.check_type,
+lac.check_date,
+lac.check_degree,
+lac.check_text,
+lac.check_cover_date,
+lac.data_version,
+lcp.main_manager_id,
+(SELECT user_name FROM sys_user WHERE user_id = lcp.main_manager_id ) as main_manager_name ,
+lcp.vice_manager_id,
+(SELECT user_name FROM sys_user WHERE user_id = lcp.vice_manager_id ) as vice_manager_name ,
+sd.dept_name,
+lac.lend_reg,
+lac.equip_reg,
+lac.opera_reg,
+lac.safe_reg,
+lac.release_reg
+FROM
+lss_contract lc
+INNER JOIN lss_customer_person lcp ON lc.lessee_id = lcp.customer_id
+INNER JOIN lss_after_check lac ON lc.lessee_id = lac.customer_id
+LEFT JOIN sys_dept sd ON lcp.dept_id = sd.dept_id
+WHERE lac.check_id = 'c2da404d-a4c9-49aa-a147-814b32dd2c6b'
+            and lc.cont_status = 'CONT_RENT';
+customer_id	customer_name	customer_type	asset_risk_grade	check_code	check_id	bill_status	check_type	check_date	check_degree	check_text	check_cover_date	data_version	main_manager_id	main_manager_name	vice_manager_id	vice_manager_name	dept_name	lend_reg	equip_reg	opera_reg	safe_reg	release_reg
+C001	张三	个人	A	CHK001	c2da404d-a4c9-49aa-a147-814b32dd2c6b	完成	月度	2024-01-01	良好	无异常	2024-01-02	V1	U001	李四	U002	王五	融资一部	Y	N	Y	Y	N
+DROP TABLE IF EXISTS lss_collect_rule;
+CREATE TABLE lss_collect_rule (
+collect_rule_id VARCHAR(50),
+data_version INT
+);
+INSERT INTO lss_collect_rule (collect_rule_id, data_version) VALUES
+('991e6eeb-72a3-49cb-b931-66fddaaababf', 4);
+select * from lss_collect_rule;
+collect_rule_id	data_version
+991e6eeb-72a3-49cb-b931-66fddaaababf	4
+delete from lss_collect_rule
+where collect_rule_id = '991e6eeb-72a3-49cb-b931-66fddaaababf' and data_version = 4;
+select * from lss_collect_rule;
+collect_rule_id	data_version
+DROP TABLE IF EXISTS lss_rent;
+DROP TABLE IF EXISTS lss_quote_inout_arap;
+DROP TABLE IF EXISTS lss_contract;
+DROP TABLE IF EXISTS lss_project_info;
+CREATE TABLE lss_rent (
+rent_id VARCHAR(50),
+quote_calculator_id VARCHAR(50),
+contract_id VARCHAR(50),
+bill_type VARCHAR(20),
+pay_amt DECIMAL(18,2)
+);
+CREATE TABLE lss_quote_inout_arap (
+source_bill_id VARCHAR(50),
+plan_date DATE,
+trans_type VARCHAR(20),
+actual_corpus DECIMAL(18,2)
+);
+CREATE TABLE lss_contract (
+contract_id VARCHAR(50),
+project_id VARCHAR(50)
+);
+CREATE TABLE lss_project_info (
+project_id VARCHAR(50),
+lease_mode VARCHAR(50)
+);
+INSERT INTO lss_project_info (project_id, lease_mode) VALUES
+('P001', 'LEASE'),
+('P002', 'LEASE'),
+('P003', 'LEASE');
+INSERT INTO lss_contract (contract_id, project_id) VALUES
+('C001', 'P001'),
+('C002', 'P002'),
+('C003', 'P003');
+INSERT INTO lss_rent (rent_id, quote_calculator_id, contract_id, bill_type, pay_amt) VALUES
+('R001', 'Q001', 'C001', 'STATISTIC', 10000.00),
+('R002', 'Q002', 'C002', 'STATISTIC', 20000.00),
+('R003', 'Q003', 'C003', 'STATISTIC', 30000.00);
+INSERT INTO lss_quote_inout_arap (source_bill_id, plan_date, trans_type, actual_corpus) VALUES
+('Q001', '2024-12-01', '0100002', 2000.00),
+('Q002', '2024-10-15', '0100002', 5000.00),
+('Q003', '2024-08-20', '0100002', 10000.00);
+INSERT INTO lss_quote_inout_arap (source_bill_id, plan_date, trans_type, actual_corpus) VALUES
+('Q001', '2025-03-10', '0100002', 3000.00),
+('Q002', '2025-02-01', '0100002', 10000.00),
+('Q003', '2025-01-20', '0100002', 15000.00);
+select
+'rent_id' rent_id,
+sum(rent.pay_amt - early.actual_corpus) early_balance,
+sum(rent.pay_amt - current.actual_corpus) current_balance
+from lss_rent rent left join (select
+sum(coalesce(actual_corpus, 0)) actual_corpus,
+source_bill_id
+from lss_quote_inout_arap
+where plan_date < '2025-01-01' and trans_type in ('0100002')
+group by source_bill_id) early on early.source_bill_id = rent.quote_calculator_id
+left join (select
+sum(coalesce(actual_corpus, 0)) actual_corpus,
+source_bill_id
+from lss_quote_inout_arap
+where plan_date <= '2025-03-17' and trans_type in ('0100002')
+group by source_bill_id) current on current.source_bill_id = rent.quote_calculator_id
+inner join lss_contract ct on ct.contract_id=rent.contract_id
+inner join lss_project_info prj on prj.project_id=ct.project_id
+where rent.bill_type = 'STATISTIC' and prj.lease_mode!='SAME_TRADE';
+rent_id	early_balance	current_balance
+rent_id	43000	15000
+DROP TABLE IF EXISTS bpm_process_def;
+DROP TABLE IF EXISTS bpm_busi_type;
+CREATE TABLE bpm_busi_type (
+busi_type_id VARCHAR(50),
+status VARCHAR(20)
+);
+CREATE TABLE bpm_process_def (
+process_def_id VARCHAR(50),
+busi_type_id VARCHAR(50),
+tenant_id VARCHAR(50),
+system_id VARCHAR(50),
+version INT
+);
+INSERT INTO bpm_busi_type (busi_type_id, status) VALUES
+('BT01', 'ENABLED'),
+('BT02', 'DISABLED'),
+('BT03', 'ENABLED');
+INSERT INTO bpm_process_def (process_def_id, busi_type_id, tenant_id, system_id, version) VALUES
+('PD01', 'BT01', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 1),
+('PD02', 'BT01', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 2),
+('PD03', 'BT01', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 3),
+('PD04', 'BT02', 'other-tenant', 'joys-lss', 1),
+('PD05', 'BT02', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 1),
+('PD06', 'BT03', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 1),
+('PD07', 'BT03', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'joys-lss', 2);
+SELECT count(0) FROM bpm_process_def pd INNER JOIN bpm_busi_type bt ON bt.busi_type_id = pd.busi_type_id WHERE pd.tenant_id = '74a03e75-c696-4ba6-a4c8-30e0ce48f526' AND pd.system_id = 'joys-lss' AND bt.status = 'ENABLED' AND pd.version = (SELECT max(a.version) AS version FROM bpm_process_def a WHERE a.busi_type_id = pd.busi_type_id GROUP BY a.busi_type_id);
+count(0)
+2
+DROP TABLE IF EXISTS `lss_indication`;
+DROP TABLE IF EXISTS `lss_rating_template`;
+DROP TABLE IF EXISTS `sys_item`;
+CREATE TABLE `lss_rating_template` (
+`rating_template_id` varchar(36) NOT NULL,
+`template_id` varchar(36) NOT NULL,
+`grade_scope` varchar(50) DEFAULT NULL,
+`template_element` varchar(50) DEFAULT NULL,
+`org_id` varchar(36) DEFAULT NULL,
+`creator_id` varchar(36) DEFAULT NULL,
+`creation_ts` datetime DEFAULT NULL,
+`updator_id` varchar(36) DEFAULT NULL,
+`updation_ts` datetime DEFAULT NULL,
+`data_version` int(11) DEFAULT NULL,
+`tenant_id` varchar(36) DEFAULT NULL,
+PRIMARY KEY (`rating_template_id`),
+KEY `idx_template_id` (`template_id`)
+);
+CREATE TABLE `sys_item` (
+`item_id` varchar(36) NOT NULL,
+`item_name` varchar(100) DEFAULT NULL,
+`parent_id` varchar(36) DEFAULT NULL,
+`order_num` int(11) DEFAULT NULL,
+PRIMARY KEY (`item_id`),
+KEY `idx_parent_id` (`parent_id`)
+);
+CREATE TABLE `lss_indication` (
+`indication_id` varchar(36) NOT NULL,
+`quota_name` varchar(100) DEFAULT NULL,
+`quota_property` varchar(20) DEFAULT NULL,
+`standard_value` varchar(100) DEFAULT NULL,
+`full_mark` decimal(10,2) DEFAULT NULL,
+`remark` text,
+`updation_ts` datetime DEFAULT NULL,
+`quota_category_sub_id` varchar(36) DEFAULT NULL,
+`score_standard` json,
+PRIMARY KEY (`indication_id`),
+KEY `idx_quota_category_sub_id` (`quota_category_sub_id`)
+);
+INSERT INTO `lss_rating_template` VALUES (
+'31f1758d-cf5e-4717-adf3-bc69b1271690',
+'template1',
+'ALL',
+'ELEMENT1',
+'org1',
+'user1',
+'2023-01-01 10:00:00',
+'user1',
+'2023-01-01 10:00:00',
+1,
+'tenant1'
+);
+INSERT INTO `sys_item` VALUES (
+'template1',
+'主模板',
+NULL,
+1
+);
+INSERT INTO `sys_item` VALUES (
+'sub1',
+'子类1',
+'template1',
+1
+),
+(
+'sub2',
+'子类2',
+'template1',
+2
+);
+INSERT INTO `lss_indication` VALUES (
+'ind1',
+'指标1',
+'QUANTITATIVE',
+'100',
+100.00,
+'备注1',
+'2023-01-01 10:00:00',
+'sub1',
+'[
+    {
+      "score_dimension_id": "dim1",
+      "score_dimension": "维度1",
+      "score_dimension_code": "DIM1",
+      "score_dimension_name": "数量维度",
+      "score_info": [
+        {
+          "scoreId": "score1",
+          "score": "90",
+          "scoreCode": "SC1",
+          "scoreResult": "优秀"
+        },
+        {
+          "scoreId": "score2",
+          "score": "80",
+          "scoreCode": "SC2",
+          "scoreResult": "良好"
+        }
+      ]
+    },
+    {
+      "score_dimension_id": "dim2",
+      "score_dimension": "维度2",
+      "score_dimension_code": "DIM2",
+      "score_dimension_name": "质量维度",
+      "score_info": [
+        {
+          "scoreId": "score3",
+          "score": "95",
+          "scoreCode": "SC3",
+          "scoreResult": "优异"
+        }
+      ]
+    }
+  ]'
+),
+(
+'ind2',
+'指标2',
+'QUALITATIVE',
+'优秀',
+100.00,
+'备注2',
+'2023-01-02 11:00:00',
+'sub2',
+'[
+    {
+      "score_dimension_id": "dim3",
+      "score_dimension": "维度3",
+      "score_dimension_code": "DIM3",
+      "score_dimension_name": "服务维度",
+      "score_info": [
+        {
+          "scoreId": "score4",
+          "score": "85",
+          "scoreCode": "SC4",
+          "scoreResult": "满意"
+        }
+      ]
+    }
+  ]'
+);
+with recursive rec_score_standard as
+(
+select ind.indication_id,
+ind.quota_name,
+ind.quota_property,
+ind.standard_value,
+ind.full_mark,
+ind.remark,
+ind.updation_ts,
+ind.quota_category_sub_id,
+ind.score_standard ->> '$[0].score_info' score_info,
+ind.score_standard ->> '$[0].score_dimension_id' score_dimension_id,
+ind.score_standard ->> '$[0].score_dimension' score_dimension,
+ind.score_standard ->> '$[0].score_dimension_code' score_dimension_code,
+ind.score_standard ->> '$[0].score_dimension_name' score_dimension_name,
+0 idex
+from lss_indication ind
+union all
+select ind.indication_id,
+ind.quota_name,
+ind.quota_property,
+ind.standard_value,
+ind.full_mark,
+ind.remark,
+ind.updation_ts,
+ind.quota_category_sub_id,
+json_unquote(json_extract(ind.score_standard, concat('$[',1+rec.idex,'].score_info'))) score_info,
+json_unquote(json_extract(ind.score_standard, concat('$[',1+rec.idex,'].score_dimension_id'))) score_dimension_id,
+json_unquote(json_extract(ind.score_standard, concat('$[',1+rec.idex,'].score_dimension'))) score_dimension,
+json_unquote(json_extract(ind.score_standard, concat('$[',1+rec.idex,'].score_dimension_code'))) score_dimension_code,
+json_unquote(json_extract(ind.score_standard, concat('$[',1+rec.idex,'].score_dimension_name'))) score_dimension_name,
+1+rec.idex idex
+from lss_indication ind
+join rec_score_standard rec on rec.indication_id=ind.indication_id
+where rec.idex   <   (select json_length(score_standard)-1 from lss_indication where indication_id = rec.indication_id)
+),
+rec_score_info as
+(
+select rec.score_dimension_id,
+rec.score_info ->> '$[0].scoreId' scoreId,
+rec.score_info ->> '$[0].score' score,
+rec.score_info ->> '$[0].scoreCode' scoreCode,
+rec.score_info ->> '$[0].scoreResult' scoreResult,
+0 idex
+from rec_score_standard rec
+union all
+select rec.score_dimension_id,
+json_unquote(json_extract(rec.score_info, concat('$[',1+recs.idex,'].scoreId'))) scoreId,
+json_unquote(json_extract(rec.score_info, concat('$[',1+recs.idex,'].score'))) score,
+json_unquote(json_extract(rec.score_info, concat('$[',1+recs.idex,'].scoreCode'))) scoreCode,
+json_unquote(json_extract(rec.score_info, concat('$[',1+recs.idex,'].scoreResult'))) scoreResult,
+1+recs.idex idex
+from rec_score_standard rec
+join rec_score_info recs on recs.score_dimension_id=rec.score_dimension_id
+where recs.idex   <   (select json_length(score_info)-1 from rec_score_standard where score_dimension_id = recs.score_dimension_id)
+)
+select
+tem.rating_template_id,
+tem.template_id,
+tem.grade_scope,
+tem.template_element,
+tem.org_id,
+tem.creator_id,
+tem.creation_ts,
+tem.updator_id,
+tem.updation_ts,
+tem.data_version,
+tem.tenant_id,
+date_format(tem.creation_ts, '%Y-%m-%d') as creation_date,
+coalesce(s_big.item_name, '') as template_name,
+coalesce(s_sub.item_id, '') as quota_category_sub_id,
+coalesce(s_sub.item_name, '') as quota_category_sub_name,
+coalesce(ind.indication_id, '') as indication_id,
+coalesce(ind.quota_name, '') as quota_name,
+coalesce(ind.quota_property, '') as quota_property,
+coalesce(ind.standard_value, '') as standard_value,
+coalesce(ind.full_mark, 0) as full_mark,
+coalesce(ind.remark, '') as remark,
+coalesce(ind.score_dimension_id, '') as score_dimension_id,
+coalesce(ind.score_dimension_code, '') as score_dimension_code,
+(case ind.quota_property
+when 'QUANTITATIVE' then coalesce(ind.score_dimension_name, '')
+when 'QUALITATIVE' then coalesce(ind.score_dimension, '')
+else ''
+         end) as score_dimension_name,
+coalesce(ind.scoreId, '') as scoreId,
+coalesce(ind.scoreCode, '') as scoreCode,
+coalesce(ind.scoreResult, '') as scoreResult,
+coalesce(CONVERT(ind.score,SIGNED),0) as score
+/*(case when ind.score REGEXP '[^0-9.]' = 1 then 0 else coalesce(ind.score, 0) end) as score */
+from lss_rating_template tem
+left join sys_item s_big on s_big.item_id = tem.template_id
+left join sys_item s_sub on s_sub.parent_id = s_big.item_id
+left join (
+select
+rec.indication_id,
+rec.quota_name,
+rec.quota_property,
+rec.standard_value,
+rec.full_mark,
+rec.remark,
+rec.updation_ts,
+rec.quota_category_sub_id,
+rec.score_dimension_id,
+rec.score_dimension,
+rec.score_dimension_code,
+rec.score_dimension_name,
+recs.scoreId,
+recs.score,
+recs.scoreCode,
+recs.scoreResult
+from rec_score_standard rec
+left join rec_score_info recs on recs.score_dimension_id = rec.score_dimension_id
+) ind on ind.quota_category_sub_id = s_sub.item_id
+where rating_template_id = '31f1758d-cf5e-4717-adf3-bc69b1271690'
+        ORDER BY
+s_sub.order_num,ind.updation_ts DESC;
+rating_template_id	template_id	grade_scope	template_element	org_id	creator_id	creation_ts	updator_id	updation_ts	data_version	tenant_id	creation_date	template_name	quota_category_sub_id	quota_category_sub_name	indication_id	quota_name	quota_property	standard_value	full_mark	remark	score_dimension_id	score_dimension_code	score_dimension_name	scoreId	scoreCode	scoreResult	score
+31f1758d-cf5e-4717-adf3-bc69b1271690	template1	ALL	ELEMENT1	org1	user1	2023-01-01 10:00:00.000000	user1	2023-01-01 10:00:00.000000	1	tenant1	2023-01-01	主模板	sub1	子类1	ind1	指标1	QUANTITATIVE	100	100	备注1	dim1	DIM1	数量维度	score1	SC1	优秀	90
+31f1758d-cf5e-4717-adf3-bc69b1271690	template1	ALL	ELEMENT1	org1	user1	2023-01-01 10:00:00.000000	user1	2023-01-01 10:00:00.000000	1	tenant1	2023-01-01	主模板	sub1	子类1	ind1	指标1	QUANTITATIVE	100	100	备注1	dim1	DIM1	数量维度	score2	SC2	良好	80
+31f1758d-cf5e-4717-adf3-bc69b1271690	template1	ALL	ELEMENT1	org1	user1	2023-01-01 10:00:00.000000	user1	2023-01-01 10:00:00.000000	1	tenant1	2023-01-01	主模板	sub1	子类1	ind1	指标1	QUANTITATIVE	100	100	备注1	dim2	DIM2	质量维度	score3	SC3	优异	95
+31f1758d-cf5e-4717-adf3-bc69b1271690	template1	ALL	ELEMENT1	org1	user1	2023-01-01 10:00:00.000000	user1	2023-01-01 10:00:00.000000	1	tenant1	2023-01-01	主模板	sub2	子类2	ind2	指标2	QUALITATIVE	优秀	100	备注2	dim3	DIM3	维度3	score4	SC4	满意	85
+set sql_mode='ANTI_ANSI_AS_QUOTE';
+select "null" from dual;
+null
+null
+select "中国" from dual;
+中国
+中国
+set session transaction read write;
+DROP TABLE IF EXISTS `lss_customer_corp`;
+DROP TABLE IF EXISTS `lss_customer_person`;
+DROP TABLE IF EXISTS `lss_project_approval`;
+CREATE TABLE `lss_customer_corp` (
+`id` varchar(36) NOT NULL,
+`init_id` varchar(36) NOT NULL,
+`customer_id` varchar(36) NOT NULL,
+`customer_name` varchar(100) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_customer_id` (`customer_id`),
+KEY `idx_init_id` (`init_id`)
+);
+CREATE TABLE `lss_customer_person` (
+`id` varchar(36) NOT NULL,
+`init_id` varchar(36) NOT NULL,
+`customer_id` varchar(36) NOT NULL,
+`customer_name` varchar(100) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_customer_id` (`customer_id`),
+KEY `idx_init_id` (`init_id`)
+);
+CREATE TABLE `lss_project_approval` (
+`id` varchar(36) NOT NULL,
+`project_id` varchar(36) NOT NULL,
+`lessee_id` varchar(36) NOT NULL,
+`approval_status` varchar(50) NOT NULL,
+PRIMARY KEY (`id`),
+KEY `idx_lessee_id` (`lessee_id`)
+);
+INSERT INTO `lss_customer_corp` VALUES
+('corp1', 'a1b2c3d4-5678-90ef-ghij-klmnopqrstuv', '5ffc8043-735b-4adb-b0c7-84aae7652cc2', 'ABC公司'),
+('corp2', 'a1b2c3d4-5678-90ef-ghij-klmnopqrstuv', 'customer2', 'XYZ公司'),
+('corp3', 'other-init-id', 'customer3', '其他公司');
+INSERT INTO `lss_customer_person` VALUES
+('person1', 'a1b2c3d4-5678-90ef-ghij-klmnopqrstuv', 'customer4', '张三'),
+('person2', 'a1b2c3d4-5678-90ef-ghij-klmnopqrstuv', 'customer5', '李四'),
+('person3', 'other-init-id', 'customer6', '王五');
+INSERT INTO `lss_project_approval` VALUES
+('approval1', 'project1', '5ffc8043-735b-4adb-b0c7-84aae7652cc2', 'APPROVED'),
+('approval2', 'project2', 'customer2', 'PENDING'),
+('approval3', 'project3', 'customer4', 'APPROVED'),
+('approval4', 'project4', 'customer5', 'REJECTED'),
+('approval5', 'project5', 'other-customer', 'APPROVED');
+with temp_table as (select init_id, customer_id from lss_customer_corp                         union all  select init_id, customer_id from lss_customer_person)    select count(1)    from lss_project_approval pa    left join temp_table t on pa.lessee_id = t.customer_id     where t.init_id = (select init_id from temp_table where customer_id = '5ffc8043-735b-4adb-b0c7-84aae7652cc2');
+count(1)
+4
+use test;
+select database();
+database()
+test
+use `test`;
+select database();
+database()
+test
+DROP TABLE IF EXISTS lss_verify_plan_bankbill;
+DROP TABLE IF EXISTS lss_verify_plan;
+CREATE TABLE lss_verify_plan_bankbill (
+verify_plan_id VARCHAR(36),
+bankbill_id VARCHAR(36),
+bankbill_amount DECIMAL(10, 2)
+);
+CREATE TABLE lss_verify_plan (
+verify_plan_id VARCHAR(36),
+verify_id VARCHAR(36)
+);
+INSERT INTO lss_verify_plan (verify_plan_id, verify_id)
+VALUES 
+('plan-001', 'fb9c1952-b4aa-452d-bb6e-4fdaa03b3b1a'),
+('plan-002', '54f17189-e27b-46d2-88a1-f4a0cd44d5b5'),
+('plan-003', 'a4c789c3-228b-4964-bb0e-f231bc9a32f3'),
+('plan-004', 'c5b8e16b-fbfc-44c1-97bb-8d6849c5bc28');
+INSERT INTO lss_verify_plan_bankbill (verify_plan_id, bankbill_id, bankbill_amount)
+VALUES 
+('plan-001', 'bb1', 1500.00),
+('plan-001', 'bb2', 2000.00),
+('plan-002', 'bb3', 1800.00),
+('plan-002', 'bb4', 2200.00),
+('plan-003', 'bb5', 2500.00),
+('plan-004', 'bb6', 3000.00),
+('plan-004', 'bb7', 3500.00);
+delete pd from lss_verify_plan_bankbill pd
+where pd.verify_plan_id in (select p.verify_plan_id
+from lss_verify_plan p
+where  p.verify_id in
+(
+'fb9c1952-b4aa-452d-bb6e-4fdaa03b3b1a'
+                 ,
+'54f17189-e27b-46d2-88a1-f4a0cd44d5b5'
+                 )  );
+DROP TABLE IF EXISTS `lss_quote_inout_arap`;
+DROP TABLE IF EXISTS `lss_quote_calculator`;
+DROP TABLE IF EXISTS `lss_rent`;
+DROP TABLE IF EXISTS `lss_contract`;
+DROP TABLE IF EXISTS `lss_loan_plan`;
+DROP TABLE IF EXISTS `lss_customer_corp`;
+DROP TABLE IF EXISTS `lss_customer_person`;
+DROP TABLE IF EXISTS `lss_verify_plan`;
+DROP TABLE IF EXISTS `lss_verify`;
+CREATE TABLE `lss_quote_inout_arap` (
+`quote_inout_arap_id` varchar(36) NOT NULL,
+`source_bill_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`lease_time` datetime DEFAULT NULL,
+`plan_date` date NOT NULL,
+`trans_type` varchar(10) NOT NULL,
+`rent` decimal(20,2) DEFAULT NULL,
+`actual_rent` decimal(20,2) DEFAULT NULL,
+`reduce_penalty` decimal(20,2) DEFAULT NULL,
+`verify_state` varchar(10) NOT NULL,
+`penalty_confirm` tinyint(1) DEFAULT NULL,
+PRIMARY KEY (`quote_inout_arap_id`),
+KEY `idx_source_bill_id` (`source_bill_id`),
+KEY `idx_tenant_id` (`tenant_id`),
+KEY `idx_verify_state` (`verify_state`),
+KEY `idx_plan_date` (`plan_date`)
+);
+CREATE TABLE `lss_quote_calculator` (
+`quote_calculator_id` varchar(36) NOT NULL,
+`corpus_tax` decimal(20,2) DEFAULT NULL,
+PRIMARY KEY (`quote_calculator_id`)
+);
+CREATE TABLE `lss_rent` (
+`rent_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`quote_calculator_id` varchar(36) NOT NULL,
+`contract_id` varchar(36) NOT NULL,
+`rent_code` varchar(50) NOT NULL,
+PRIMARY KEY (`rent_id`),
+KEY `idx_quote_calculator_id` (`quote_calculator_id`),
+KEY `idx_contract_id` (`contract_id`)
+);
+CREATE TABLE `lss_contract` (
+`contract_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`cont_code` varchar(50) NOT NULL,
+`cont_name` varchar(100) NOT NULL,
+`lessee_id` varchar(36) NOT NULL,
+`quote_calculator_id` varchar(36),
+PRIMARY KEY (`contract_id`),
+KEY `idx_cont_code` (`cont_code`),
+KEY `idx_lessee_id` (`lessee_id`)
+);
+CREATE TABLE `lss_loan_plan` (
+`loan_plan_id` varchar(36) NOT NULL,
+`tenant_id` varchar(36) NOT NULL,
+`quote_calculator_id` varchar(36) NOT NULL,
+`contract_id` varchar(36) NOT NULL,
+PRIMARY KEY (`loan_plan_id`),
+KEY `idx_quote_calculator_id` (`quote_calculator_id`),
+KEY `idx_contract_id` (`contract_id`)
+);
+CREATE TABLE `lss_customer_corp` (
+`customer_id` varchar(36) NOT NULL,
+`init_id` varchar(36) NOT NULL,
+`customer_name` varchar(100) NOT NULL,
+`main_manager_id` varchar(36) DEFAULT NULL,
+`source_bill_type` varchar(50) DEFAULT NULL,
+`new_flag` tinyint(1) DEFAULT NULL,
+`customer_channel` varchar(50) DEFAULT NULL,
+PRIMARY KEY (`customer_id`),
+KEY `idx_init_id` (`init_id`)
+);
+CREATE TABLE `lss_customer_person` (
+`customer_id` varchar(36) NOT NULL,
+`init_id` varchar(36) NOT NULL,
+`customer_name` varchar(100) NOT NULL,
+`main_manager_id` varchar(36) DEFAULT NULL,
+`source_bill_type` varchar(50) DEFAULT NULL,
+`new_flag` tinyint(1) DEFAULT NULL,
+`customer_channel` varchar(50) DEFAULT NULL,
+PRIMARY KEY (`customer_id`),
+KEY `idx_init_id` (`init_id`)
+);
+CREATE TABLE `lss_verify_plan` (
+`verify_plan_id` varchar(36) NOT NULL,
+`verify_id` varchar(36) NOT NULL,
+`quote_inout_arap_id` varchar(36) NOT NULL,
+PRIMARY KEY (`verify_plan_id`),
+KEY `idx_verify_id` (`verify_id`),
+KEY `idx_quote_inout_arap_id` (`quote_inout_arap_id`)
+);
+CREATE TABLE `lss_verify` (
+`verify_id` varchar(36) NOT NULL,
+`bill_status` varchar(20) NOT NULL,
+PRIMARY KEY (`verify_id`),
+KEY `idx_bill_status` (`bill_status`)
+);
+INSERT INTO `lss_customer_corp` VALUES
+('cust1', 'init1', 'ABC公司', 'mgr1', 'CUSTOMER', 1, 'CHANNEL1'),
+('cust2', 'init2', 'XYZ公司', 'mgr2', 'CUSTOMER', 1, 'CHANNEL2'),
+('cust3', 'init3', '其他公司', 'mgr3', 'OTHER', 0, 'CHANNEL3');
+INSERT INTO `lss_customer_person` VALUES
+('cust4', 'init4', '张三', 'mgr4', 'CUSTOMER', 1, 'CHANNEL4'),
+('cust5', 'init5', '李四', 'mgr5', 'CUSTOMER', 1, 'CHANNEL5');
+INSERT INTO `lss_contract` VALUES
+('cont1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '190101022001', '合同1', 'cust1','2c08c3e9-1ef5-4227-bd53-89281e295552'),
+('cont2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '190101022002', '合同2', 'cust2','2c08c3e9-1ef5-4227-bd53-89281e295552'),
+('cont3', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'OTHER001', '合同3', 'cust3','2c08c3e9-1ef5-4227-bd53-89281e295552');
+INSERT INTO `lss_rent` VALUES
+('rent1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'calc1', 'cont1', 'RENT001'),
+('rent2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'calc2', 'cont2', 'RENT002');
+INSERT INTO `lss_loan_plan` VALUES
+('loan1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'calc3', 'cont1'),
+('loan2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', 'calc4', 'cont3');
+INSERT INTO `lss_quote_calculator` VALUES
+('calc1', 1000.00),
+('calc2', 2000.00),
+('calc3', 3000.00),
+('calc4', 4000.00);
+INSERT INTO `lss_quote_inout_arap` VALUES
+('arap1', 'calc1', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '2023-01-01 10:00:00', '2023-01-01', '0010', 5000.00, 3000.00, 500.00, 'NO', 1),
+('arap2', 'calc2', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '2023-01-02 11:00:00', '2023-01-02', '0020', 6000.00, 4000.00, 500.00, 'PART', 1),
+('arap3', 'calc3', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '2023-01-03 12:00:00', '2023-01-03', '0030', 7000.00, 5000.00, 500.00, 'NO', NULL);
+INSERT INTO `lss_quote_inout_arap` VALUES
+('arap4', 'calc1', 'other-tenant', '2023-01-04 13:00:00', '2023-01-04', '0011', 8000.00, 6000.00, 500.00, 'YES', 1),
+('arap5', 'calc4', '74a03e75-c696-4ba6-a4c8-30e0ce48f526', '2023-01-05 14:00:00', '2023-01-05', '0021', 9000.00, 7000.00, 500.00, 'NO', 0);
+INSERT INTO `lss_verify_plan` VALUES
+('vp1', 'verify1', 'arap3'),
+('vp2', 'verify2', 'arap5');
+INSERT INTO `lss_verify` VALUES
+('verify1', 'INITIAL'),
+('verify2', 'AUDITING'),
+('verify3', 'COMPLETED');
+select arap.quote_inout_arap_id,
+cust.customer_id,
+cust.customer_name,
+cont_rent.contract_id,
+cont_rent.cont_code,
+cont_rent.cont_name,
+cont_rent.rent_id,
+cont_rent.rent_code,
+arap.lease_time,
+arap.plan_date,
+arap.trans_type,
+arap.rent,
+coalesce(arap.rent, 0) - coalesce(arap.actual_rent, 0) - coalesce(arap.reduce_penalty, 0) rent_balance,
+arap.verify_state,
+quote.corpus_tax if_corpus_tax,
+cont_rent.tenant_id,
+cust.customer_channel
+from lss_quote_inout_arap arap
+left join lss_quote_calculator quote
+on quote.quote_calculator_id = arap.source_bill_id
+inner join (select rent.tenant_id,
+rent.quote_calculator_id,
+rent.rent_id,
+rent.rent_code,
+cont.contract_id,
+cont.cont_code,
+cont.lessee_id,
+cont.cont_name
+from lss_rent rent
+left join lss_contract cont on cont.contract_id = rent.contract_id
+union
+select tenant_id,
+quote_calculator_id,
+null                rent_id,
+null                rent_code,
+contract_id,
+cont_code,
+lessee_id,
+cont_name
+from lss_contract
+union
+select loan.tenant_id,
+loan.quote_calculator_id,
+null                     rent_id,
+null                     rent_code,
+cont.contract_id,
+cont.cont_code,
+cont.lessee_id,
+cont.cont_name
+from lss_loan_plan loan
+left join lss_contract cont on cont.contract_id = loan.contract_id) cont_rent
+on cont_rent.quote_calculator_id = quote.quote_calculator_id
+left join (select customer_id, init_id,main_manager_id from lss_customer_corp
+union
+select customer_id, init_id,main_manager_id from lss_customer_person) cu
+on cu.customer_id = cont_rent.lessee_id
+left join (select init_id, customer_id, customer_name,customer_channel
+from lss_customer_corp
+where source_bill_type = 'CUSTOMER' and new_flag = 1
+union all
+select init_id, customer_id, customer_name,customer_channel
+from lss_customer_person
+where source_bill_type = 'CUSTOMER' and new_flag = 1) cust
+on cust.init_id = cu.init_id
+where arap.verify_state in ('NO', 'PART')
+and (arap.penalty_confirm is null or arap.penalty_confirm = 1)
+and substring(arap.trans_type, 3, 1) = '0'
+        and not exists (select 1
+from lss_verify_plan lvp
+inner join lss_verify lv on lv.verify_id = lvp.verify_id
+where arap.tenant_id = '74a03e75-c696-4ba6-a4c8-30e0ce48f526'
+        and lvp.quote_inout_arap_id = arap.quote_inout_arap_id
+and lv.bill_status in ('INITIAL', 'AUDITING'))
+and cont_rent.cont_code like '%190101022%'       
+order by arap.plan_date, cont_rent.rent_id, cont_rent.contract_id, cust.customer_id desc
+limit 8 offset 0;
+quote_inout_arap_id	customer_id	customer_name	contract_id	cont_code	cont_name	rent_id	rent_code	lease_time	plan_date	trans_type	rent	rent_balance	verify_state	if_corpus_tax	tenant_id	customer_channel
+create table test60(c1 int primary key,c2 int);
+set autocommit=0;
+insert into test60 values(1,1);
+commit;
+select * from test60 where c1=1;
+c1	c2
+1	1
+drop table test60;
+alter system set using_strong_consistency=true server_type=yaosqlsvr;
+select name,value,info from __all_sys_config_stat where name='using_strong_consistency' limit 1 ;
+name	value	info
+using_strong_consistency	true	(default:False range: ) use strong consistency read
+set autocommit=1;
+create table test60_1(c1 int primary key,c2 int);
+set autocommit=0;
+insert into test60_1 values(1,1);
+commit;
+select * from test60_1 where c1=1;
+c1	c2
+1	1
+drop table if exists t4;
+create table t4(c1 int primary key,c2 json, unique(c1));
+insert into t4 values(1,null);
+update t4 set c2='"a"';
+insert into t4 select c1*3,c2 from t4;
+select * from t4;
+c1	c2
+1	"a"
+3	"a"
+set autocommit=1;
+set yao_enable_query_optimizer=false;
+create table juece_1(
+c1 int,
+create_time date,
+c2 varchar(10),
+HANDLER_TYPE_ varchar(255),
+HANDLER_CFG_ varchar(4000),
+KEY `idx_create_time` (`create_time` DESC),
+KEY `ACT_IDX_JOB_HANDLER` (`HANDLER_TYPE_`(100),`HANDLER_CFG_`(155))
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT COMMENT='表单模板';
+desc juece_1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+create_time	date	YES	MUL	NULL	
+c2	varchar(10)	YES		NULL	
+HANDLER_TYPE_	varchar(255)	YES	MUL	NULL	
+HANDLER_CFG_	varchar(4000)	YES		NULL	
+show create table juece_1;
+Table	Create Table
+test.juece_1	CREATE TABLE `juece_1` (
+`c1` INT(10),
+`create_time` date,
+`c2` VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+`HANDLER_TYPE_` VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+`HANDLER_CFG_` VARCHAR (4000) COLLATE 'utf8mb4_general_ci',
+ KEY `idx_create_time`(`create_time`),
+ KEY `ACT_IDX_JOB_HANDLER`(`HANDLER_TYPE_`, `HANDLER_CFG_`)
+) COMMENT = '????', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE jkzgvk_meeting (
+id INT PRIMARY KEY,
+approval_status VARCHAR(50)
+);
+CREATE TABLE jkzgvk_subject_details (
+id INT PRIMARY KEY,
+is_pass VARCHAR(10)
+);
+CREATE TABLE jkzgvk_subject (
+id INT PRIMARY KEY,
+subject_details_id INT,
+meeting_id INT,
+is_pass TINYINT
+);
+INSERT INTO jkzgvk_meeting (id,approval_status) VALUES (1,'PENDING');
+INSERT INTO jkzgvk_subject_details (id,is_pass) VALUES (1,'0'), (2,'0');
+INSERT INTO jkzgvk_subject (id,subject_details_id, meeting_id, is_pass) VALUES( 1,1, 1, 0),(2,2, 1, 1);
+DROP TRIGGER IF EXISTS `after_meeting_update`;
+CREATE TRIGGER `after_meeting_update` AFTER UPDATE ON `jkzgvk_meeting` FOR EACH ROW BEGIN
+IF
+NEW.approval_status = 'COMPLETED' THEN
+UPDATE jkzgvk_subject_details sd
+JOIN jkzgvk_subject sb ON sd.id = sb.subject_details_id
+SET sd.is_pass =
+CASE
+WHEN sb.is_pass = 0 THEN
+'3'
+                                WHEN sb.is_pass = 1 THEN
+'4'
+                                WHEN sb.is_pass = 2 THEN
+'5'
+                        END
+WHERE
+sb.meeting_id = NEW.id;
+END IF;
+END
+$$
+SELECT * FROM jkzgvk_subject_details;
+id	is_pass
+1	0
+2	0
+UPDATE jkzgvk_meeting SET approval_status = 'COMPLETED' WHERE id = 1;
+SELECT * FROM jkzgvk_subject_details;
+id	is_pass
+1	3
+2	4
+set autocommit=1;
+drop table jkzgvk_subject;
+drop table jkzgvk_subject_details;
+drop table jkzgvk_meeting;
+CREATE TABLE jkzgvk_meeting_before (
+id INT PRIMARY KEY,
+approval_status VARCHAR(50)
+);
+CREATE TABLE jkzgvk_subject_details (
+id INT PRIMARY KEY,
+is_pass VARCHAR(10)
+);
+CREATE TABLE jkzgvk_subject_before (
+id INT PRIMARY KEY,
+subject_details_id INT,
+meeting_id INT
+);
+INSERT INTO jkzgvk_meeting_before (id, approval_status) VALUES (100, 'PENDING');
+INSERT INTO jkzgvk_subject_details (id, is_pass) VALUES (201, '0'), (202, '0');
+INSERT INTO jkzgvk_subject_before (id, subject_details_id, meeting_id) VALUES(301, 201, 100),(302, 202, 100);
+DROP TRIGGER IF EXISTS `after_meeting_before_update`;
+CREATE TRIGGER `after_meeting_before_update` AFTER UPDATE ON `jkzgvk_meeting_before` FOR EACH ROW BEGIN
+IF NEW.approval_status = 'COMPLETED' THEN
+-- 查询子表中的对应议题ID并更新议题表的状态
+UPDATE jkzgvk_subject_details sd
+JOIN jkzgvk_subject_before sb ON sd.id = sb.subject_details_id
+SET sd.is_pass = '2'
+        WHERE sb.meeting_id = NEW.id;
+END IF;
+END
+$$
+SELECT * FROM jkzgvk_subject_details;
+id	is_pass
+201	0
+202	0
+UPDATE jkzgvk_meeting_before SET approval_status = 'COMPLETED' WHERE id = 100;
+SELECT * FROM jkzgvk_subject_details;
+id	is_pass
+201	2
+202	2
+drop table jkzgvk_meeting_before,jkzgvk_subject_details,jkzgvk_subject_before;
+CREATE TABLE jkzgvk_subject_details (
+id VARCHAR(20) PRIMARY KEY,
+create_time DATETIME,
+organization_id VARCHAR(20),
+meet_type VARCHAR(20)
+);
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('1', '2025-04-01', '1803606848980389890', '1803702498681311232'),
+('2', '2025-05-10', '1803629925994860545', '1803702498681311232');
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('3', '2025-01-15', '1803629926020026369', '1803702498681311232'),
+('4', '2025-03-20', '1803629926040997890', '1803702498681311232');
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('5', '2024-10-05', '1803629926057775106', '1803702498681311232');
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('6', '2024-08-25', '1803629926078746625', '1803702498681311232');
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('7', '2024-05-30', '1803629926099718146', '1803702498681311232');
+INSERT INTO jkzgvk_subject_details (id, create_time, organization_id, meet_type) VALUES
+('8', '2025-04-01', '9999999999999999999', '1803702498681311232'),
+('9', '2025-04-01', '1803606848980389890', '0000000000000000000');
+WITH QuarterTable AS (SELECT CONCAT(YEAR(CURDATE()), QUARTER(CURDATE())) AS quarter UNION ALL SELECT CONCAT(YEAR(DATE_SUB(CURDATE(), INTERVAL 1 QUARTER)), QUARTER(DATE_SUB(CURDATE(), INTERVAL 1 QUARTER))) AS quarter UNION ALL SELECT CONCAT(YEAR(DATE_SUB(CURDATE(), INTERVAL 2 QUARTER)), QUARTER(DATE_SUB(CURDATE(), INTERVAL 2 QUARTER))) AS quarter UNION ALL SELECT CONCAT(YEAR(DATE_SUB(CURDATE(), INTERVAL 3 QUARTER)), QUARTER(DATE_SUB(CURDATE(), INTERVAL 3 QUARTER))) AS quarter UNION ALL SELECT CONCAT(YEAR(DATE_SUB(CURDATE(), INTERVAL 4 QUARTER)), QUARTER(DATE_SUB(CURDATE(), INTERVAL 4 QUARTER))) AS quarter ) SELECT QuarterTable.quarter,COUNT(a.create_time) AS count FROM QuarterTable LEFT JOIN jkzgvk_subject_details a ON QuarterTable.quarter = CONCAT(YEAR(a.create_time), QUARTER(a.create_time)) where a.organization_id in ('1803606848980389890','1803629925994860545','1803629926020026369','1803629926040997890','1803629926057775106','1803629926078746625','1803629926099718146','1803629926116495361','1803631000202252289','1803631085669584897','1803738027402465281','1803738028308434946','1803629926137466881','1803631181509431298','1803631230754754562','1803631291396001793','1803738027754786818','1803738030111985665','1803738033790390274','1803629926154244097','1803673731721072641','1803673776981807106','1803738027633152002','1803738030728548354','1803629926191992834','1803673873111060482','1803673923358822402','1803673961531183106','1803673999967784962','1803738026492301313','1803738028862083074','1803738029432508417','1803738029881298945','1803629926212964354','1803629926233935874','1803629926250713090','1803629926271684610','1803738028983717890','1803738039259762689','1803738039704358914','1803738621957640194','1803738695441846274','1803738759874744322','1803738835879727105','1803738926392807426','1803743411248828418','1803974951971098626','1808676006076170241','1813138574329073665') and a.meet_type ='1803702498681311232' and YEAR(a.create_time) ='2025' GROUP BY QuarterTable.quarter ORDER BY QuarterTable.quarter;
+quarter	count
+20251	2
+20252	2
+WITH YearTable AS ( SELECT YEAR(CURDATE()) - 4 AS year UNION ALL SELECT YEAR(CURDATE()) - 3 AS year UNION ALL SELECT YEAR(CURDATE()) - 2 AS year UNION ALL SELECT YEAR(CURDATE()) - 1 AS year UNION ALL SELECT YEAR(CURDATE()) AS year) SELECT YearTable.year, COUNT(a.create_time) AS count FROM YearTable LEFT JOIN jkzgvk_subject_details a ON YearTable.year = YEAR(a.create_time) where a.organization_id in ('1803606848980389890','1803629925994860545','1803629926020026369','1803629926040997890','1803629926057775106','1803629926078746625','1803629926099718146','1803629926116495361','1803631000202252289','1803631085669584897','1803738027402465281','1803738028308434946','1803629926137466881','1803631181509431298','1803631230754754562','1803631291396001793','1803738027754786818','1803738030111985665','1803738033790390274','1803629926154244097','1803673731721072641','1803673776981807106','1803738027633152002','1803738030728548354','1803629926191992834','1803673873111060482','1803673923358822402','1803673961531183106','1803673999967784962','1803738026492301313','1803738028862083074','1803738029432508417','1803738029881298945','1803629926212964354','1803629926233935874','1803629926250713090','1803629926271684610','1803738028983717890','1803738039259762689','1803738039704358914','1803738621957640194','1803738695441846274','1803738759874744322','1803738835879727105','1803738926392807426','1803743411248828418','1803974951971098626','1808676006076170241','1813138574329073665') and a.meet_type ='1803702498681311232' and YEAR(a.create_time) ='2025' GROUP BY YearTable.year ORDER BY YearTable.year;
+year	count
+2025	4
+drop table jkzgvk_subject_details;
+DROP TABLE IF EXISTS sys_user;
+CREATE TABLE sys_user (
+id VARCHAR(20),
+name VARCHAR(50),
+POSITION_JSON JSON
+);
+INSERT INTO sys_user (id, name, POSITION_JSON) VALUES
+('1', 'Alice', '["1803606848980389890", "1803629925994860545"]'),
+('2', 'Bob',   '["1803738030728548354"]'),
+('3', 'Tom',   '["18036068489803898901"]');
+SELECT * FROM sys_user WHERE INSTR(POSITION_JSON, '1803606848980389890') > 0;
+id	name	POSITION_JSON
+1	Alice	["1803606848980389890", "1803629925994860545"]
+3	Tom	["18036068489803898901"]
+drop table sys_user;
+set yao_enable_query_optimizer=false;
+CREATE TABLE `wx_login_user` (
+`id` bigint(20) NOT NULL COMMENT '主键',
+`tel` varchar(11) DEFAULT NULL COMMENT '手机号',
+`openid` varchar(40) NOT NULL COMMENT '用户在当前小程序的唯一标识',
+`create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+`modify_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+PRIMARY KEY (`id`) USING BTREE,
+KEY `uk_openid` (`openid`) USING BTREE COMMENT '唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='微信登录记录表';
+CREATE TABLE `intentional_demand` (
+`id` bigint(20) NOT NULL COMMENT '主键',
+`demand_budget` varchar(40) NOT NULL COMMENT '项目预算',
+`demand_type` tinyint(1) DEFAULT '1' COMMENT '需求类型：1- 意向需求 2-非招标 3-公开招标',
+`intentional_type` tinyint(1) DEFAULT '0' COMMENT '是否意向需求转化 1-是 0-否',
+`del_flag` tinyint(1) DEFAULT '0' COMMENT '删除标记;0-未删除; 1-已删除',
+`create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='项目需求表';
+insert into intentional_demand values
+(1731602730725847040,'50',2,1,1,'2022-12-04 17:13:57.000000'),
+(1731602730725847041,'50',2,1,1,'2023-12-04 17:13:57.000000'),
+(1731602730725847042,'50',2,1,1,'2023-12-04 17:13:57.000000'),
+(1731602730725847043,'50',2,1,0,'2023-12-04 17:13:57.000000'),
+(1731602730725847044,'50.1',2,1,0,'2024-12-04 17:13:57.000000'),
+(1731602730725847045,'13.14',2,1,0,'2025-12-04 17:13:57.000000');
+SELECT SUM(ROUND(demand_budget, 2)) AS demand_budget FROM intentional_demand WHERE (demand_type = 2 AND intentional_type = 1 AND create_time >= '2023-01-01 00:00:00' AND create_time <= '2025-12-31 23:59:59' AND del_flag = 0);
+demand_budget
+113.24
+drop table intentional_demand;
+set yao_enable_query_optimizer=false;
+CREATE TABLE `config_info_gray` (
+`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+`md5` varchar(32) DEFAULT NULL COMMENT 'md5',
+`gmt_create` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT 'gmt_create',
+`gmt_modified` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT 'gmt_modified',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='config_info_gray';
+insert into config_info_gray(id,md5) values(1,'sda');
+select * from config_info_gray;
+id	md5	gmt_create	gmt_modified
+1	sda	2025-12-24 15:09:55.192	2025-12-24 15:09:55.192
+drop table config_info_gray;
+CREATE TABLE `project_equity_investment` (
+`id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键ID',
+`qtgdmc` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '其他股东名称',
+`sfcwbb` enum('01','02') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '是否财务并表 (01: 否; 02: 是)',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='储备项目子表-股权投资相关信息表';
+desc project_equity_investment;
+Field	Type	Null	Key	Default	Extra
+id	varchar(255)	NO	PRI	NULL	
+qtgdmc	varchar(256)	YES		NULL	
+sfcwbb	enum('01','02')	NO		NULL	
+CREATE TABLE `config_info` (
+`id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'
+,`gmt_modified` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '修改时间'
+,`app_name` VARCHAR (128) COLLATE 'utf8mb4_general_ci' COMMENT 'app_name'
+,`tenant_id` VARCHAR (128) COLLATE 'utf8mb4_general_ci' DEFAULT '' COMMENT '租户字段'
+,`data_id` VARCHAR (255) COLLATE 'utf8mb4_general_ci' NOT NULL COMMENT 'data_id'
+,`group_id` VARCHAR (128) COLLATE 'utf8mb4_general_ci' COMMENT 'group_id'
+, PRIMARY KEY(`id`)
+);
+insert into config_info values
+(1,'2023-06-10 16:59:01.000000','','ktkj-cloud-2x-ent-test','ktkj-web-app-test.yaml1','test'),
+(2,'2023-06-10 16:59:01.000000','','ktkj-cloud-2x-ent-test','ktkj-web-app-test.yaml','test'),
+(3,'2023-06-10 16:59:01.000000','','ktkj-cloud-2x-ent-test','ktkj-web-app-test.yaml','test'),
+(4,'2023-06-10 16:59:01.000000','','ktkj-cloud-2x-ent-test','ktkj-web-app-test.yaml','test'),
+(5,'2023-06-10 16:59:01.000000','','ktkj-cloud-2x-ent-test','ktkj-web-app-test.yaml','test');
+update config_info set gmt_modified=NOW(3),app_name='a' where data_id='ktkj-web-app-test.yaml' and group_id='test';
+select * from config_info;
+id	gmt_modified	app_name	tenant_id	data_id	group_id
+1	2023-06-10 16:59:01.000000		ktkj-cloud-2x-ent-test	ktkj-web-app-test.yaml1	test
+2	2025-12-24 15:09:56.255745	a	ktkj-cloud-2x-ent-test	ktkj-web-app-test.yaml	test
+3	2025-12-24 15:09:56.255745	a	ktkj-cloud-2x-ent-test	ktkj-web-app-test.yaml	test
+4	2025-12-24 15:09:56.255745	a	ktkj-cloud-2x-ent-test	ktkj-web-app-test.yaml	test
+5	2025-12-24 15:09:56.255745	a	ktkj-cloud-2x-ent-test	ktkj-web-app-test.yaml	test
+drop table config_info;
+CREATE TABLE `config_info_gray` (
+`id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+`data_id` varchar(255) NOT NULL COMMENT 'data_id',
+`group_id` varchar(128) NOT NULL COMMENT 'group_id',
+`content` longtext NOT NULL COMMENT 'content',
+`md5` varchar(32) DEFAULT NULL COMMENT 'md5',
+`gmt_modified` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT 'gmt_modified',
+`tenant_id` varchar(128) DEFAULT '' COMMENT 'tenant_id',
+`gray_rule` text NOT NULL COMMENT 'gray_rule',
+PRIMARY KEY (`id`),
+UNIQUE KEY `uk_configinfogray_datagrouptenantgray` (`data_id`,`group_id`,`tenant_id`)USING BTREE,
+KEY `idx_dataid_gmt_modified` (`data_id`,`gmt_modified`),
+KEY `idx_gmt_modified` (`gmt_modified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='config_info_gray';
+desc config_info_gray;
+Field	Type	Null	Key	Default	Extra
+id	bigint	NO	PRI	NULL	auto_increment
+data_id	varchar(255)	NO	MUL	NULL	
+group_id	varchar(128)	NO		NULL	
+content	longtext	NO		NULL	
+md5	varchar(32)	YES		NULL	
+gmt_modified	timestamp	NO	MUL	current_timestamp(3)	
+tenant_id	varchar(128)	YES			
+gray_rule	text	NO		NULL	
+drop table config_info_gray;
+CREATE TABLE `reserve_project` (
+`project_id` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目 Id，主键',
+`xmmc` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '项目名称',
+`xmzt` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '项目状态：01，新建/新投；02，续建/续投',
+`yjqymc` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '一级企业名称',
+`tzztmc` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '投资主体名称',
+PRIMARY KEY (`project_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='储备项目信息表';
+desc reserve_project;
+Field	Type	Null	Key	Default	Extra
+project_id	varchar(256)	NO	PRI	NULL	
+xmmc	varchar(256)	YES		NULL	
+xmzt	varchar(256)	YES		NULL	
+yjqymc	varchar(256)	YES		NULL	
+tzztmc	varchar(256)	YES		NULL	
+insert into reserve_project values('1','测试1','测试1','测试1','测试1');
+select * from reserve_project;
+project_id	xmmc	xmzt	yjqymc	tzztmc
+1	测试1	测试1	测试1	测试1
+ALTER TABLE `reserve_project` ADD COLUMN `qyid` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '企业 Id' AFTER `xmzt`;
+desc reserve_project;
+Field	Type	Null	Key	Default	Extra
+project_id	varchar(256)	NO	PRI	NULL	
+xmmc	varchar(256)	YES		NULL	
+xmzt	varchar(256)	YES		NULL	
+qyid	varchar(32)	YES		NULL	
+yjqymc	varchar(256)	YES		NULL	
+tzztmc	varchar(256)	YES		NULL	
+select * from reserve_project;
+project_id	xmmc	xmzt	qyid	yjqymc	tzztmc
+1	测试1	测试1	NULL	测试1	测试1
+drop table reserve_project;
+set yao_enable_query_optimizer=false;
+set names utf8mb4;
+CREATE TABLE `group_capacity` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+`group_id` varchar(128) NOT NULL DEFAULT '' COMMENT 'Group ID，空字符表示整个集群',
+`quota` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '配额，0表示使用默认值',
+`usage` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '使用量',
+`max_size` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '单个配置大小上限，单位为字节，0表示使用默认值',
+PRIMARY KEY (`id`),
+UNIQUE KEY `uk_group_id` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='集群、各Group容量信息表';
+desc group_capacity;
+Field	Type	Null	Key	Default	Extra
+id	bigint	NO	PRI	NULL	auto_increment
+group_id	varchar(128)	NO	UNI		
+quota	int(10)	NO		0	
+usage	int(10)	NO		0	
+max_size	int(10)	NO		0	
+drop table group_capacity;
+/*!40101 SET character_set_client = @saved_cs_client */;
+CREATE TABLE `demo_cbfyzb`  (
+`主营业务` decimal(44, 4) NULL DEFAULT NULL,
+`营业外支出` decimal(44, 4) NULL DEFAULT NULL,
+`主营业务税金及附加` decimal(44, 4) NULL DEFAULT NULL,
+`管理费用` decimal(44, 4) NULL DEFAULT NULL,
+`财务费用` decimal(44, 4) NULL DEFAULT NULL,
+`销售费用` decimal(44, 4) NULL DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+desc demo_cbfyzb;
+Field	Type	Null	Key	Default	Extra
+主营业务	decimal(44,4)	YES		NULL	
+营业外支出	decimal(44,4)	YES		NULL	
+主营业务税金及附加	decimal(44,4)	YES		NULL	
+管理费用	decimal(44,4)	YES		NULL	
+财务费用	decimal(44,4)	YES		NULL	
+销售费用	decimal(44,4)	YES		NULL	
+drop table demo_cbfyzb;
+CREATE TABLE `audit_balance_item` (
+`PK_BAL_ITEM` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '主键',
+`QCJFYE` decimal(22,4) DEFAULT NULL COMMENT '期初借方余额',
+`QCDFYE` decimal(22,4) DEFAULT NULL COMMENT '期初贷方余额',
+`BQJFFSE` decimal(22,4) DEFAULT NULL COMMENT '本期借方发生额',
+PRIMARY KEY (`PK_BAL_ITEM`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='末级辅助余额表';
+INSERT INTO `audit_balance_item` VALUES ('000017dcd68ad9348b9b69e8a91970d0',0.0000,0.0000,0.0000);
+select * from audit_balance_item;
+PK_BAL_ITEM	QCJFYE	QCDFYE	BQJFFSE
+000017dcd68ad9348b9b69e8a91970d0	0	0	0
+set yao_decimal_add_zero = true;
+select * from audit_balance_item;
+PK_BAL_ITEM	QCJFYE	QCDFYE	BQJFFSE
+000017dcd68ad9348b9b69e8a91970d0	0.0000	0.0000	0.0000
+drop table audit_balance_item;
+CREATE TABLE `audit_yjbg_mxzb` (
+`ID` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '主键ID',
+`HYBH` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '行业编号',
+`HYMC` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '行业名称',
+`DWID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '被审单位ID',
+`DWBH` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '被审单位名称',
+`DWMC` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '被审单位名称',
+`ZTBH` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '账套编号',
+`ZTMC` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '账套名称',
+`DWORZT` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '单位或账套名称',
+`ND` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '年度',
+`YF` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '月份',
+`QJ` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '期间',
+`QJLX` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '期间类型',
+`ZBID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标ID',
+`ZBBH` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标编号',
+`ZBMC` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标名称',
+`ZBLBID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标类别ID',
+`ZBLBBH` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标类别编号',
+`ZBLBMC` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '指标类别名称',
+`YJCS` decimal(10,0) DEFAULT NULL COMMENT '本期预警次数',
+`QNTQS` decimal(10,0) DEFAULT NULL COMMENT '去年同期预警次数',
+`YJSJJL` decimal(10,0) DEFAULT NULL COMMENT '本期预警记录条数',
+`QNTQJLS` decimal(10,0) DEFAULT NULL COMMENT '去年同期预警记录条数',
+KEY `Index_yjbg_mxzb_base` (`DWID`,`ZBID`,`QJLX`,`QJ`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='风险监控报告模型指标表';
+INSERT INTO `audit_yjbg_mxzb` VALUES 
+('282687cf8d8ab8356561844ee110abba','1001000','通用','3CEF71F5-ADEE-C7D5-8145-8333E06CB9BA','1003','B公司','001','演示账套（企业）','演示账套（企业）','2020','06','202006','周','a9c9e8f7-67b8-4519-9c05-3c3d18f0b598','001','银行存款大额发生','f266b2d4-c963-45bd-b69d-7fbd0a8bc1a3','01','资金管理',1,0,1,0),
+('93e71ffaa3fb8f98d0b7ecfedd90a0e5','1001000','通用','3CEF71F5-ADEE-C7D5-8145-8333E06CB9BA','1003','B公司','001','演示账套（企业）','演示账套（企业）','2020','05','202005','周','a9c9e8f7-67b8-4519-9c05-3c3d18f0b598','001','银行存款大额发生','f266b2d4-c963-45bd-b69d-7fbd0a8bc1a3','01','资金管理',1,0,1,0),
+('1e55ed9dfa6c6a02ccce42888fdde8cd','1001000','通用','3CEF71F5-ADEE-C7D5-8145-8333E06CB9BA','1003','B公司','001','演示账套（企业）','演示账套（企业）','2020','04','202004','月','a9c9e8f7-67b8-4519-9c05-3c3d18f0b598','001','银行存款大额发生','f266b2d4-c963-45bd-b69d-7fbd0a8bc1a3','01','资金管理',1,0,6,0),
+('5131bd422f1996c2aa6e3328255b036b','1001000','通用','3CEF71F5-ADEE-C7D5-8145-8333E06CB9BA','1003','B公司','001','演示账套（企业）','演示账套（企业）','2020','03','202003','月','a9c9e8f7-67b8-4519-9c05-3c3d18f0b598','001','银行存款大额发生','f266b2d4-c963-45bd-b69d-7fbd0a8bc1a3','01','资金管理',1,0,1,0),
+('00e5b4692d4fd2f88467b8f0285a433e','1001000','通用','43A64673-3D33-483A-85D9-2BEF5AD003CB','1002','A公司','001','演示账套（企业）','演示账套（企业）','2021','12','202112','月','a9c9e8f7-67b8-4519-9c05-3c3d18f0b598','001','银行存款大额发生','f266b2d4-c963-45bd-b69d-7fbd0a8bc1a3','01','资金管理',1,0,1,0);
+CREATE DEFINER=`root`@`%` PROCEDURE `proc_yjbg_mxzb_param`(var_mxtable VARCHAR(500))
+begin 
+call proc_insert_mxzb_param(var_mxtable);
+update audit_yjbg_mxzb t set t.qjlx ='月' where t.yf not like 'Q%';
+commit;
+update audit_yjbg_mxzb t set t.qjlx ='季' where t.yf like 'Q%';
+commit;
+update audit_yjbg_mxzb t set t.qjlx ='年' where t.yf is null;
+commit;
+end $$
+CREATE TABLE `ncw_auditing_object` (
+`ID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '单位ID',
+`CODE` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '单位编号',
+`NAME` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '单位名称',
+`PARENT_ID` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '上级单位ID',
+`INDUSTRYCODE` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '行业编号',
+`ACCOUNTING_SYSTEM` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '会计制度名称',
+`DEPARTMENT_ID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '所属审计机构ID',
+`DATA_SOURCE_ID` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '数据源ID',
+`CREATE_PERSON_CODE` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '创建人登陆账号',
+`CREATE_PERSON_NAME` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '创建人名称',
+`TS` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '' COMMENT '创建时间',
+`area` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '地区',
+`province` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '省',
+`city` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '市县',
+`order_index` int DEFAULT NULL COMMENT '组内排序',
+`business_domain` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '业务板块',
+PRIMARY KEY (`ID`),
+KEY `ncw_auditing_object` (`ID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='被审单位同步表';
+INSERT INTO `ncw_auditing_object` VALUES ('309d371c-df39-46fa-b6e6-1e1fb8b52b31','1001','XX公司','DEPARTMENT','1001000','企业会计制度','DEPARTMENT','7c168974-e3d5-491b-bc86-6096e9814224','admin','管理员','2022-06-13 15:49:39','','','',NULL,NULL),('3CEF71F5-ADEE-C7D5-8145-8333E06CB9BA','1003','B公司','309d371c-df39-46fa-b6e6-1e1fb8b52b31','1001000','企业会计制度','DEPARTMENT','7c168974-e3d5-491b-bc86-6096e9814224','admin','管理员','2022-06-13 15:49:39',NULL,NULL,NULL,NULL,NULL),('43A64673-3D33-483A-85D9-2BEF5AD003CB','1002','A公司','309d371c-df39-46fa-b6e6-1e1fb8b52b31','1001000','企业会计制度','DEPARTMENT','7c168974-e3d5-491b-bc86-6096e9814224','admin','管理员','2022-06-13 15:49:39',NULL,NULL,NULL,NULL,NULL),('492f2c06-965d-4965-bdeb-57c418bead17','2001','XX机关','DEPARTMENT','1001000','政府会计制度','DEPARTMENT','7c168974-e3d5-491b-bc86-6096e9814224','admin','管理员','2022-06-13 15:50:38','','','',NULL,NULL),('DEPARTMENT','000','根节点','0','1001000','企业会计制度','1','7c168974-e3d5-491b-bc86-6096e9814224','','','',NULL,NULL,NULL,NULL,NULL);
+update audit_yjbg_mxzb a left join (select id,code,name from ncw_auditing_object) b on (a.dwid=b.id) set a.dwbh=b.code,a.dwmc=b.name;
+select dwbh,dwmc from audit_yjbg_mxzb;
+dwbh	dwmc
+1003	B公司
+1003	B公司
+1003	B公司
+1003	B公司
+1002	A公司
+drop table audit_yjbg_mxzb,ncw_auditing_object;
+create table ncw_mxzbyjjl_bsdw_qj_tzr(c1 int);
+insert into  ncw_mxzbyjjl_bsdw_qj_tzr values(1),(2),(3);
+CREATE DEFINER=`root`@`%` PROCEDURE `proc_mxzb_bsdw_qj_tzr_history`() begin truncate table ncw_mxzbyjjl_bsdw_qj_tzr; end $$
+select * from ncw_mxzbyjjl_bsdw_qj_tzr;
+c1
+1
+2
+3
+call proc_mxzb_bsdw_qj_tzr_history();
+select * from ncw_mxzbyjjl_bsdw_qj_tzr;
+c1
+set names utf8mb4;
+CREATE TABLE tmp_names (
+name VARCHAR(50)
+);
+INSERT INTO tmp_names VALUES ('tmp_table1'), ('tmp_table2'), ('tmp_table3');
+CREATE PROCEDURE test_cursor_fetch_simple()
+BEGIN
+DECLARE done INT DEFAULT 0;
+DECLARE var_name VARCHAR(50);
+DECLARE cur CURSOR FOR 
+SELECT name FROM tmp_names;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+OPEN cur;
+read_loop: REPEAT
+FETCH NEXT FROM cur INTO var_name;
+IF NOT done THEN
+-- 这里只做输出，模拟处理逻辑
+SELECT CONCAT('读取到：', var_name) AS output;
+END IF;
+UNTIL done END REPEAT;
+CLOSE cur;
+END $$
+CALL test_cursor_fetch_simple();
+output
+读取到：tmp_table1
+output
+读取到：tmp_table2
+output
+读取到：tmp_table3
+set sql_mode='ANTI_ANSI_AS_QUOTE';
+DROP PROCEDURE IF EXISTS test_proc;
+CREATE PROCEDURE test_proc()
+BEGIN
+DECLARE var_sql TEXT;
+SET var_sql = concat(
+"insert into test_table(id, name) values (1, 'Alice'),",
+"insert into test_table(id, name) values (2, 'Bob');"
+);
+SELECT var_sql;
+END $$
+call test_proc();
+var_sql
+insert into test_table(id, name) values (1, 'Alice'),insert into test_table(id, name) values (2, 'Bob');
+CREATE PROCEDURE simple_loop_example()
+BEGIN
+DECLARE counter INT DEFAULT 1;
+loop_label: LOOP
+IF counter > 3 THEN
+LEAVE loop_label;
+END IF;
+BEGIN
+-- LOOP 中的 BEGIN ... END 块
+SELECT CONCAT('当前值: ', counter) AS output;
+END;
+SET counter = counter + 1;
+END LOOP;
+END $$
+CALL simple_loop_example();
+output
+当前值: 1
+output
+当前值: 2
+output
+当前值: 3
+CREATE PROCEDURE simple_if_example(IN num INT)
+BEGIN
+IF num > 0 THEN
+BEGIN
+SELECT '正数' AS result;
+END;
+ELSE
+BEGIN
+SELECT '不是正数' AS result;
+END;
+END IF;
+END$$
+CALL simple_if_example(5);
+result
+正数
+CALL simple_if_example(-3);
+result
+不是正数
+CREATE TABLE `analy_cgqsfx` (
+`cgddbh` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '采购订单编号',
+`cgddrq` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '采购订单日期',
+`ddwcrq` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '订单完成日期',
+`hh` int DEFAULT NULL COMMENT '行号');
+show fields from `analy_cgqsfx` ;
+Field	Type	Null	Key	Default	Extra
+cgddbh	varchar(50)	YES		NULL	
+cgddrq	varchar(10)	YES		NULL	
+ddwcrq	varchar(10)	YES		NULL	
+hh	int(10)	YES		NULL	
+set session transaction read only ;
+set session transaction read write ;
+show events;
+Variable_name	Value
+show status like 'ssl_version' ;
+Variable_name	Value
+CREATE TABLE `a_prod_formdefcategory` (
+`id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`category` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`createDate` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`updateDate` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`lastModifier` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`formState` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`tenantId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+`flowcode` int DEFAULT '0',
+`orderindex` int DEFAULT NULL,
+KEY `idx_a_prod_formdefcategory_tenantId` (`tenantId`),
+KEY `idx_a_prod_formdefcategory_id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `a_prod_formdefcategory` VALUES 
+('000000000002','测试',NULL,NULL,'2023-12-27 10:03:05','000001',NULL,NULL,0,99),
+('BA8C7FEE-6F27-4E70-97D3-504A60A7A42B','测试','000001','2022-10-12 17:39:19','2023-12-27 09:59:46','000001',NULL,NULL,0,0),
+('D23DE5A4-743E-414F-877B-142368591A44','测试','000001','2022-10-12 17:39:32','2023-12-27 09:59:55','000001',NULL,NULL,0,10);
+INSERT INTO a_prod_formdefcategory(id,category,`updateDate`,`lastModifier`) SELECT '000000000001','测试1','2022-10-12 17:39:04','000001' Where not exists (select 1 from a_prod_formdefcategory where id='000000000001');
+select * from a_prod_formdefcategory;
+id	category	creator	createDate	updateDate	lastModifier	formState	tenantId	flowcode	orderindex
+000000000002	测试	NULL	NULL	2023-12-27 10:03:05	000001	NULL	NULL	0	99
+BA8C7FEE-6F27-4E70-97D3-504A60A7A42B	测试	000001	2022-10-12 17:39:19	2023-12-27 09:59:46	000001	NULL	NULL	0	0
+D23DE5A4-743E-414F-877B-142368591A44	测试	000001	2022-10-12 17:39:32	2023-12-27 09:59:55	000001	NULL	NULL	0	10
+000000000001	测试1	NULL	NULL	2022-10-12 17:39:04	000001	NULL	NULL	0	NULL
+drop table a_prod_formdefcategory;
+SET PROFILING = 1 ;
+SET SQL_QUOTE_SHOW_CREATE=1 ;
+show variables like 'PROFILING';
+variable_name	value
+profiling	1
+show variables like 'SQL_QUOTE_SHOW_CREATE';
+variable_name	value
+sql_quote_show_create	1
+select @@event_scheduler ;
+@@event_scheduler
+OFF
+select @@default_storage_engine, @@default_tmp_storage_engine ;
+@@default_storage_engine	@@default_tmp_storage_engine
+InnoDB	InnoDB
+select database(), schema(), left(user(),instr(concat(user(),'@'),'@')-1) ;
+database()	schema()	left(user(),instr(concat(user(),'@'),'@')-1)
+test	test	admin
+SET character_set_results = utf8;
+CREATE TABLE `ncw_dsddrw` (
+`id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
+`next_execute_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '下次执行时间',
+`status` int NOT NULL DEFAULT '0' COMMENT '状态',
+PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='系统定时任务';
+CREATE PROCEDURE simple_nested_proc()
+BEGIN
+DECLARE x INT;
+BEGIN
+SET x = 1;
+END;
+SELECT x;
+END$$
+CALL simple_nested_proc();
+x
+1
+CREATE DEFINER=`root`@`%` FUNCTION `format_date_cn`(input_date VARCHAR(20)) RETURNS varchar(50) CHARSET utf8mb4 COLLATE utf8mb4_general_ci
+DETERMINISTIC
+BEGIN
+RETURN DATE_FORMAT(STR_TO_DATE(input_date, '%Y-%m-%d'), '%Y年%m月%d日');
+END$$
+CREATE FUNCTION simple_nested()
+RETURNS INT
+DETERMINISTIC
+BEGIN
+DECLARE x INT;
+BEGIN
+SET x = 1;
+END;
+RETURN x;
+END$$
+call simple_nested();
+ERROR HY000: YAO-18: Unsupport package item simple_nested
+CREATE TABLE audit_yjbg_mxzb (
+YJCS INT,
+ND INT,
+YF INT,
+DWID VARCHAR(20),
+DWBH VARCHAR(20),
+ZTBH VARCHAR(20),
+QJ VARCHAR(6),
+ZBID VARCHAR(20),
+ZBLBBH VARCHAR(20),
+ZBLBID VARCHAR(20)
+);
+INSERT INTO audit_yjbg_mxzb VALUES
+(10, 2024, 5, 'DW01', 'BH01', 'ZT01', '202405', 'ZB01', 'ZBLB01', 'ZBLBID01'),
+(15, 2023, 5, 'DW01', 'BH01', 'ZT01', '202305', 'ZB01', 'ZBLB01', 'ZBLBID01'),
+(20, 2023, 6, 'DW02', 'BH02', 'ZT02', '202306', 'ZB02', 'ZBLB02', 'ZBLBID02'),
+(25, 2024, 6, 'DW02', 'BH02', 'ZT02', '202406', 'ZB02', 'ZBLB02', 'ZBLBID02');
+create view `v_audit_yjbg_mxzb_sntq` as select `b`.`YJCS` AS `yjcs`,cast(`b`.`ND` as char(4) charset utf8mb3) AS `nd`,cast(`b`.`YF` as char(2) charset utf8mb3) AS `yf`,`b`.`DWID` AS `dwid`,`b`.`DWBH` AS `dwbh`,`b`.`ZTBH`
+AS `ztbh`,cast(`b`.`QJ` as char(6) charset utf8mb3) AS `qj`,`b`.`ZBID` AS `zbid`,`b`.`ZBLBBH` AS `zblbbh`,`b`.`ZBLBID` AS `zblbid` from (`audit_yjbg_mxzb` `a` join `audit_yjbg_mxzb` `b` on(((`a`.`DWID` = `b`.`DWID`) and (`a`.`DWBH` = `b`.`DWBH`) and (`a`.`ZTBH` = `b`.`ZTBH`) and ((`a`.`ND` - 1) = `b`.`ND`) and (`a`.`YF` = `b`.`YF`) and (concat((`a`.`ND` - 1),`a`.`YF`) = `b`.`QJ`) and (`a`.`ZBID` = `b`.`ZBID`) and (`a`.`ZBLBBH` = `b`.`ZBLBBH`) and (`a`.`ZBLBID` = `b`.`ZBLBID`) and (ifnull(`a`.`ND`,'') <> '') and (ifnull(`b`.`ND`,'') <> ''))));
+CREATE TABLE a_sys_orgcontacter (
+id VARCHAR(50) PRIMARY KEY,
+org_id VARCHAR(50),
+contacter VARCHAR(50),
+funtype VARCHAR(20),
+creator VARCHAR(50),
+createDate DATETIME,
+updateDate DATETIME,
+lastModifier VARCHAR(50),
+tenantId VARCHAR(50)
+);
+CREATE TABLE a_sys_user (
+id VARCHAR(50) PRIMARY KEY,
+org_id VARCHAR(50),
+fixedphone VARCHAR(20),
+phone VARCHAR(20),
+email VARCHAR(100)
+);
+INSERT INTO a_sys_orgcontacter VALUES
+('c1', 'org100', 'u1', '0000602', 'creator1', '2023-01-01 10:00:00', '2023-01-05 12:00:00', 'modifier1', 'tenant1'),
+('c2', 'org100', 'u2', '0000602', 'creator2', '2023-02-01 11:00:00', '2023-02-05 13:00:00', 'modifier2', 'tenant1'),
+('c3', 'org101', 'u3', '0000700', 'creator3', '2023-03-01 09:00:00', '2023-03-05 14:00:00', 'modifier3', 'tenant2');
+INSERT INTO a_sys_user VALUES
+('u1', 'dept100', '010-12345678', '13800000001', 'user1@example.com'),
+('u2', 'dept100', '010-87654321', '13800000002', 'user2@example.com'),
+('u3', 'dept101', '010-11223344', '13800000003', 'user3@example.com');
+create VIEW `a_sys_orgauditcontacts` (`id`,`orgid`,`name`,`department`,`station`,`tel`,`phone`,`email`,`creator`,`createdate`,`updatedate`,`lastmodifier`,`tenantid`,`second_compony`) AS select `a`.`id` AS `id`,`a`.`org_id` AS `orgid`,`a`.`contacter` AS `name`,`b`.`org_id` AS `department`,'' AS `station`,`b`.`fixedphone` AS `tel`,`b`.`phone` AS `phone`,`b`.`email` AS `email`,`a`.`creator` AS `creator`,`a`.`createDate` AS `createdate`,`a`.`updateDate` AS `updatedate`,`a`.`lastModifier` AS `lastmodifier`,`a`.`tenantId` AS `tenantid`,'' AS `second_compony` from (`a_sys_orgcontacter` `a` join `a_sys_user` `b`) where ((`a`.`contacter` = `b`.`id`) and (`a`.`funtype` = '0000602')) ;
+SELECT * FROM a_sys_orgauditcontacts;
+id	orgid	name	department	station	tel	phone	email	creator	createdate	updatedate	lastmodifier	tenantid	second_compony
+c1	org100	u1	dept100		010-12345678	13800000001	user1@example.com	creator1	2023-01-01 10:00:00.000000	2023-01-05 12:00:00.000000	modifier1	tenant1	
+c2	org100	u2	dept100		010-87654321	13800000002	user2@example.com	creator2	2023-02-01 11:00:00.000000	2023-02-05 13:00:00.000000	modifier2	tenant1	
+drop table a_sys_orgcontacter,a_sys_user;
+drop view  a_sys_orgauditcontacts;
+drop PROCEDURE if exists pro_analy_cqwwlksfx;
+CREATE DEFINER=`root`@`%` PROCEDURE `pro_analy_cqwwlksfx`()
+begin
+declare var_sql varchar(4000);
+declare var_i integer;
+set var_sql='CREATE TABLE analy_kswlfx  (
+  bookcode varchar(20) NULL DEFAULT NULL COMMENT ''账套编号'',
+  bookname varchar(30) NULL DEFAULT NULL COMMENT ''账套名称'',
+  fzlxbh varchar(20) NULL DEFAULT NULL COMMENT ''辅助类型编号'',
+  fzlxmc varchar(50) NULL DEFAULT NULL COMMENT ''辅助类型名称'',
+  ksbh varchar(30) NULL DEFAULT NULL COMMENT ''客商编号'',
+  ksmc varchar(100) NULL DEFAULT NULL COMMENT ''客商名称'',
+  zjjysj varchar(10) NULL DEFAULT NULL COMMENT ''最近交易时间'',
+  jjsj int(11) NULL DEFAULT NULL COMMENT ''距今时间'',
+  je decimal(18, 4) NULL DEFAULT NULL COMMENT ''交易金额''
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = ''客商往来分析'' ROW_FORMAT = Dynamic;';
+if(var_i=0) then
+set @sql= var_sql;
+PREPARE stmt FROM @sql;
+EXECUTE stmt ;
+DEALLOCATE PREPARE stmt ;
+set var_sql='insert into analy_kswlfx(bookcode,bookname)select distinct a.bookcode,a.bookname';
+set @sql= var_sql;
+PREPARE stmt FROM @sql;
+EXECUTE stmt ;
+DEALLOCATE PREPARE stmt ;
+commit;
+else
+set var_sql='TRUNCATE TABLE analy_kswlfx';
+set @sql= var_sql;
+PREPARE stmt FROM @sql;
+EXECUTE stmt ;
+DEALLOCATE PREPARE stmt ;
+set var_sql='insert into analy_kswlfx(bookcode,bookname)select distinct a.bookcode,a.bookname';
+set @sql= var_sql;
+PREPARE stmt FROM @sql;
+EXECUTE stmt ;
+DEALLOCATE PREPARE stmt ;
+commit;
+end if;
+END $$
+drop PROCEDURE if exists pro_audit_dfkm;
+CREATE DEFINER=`root`@`%` PROCEDURE `pro_audit_dfkm`(var_bookcode varchar(100)  ,
+var_nd varchar(10))
+begin
+DECLARE done INT;
+declare var_user varchar(100) ;
+DECLARE cc cursor  FOR
+select '1' bj from dual where (select count(*) from audit_subjcode where bookcode=var_bookcode and nd=var_nd and nvl(accountsystem,0)=1)>1
+union all select '0' bj from dual where (select count(*) from audit_subjcode where bookcode=var_bookcode and nd=var_nd and nvl(accountsystem,0)=0)>1;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=1;
+select   upper(database()) into var_user  from   dual;
+delete from audit_voucher_df where pzid like concat(var_bookcode,'%')  and  pzid like concat('%',var_nd,'%') ;
+commit;
+end $$
+drop PROCEDURE if exists `pro_audit_addField`;
+CREATE DEFINER=`root`@`%` PROCEDURE `pro_audit_addField`(
+var_tablename varchar(100)  ,
+var_fieldname varchar(100)  ,
+var_fieldlength varchar(10)
+)
+begin
+declare var_fzi integer ;
+declare var_fzsql varchar(2000);
+declare var_user varchar(50) default '' ;
+select   upper(database()) into var_user from   dual;
+set var_fzi := 0;
+select count(*)
+into var_fzi
+from INFORMATION_SCHEMA.columns
+where TABLE_NAME = UPPER(var_tablename)
+and TABLE_SCHEMA = var_user
+AND COLUMN_NAME=UPPER(var_fieldname) ;
+if var_fzi = 0 then
+begin
+set var_fzsql := CONCAT('ALTER TABLE ',var_tablename,' ADD ',var_fieldname,' varchar(',var_fieldlength,')');
+EXECUTE  var_fzsql;
+end;
+end if;
+end $$
+drop function if exists getDisabledResourceList;
+CREATE DEFINER=`root`@`%` FUNCTION `getDisabledResourceList`() RETURNS text CHARSET utf8mb4 COLLATE utf8mb4_general_ci
+DETERMINISTIC
+BEGIN
+DECLARE disableRootIds TEXT;
+SELECT GROUP_CONCAT(id SEPARATOR ',') INTO disableRootIds
+FROM a_sys_resource
+WHERE enabled = 0;
+RETURN getResourceChildList(disableRootIds);
+END $$
+call getDisabledResourceList();
+ERROR HY000: YAO-18: Unsupport package item getDisabledResourceList
+CREATE FUNCTION days_from_today(input_date_str VARCHAR(20))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+DECLARE input_date DATE;
+SET input_date = STR_TO_DATE(input_date_str, '%Y-%m-%d');
+RETURN DATEDIFF('2023-05-10', input_date);
+END$$
+SELECT days_from_today('2023-05-01');
+days_from_today('2023-05-01')
+9
+SELECT DATEDIFF('2015-06-19','2015-06-17');
+DATEDIFF('2015-06-19','2015-06-17')
+2

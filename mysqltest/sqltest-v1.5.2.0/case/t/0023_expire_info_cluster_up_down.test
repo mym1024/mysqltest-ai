@@ -1,0 +1,94 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：expire_info与集群上下线测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：1620 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-11-18 
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists test1;
+
+--enable_warnings
+alter system set location_cache_timeout='600s' server_type=yaosqlsvr;
+
+### 创建带有expire_info的表
+create table test1(c1 int primary key, c2 int, c3 int, c4 modifytime)expire_info='$SYS_DATE>c4+1*1*1*60*1000000';
+
+show create table test1;
+
+create index t1_1 on test1(c2);
+create index t1_2 on test1(c3);
+
+--let $count=1
+while($count < 101)
+{
+	--let $stmt=INSERT INTO test1(c1,c2,c3) VALUES($count,$count,$count)
+	--real_sleep 0.1
+	eval $stmt;
+	inc $count;
+}
+select c1,c2,c3 from test1;
+--real_sleep 70
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+select c1,c2,c3 from test1;
+
+--let $count=1
+while($count < 101)
+{
+	--let $stmt=INSERT INTO test1(c1,c2,c3) VALUES($count,$count,$count)
+	--real_sleep 0.2
+        eval $stmt;
+	inc $count;
+}
+
+alter table test1 drop current expire_info;
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+select c1,c2,c3 from test1;
+
+alter table test1 add current expire_info='$SYS_DATE>c4+1*1*1*60*1000000';
+--real_sleep 120
+
+###2-1 测试ds上下线操作expire_info
+###ds下线操作中deploy无法指定$CSO_IP, %CSO_IP是无效参数；
+###读取ds进程号的目录需要根据环境重新设定
+--echo "down_ds"
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT shutdown -o server_list=$CS0_IP
+###exec cat /home/tianxy/yaobase/run/yaodatasvr.pid |xargs kill -9;
+exec cat /home/yaotest/tool0/yaobase/run/yaodatasvr.pid |xargs kill -9;
+select c1,c2,c3 from test1;
+
+###cs上线
+--echo "up_ds"
+###ds上线也需要根据环境重新指定命令，包括bin所在文件夹及端口号等
+###exec /home/tianxy/yaobase/bin/yaodatasvr -r $RS0_IP:$RS0_PORT -n ob1.tianxy -p 27600 -D /home/tianxy/yaobase/data/cs -i enp125s0f0 -C 0;
+select c1,c2,c3 from test1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

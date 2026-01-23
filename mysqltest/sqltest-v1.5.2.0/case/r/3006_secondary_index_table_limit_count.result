@@ -1,0 +1,82 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+create table t1(c1 int primary key,c2 int);
+create index il0 on t1(c1) storing (c2);
+create index il1 on t1(c1) storing (c2);
+create index il2 on t1(c1) storing (c2);
+create index il3 on t1(c1) storing (c2);
+create index il4 on t1(c1) storing (c2);
+create index il5 on t1(c1) storing (c2);
+create index il6 on t1(c1) storing (c2);
+create index il7 on t1(c1) storing (c2);
+create index il8 on t1(c1) storing (c2);
+create index il9 on t1(c1) storing (c2);
+create index i20 on t1(c1) storing (c2);
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+__3001__idx__il5	4	0
+__3001__idx__il6	4	0
+__3001__idx__il7	4	0
+__3001__idx__il8	4	0
+__3001__idx__il9	4	0
+__3001__idx__i20	4	0
+drop table t1;
+select table_id,table_name,table_type from __first_tablet_entry;
+table_id	table_name	table_type
+102	__all_all_group	1
+62	__all_audit_rules	1
+801	__all_cchecksum_info	1
+105	__all_change_cluster_paxos	1
+13	__all_client	1
+8	__all_cluster	1
+104	__all_cluster_stat_info	1
+15	__all_database	1
+16	__all_database_privilege	1
+232	__all_dblink	1
+26	__all_function	1
+68	__all_load_data	1
+71	__all_mock_fk_parent_table	1
+72	__all_mock_fk_parent_table_column	1
+27	__all_package	1
+100	__all_partition_rules	1
+22	__all_procedure	1
+17	__all_sequence	1
+9	__all_server	1
+515	__all_server_session	1
+514	__all_server_stat	1
+69	__all_spatial_reference_systems	1
+516	__all_statement	1
+19	__all_statistic_info	1
+11	__all_sys_config	1
+12	__all_sys_config_stat	1
+4	__all_sys_param	1
+5	__all_sys_stat	1
+7	__all_table_privilege	1
+101	__all_table_rules	1
+106	__all_table_sub_rules	1
+73	__all_tenant_config	1
+23	__all_trash	1
+10	__all_trigger_event	1
+18	__all_truncate_op	1
+20	__all_udi_monitor_list	1
+6	__all_user	1
+21	__all_view	1
+607	__all_virtual_tenant_status	1
+606	__all_virtual_trace_log	1
+25	__all_white_ip	1
+24	__db_table_trash	1
+802	__index_process_info	1
+103	__ts_session_info	1

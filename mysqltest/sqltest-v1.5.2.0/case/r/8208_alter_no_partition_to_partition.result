@@ -1,0 +1,445 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1_r,t2_r,t3_r,t1_h,t2_h;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x,y) '(10,\'abc\'),(20,\'bcd\'),(maxvalue,maxvalue)';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r_1	1	x	(10),(20),(maxvalue)
+r_2	2	x,y	(10,'abc'),(20,'bcd'),(maxvalue,maxvalue)
+create table t1_r(a int primary key,b int);
+create table t2_r(a int primary key,b int);
+create table t3_r(a int,b varchar(10),c int,primary key(a,b));
+create index il1 on t2_r(b);
+create index il1 on t1_r(b);
+create index il1 on t3_r(c);
+"refesh"
+Okay
+show index on t2_r;
+index_name	status	index_type
+__3002__idx__il1	4	0
+show index on t1_r;
+index_name	status	index_type
+__3001__idx__il1	4	0
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+__user_default_group	2	0	NULL
+insert into t1_r values(1,1),(10,1),(20,1);
+insert into t2_r values(1,1),(10,1),(20,1);
+insert into t3_r values(1,'a',1),(10,'ab',1),(10,'abc',1),(20,'abc',1);
+select * from t1_r;
+a	b
+1	1
+10	1
+20	1
+delete from t1_r where a=1;
+delete from t1_r where a=10;
+select * from t1_r;
+a	b
+20	1
+select * from t2_r;
+a	b
+1	1
+10	1
+20	1
+delete from t2_r where a=1;
+delete from t2_r where a=10;
+select * from t2_r;
+a	b
+20	1
+select * from t3_r;
+a	b	c
+1	a	1
+10	ab	1
+10	abc	1
+20	abc	1
+delete from t3_r where a=1;
+delete from t3_r where a=10;
+select * from t3_r;
+a	b	c
+20	abc	1
+truncate table t1_r;
+insert into t1_r values(1,1),(10,1),(20,1);
+truncate table t2_r;
+insert into t2_r values(1,1),(10,1),(20,1);
+truncate table t3_r;
+insert into t3_r values(1,'a',1),(10,'ab',1),(10,'abc',1),(20,'abc',1);
+select * from t2_r;
+a	b
+1	1
+10	1
+20	1
+delete from t2_r where a=1;
+delete from t2_r where a=10;
+select * from t2_r;
+a	b
+20	1
+alter table t2_r partition rule to (,r_1,a);
+select * from t1_r;
+a	b
+1	1
+10	1
+20	1
+delete from t1_r where a=1;
+delete from t1_r where a=10;
+select * from t1_r;
+a	b
+20	1
+alter table t1_r partition rule to (rr,r_1,a);
+select * from t3_r;
+a	b	c
+1	a	1
+10	ab	1
+10	abc	1
+20	abc	1
+delete from t3_r where a=1;
+delete from t3_r where a=10;
+select * from t3_r;
+a	b	c
+20	abc	1
+alter table t3_r partition rule to (rr,r_2,a,b);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+rr#0	2	0	NULL
+rr#1	2	1	NULL
+rr#2	2	0	NULL
+t2_r#0	2	1	NULL
+t2_r#1	2	0	NULL
+t2_r#2	2	1	NULL
+__user_default_group	2	0	NULL
+major_freeze...
+merge: DONE
+show index on t2_r;
+index_name	status	index_type
+__3002__idx__il1	1	0
+select * from t2_r;
+a	b
+20	1
+insert into t2_r values(1,1),(10,1),(30,1);
+replace into t2_r values(30,3);
+update t2_r set b=5 where a=1;
+select * from t2_r;
+a	b
+1	5
+10	1
+20	1
+30	3
+delete from t2_r where a=1;
+delete from t2_r where a=10;
+select * from t2_r;
+a	b
+20	1
+30	3
+show index on t1_r;
+index_name	status	index_type
+__3001__idx__il1	1	0
+select * from t1_r;
+a	b
+20	1
+insert into t1_r values(1,1),(10,1),(30,1);
+replace into t1_r values(30,3);
+update t1_r set b=5 where a=1;
+select * from t1_r;
+a	b
+1	5
+10	1
+20	1
+30	3
+delete from t1_r where a=1;
+delete from t1_r where a=10;
+select * from t1_r;
+a	b
+20	1
+30	3
+show index on t3_r;
+index_name	status	index_type
+__3003__idx__il1	1	0
+select * from t3_r;
+a	b	c
+20	abc	1
+insert into t3_r values(1,'a',1),(10,'ab',1),(10,'abc',1);
+replace into t3_r values(20,'bdc',3);
+update t3_r set c=5 where a=1;
+select * from t3_r;
+a	b	c
+1	a	5
+10	ab	1
+10	abc	1
+20	abc	1
+20	bdc	3
+delete from t3_r where a=1;
+delete from t3_r where a=10;
+select * from t3_r;
+a	b	c
+20	abc	1
+20	bdc	3
+truncate table t1_r;
+select * from t1_r;
+a	b
+insert into t1_r values(1,1),(10,1),(20,1);
+select * from t1_r;
+a	b
+1	1
+10	1
+20	1
+truncate table t2_r;
+select * from t2_r;
+a	b
+insert into t2_r values(1,1),(10,1),(20,1);
+select * from t2_r;
+a	b
+1	1
+10	1
+20	1
+truncate table t3_r;
+select * from t3_r;
+a	b	c
+insert into t3_r values(1,'a',1),(10,'ab',1),(10,'abc',1),(20,'abc',1);
+select * from t3_r;
+a	b	c
+1	a	1
+10	ab	1
+10	abc	1
+20	abc	1
+major_freeze...
+merge: DONE
+show index on t2_r;
+index_name	status	index_type
+__3002__idx__il1	1	0
+select * from t2_r;
+a	b
+1	1
+10	1
+20	1
+show index on t1_r;
+index_name	status	index_type
+__3001__idx__il1	1	0
+select * from t1_r;
+a	b
+1	1
+10	1
+20	1
+show index on t3_r;
+index_name	status	index_type
+__3003__idx__il1	1	0
+select * from t3_r;
+a	b	c
+1	a	1
+10	ab	1
+10	abc	1
+20	abc	1
+drop table t2_r,t1_r,t3_r;
+drop partition function r_1,r_2;
+create hash partition function h_1(x) 'x';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h_1	1	x	x
+create table t1_h(a int primary key,b int);
+create table t2_h(a int primary key,b int);
+create index il1 on t1_h(b);
+create index il1 on t2_h(b);
+"refesh"
+Okay
+show index on t1_h;
+index_name	status	index_type
+__3007__idx__il1	4	0
+show index on t2_h;
+index_name	status	index_type
+__3008__idx__il1	4	0
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+rr#0	2	0	NULL
+rr#1	2	1	NULL
+rr#2	2	0	NULL
+t2_r#0	2	1	NULL
+t2_r#1	2	0	NULL
+t2_r#2	2	1	NULL
+__user_default_group	2	0	NULL
+insert into t1_h values(1,1),(4,1),(2,1),(5,1);
+insert into t2_h values(1,1),(4,1),(2,1),(5,1);
+select * from t1_h;
+a	b
+1	1
+2	1
+4	1
+5	1
+delete from t1_h where a=2;
+delete from t1_h where a=4;
+select * from t1_h;
+a	b
+1	1
+5	1
+select * from t2_h;
+a	b
+1	1
+2	1
+4	1
+5	1
+delete from t2_h where a=2;
+delete from t2_h where a=4;
+select * from t2_h;
+a	b
+1	1
+5	1
+truncate table t1_h;
+insert into t1_h values(1,1),(4,1),(2,1),(5,1);
+truncate table t2_h;
+insert into t2_h values(1,1),(4,1),(2,1),(5,1);
+select * from t1_h;
+a	b
+1	1
+2	1
+4	1
+5	1
+delete from t1_h where a=2;
+delete from t1_h where a=4;
+select * from t1_h;
+a	b
+1	1
+5	1
+alter table t1_h partition rule to (hh,h_1,a);
+select * from t2_h;
+a	b
+1	1
+2	1
+4	1
+5	1
+delete from t2_h where a=2;
+delete from t2_h where a=4;
+select * from t2_h;
+a	b
+1	1
+5	1
+alter table t2_h partition rule to (,h_1,a);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hh#0	4	0	NULL
+hh#1	4	1	NULL
+hh#10	4	0	NULL
+hh#11	4	1	NULL
+hh#12	4	0	NULL
+hh#2	4	0	NULL
+hh#3	4	1	NULL
+hh#4	4	0	NULL
+hh#5	4	1	NULL
+hh#6	4	0	NULL
+hh#7	4	1	NULL
+hh#8	4	0	NULL
+hh#9	4	1	NULL
+rr#0	2	0	NULL
+rr#1	2	1	NULL
+rr#2	2	0	NULL
+t2_h#0	4	1	NULL
+t2_h#1	4	0	NULL
+t2_h#10	4	1	NULL
+t2_h#11	4	0	NULL
+t2_h#12	4	1	NULL
+t2_h#2	4	1	NULL
+t2_h#3	4	0	NULL
+t2_h#4	4	1	NULL
+t2_h#5	4	0	NULL
+t2_h#6	4	1	NULL
+t2_h#7	4	0	NULL
+t2_h#8	4	1	NULL
+t2_h#9	4	0	NULL
+t2_r#0	2	1	NULL
+t2_r#1	2	0	NULL
+t2_r#2	2	1	NULL
+__user_default_group	2	0	NULL
+major_freeze...
+merge: DONE
+show index on t1_h;
+index_name	status	index_type
+__3007__idx__il1	1	0
+select * from t1_h;
+a	b
+1	1
+5	1
+insert into t1_h values(4,1),(8,1),(2,1);
+replace into t1_h values(8,3);
+update t1_h set b=5 where a=2;
+select * from t1_h;
+a	b
+1	1
+2	5
+4	1
+5	1
+8	3
+delete from t1_h where a=1;
+delete from t1_h where a=5;
+select * from t1_h;
+a	b
+2	5
+4	1
+8	3
+show index on t2_h;
+index_name	status	index_type
+__3008__idx__il1	1	0
+select * from t2_h;
+a	b
+1	1
+5	1
+insert into t2_h values(4,1),(8,1),(2,1);
+replace into t2_h values(8,3);
+update t2_h set b=5 where a=2;
+select * from t2_h;
+a	b
+1	1
+2	5
+4	1
+5	1
+8	3
+delete from t2_h where a=1;
+delete from t2_h where a=5;
+select * from t2_h;
+a	b
+2	5
+4	1
+8	3
+truncate table t1_h;
+select * from t1_h;
+a	b
+insert into t1_h values(4,1),(8,1),(2,1);
+select * from t1_h;
+a	b
+2	1
+4	1
+8	1
+truncate table t2_h;
+select * from t2_h;
+a	b
+insert into t2_h values(4,1),(8,1),(2,1);
+select * from t2_h;
+a	b
+2	1
+4	1
+8	1
+major_freeze...
+merge: DONE
+show index on t1_h;
+index_name	status	index_type
+__3007__idx__il1	1	0
+select * from t1_h;
+a	b
+2	1
+4	1
+8	1
+show index on t2_h;
+index_name	status	index_type
+__3008__idx__il1	1	0
+select * from t2_h;
+a	b
+2	1
+4	1
+8	1

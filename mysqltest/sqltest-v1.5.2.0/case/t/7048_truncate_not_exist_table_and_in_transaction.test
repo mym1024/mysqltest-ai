@@ -1,0 +1,56 @@
+--source merge.sql
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1 (c1 int primary key,c2 varchar(10));
+
+
+#测试在事务中不能进行truncate操作
+start transaction;
+insert into t1 values(3,'aa');
+select * from t1;
+select * from t1 where c1 = 3;
+--error 5060
+truncate table t1;
+rollback;
+
+begin;
+insert into t1 values(3,'aa');
+select * from t1;
+select * from t1 where c1 = 3;
+--error 5060
+truncate table t1;
+rollback;
+
+set autocommit=0;
+insert into t1 values(3,'aa');
+select * from t1;
+select * from t1 where c1 = 3;
+--error 5060
+truncate table t1;
+rollback;
+set autocommit=1;
+
+#测试truncate不存在的表
+insert into t1 values(1,'aa');
+select * from t1;
+select * from t1 where c1 = 1;
+--error 5019
+truncate table t0;
+--error 5019
+truncate table t0,t1;
+--error 5019
+truncate table t1,t0;
+select * from t1;
+select * from t1 where c1 = 1;
+
+#测试truncate后insert或replace是否锁表
+#truncate table t1;
+#select * from t1;
+#select * from t1 where c1 = 1;
+#--error 155
+#insert into t1 values(2,'aa');
+#--error 155
+#replace into t1 values(2,'aa');
+

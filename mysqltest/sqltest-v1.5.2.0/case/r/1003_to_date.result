@@ -1,0 +1,121 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5;
+select to_date('2019-09-18', 'yyyy-mm-dd');
+to_date('2019-09-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019.09-18', 'yyyy-mm-dd');
+to_date('2019.09-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019/09-18', 'yyyy-mm-dd');
+to_date('2019/09-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019,09-18', 'yyyy-mm-dd');
+to_date('2019,09-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019;09-18', 'yyyy-mm-dd');
+to_date('2019;09-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019;9-18', 'yyyy-mm-dd');
+to_date('2019;9-18', 'yyyy-mm-dd')
+2019-09-18
+select to_date('2019-  /  10-  11', 'yyyy-mm-dd');
+ERROR HY000: YAO-5663: a non-numeric character was found where a numeric was expected
+select to_date('2019-10-11 12:12:23', 'yyyy-mm-dd');
+ERROR HY000: YAO-4190: date format picture ends before converting entire input string
+select to_date('2019;87-18', 'yyyy-mm-dd');
+ERROR HY000: YAO-5667: day of month must be between 1 and last day of month
+select to_date('19;11-18', 'yyyy-mm-dd');
+to_date('19;11-18', 'yyyy-mm-dd')
+0019-11-18
+select to_date('1;01-18', 'yyyy-mm-dd');
+to_date('1;01-18', 'yyyy-mm-dd')
+0001-01-18
+select to_date('1;001-18', 'yyyy-mm-dd');
+ERROR HY000: YAO-5667: day of month must be between 1 and last day of month
+select to_date('20190918', 'yyyy-mm-dd');
+to_date('20190918', 'yyyy-mm-dd')
+2019-09-18
+select to_date('20191318', 'yyyy-mm-dd');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('201909181', 'yyyy-mm-dd');
+ERROR HY000: YAO-4190: date format picture ends before converting entire input string
+select to_date('201991', 'yyyy-mm-dd');
+ERROR HY000: YAO-5667: day of month must be between 1 and last day of month
+select to_date('qqq', 'yyyy-mm-dd');
+ERROR HY000: YAO-5663: a non-numeric character was found where a numeric was expected
+select to_date('sasdghyu', 'yyyy-mm-dd');
+ERROR HY000: YAO-5663: a non-numeric character was found where a numeric was expected
+select to_date('19-123', 'yyyy-mm-dd');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('0-123', 'yyyy-mm-dd');
+ERROR HY000: YAO-5639: (full) year must be between -4713 and +9999, and not be 0
+select to_date('11-123', 'yyyy-mm-dd');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('9999-12', 'yyyy-mm-dd');
+ERROR HY000: YAO-5638: input value not long enough for date format
+select to_date('9999-1234', 'yyyy-mm-dd');
+ERROR HY000: YAO-5667: day of month must be between 1 and last day of month
+select to_date('9999-1409', 'yyyy-mm-dd');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('9999-140911', 'yyyy-mm-dd');
+ERROR HY000: YAO-4190: date format picture ends before converting entire input string
+select to_date('19-dec-12','dd-mon-yy');
+to_date('19-dec-12','dd-mon-yy')
+2012-12-19
+select to_date('131-dec-12','dd-mon-yy');
+ERROR HY000: YAO-5641: not a valid month
+select to_date('19-dec-122','dd-mon-yy');
+ERROR HY000: YAO-4190: date format picture ends before converting entire input string
+select to_date('19-dec-2','dd-mon-yy');
+to_date('19-dec-2','dd-mon-yy')
+2022-12-19
+select to_date('2019-08-07','yyyy-mm-dd hh24:mi:ss');
+to_date('2019-08-07','yyyy-mm-dd hh24:mi:ss')
+2019-08-07
+select to_date('2019-08-07 12:23:1','yyyy-mm-dd hh24:mi:ss');
+to_date('2019-08-07 12:23:1','yyyy-mm-dd hh24:mi:ss')
+2019-08-07
+select to_date('2019-08-07 ','yyyy-mm-dd hh24:mi:ss');
+to_date('2019-08-07 ','yyyy-mm-dd hh24:mi:ss')
+2019-08-07
+select to_date('12-12-12','dd-mm-yy');
+to_date('12-12-12','dd-mm-yy')
+2012-12-12
+select to_date('33-12-12','dd-mm-yy');
+ERROR HY000: YAO-5667: day of month must be between 1 and last day of month
+select to_date('29-2-19','dd-mm-yy');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('29-13-19','dd-mm-yy');
+ERROR HY000: YAO-4219: literal does not match format string
+select to_date('29-2-123','dd-mm-yy');
+ERROR HY000: YAO-4190: date format picture ends before converting entire input string
+select to_date('12-2-12','dd-mm-yyyy hh24:mi:ss');
+to_date('12-2-12','dd-mm-yyyy hh24:mi:ss')
+0012-02-12
+select to_date('12-3-1234 12:23:1','dd-mm-yyyy hh24:mi:ss');
+to_date('12-3-1234 12:23:1','dd-mm-yyyy hh24:mi:ss')
+1234-03-12
+select to_date('12-3-1234      ','dd/mm/yyyy hh24:mi:ss');
+to_date('12-3-1234      ','dd/mm/yyyy hh24:mi:ss')
+1234-03-12
+select to_timestamp('12-apr-23 12:2:1.4 pm','dd-mon-yy hh.mm.ss.ssssss pp');
+to_timestamp('12-apr-23 12:2:1.4 pm','dd-mon-yy hh.mm.ss.ssssss pp')
+2023-04-13 00:02:01.400000
+select to_timestamp('1234-2-3 12:2:1.4 pm','yyyy-mm-dd hh.mm.ss.ssssss');
+ERROR HY000: YAO-2: this date:1234-2-3 12:2:1.4 pm incorrect parameter input
+select to_timestamp('1234-2-3 12:2:1.4 ','yyyy-mm-dd hh.mm.ss.ssssss');
+to_timestamp('1234-2-3 12:2:1.4 ','yyyy-mm-dd hh.mm.ss.ssssss')
+1234-02-03 12:02:01.400000
+select to_timestamp('1234-2-3 12:23:34.12','yyyy-mm-dd hh:mm:ss');
+ERROR HY000: YAO-2: this date:1234-2-3 12:23:34.12 incorrect parameter input
+select to_timestamp('1234-2-3 12:23:34','yyyy-mm-dd hh:mm:ss');
+to_timestamp('1234-2-3 12:23:34','yyyy-mm-dd hh:mm:ss')
+1234-02-03 12:23:34.000000
+select to_timestamp('1234-2-3 12:67:34','yyyy-mm-dd hh:mm:ss');
+ERROR HY000: YAO-5106: Value of TIME part is incorrect.
+select to_timestamp('1234-13-3 12:23:34','yyyy-mm-dd hh:mm:ss');
+ERROR HY000: YAO-5105: Value of DATE part is incorrect.

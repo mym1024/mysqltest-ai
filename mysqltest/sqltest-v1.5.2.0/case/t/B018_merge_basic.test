@@ -1,0 +1,88 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：基本的合并测试，测试合并时是否丢失数据
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：1200s
+###6.编写/修改人： gaohuanyu
+###7.编写/修改日期：2019-11-07
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+
+--disable_warnings
+drop table if exists sbtest;
+--enable_warnings
+
+###2-1:基本合并测试，已有的数据在合并后无错误、不丢失
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+--real_sleep 10
+
+create table t1(pk int primary key,a int);
+
+insert into t1 values(1,0),(2,0),(4,0),(3,0);
+insert into t1 values(0,0);
+insert into t1 values(5,0),(6,0),(8,0),(7,0);
+
+update t1 set a=1 where pk = 0;
+update t1 set a=1 where pk = 1;
+replace into t1(pk,a) values(0,2);
+replace into t1(pk,a) values(2,2);
+
+delete from t1 where pk = 2;
+delete from t1 where pk = 1;
+delete from t1 where pk = 5;
+
+select * from t1;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+
+insert into t1 values(100,0),(200,0),(101,0);
+insert into t1 values(102,0);
+insert into t1 values(104,0),(103,0);
+insert into t1 values(2,0);
+update t1 set a=1 where pk = 7;
+update t1 set a=1 where pk = 3;
+delete from t1 where pk = 0
+delete from t1 where pk = 7;
+delete from t1 where pk = 103;
+select * from t1;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+
+
+insert into t1 values(0,0),(7,0);
+insert into t1 values(307,0),(103,0);
+insert into t1 values(300,0),(305,0),(301,0);
+insert into t1 values(302,0);
+insert into t1 values(304,0),(303,0);
+
+update t1 set a=1 where pk = 7;
+update t1 set a=1 where pk = 3;
+update t1 set a=1 where pk = 102;
+update t1 set a=1 where pk = 101;
+
+delete from t1 where pk = 4;
+delete from t1 where pk = 200;
+delete from t1 where pk = 300;
+
+select * from t1;
+drop table t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,40 @@
+drop table if exists tt1;
+create table tt1(k decimal(10,5) primary key,c1 decimal(10,5));
+insert into tt1 values(12.12,123.123+999.999);
+insert into tt1 values(12.123,123.123*99);
+select * from tt1;
+k	c1
+12.12	1123.122
+12.123	12189.177
+drop table if exists tt3;
+create table tt3(k decimal(10,5) primary key,c1 decimal(5,4));
+insert into tt3 values(123.1231,3.8980);
+insert into tt3 values(123.1232,3.8981);
+insert into tt3 values(123.1233,3.89801);
+insert into tt3 values(123.12333,3.89801);
+insert into tt3 values(123.1233333333,3.89801);
+ERROR 23000: YAO-5024: Duplicate entry ' <3002.16>=decimal:123.12333' for key 'PRIMARY'
+select * from tt3;
+k	c1
+123.1231	3.898
+123.1232	3.8981
+123.1233	3.898
+123.12333	3.898
+drop table if exists t3;
+create table t3(k decimal(10,5),c1 decimal(5,4) primary key);
+insert into t3 values(123.1231,3.8980);
+insert into t3 values(123.1232,3.8981);
+insert into t3 values(123.1233,3.89801);
+ERROR 23000: YAO-5024: Duplicate entry ' <3003.17>=decimal:3.8980' for key 'PRIMARY'
+select * from tt3;
+k	c1
+123.1231	3.898
+123.1232	3.8981
+123.1233	3.898
+123.12333	3.898
+drop table if exists t5;
+create table t5(k decimal(2,1),c1 decimal(2,1), primary key(k));
+insert into t5 values(1.0,1.0*0.1);
+select * from t5;
+k	c1
+1	0.1

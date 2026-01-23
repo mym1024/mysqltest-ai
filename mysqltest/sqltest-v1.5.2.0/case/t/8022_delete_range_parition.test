@@ -1,0 +1,102 @@
+####################################必填######################################################
+###1.测试功能点：range分区下执行不同where表达式的delete语句
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+
+--echo can't determine a row
+
+###2-1:根据主键列删除操作
+drop table if exists trange1;
+create table trange1(c1 int, c2 int,primary key (c1)) partition by range columns(c1)(partition r0 values less than(20), partition r2 values less than maxvalue);
+show table rules;
+insert into trange1 values(1,1),(2,2),(3,3);
+show tables;
+show partition groups;
+
+--real_sleep 3
+delete from trange1 where c1 in(1);
+delete from trange1 where c1 in(1,2);
+delete from trange1 where c1>=3;
+delete from trange1 where c1<=1;
+delete from trange1 where 1>=c1;
+delete from trange1 where 3<=c1;
+delete from trange1 where c1>1 and c1<3;
+delete from trange1 where c1=1 or c1=2;
+delete from trange1 where c1<1 or c1<2;
+#--error 145
+delete from trange1 where c1=1 and c1=2;
+delete from trange1 where c1>1 and c1=2;
+select * from trange1;
+
+###2-2:根据非主键列删除操作
+drop table if exists trange1;
+create table trange1(c1 int, c2 int,primary key (c1)) partition by range columns(c1)(partition r0 values less than(20), partition r2 values less than maxvalue);
+show table rules;
+insert into trange1 values(1,1),(2,2),(3,3);
+show partition groups;
+
+--real_sleep 3
+delete from trange1 where c2 in(1);
+delete from trange1 where c2 in(1,2);
+delete from trange1 where c2>=3;
+delete from trange1 where c2<=1;
+delete from trange1 where 1>=c2;
+delete from trange1 where 3<=c2;
+delete from trange1 where c2>1 and c2<3;
+delete from trange1 where c2=1 or c2=2;
+delete from trange1 where c2<1 or c2<2;
+delete from trange1 where c2=1 and c2=2;
+delete from trange1 where c2>1 and c2=2;
+
+###2-3:主键和非主键混合
+drop table if exists trange1;
+create table trange1(c1 int, c2 int,primary key (c1)) partition by range columns(c1)(partition r0 values less than(20), partition r2 values less than maxvalue);
+show table rules;
+insert into trange1 values(1,1),(2,2),(3,3);
+show partition groups;
+
+--real_sleep 3
+delete from trange1 where (c1,c2) in((1,1));
+delete from trange1 where (c1,c2) in((1,1),(2,2));
+delete from trange1 where (c2,c1) in((1,1));
+delete from trange1 where (c2,c1) in((1,1),(2,2));
+delete from trange1 where c1>1 and c2>10 and c1=1;
+select * from trange1;
+delete from trange1 where c1>1 or c2>10 and c1=1;
+
+
+###2-4:重复测试使用主键删除
+drop table if exists trange1;
+create table trange1(c1 int, c2 int,primary key (c1)) partition by range columns(c1)(partition r0 values less than(20), partition r2 values less than maxvalue);
+show table rules;
+insert into trange1 values(1,1),(2,2),(3,3);
+show partition groups;
+
+--real_sleep 3
+delete from trange1 where c2<=1;
+delete from trange1 where 1>=c2;
+delete from trange1 where 3<=c2;
+delete from trange1 where c2>1 and c2<3;
+delete from trange1 where c2=1 or c2=2;
+delete from trange1 where c2<1 or c2<2;
+delete from trange1 where c2=1 and c2=2;
+delete from trange1 where c2>1 and c2=2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

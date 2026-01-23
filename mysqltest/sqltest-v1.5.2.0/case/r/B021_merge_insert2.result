@@ -1,0 +1,438 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists sbtest;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+create table sbtest (id integer not null,name varchar(30),whenn datetime,k integer default 0 not null,pad char(60) default '' not null,whenn1 datetime,stat1 bool,primary key (id,name,whenn));
+insert 100 rows to ups
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (1,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (2,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (3,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (4,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (5,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (6,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (7,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (8,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (9,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (10,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (11,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (12,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (13,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (14,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (15,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (16,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (17,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (18,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (19,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (20,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (21,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (22,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (23,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (24,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (25,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (26,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (27,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (28,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (29,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (30,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (31,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (32,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (33,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (34,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (35,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (36,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (37,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (38,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (39,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (40,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (41,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (42,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (43,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (44,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (45,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (46,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (47,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (48,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (49,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (50,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (51,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (52,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (53,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (54,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (55,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (56,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (57,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (58,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (59,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (60,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (61,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (62,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (63,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (64,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (65,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (66,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (67,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (68,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (69,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (70,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (71,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (72,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (73,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (74,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (75,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (76,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (77,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (78,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (79,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (80,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (81,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (82,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (83,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (84,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (85,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (86,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (87,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (88,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (89,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (90,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (91,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (92,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (93,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (94,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (95,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (96,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (97,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (98,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (99,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (100,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+merge
+major_freeze...
+insert another 100 rows to ups
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (101,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (102,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (103,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (104,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (105,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (106,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (107,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (108,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (109,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (110,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (111,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (112,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (113,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (114,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (115,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (116,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (117,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (118,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (119,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (120,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (121,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (122,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (123,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (124,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (125,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (126,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (127,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (128,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (129,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (130,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (131,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (132,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (133,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (134,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (135,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (136,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (137,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (138,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (139,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (140,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (141,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (142,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (143,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (144,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (145,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (146,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (147,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (148,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (149,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (150,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (151,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (152,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (153,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (154,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (155,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (156,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (157,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (158,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (159,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (160,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (161,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (162,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (163,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (164,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (165,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (166,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (167,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (168,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (169,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (170,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (171,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (172,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (173,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (174,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (175,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (176,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (177,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (178,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (179,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (180,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (181,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (182,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (183,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (184,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (185,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (186,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (187,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (188,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (189,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (190,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (191,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (192,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (193,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (194,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (195,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (196,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (197,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (198,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (199,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (200,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+merge
+major_freeze...
+insert another 100 rows to ups
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (201,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (202,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (203,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (204,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (205,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (206,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (207,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (208,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (209,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (210,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (211,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (212,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (213,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (214,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (215,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (216,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (217,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (218,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (219,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (220,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (221,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (222,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (223,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (224,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (225,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (226,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (227,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (228,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (229,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (230,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (231,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (232,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (233,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (234,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (235,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (236,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (237,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (238,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (239,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (240,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (241,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (242,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (243,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (244,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (245,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (246,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (247,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (248,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (249,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (250,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (251,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (252,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (253,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (254,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (255,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (256,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (257,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (258,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (259,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (260,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (261,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (262,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (263,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (264,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (265,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (266,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (267,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (268,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (269,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (270,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (271,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (272,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (273,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (274,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (275,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (276,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (277,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (278,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (279,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (280,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (281,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (282,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (283,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (284,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (285,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (286,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (287,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (288,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (289,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (290,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (291,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (292,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (293,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (294,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (295,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (296,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (297,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (298,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (299,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (300,'junyue','2013-1-6 14:44:00',1,'qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt','2013-1-7 14:44:00');
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (1,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:1 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (6,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:6 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (11,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:11 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (16,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:16 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (21,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:21 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (26,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:26 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (31,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:31 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (36,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:36 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (41,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:41 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (46,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:46 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (51,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:51 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (56,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:56 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (61,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:61 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (66,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:66 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (71,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:71 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (76,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:76 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (81,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:81 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (86,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:86 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (91,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:91 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (96,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:96 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (101,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:101 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (106,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:106 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (111,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:111 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (116,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:116 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (121,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:121 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (126,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:126 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (131,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:131 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (136,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:136 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (141,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:141 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (146,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:146 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (151,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:151 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (156,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:156 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (161,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:161 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (166,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:166 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (171,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:171 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (176,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:176 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (181,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:181 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (186,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:186 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (191,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:191 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (196,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:196 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (201,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:201 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (206,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:206 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (211,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:211 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (216,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:216 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (221,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:221 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (226,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:226 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (231,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:231 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (236,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:236 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (241,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:241 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (246,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:246 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (251,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:251 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (256,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:256 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (261,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:261 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (266,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:266 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (271,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:271 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (276,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:276 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (281,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:281 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (286,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:286 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (291,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:291 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (296,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:296 <3001.17>=varchar:junyue <3001.18>=precisedatetime:1357454640000000' for key 'PRIMARY'
+insert into sbtest(id,name,whenn,k,pad,whenn1) values (301,'junyue','2013-1-6 14:44:00',1,'qqqqqqqq','2013-1-7 14:44:00');
+drop table sbtest;

@@ -1,0 +1,27 @@
+add white_list '192.168.16.116';
+add white_list '192.168.16.116','192.168.16.%';
+add white_list '192.168.16.116','192.168.16.%','192.168.%';
+add white_list ' ';
+ERROR HY000: YAO-5096: white_ip must not be empty
+add white_list '';
+ERROR HY000: YAO-5096: white_ip must not be empty
+add white_list '192.168.16.116','192.168.16.%';
+add white_list '192.168.16.116','192.168.16.%','192.168.%';
+add white_list '192.168.161.11','195.216.168.11','192.168.16.116','192.168.13.%','12zxc.zxca','852.asf.123','%';
+delete white_list '192.168.16.116';
+delete white_list '192.168.16.117';
+ERROR HY000: YAO-5093: delete white_ip failed,this IP do not exist
+delete white_list '195.216.168.11','192.168.13.%';
+delete white_list '192.168.161.11','192.168.16.%','%';
+delete white_list '192.168.161.11','195.216.168.11','192.168.16.116';
+ERROR HY000: YAO-5093: delete white_ip failed,this IP do not exist
+delete white_list '192.168.16.116','192.168.16.%','192.168.%';
+ERROR HY000: YAO-5093: delete white_ip failed,this IP do not exist
+create  user  'test' identified by 'admin@1234';
+GRANT SELECT ON test.* TO 'test';
+select * from __all_white_ip;
+ERROR HY000: YAO-5036: no privilege
+add white_list '192.168.16.116','192.168.16.%';
+ERROR HY000: YAO-5036: no privilege
+delete white_list '192.168.16.116','192.168.16.%';
+ERROR HY000: YAO-5036: no privilege

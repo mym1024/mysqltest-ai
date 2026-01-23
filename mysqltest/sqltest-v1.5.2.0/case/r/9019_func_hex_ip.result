@@ -1,0 +1,325 @@
+drop table if exists t;
+drop table if exists table1;
+create table table1(id bigint,name varchar(20),d double,f float,primary key(id));
+create table t(c1 int primary key,c2 int);
+insert into table1(id,name,d,f) values (1,'1G',1.8,1.8);
+insert into table1(id,name,d,f) values (100,'4D7953514C',2,16);
+insert into table1(id,name,d,f) values (256,'0.0.1.0',0.5,0.5);
+insert into table1(id,name,d,f) values (9223372036854775807,'abc',16.1,16.1);
+insert into table1(id,name,d,f) values (255,'c_d',255.0,255.0);
+insert into table1(id,name,d,f) values (2,'256.0.0.0',0.1,0.1);
+insert into table1(id,name,d,f) values (3,'1.0.0',0.1,0.1);
+insert into table1(id,name,d,f) values (4294967295,'255.255.255.255',0.1,0.1);
+insert into table1(id,name,d,f) values (4294967296,'0.0.0.0',0.1,0.1);
+insert into t values (1,2),(3,5),(4,2),(5,8);
+select hex(id) from table1 where id = 1;
+hex(id)
+1
+select hex(id) from table1 where id = 100;
+hex(id)
+64
+select hex(id) from table1 where id = 256;
+hex(id)
+100
+select hex(id) from table1 where id = 9223372036854775807;
+hex(id)
+7fffffffffffffff
+select hex(id) from table1 where id = 255;
+hex(id)
+ff
+select hex(name) from table1 where id = 1;
+hex(name)
+3147
+select hex(name) from table1 where id = 100;
+hex(name)
+34443739353335313443
+select hex(name) from table1 where id = 256;
+hex(name)
+302e302e312e30
+select hex(name) from table1 where id = 9223372036854775807;
+hex(name)
+616263
+select hex(name) from table1 where id = 255;
+hex(name)
+635f64
+select hex(d) from table1 where id = 1;
+hex(d)
+1
+select hex(d) from table1 where id = 100;
+hex(d)
+2
+select hex(f) from table1 where id = 1;
+hex(f)
+1
+select hex(f) from table1 where id = 100;
+hex(f)
+10
+select unhex(id) from table1 where id = 1;
+unhex(id)
+NULL
+select unhex(name) from table1 where id = 1;
+unhex(name)
+NULL
+select unhex(name) from table1 where id = 100;
+unhex(name)
+MySQL
+select unhex(name) from table1 where id = 256;
+unhex(name)
+NULL
+select unhex(name) from table1 where id = 9223372036854775807;
+unhex(name)
+NULL
+select unhex(name) from table1 where id = 255;
+unhex(name)
+NULL
+select unhex(d) from table1 where id = 1;
+unhex(d)
+NULL
+select unhex(f) from table1 where id = 1;
+unhex(f)
+NULL
+select hex(unhex(id)) from table1 where id = 1;
+hex(unhex(id))
+NULL
+select hex(unhex(name)) from table1 where id = 1;
+hex(unhex(name))
+NULL
+select hex(unhex(name)) from table1 where id = 100;
+hex(unhex(name))
+4d7953514c
+select hex(unhex(name)) from table1 where id = 256;
+hex(unhex(name))
+NULL
+select hex(unhex(name)) from table1 where id = 9223372036854775807;
+hex(unhex(name))
+NULL
+select hex(unhex(name)) from table1 where id = 255;
+hex(unhex(name))
+NULL
+select hex(unhex(d)) from table1 where id = 1;
+hex(unhex(d))
+NULL
+select hex(unhex(f)) from table1 where id = 1;
+hex(unhex(f))
+NULL
+select unhex(hex(id)) from table1 where id = 1;
+unhex(hex(id))
+NULL
+select unhex(hex(id)) from table1 where id = 100;
+unhex(hex(id))
+d
+select unhex(hex(id)) from table1 where id = 256;
+unhex(hex(id))
+NULL
+select unhex(hex(name)) from table1 where id = 1;
+unhex(hex(name))
+1G
+select unhex(hex(name)) from table1 where id = 100;
+unhex(hex(name))
+4D7953514C
+select unhex(hex(name)) from table1 where id = 256;
+unhex(hex(name))
+0.0.1.0
+select unhex(hex(name)) from table1 where id = 9223372036854775807;
+unhex(hex(name))
+abc
+select unhex(hex(name)) from table1 where id = 255;
+unhex(hex(name))
+c_d
+select unhex(hex(d)) from table1 where id = 1;
+unhex(hex(d))
+NULL
+select unhex(hex(f)) from table1 where id = 1;
+unhex(hex(f))
+NULL
+select int2ip(id) from table1 where id = 256;
+int2ip(id)
+0.0.1.0
+select int2ip(id) from table1 where id = 4294967295;
+int2ip(id)
+255.255.255.255
+select int2ip(id) from table1 where id = 4294967296;
+int2ip(id)
+NULL
+select ip2int(name) from table1 where id = 256;
+ip2int(name)
+256
+select ip2int(name) from table1 where id = 2;
+ip2int(name)
+NULL
+select ip2int(name) from table1 where id = 3;
+ip2int(name)
+NULL
+select ip2int(name) from table1 where id = 4294967295;
+ip2int(name)
+4294967295
+select unhex(2);
+unhex(2)
+NULL
+select unhex(cast(1.2 as double));
+unhex(cast(1.2 as double))
+NULL
+select unhex('cbase');
+unhex('cbase')
+NULL
+select unhex('2014/01/01 00:00:00');
+unhex('2014/01/01 00:00:00')
+NULL
+select unhex(null);
+unhex(null)
+NULL
+select unhex(0);
+unhex(0)
+NULL
+select unhex(1);
+unhex(1)
+NULL
+select unhex(-1);
+unhex(-1)
+NULL
+select unhex(2+3-4);
+unhex(2+3-4)
+NULL
+select unhex(2*6/3);
+unhex(2*6/3)
+NULL
+select unhex(cast ('cbase' as varchar));
+unhex(cast ('cbase' as varchar))
+NULL
+select unhex(current_timestamp());
+unhex(current_timestamp())
+NULL
+select unhex(length('wangy'));
+unhex(length('wangy'))
+NULL
+select unhex(concat('cbase',''));
+unhex(concat('cbase',''))
+NULL
+select unhex('ab%' like 'abc%');
+unhex('ab%' like 'abc%')
+NULL
+select unhex(int2ip(126666666));
+unhex(int2ip(126666666))
+NULL
+select unhex(lower('CBASE'));
+unhex(lower('CBASE'))
+NULL
+select unhex(now());
+unhex(now())
+NULL
+select unhex(nvl(null,23));
+unhex(nvl(null,23))
+#
+select unhex(substr('anbsf',2,3));
+unhex(substr('anbsf',2,3))
+NULL
+select unhex(hex('6362617365'));
+unhex(hex('6362617365'))
+6362617365
+select unhex(upper('cbase'));
+unhex(upper('cbase'))
+NULL
+select unhex(count(c1)) from t;
+unhex(count(c1))
+NULL
+select unhex(avg(c1)) from t;
+unhex(avg(c1))
+NULL
+select unhex(max(c1)) from t;
+unhex(max(c1))
+NULL
+select unhex(sum(c1)) from t;
+unhex(sum(c1))
+NULL
+select int2ip(2);
+int2ip(2)
+0.0.0.2
+select int2ip(cast(1.2 as double));
+int2ip(cast(1.2 as double))
+0.0.0.1
+select int2ip('cbase');
+int2ip('cbase')
+0.0.0.0
+select int2ip(1.2);
+int2ip(1.2)
+0.0.0.1
+select int2ip('2014/01/01');
+int2ip('2014/01/01')
+0.0.7.222
+select int2ip('2014/01/01 00:00:00');
+int2ip('2014/01/01 00:00:00')
+0.0.7.222
+select int2ip(null);
+int2ip(null)
+NULL
+select int2ip(2+3-4);
+int2ip(2+3-4)
+0.0.0.1
+select int2ip(2*6/3);
+int2ip(2*6/3)
+0.0.0.4
+select int2ip(cast('cbase' as varchar));
+int2ip(cast('cbase' as varchar))
+0.0.0.0
+select int2ip(current_timestamp());
+int2ip(current_timestamp())
+NULL
+select int2ip(length('wangy'));
+int2ip(length('wangy'))
+0.0.0.5
+select int2ip(concat('cbase',''));
+int2ip(concat('cbase',''))
+0.0.0.0
+select int2ip('ab%' like 'abc%');
+int2ip('ab%' like 'abc%')
+0.0.0.0
+select int2ip(lower(126666666));
+int2ip(lower(126666666))
+7.140.199.170
+select int2ip(hex('CBASE'));
+int2ip(hex('CBASE'))
+NULL
+select int2ip(now());
+int2ip(now())
+NULL
+select int2ip(nvl(null,23));
+int2ip(nvl(null,23))
+0.0.0.23
+select int2ip(substr('anbsf',2,3));
+int2ip(substr('anbsf',2,3))
+0.0.0.0
+select int2ip(unhex('6362617365'));
+int2ip(unhex('6362617365'))
+0.0.0.0
+select int2ip(upper('cbase'));
+int2ip(upper('cbase'))
+0.0.0.0
+select int2ip(count(c1)) from t;
+int2ip(count(c1))
+0.0.0.4
+select int2ip(avg(c1)) from t;
+int2ip(avg(c1))
+0.0.0.3
+select int2ip(max(c1)) from t;
+int2ip(max(c1))
+0.0.0.5
+select int2ip(sum(c1)) from t;
+int2ip(sum(c1))
+0.0.0.13
+drop table table1;
+drop table t;
+drop table if exists t1;
+create table t1 (c1 varchar(20) primary key, c2 int);
+insert into t1 values (0x02,NULL),(x'ab',18);
+select hex(c1),length(c1),c2 from t1;
+hex(c1)	length(c1)	c2
+02	1	NULL
+ab	1	18
+select hex(c1),length(c1),c2 from t1 where c1 = X'02';
+hex(c1)	length(c1)	c2
+02	1	NULL
+delete from t1 where c1 = 0Xab;
+select hex(c1),length(c1),c2 from t1;
+hex(c1)	length(c1)	c2
+02	1	NULL
+drop table t1;

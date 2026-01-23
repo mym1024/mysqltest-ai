@@ -1,0 +1,1065 @@
+##############################################################################################
+###1.测试功能点：测试系统函数instr,substring,right,left,ord,trunc,group_concat,concat,find_in_set
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：15s
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create database d1;
+using database d1;
+sleep 5;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6;
+--enable_warnings
+
+#创建不同数据类型的不同分区类型的表
+--echo create table
+create table t1(id varchar(50) not null primary key, name varchar(20) not null);
+create table t2(pid int primary key not null,pname varchar(20) not null,psex bool not null,pdate datetime not null,psalary_d double not null,psalary_f float not null);
+create table t3(id number(10) not null primary key,name varchar(20) not null);
+create table t4(id number(10) not null primary key,name varchar(20) not null);
+create table t5(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+create table t6(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+
+#初始化各个表
+--real_sleep 5
+--echo insert data
+insert into t1 values(1,'abcbcbc');
+insert into t2 values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+insert into t3 values(1,'abcbcbc');
+insert into t4 values(1,'bc');
+insert into t5 values(1,2.2,4.5,5.6,'新增函数测试id=1');
+insert into t6 values(11,2.2,4.5,5.6,'426数据库yaobase');
+
+##2-1测试instr函数
+--echo start instr
+#参数为空
+select instr(null,'bc',1,1) from t1;
+select instr(name,null,1,1) from t1;
+select instr(name,'bc',null,1) from t1;
+select instr(name,'bc',1,null) from t1;
+select instr(null,null,1,1) from t1;
+select instr(null,'bc',null,1) from t1;
+select instr(null,'bc',1,null) from t1;
+select instr(name,null,null,1) from t1;
+select instr(name,null,1,null) from t1;
+select instr(name,'bc',null,null) from t1;
+select instr(null,null,null,1) from t1;
+select instr(null,null,1,null) from t1;
+select instr(null,'bc',null,null) from t1;
+select instr(name,null,null,null) from t1;
+select instr(null,null,null,null) from t1;
+select instr(name,'bc',1,1) from t1;
+--error 5054
+select instr() from t1;
+
+#参数个数不同
+--error 5054
+select instr(name) from t1;
+select instr(name,'bc') from t1;
+select instr(name,'bc',3) from t1;
+--error 5054
+select instr(name,'bc',-3,2,1) from t1;
+select instr(3121212,12,3,2);
+select instr(name,'bc',3,2) from t1;
+select instr('1998-09-03 00:00:00','00',1,2) from t1;
+select instr(cast(3.141 as float),'14',1,1) from t1;
+select instr(cast(3.141 as double),'14',1,1) from t1;
+select instr('trueasdtrue',true,3,1) from t1;
+select instr(name,'bc',2,2) from t1;
+select instr(name,'bc','2','2') from t1;
+select instr(name,'bc','2','1998-10-22') from t1;
+select instr(name,'bc','2',cast(2.141 as float)) from t1;
+select instr(name,'bc','2',cast(2.141 as double)) from t1;
+select instr(name,'bc','2',true) from t1;
+
+#临界值
+select instr('','bc',2,2) from t1;
+select instr('abcbcbc','bc',1,1.6) from dual;
+select instr(name,'',2,2) from t1;
+select instr(name,'bc',0,1) from t1;
+select instr(name,'bc',200,2) from t1;
+select instr(name,'bc',-200,2) from t1;
+--error 2
+select instr(name,'bc',2,0) from t1;
+--error 2
+select instr(name,'bc',2,-2) from t1;
+select instr(name,'bc',2,100) from t1;
+
+#反向搜索
+select instr('bcabcb','b',-1,1) from t1;
+select instr('bcabcb','b',-2,1) from t1;
+select instr('bcabcb','b',-3,1) from t1;
+select instr('bcabcb','b',-4,1) from t1;
+select instr('bcabcb','b',-5,1) from t1;
+select instr('bcabcb','b',-6,1) from t1;
+select instr('bcabcb','b',-7,1) from t1;
+select instr('bcabbc','bc',-1,1) from t1;
+select instr('bcabbc','bc',-2,1) from t1;
+select instr('bcabbc','bc',-3,1) from t1;
+select instr('bcabbc','b',-4,1) from t1;
+select instr('bcabbc','bc',-5,1) from t1;
+select instr('bcabbc','bc',-6,1) from t1;
+select instr('bcabbc','bc',-7,1) from t1;
+
+#含有四则运算
+select instr(name,'bc',2*2,1) from t1;
+select instr(name,'bc',4/2,2/1) from t1;
+select instr(name,'bc',1+2,1+1) from t1;
+select instr(name,'bc',3-2,2-1) from t1;
+select instr(name,'bc',5 mod 2,3 mod 2) from t1;
+
+#含有逻辑运算
+select instr(name,'bc',2=2,1=1) from t1;
+--error 2
+select instr(name,'bc',2<2,1<1) from t1;
+--error 2
+select instr(name,'bc',2>2,1>1) from t1;
+select instr(name,'bc',2>=2,1>=1) from t1;
+select instr(name,'bc',2<=2,1<=1) from t1;
+--error 2
+select instr(name,'bc',2!=2,1!=1) from t1;
+--error 2
+select instr(name,'bc',2<>2,1<>1) from t1;
+select instr(name,'bc',2||2,1||1) from t1;
+
+#函数位置不同
+select * from t1 where id =  instr(name,'bc',1,1)-1;
+update t1 set id=instr(name,'bc',1,1)-1 where name='abcbcbc';
+select id from t1 group by id having id > (instr('abcbcbc', 'bc',1,1)-2);
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) order by id;
+insert into t1 values(2,instr('abcbcbc', 'bc',1,1));
+delete from t1 where id=instr('abcbcbc', 'bc',1,1);
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) union select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) intersect select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1) except select name from t1 where id=(instr('abcbcbc', 'bc',1,1)-1);
+select instr('abcbcbc','bc',2,count(id)) from t1;
+select instr(substr('abcbcbc',2,4),'bc',2,1) from t1;
+select instr('abcbcbc',substr('abcbcbc',2,2),2,1) from t1;
+
+#参数为列-前两个参数类型不同
+select instr('aljingbljing' ,pname,2,1) from t2;
+select instr('531513' ,pid,-3,1) from t2;
+select instr(psalary_d ,'24',-3,1) from t2;
+select instr(psalary_f ,'24',-3,1) from t2;
+#参数为列-后两个参数类型不同
+select instr('trueututrue' ,psex,-6,1) from t2;
+select instr('531513' ,pid,-3,pid) from t2;
+select instr(psalary_d ,'24',-3,psalary_d-10323) from t2;
+select instr(psalary_f ,'24',-3,psalary_f) from t2;
+#参数为列-四则运算
+select instr(psalary_d ,'24',-3,psalary_d-10323) from t2;
+select instr('531513' ,pid,-3,pid+1) from t2;
+select instr('531513' ,pid,-1,pid*2) from t2;
+select instr('51315113' ,pid,-4/2,pid) from t2;
+#参数为列-函数运算
+select instr('51315113' ,'1',2,sum(id)) from t1;
+select instr('51315113' ,'1',2,max(id)) from t1;
+select instr('51315113' ,'1',2,min(id)) from t1;
+#参数为列-多表测试
+select instr(t3.name, t4.name,t3.id,t4.id) from t3,t4;
+select distinct t3.name from t3,t4 where t3.id=instr(t3.name, t4.name,t3.id,t4.id)-1; 
+
+#参数是中文
+select instr('数数据库数数','数',2,1) from dual;
+select instr('数数据库数数','数',1,1) from dual;
+select instr('数数据库数数','数',2,1) from dual;
+select instr('数数据库数数','数',3,2) from dual;
+select instr('数数据库数数','数',5,2) from dual;
+select instr('数数据库数数','数',6,1) from dual;
+select instr('数数据库数数','数',-2,1) from dual;
+select instr('数数据库数数','数',-1,1) from dual;
+select instr('数数据库数数','数',-2,2) from dual;
+select instr('数数据库数数','数',-3,2) from dual;
+select instr('数数据库数数','数',-5,2) from dual;
+select instr('数数据库数数','数',-6,1) from dual;
+select instr('数1数1据库数1数1','数1',-3,2) from dual;
+
+drop table t1,t2,t3,t4;
+
+##2-2测试substring函数
+--echo start instr
+#参数为空
+select substring(null,1,2);
+select substring('数据库db',null,2);
+select substring('数据库db',1,null);
+select substring('数据库db',null,null);
+select substring(null,1,null);
+select substring(null,null,1);
+select substring(null,null,null);
+--error 5001
+select substring();
+
+#参数不同-一个参数
+--error 5001
+select substring('abc');
+#参数不同-两个参数
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',1);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',0);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.6);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.4);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',4.5);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',100);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-5);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.2);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.5);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-9.7);
+select substring('新增函数测试-_{db数据库}yaobase-！ ，。426',-100);
+select substring('123测试67',-7);
+select substring('123测试67',-6.5);
+#参数不同-三个参数
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,0);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,14);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.3);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,10.6);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,-1);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,100);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',-1,100);
+
+#参数含有四则运算
+select substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',5 mod 2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2+(3*1)/2.5-10);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,5 mod 2);
+
+#参数含有逻辑运算
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1=1);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1>1);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',10>3.14);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2>3.14);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=(10+2*1.5));
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5)/10);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(1+2*(0.5*2)/1));
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1<>1);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1<>2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1||2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2=2);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5=2.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>2.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>5.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5>1.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<2.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*2.5<5.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<5.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5>=5.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5<=5.5*2.5);
+select substring('新增函数测试-_{db数据库}yaobase！，。426',1,2.5*12.5!=5.5*2.5);
+
+#参数为列
+select substring(c_varchar,c_int,c_double) from t5;
+select substring(c_varchar,c_float,c_double) from t5;
+select substring(c_varchar,c_float,c_decimal) from t5;
+select substring(c_float,1) from t5;
+select substring(c_double,1) from t5;
+select substring(c_int,1) from t5;
+select substring(c_decimal,1) from t5;
+select substring(c_varchar,c_float*2-1,c_decimal) from t5;
+select substring(c_varchar,c_float*2-1,c_decimal-1*2) from t5;
+select substring(c_varchar+'abc',1) from t5;
+select substring(c_varchar+123,1) from t5;
+select substring(c_decimal+2.5,1) from t5;
+select substring(c_float+2.5,1) from t5;
+select substring(c_double*2.5,1) from t5;
+
+#嵌套函数
+select substring(concat(c_varchar,'123'),1) from t5;
+select substring(upper(c_varchar),1) from t5;
+
+#函数位置不同
+update t5  set c_int=3 where substring(c_varchar,1,1)='新';
+update t5 set c_varchar=substring('426数据库yaobase',1) where c_int=3;
+insert into t5 values(1,2.2,4.5,5.6,substring('新增函数测试id=2',1));
+delete from t5 where c_varchar=substring('新增函数测试id=2',1);
+
+#使用集合操作
+select c_int from t5 where c_varchar=substring('426数据库yaobase',1) union select c_int from t6 where c_varchar=substring('426数据库yaobase',1);
+select c_int from t5 where c_varchar=substring('426数据库yaobase',1) intersect select c_int from t6 where c_varchar=substring('426数据库yaobase',1);
+#多表测试
+select t5.c_int,t6.c_int from t5,t6 where substring(t5.c_varchar,1)=substring(t6.c_varchar,1);
+
+drop table t5,t6;
+
+##2-3测试right函数
+--echo create table
+create table t1(c1 varchar(256));
+create table t2(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+create table t3(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+--real_sleep 3
+
+--echo insert data
+insert into t2 values(1,2.2,4.4,5.4,'分布式数据库id=1');
+insert into t2 values(2,2.5,4.5,5.5,'分布式数据库id=1');
+insert into t3 values(11,2.2,4.5,5.6,'426数据库yaobase');
+
+--echo start right
+#基本使用方法
+select right('abc',2);
+select right('abc测试',3.4);
+select right('abc测试',3.5);
+select right('abc测试',12.5);
+select right('abc测试',0);
+select right('abc测试',-1);
+--error 5054
+select right('abc');
+insert into t1 values (right('abc测试',5));
+select * from t1;
+update t1 set c1=right('123',3) where c1='abc测试';
+select * from t1;
+delete from t1 where c1=right('123',3);
+
+#参数为空
+select right(null,1);
+select right('ABC',null);
+select right(null,null);
+--error 5001
+select right();
+
+#参数含四则运算,逻辑运算
+select right('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+select right('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2);
+select right('分布式数据库-_{db数据库}yaobase！，。426',1=1);
+select right('分布式数据库-_{db数据库}yaobase！，。426',10>3.14);
+select right('分布式数据库-_{db数据库}yaobase！，。426',(10+(1*0.5))/2<3.14);
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+select right('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+select right('分布式数据库-_{db数据库}yaobase！，。426',1<>1);
+select right('分布式数据库-_{db数据库}yaobase！，。426',1||2);
+
+#参数为列
+select right(c_varchar,c_int) from t2;
+select right(c_varchar,c_float) from t2;
+select right(c_varchar,c_double) from t2;
+select right(c_varchar,c_decimal) from t2;
+select right(c_varchar+'abc',1) from t2;
+select right(c_varchar+123,10) from t2;
+select right(c_decimal+2.5,10) from t2;
+select right(c_float+2.5,10) from t2;
+select right(c_double*2.5,10) from t2;
+select right(c_int,5) from t2;
+
+#嵌套函数
+select right(concat(c_varchar,'123'),10) from t2;
+select right(right('abc',1),1);
+select substring(right('abc',3),1);
+select right(substring('abc',1),1);
+select right(left('abc',2),1);
+select right(upper(c_varchar),10) from t2;
+
+#函数位置不同
+update t2 set c_int=3 where right(c_varchar,1)='1';
+update t2 set c_varchar=right('426数据库yaobase',100) where c_int=3;
+insert into t2 values(4,2.2,4.5,5.6,right('分布式数据库id=2',3));
+delete from t2 where c_varchar=right('id=2',3);
+select c_int from t2 where c_varchar=right('426数据库yaobase',100) union select c_int from t3 where c_varchar=right('426数据库yaobase',100);
+select c_int from t2 where c_varchar=right('426数据库yaobase',100) intersect select c_int from t3 where c_varchar=right('426数据库yaobase',100);
+
+#多表测试
+select t2.c_int,t3.c_int from t2,t3 where right(t2.c_varchar,10)=right(t3.c_varchar,10);
+
+drop table t1,t2,t3;
+
+##2-4测试left函数
+--echo create table
+create table t4(c1 varchar(256));
+create table t5(c_int int,c_float float,c_double double,c_decimal decimal(6,3),c_varchar varchar(30));
+--real_sleep 3
+
+--echo insert data
+insert into t5 values(1,2.2,4.5,5.6,'分布式数据库id=1');
+
+--echo start left
+#基本使用方法
+select left('abc',2);
+select left('abc测试',3.4);
+select left('abc测试',3.5);
+select left('abc测试',12.5);
+select left('abc测试',0);
+select left('abc测试',-1);
+--error 5054
+select left('abc');
+insert into t4 values (left('abc测试',5));
+update t4 set c1=left('123',3) where c1='abc测试';
+select * from t4;
+delete from t4 where c1=left('123',3);
+
+#参数为空
+select left(null,1);
+select left('ABC',null);
+select left(null,null);
+--error 5001
+select left();
+
+#参数含四则运算,逻辑运算
+select left('分布式数据库-_{db数据库}yaobase！，。426',2+(3*1)/2.5-7.2);
+select left('分布式数据库-_{db数据库}yaobase！，。426',5 mod 2);
+select left('分布式数据库-_{db数据库}yaobase！，。426',1=1);
+select left('分布式数据库-_{db数据库}yaobase！，。426',10>3.14);
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<10/2);
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)>=3);
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)<=(10+2*1.5));
+select left('分布式数据库-_{db数据库}yaobase！，。426',(1+2*(0.5*2)/1)!=(10+2*1.5)/10);
+select left('分布式数据库-_{db数据库}yaobase！，。426',1<>2);
+select left('分布式数据库-_{db数据库}yaobase！，。426',1||2);
+
+#参数为列
+select left(c_varchar,c_int) from t5;
+select left(c_varchar,c_float) from t5;
+select left(c_varchar+'abc',1) from t5;
+select left(c_varchar+123,10) from t5;
+select left(c_decimal+2.5,10) from t5;
+select left(c_float+2.5,10) from t5;
+select left(c_double*2.5,10) from t5;
+select left(c_int,5) from t5;
+
+#嵌套函数
+select left(concat(c_varchar,'123'),10) from t5;
+select left(right('abc',1),1);
+select substring(left('abc',3),1);
+select left(substring('abc',1),1);
+select left(left('abc',2),1);
+select left(upper(c_varchar),10) from t5;
+
+#函数位置不同
+update t5  set c_int=3 where left(c_varchar,1)='分';
+update t5 set c_varchar=left('426数据库yaobase',100) where c_int=3;
+insert into t5 values(1,2.2,4.5,5.6,left('分布式数据库id=2',100));
+delete from t5 where c_varchar=left('分布式数据库id=2',100);
+create table t6(c_int int,c_float float,c_double double,c_decimal decimal,c_varchar varchar(30));
+insert into t6 values(11,2.2,4.5,5.6,'426数据库yaobase');
+select c_int from t5 where c_varchar=left('426数据库yaobase',100) union select c_int from t6 where c_varchar=left('426数据库yaobase',100);
+select c_int from t5 where c_varchar=left('426数据库yaobase',100) intersect select c_int from t6 where c_varchar=left('426数据库yaobase',100);
+
+#多表测试
+select t5.c_int,t6.c_int from t5,t6 where left(t5.c_varchar,10)=left(t6.c_varchar,10);
+
+drop table t4,t5,t6;
+
+##2-5测试ord函数
+--echo create table
+create table t1(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+create table t2(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+
+--echo insert data
+insert into t1 values(1,'测试','2022-12-12',1.1,11.11,TRUE);
+insert into t1 values(2,'abc','2022-12-12',2.2,22.22,FALSE);
+insert into t1 values(49,'测试','2022-12-12',5.5,5.5,true);
+insert into t1 values(50,'测试','2022-12-12',5.5,5.5,true);
+insert into t2 values(1,'测试','2022-12-12',1.1,11.11,TRUE);
+insert into t2 values(2,'abc','2022-12-12',2.2,22.22,FALSE);
+insert into t2 values(49,'测试','2022-12-12',5.5,5.5,true);
+
+--echo start ord
+#基本使用方法
+select ord('多字节');
+select ord('text');
+select ord(null);
+select ord('');
+select ord('『');
+--error 5054
+select ord();
+
+#参数个数不同
+--error 5054
+select ord(1,2);
+select ord(123);
+select ord(-1);
+select ord(' ');
+select ord(now());
+select ord(cast(1.5 as float));
+select ord(cast(1.5 as double));
+select ord(2.37e-2);
+select ord(TRUE);
+
+#临界值
+select ord(NULL);
+insert into t1(c1,c2) values(3,ord(null)),(ord(null),ord(null));
+select * from t1 where c1=ord(null);
+delete from t1 where c1=ord(null);
+--error 5001
+delete from t1 where c1 is ord(null);
+
+#参数含四则运算
+select ord(2*2),ord(2*null),ord(2*'3'),ord(2*'abc'),ord('abc'*2);
+select ord(2*'测试'),2*ord('测试'),ord('测试'*'测试');
+select ord(2/2),ord(2/null),ord(2/'abc'),ord('abc'/2);
+select ord(2/'测试'),ord('测试')/2,ord('测试'/'测试');
+select ord(1+1),ord(2+null),ord(2+'3'),ord(2+'abc'),ord('abc'+2);
+select ord(2+'测试'),ord('测试')+2,ord('测试'+'测试');
+select ord(2-1),ord(2-null),ord(2-'3');
+select ord(2-'abc'),ord(2-'测试'),2-ord('测试'),ord('测试'-'测试');
+select ord(2%5),ord(2%null),ord(2%'3'),ord('abc'%2),ord('测试')%2;
+--error 78
+select ord('测试'%'测试');
+
+#参数含逻辑运算
+select ord(1=1);
+select ord(1=2);
+select ord(1<2);
+select ord(1>2);
+select ord(1>=2);
+select ord(1<=2);
+select ord(1!=2);
+select ord(1<>2);
+
+#函数位置不同
+update t1 set c2='修改' where c1=ord(1);
+update t1 set c2=ord(1) where c1=49;
+update t1 set c2=ord('测试') where c1=49;
+select c1 from t1 having ord(2)>ord(1);
+select c1 from t1 group by c1 having c1 < ord(1);
+select c1 from t1 where c1=ord(1) order by c1;
+#--error 5023
+select c1 from t1 where c2=ord('测试')  order by c1 desc;
+insert into t1(c1,c2) values(ord(2),ord('测试'));
+delete from t1 where c1=ord(2);
+delete from t1 where c1=ord(1) and c2=ord('测试');
+#集合操作
+(select c1 from t1 where c1=1) union (select c1 from t2 where c1=ord(1));
+(select c1 from t1 where c1=1) intersect (select c1 from t2 where c1=ord(1));
+(select c1 from t1 where c1=1) except (select c1 from t2 where c1=ord(1));
+
+#嵌套函数
+select ord(ord(c1)) from t1;
+select ord(sum(c1)) from t1;
+select ord(count(c1)) from t1 where c1=2;
+select ord(avg(c1)) from t1;
+select ord(max(c1)) from t1;
+select c1 from t1 where c1 between 2 and ord(1);
+select c1 from t1 where c1 between ord(null) and ord(1);
+select c1 from t1 where c1 between ord('\0') and ord(1);
+select ord(substr('abcdefg',3,5)) from t1;
+select ord(substr('数据库数据库数据库',1,3)) from t1;
+select ord(replace('xxx数据库测试','xxx','数据库')) from t1;
+select ord(upper('a')) from t1;
+
+#参数为列
+select ord(c1-c1) from t1;
+select ord(c1+c1) from t1;
+select ord(c1*c1) from t1;
+select ord(c1/c1) from t1;
+select ord(c5-c1) from t1;
+select ord(c4+c1) from t1;
+#--error 7
+select ord(c2*c1) from t1;
+select ord(c1/c6) from t1;
+select c1 from t1 where c1+49 in (select ord(c1) from t1);
+
+#多表测试
+select ord(t1.c1) from t1 join t2 on t1.c1=t2.c1;
+select t1.c1 from t1,t2 where ord(t1.c1)=ord(t2.c1);
+
+drop table t1,t2;
+
+##2-6测试trunc函数
+--echo create table
+create table t3(c1_int int primary key,c2_varchar varchar(40),c3_float float,c4_double double,c5_bool bool,c6_timestamp timestamp,c7_date date,c8_time time,c9_decimal decimal(38,30));
+--real_sleep 3
+
+--echo insert data
+insert into t3 values(1001,'123456789.123',123.456,1234567.123456,true,'2023-01-01 01:01:08.123456','2275-03-05','04:08:01',123.12345678910111213141516171819);
+insert into t3 values(-1001,'-123456789.123',-123.456,-1234567.123456,false,'1518-04-09 07:16:23.123456','1770-06-13','10:23:16',-123.12345678910111213141516171819);
+insert into t3 values(-1002,NULL,-123.457,-12345678.123456,false,'1013-07-17 13:31:38.123456','1265-09-21','16:38:31',-1234.12345678910111213141516171819);
+insert into t3 values(1002,'-123456789.123456',123.457,12345678.123456,true,'0508-10-25 19:46:53.123456','0760-12-29','22:53:46',1234.12345678910111213141516171819);			
+
+--echo start trunc
+#参数为空
+select trunc(null);
+select trunc(null,null);
+select trunc(current_timestamp(),null);
+select trunc(null,'month');
+--error 5054
+select trunc();
+
+#参数不同
+select trunc(123);
+--error 2
+select trunc('');
+--error 2
+select trunc('year');
+select trunc('123456.123456');
+select trunc(123.456);
+select trunc(-1234567.123456);
+--error 5006
+select trunc(true);
+--replace_column 1 '2023-02-20 00:00:00.000000'
+select trunc(current_timestamp());
+--replace_column 1 '2023-02-20 00:00:00.000000'
+select trunc(current_date());
+--replace_column 1 '2023-02-20 00:00:00.000000'
+select trunc(current_time());
+select trunc(1.23456789e-2);
+select trunc(1234,-1.123);
+select trunc(1234.123,-1.123);
+select trunc(-123456.123456,123456.123456);
+select trunc(-1.12345678910111213141516171819,-1);
+--error 2
+select trunc(12.12345678910111213141516171819,'');
+--error 2
+select trunc(-1.12345678910111213141516171819,'abc123');
+--error 1
+select trunc(-1.12345678910111213141516171819,false);
+--error 1
+select trunc(12.12345678910111213141516171819,current_timestamp());
+--error 1
+select trunc(-1.12345678910111213141516171819,current_date());
+--error 1
+select trunc(12.12345678910111213141516171819,current_time());
+--error 2
+select trunc('','');
+--error 2
+select trunc('',2);
+--error 2
+select trunc('abc123',-2);
+select trunc('123456',-2);
+select trunc('123456','-2');
+--error 2
+select trunc('2022-11-24 22:34:39','iyyyy');
+--error 1
+select trunc('1234',true);
+--error 1
+select trunc('1234',current_timestamp());
+--error 1
+select trunc('-1234.123',current_date());
+--error 1
+select trunc('1234.123456',current_time());
+select trunc('-1234.1234567891011',1.12345678910111213141516171819);
+select trunc('1234.1234567891011',-1.23456781011e3);
+--error 5006
+select trunc(true,-1);
+--error 5006
+select trunc(false,'');
+--error 1
+select trunc(current_timestamp(),-1);
+--error 2
+select trunc(current_timestamp(),'');
+--error 2
+select trunc(current_timestamp(),'abc123');
+--replace_column 4 '2023-02-20 14:30:25.932260' 5 '2023-02-20 14:30:25.932260' 6 '2023-02-20 14:30:25.932260'
+select trunc(current_timestamp(),'scc'),trunc(current_timestamp(),'yyyy'),trunc(current_timestamp(),'iyyy'),trunc(current_timestamp(),'q'),trunc(current_timestamp(),'mm'),trunc(current_timestamp(),'ww');
+--replace_column 1 '2023-02-20 14:30:25.932260' 2 '2023-02-20 14:30:25.932260' 3 '2023-02-20 14:30:25.932260' 4 '2023-02-20 14:30:25.932260' 5 '2023-02-20 14:30:25.932260' 6 '2023-02-20 14:30:25.932260' 7 '2023-02-20 14:30:25.932260'
+select trunc(current_timestamp(),'iw'),trunc(current_timestamp(),'w'),trunc(current_timestamp(),'dd'),trunc(current_timestamp(),'dy'),trunc(current_timestamp(),'hh'),trunc(current_timestamp(),'mi'),trunc(current_timestamp(),'ss');
+--replace_column 4 '2023-02-01 00:00:00.000000' 5 '2023-02-20 14:30:25.932260' 6 '2023-02-20 14:30:25.932260' 7 '2023-02-20 14:30:25.932260'
+select trunc(current_date(),'cc'),trunc(current_date(),'syyyy'),trunc(current_date(),'iyy'),trunc(current_date(),'month'),trunc(current_date(),'ddd'),trunc(current_date(),'day'),trunc(current_date(),'hh24');
+--replace_column 4 '2023-02-01 00:00:00.000000' 5 '2023-02-20 14:30:25.932260' 6 '2023-02-20 14:30:25.932260' 7 '2023-02-20 14:30:25.932260'
+select trunc(current_time(),'cc'),trunc(current_time(),'year'),trunc(current_time(),'i'),trunc(current_time(),'mon'),trunc(current_time(),'j'),trunc(current_time(),'d'),trunc(current_time(),'hh12');
+--error 5054
+select trunc(123.123,1.23,-3);
+--error 5054
+select trunc(current_timestamp(),'yyyy','hh');
+
+#参数有临界值
+select trunc(9223372036854775807,-9223372036854775808);
+select trunc(1.9999999999999999999999999999999999999,-1.9999999999999999999999999999999999999);
+#--error 58
+select trunc(1.9999999999999999999999999999999999999,-1.99999999999999999999999999999999999991);
+select trunc(cast('9999-12-31 23:59:59.999999' as timestamp),'mi');
+#--error 5102
+select trunc(cast('10000-12-31 23:59:59.999999' as timestamp),'dd');
+#--error 5105
+select trunc(cast('0000-01-01 00:00:00.000000' as timestamp),'w');
+
+#参数含算数运算
+select trunc(3+4,1+0.23);
+select trunc(3+null,null+1.23);
+select trunc(3-4,1-0.23);
+select trunc(3-null,null-1.23);
+select trunc(-3*4,-1*1.23);
+select trunc(-3*null,null*1.23);
+select trunc(-3/4.0,1/0.23);
+select trunc(null/4.0,null/1.23);
+#--error 78
+select trunc(-3/0,1.23/0);
+select trunc(34 mod(5),-12 mod(3));
+select trunc(null mod(5),null mod(1.23));
+select trunc(34%5,12%3);
+select trunc(null%5,null%1.23);
+select trunc(-((123+123.123-'456.123')*'-1000.123'/(456%5.0)+123456.123456*1.123456789101112),-((3+4.123-'1000.1')*'-1000.1'/(5%2)-123456.123456+1.123456789101112));
+
+#参数含比较运算
+--error 5006
+select trunc(1=1,1=1);
+--error 5006
+select trunc(1<1,1<1);
+--error 5006
+select trunc(1>1,1>1);
+--error 5006
+select trunc(1>=1,1>=1);
+--error 5006
+select trunc(1<=1,1<=1);
+--error 5006
+select trunc(1!=1,1!=1);
+--error 5006
+select trunc(1<>1,1<>1);
+
+#函数位置不同
+update t3 set c3_float=123.458 where c1_int=trunc(1001.123,0);
+update t3 set c4_double=1234567.123458 where c2_varchar=trunc('123456789.123456',3);
+update t3 set c3_float=trunc(123.456789,3) where c1_int=1001;
+update t3 set c4_double=trunc(1234567.12345678,6.123) where c2_varchar='123456789.123';
+select c1_int,c2_varchar,c3_float from t3 where c1_int=trunc(-1001.123,0.123);
+select c1_int,c2_varchar,c3_float from t3 where c2_varchar=trunc('-123456789.123456',3.123);
+select c1_int,c2_varchar,c3_float from t3 having c1_int < trunc(1002.123,-0.123);
+select c1_int,c6_timestamp,trunc(c6_timestamp,'ww') from t3 order by c1_int;
+select c1_int,c7_date,trunc(c7_date,'iw') from t3 order by c1_int desc;
+--replace_column 3 '2023-02-20 14:30:25.000000'
+select c1_int,c8_time,trunc(c8_time,'mi') from t3 order by c1_int;
+insert into t3 values(1003,'12345678910',trunc(-123.4567,1.23),trunc(-1234567.12345678,3.123),true,trunc(current_timestamp()), NULL,NULL,trunc(123456.123456789101112));
+delete from t3 where c1_int=trunc(1003.123,-0.123);
+delete from t3 where c2_varchar=trunc('12345678910.123',-1.23);
+
+#使用集合
+(select c1_int,trunc(c6_timestamp,'w'),trunc(c9_decimal,10.123) from t3 where c1_int=1001) union (select c1_int,trunc(c6_timestamp,'w'),trunc(c9_decimal,10.123) from t3 where c2_varchar='-123456789.123');
+--replace_column 1 '2023-02-20 00:00:00.000000'
+(select trunc(c8_time,'dy'),trunc(c3_float,-2.123) from t3 where c1_int=1001) intersect (select trunc(c8_time,'dy'),trunc(c3_float,-2.123) from t3 where c2_varchar='-123456789.123456');
+(select trunc(c7_date,'d'),trunc(c4_double,-10.12345) from t3 where c1_int<2000) except (select trunc(c7_date,'d'),trunc(c4_double,-10.12345) from t3 where c2_varchar=NULL);
+
+select c1_int,c6_timestamp from t3 where c1_int between trunc(-1234,-3.123) and trunc(1234,3.123);
+select c1_int,c6_timestamp from t3 where c6_timestamp between trunc(cast('2000-12-13 14:15:16.123456' as timestamp),'yyyy') and trunc(cast('2050-01-02 13:14:15.123456' as timestamp),'yyyy');
+
+#嵌套函数
+select trunc(trunc(-123456.123456,5.123),trunc(12.34,1));
+select trunc(trunc(cast('2000-12-13 14:15:16.123456' as timestamp),'dd'),'mm');
+select round(-1234.567,1),trunc(-round(1234.567,1),-1);
+select trunc(-123456.7891011,5.123),round(trunc(-123456.7891011,5.123),2);
+select ceil(-1234.567),trunc(-ceil(1234.567),-1);
+select trunc(-123456.7891011,-1.23),ceil(trunc(-123456.7891011,-1.23));
+--replace_column 1 '2023-02-20 00:00:00.000000'
+select trunc(current_timestamp(),'day');
+select trunc(current_date(),'iy');
+--replace_column 1 '2023-02-20 00:00:00.000000'
+select trunc(current_time(),'mi');
+select trunc(now(),'syear');
+
+#参数为列
+--error 5006
+select trunc(c5_bool)from t3;
+select trunc(c1_int+c4_double,c1_int+c3_float) from t3;
+select trunc(c1_int-c3_float,c1_int-c4_double) from t3;
+select trunc(c1_int*c4_double,c1_int*c3_float) from t3;
+select trunc(c3_float/c1_int,c4_double/c1_int) from t3;
+select trunc(c4_double%c1_int,c3_float%c1_int) from t3;
+select trunc(c4_double mod(c1_int),c3_float mod(c1_int)) from t3;
+select trunc(c9_decimal+(c1_int*(c1_int-c4_double)+c3_float/c1_int)*(c4_double%c1_int),c9_decimal-(c1_int*(c2_varchar-c4_double)+c3_float/c1_int)+(c4_double%c1_int)) from t3;
+select c1_int, trunc(max(c1_int),-0.123),trunc(max(c2_varchar),1.23),trunc(max(c3_float),2.123),trunc(max(c4_double),3.123),trunc(max(c6_timestamp),'scc'),trunc(max(c7_date),'cc'),trunc(max(c8_time),'syyyy'),trunc(max(c9_decimal),4.123) from t3 group by c1_int;
+select c1_int, trunc(min(c1_int),-0.123),trunc(min(c2_varchar),1.23),trunc(min(c3_float),2.123),trunc(min(c4_double),3.123),trunc(min(c6_timestamp),'syear'),trunc(min(c7_date),'yyyy'),trunc(min(c8_time),'yyy'),trunc(min(c9_decimal),4.123) from t3 group by c1_int;
+select c1_int, trunc(sum(c1_int),-0.123),trunc(sum(c2_varchar),1.23),trunc(sum(c3_float),2.123),trunc(sum(c4_double),3.123),trunc(sum(c9_decimal),4.123) from t3 group by c1_int;
+select c1_int, trunc(avg(c1_int),-0.123),trunc(avg(c2_varchar),1.23),trunc(avg(c3_float),2.123),trunc(avg(c4_double),3.123),trunc(avg(c9_decimal),4.123) from t3 group by c1_int;
+select c1_int, trunc(count(c1_int),-0.123),trunc(count(c2_varchar),1.23),trunc(count(c3_float),2.123),trunc(count(c4_double),3.123),trunc(count(c9_decimal),4.123) from t3 group by c1_int;
+select c1_int,c2_varchar,trunc(max(c6_timestamp),'iyyy'),trunc(min(c7_date),'iyy'),trunc(sum(c3_float),-1.23),trunc(avg(c4_double),-2.123),trunc(count(c8_time),1.23) from t3 group by c1_int,c2_varchar;
+select c6_timestamp from t3 where c1_int in (select trunc(c1_int,1.23) from t3);
+select c1_int from t3 where c6_timestamp in (select trunc(c6_timestamp,'dd') from t3);
+
+#多表测试
+select t1.c1_int,t2.c1_int,trunc(t1.c1_int,0.123),trunc(t2.c2_varchar,-1.23),trunc(t1.c3_float,2.123),trunc(t2.c6_timestamp,'ww') from t3 as t1,t3 as t2 where t1.c1_int<t2.c1_int;
+--replace_column 5 '2023-02-15 00:00:00.000000'
+select t1.c2_varchar,t2.c2_varchar,trunc(t1.c4_double,3.123),trunc(t2.c7_date,'iw'),trunc(t1.c8_time,'w'),trunc(t2.c9_decimal,10) from t3 as t1,t3 as t2 where t1.c2_varchar<t2.c2_varchar;
+select t1.c1_int,t2.c1_int from t3 as t1 join t3 as t2 on t1.c1_int<trunc(t2.c1_int,-0.123);
+select t1.c6_timestamp,t2.c6_timestamp from t3 as t1 join t3 as t2 on t1.c6_timestamp<trunc(t2.c6_timestamp,'d');
+
+drop table t3;
+
+###2-7：测试group_concat函数
+drop table if exists test1,test2,t1,t2,t3;
+create table test1(c1 int primary key not null,c2 varchar(20) not null,c3 bool not null,c4 datetime not null,c5 double not null,c6 float not null);
+create table test2(c1  int not null primary key, c2 VARCHAR(20) not null);
+create table t1 (c1 int not null, c2 int default null,  c3 int default null,  primary key (c1));
+create table t2(c1 int primary key ,c2 varchar(1000),c3 varchar(1000));
+create table t3 (c1 int not null, c2 varchar(10) default null,  c3 varchar(10) default null,  primary key (c1));
+insert into test1 values(1,'aaa',true,'2020-04-21',100.83,12439.9);
+insert into test1 values(2,'bbb',false,'2019-04-21',10.83,12439.9);
+insert into test1 values(3,'ccc',true,'2018-04-21',1.83,12439.9);
+insert into test1 values(4,'zzz',false,'2017-04-21',10000.83,12439.9);
+insert into test2 values(1,'abcbcbc');
+insert into t1(c1) values(1);
+insert into t2 values(1,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+(2,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+(3,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+insert into t3 values(1,'aa','bb'),(2,'aa','cc'),(3,'bb','cc'),(4,'bb','cc'),(5,'aa','cc');
+
+##参数不同
+select group_concat(null order by c5 desc separator '*') from test1  group by c3;
+--error 5001
+select group_concat() from test1 group by c3;
+select group_concat(c2,c3 order by c1) from t3 group by c3;
+select group_concat(distinct c2,c3 order by c1) from t3 group by c3;
+select group_concat(c2) from test1 group by c3;
+select group_concat(c2,c1,c3) from test1 group by c3;
+select group_concat(c2,c1 order by c5 desc) from test1 group by c3;
+#有分割符
+select group_concat(c2  separator '*') from test1 group by c3;
+select group_concat(c1,c2 order by c5  asc separator '-') from test1 group by c3;
+select group_concat(c1,c2 order by c5 desc separator '*') from test1 group by c6;
+select group_concat(c1 order by c5 asc separator '-') from test1 group by c2;
+#去重
+insert into test1 values(5,'aaa',true,'2020-04-21',100.83,12439.9);
+insert into test1 values(6,'bbb',false,'2019-04-21',10.83,12439.9);
+insert into test1 values(7,'ccc',true,'2018-04-21',1.83,12439.9);
+insert into test1 values(8,'zzz',false,'2017-04-21',10000.83,12439.9);
+select group_concat(distinct c2 order by c5 desc separator '*') from test1 group by c3;
+select group_concat(distinct c2 order by c5 separator '-') from test1 group by c3;
+select group_concat(distinct c1 order by c5 desc separator '*') from test1 group by c3;
+select group_concat(distinct c1,c2 order by c5 separator '-') from test1 group by c3;
+#连接不同数据类型
+select group_concat(c1) from test1 group by c3;
+select group_concat(c2) from test1;
+select group_concat(c4) from test1 group by c3;
+select group_concat(c3) from test1 group by c3;
+select group_concat('') from test1 group by c3;
+#四则运算、逻辑运算
+select group_concat(c1*c1) from test1 group by c3;
+select group_concat(c1+c1) from test1 group by c3;
+select group_concat(c1 mod 2) from test1 group by c3;
+select group_concat(c1=c1) from test1 group by c3;
+select group_concat(c1<c1) from test1 group by c3;
+select group_concat(c1<=c1) from test1 group by c3;
+select group_concat(c1!=c1) from test1 group by c3;
+select group_concat(c1<>c1) from test1 group by c3;
+
+##函数位置不同
+--error 119
+update test2 set c2 = ( select group_concat(c2) from test1) where c1 =1;
+select * from test2;
+select c1 from test2 group by c1 having c1 > (select group_concat(c2) from test1);
+select c3,group_concat(c2 order by c5 desc separator '*') from test1 group by c3 order by c3 desc;
+--error 5006
+insert into test2 values(2,(select group_concat(c2) from test1));
+select * from test2;
+delete from test2 where c2=(select group_concat(c2) from test1);
+#无group by、order by
+select group_concat(c2,c1 order by c5 desc  ) from test1;
+select group_concat(null order by c5 desc separator '*') from test1;
+--error 5001
+select group_concat() from test1;
+select group_concat(c1/c1) from test1;
+select group_concat(c1 order by c5 desc ), group_concat(c1)  from test1 ;
+select group_concat(c2,c1,c3) from t3 group by c1;
+#参数为字变量
+select group_concat('a') from test1 ;
+select group_concat(cast(2.141 as double)) from test1 ;
+select group_concat(1-1) from test1 ;
+select group_concat(2/2) from test1 ;
+#多表
+select c1 from test2 group by c1 having c1 > (select group_concat(c2) from test1);
+select * from test2 where c2 > (select group_concat(c2) from test1);
+#列起别名
+select group_concat(c1) c from test1 group by c3 having c='2,4';
+select group_concat(c1) c from test1 group by c3 order by c;
+#多个函数使用
+select group_concat(c2) from test1  group by c3 union select group_concat(c1) from test1  group by c3;
+select substr(group_concat(c2),2,2) from test1 group by c3;
+select group_concat(c1 order by c5), group_concat(c1 order by c5 desc),group_concat(c1 order by c4  desc )  from test1 group by c3;
+select group_concat(c1 order by c5), group_concat(c1 order by c5 desc )  from test1 ;
+select  sum (c1),group_concat(c1 order by c5  ), group_concat(c1 order by c5  desc),group_concat(c1 order by c4 desc )  from test1 group by c3;
+select c1,c2,c3,group_concat(c1,c2),rank()over(partition by c3 order by c1),rank()over(partition by c2 order by c1) from t3 group by c2,c1;
+
+##返回长度限制
+select 1,group_concat(c2,c2,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3) from t2 group by c2;
+#单行concat长度过长（本例子73152）超长崩溃
+#select 1,group_concat(c2,c2,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3,c3) from t2 group by c2;
+
+##参数为空
+select group_concat(c1,c2) from t1;
+select group_concat(c2,c2) from t1;
+
+##语句级prepare支持
+prepare stmt from select c1,c2,c3,group_concat(c1,c2),group_concat(c2,c3 order by c3) from t3 group by c1;
+execute stmt;
+prepare stmt from select c1,c2,c3,group_concat(c1,c2),rank()over(partition by c3 order by c1),rank()over(partition by c2 order by c1),group_concat(c2,c3 order by c3) from t3 group by c1;
+execute stmt;
+drop table if exists test1,test2,t1,t2,t3;
+
+###2-8：测试concat函数
+create table test1(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+create table test2(c1 int ,c2 varchar(20),c3 date,c4 float,c5 double,c6 bool);
+insert into test1 values(1,'expr1','2023-8-7',1.1,11.11,TRUE);
+insert into test1 values(2,'expr2','2023-7-7',2.2,22.22,FALSE);
+insert into test1 values(3,'expr3','2023-6-6',3.3,33.33,true);
+insert into test2 values(1,'expr1','2023-8-7',1.1,11.11,TRUE);
+insert into test2 values(2,'expr2','2023-7-7',2.2,22.22,FALSE);
+insert into test2 values(3,'expr3','2023-6-6',3.3,33.33,true);
+
+##参数个数不同
+--error 5001
+select concat();
+select concat('aaa');
+select concat(cast(1.5 as double));
+--replace_column 1 '2023-11-23 14:22:08.665511'
+select concat(now());
+select concat(2.5/2-1);
+select concat('测试');
+select concat(true);
+select concat(null);
+select concat('2023-11-23 14:22:08.665511','expr2');
+select concat(cast(1.5 as double),false);
+select concat(true,'你好',null,cast(3.14 as float));
+select concat('');
+select concat('expr1',2+3*null);
+
+##逻辑运算
+select concat(2=2,'expr2',3=2);
+select concat(4=4);
+select concat(1<2,2<1,'expr3');
+select concat(1e3<2);
+select concat('expr1',2.55>1,1>1.5);
+select concat(2.55>1);
+select concat(1>=2e3,1.5e4>=1.5,'expr3');
+select concat(1>=2e3);
+select concat(1<=2,2<=1,'expr3');
+select concat(1<=6.66);
+select concat(1!=2,2!=2,'expr3');
+select concat(1!=2.22);
+select concat(1<>2,2<>2,'expr3');
+select concat(1<>1);
+#函数位置不同
+update test1 set c2=concat('expr2-','update') where c3=concat('2023-','7-','7');
+select * from test1 where c1=concat(2);
+select * from test1 group by c1 having c3=concat('2023-','8-','7');
+select c1 from test1 where c6=concat(true) order by c1;
+insert into test1(c1,c2,c3) values(concat(5),concat('expr',5),concat('2023-','5-','6'));
+delete from test1 where c3=concat('2023-5-6');
+#集合操作
+(select c1 from test1 where c1=concat(1)) union (select c1 from test2 where c3=concat('2023-6-6'));
+select * from test1 where c1>=concat(1) intersect select * from test1 where c1<=concat(2);
+(select * from test1 where c1>=concat(1)) except (select * from test1 where c3=concat('2023-6-6'));
+#嵌套函数、系统函数
+select concat(concat('2023'),concat('-8-7')) from test1;
+select concat(count(c1)) from test1 where c1=concat(2);
+select concat(avg(c5)) from test2;
+select concat(replace('xxx数据库测试','xxx','数据库')) from test1;
+select concat(upper('a')) from test1;
+
+##参数为列
+select concat(c2,c1,c4,c3,c6,c5) from test2;
+#--error 7
+select concat(c2*c1) from test2;
+select concat(c1,c3) from test2 where concat(c3) in (select concat('2023','-08-07') from test2);
+select concat(c5+c1,',',c5*c1,',',c1/c1,',',c1/c6) from test2;
+select concat(test1.c1) from test1 join test2 on concat(test1.c1)=concat(test2.c1);
+drop table if exists test1,test2;
+
+###2-9：测试find_in_set函数
+create table test1 (strlist varchar(100), i int);
+insert into test1 values('d,a,34,c,355,b',-1);
+insert into test1 values('a,b,d,544,c,423',-1);
+insert into test1 values('b,a,3553,c',-1);
+
+##参数不同
+--error 5054
+select find_in_set();
+--error 5054
+select find_in_set('');
+--error 5054
+select find_in_set('xxx'); 
+select find_in_set('',' ');
+select find_in_set(' ','');
+select find_in_set('23','23,3');
+select find_in_set('数学','语文,数学,英语,化学'); 
+select find_in_set('c',',,c');
+select find_in_set('abc',' abc,abc , abc ,a b c'); 
+select find_in_set(',',',');
+select find_in_set(',,',',,');
+select find_in_set('xx','xxx');
+select find_in_set('hello,','hello,');
+#--error 5001
+set sql_mode='ANTI_ANSI_AS_QUOTE';
+select find_in_set(concat(char(0),"x"),'x'); 
+select find_in_set(null,null); 
+select find_in_set('你^D好','你很好,你好');
+select find_in_set(8,8);
+select find_in_set(8,'8.0,8');
+select find_in_set(-123456789.0,'-123456789,-123456789.00,-123456789.0');
+select find_in_set(false, '00,false,0');
+select find_in_set(0.12345678910111213141516171819, '0.1234567891011121314151617181920,0.12345678910111213141516171819');
+select find_in_set(convert('2023-8-30 11:11:11', datetime),'2023-8-30 11:11:11,2023-08-30 11:11:11.000000,2023-08-30 11:11:11');
+##内部有运算和字符串函数
+select find_in_set(6*-6,'36,- 36,-36'); 
+select find_in_set(concat('a', 'b', 'c'), 'a,b,c,abc');
+select find_in_set('abc', concat_WS(',', 'qwe', 'rty', 'abc', '123')) ;
+select find_in_set(UPPER('abcd'), 'abcd,ABCD,abCD') ;
+select find_in_set(LOWER('ab'), 'aB,ab') ;
+create table t (name varchar(100));
+insert into t values('a');
+insert into t values('b');
+insert into t values('c');
+select find_in_set('b',GROUP_concat(name)) from t;
+##函数位置
+update test1 set i=find_in_set('d',strlist); 
+select * from test1;
+select * from test1 where find_in_set('d',strlist) > 0;
+insert into test1 values('8,8,f,34,sffs,53', find_in_set('sffs','8,8,f,34,sffs,53'));
+select * from test1;
+delete from test1 where find_in_set('d',strlist) > 0;
+select * from test1;
+##使用集合
+(select * from test1 where find_in_set('b',strlist) = 1) UNION (select * from test1 where find_in_set('b',strlist) = 2);
+(select * from test1 where find_in_set('b',strlist) <= 6) EXCEPT (select * from test1 where find_in_set('b',strlist) <= 4);
+(select * from test1 where find_in_set('b',strlist) <= 6) EXCEPT (select * from test1 where find_in_set('b',strlist) >= 2);
+##参数为列
+drop table if exists test2;
+create table test2 (a float, b float);
+insert into test2 values (1230.123456789,1230);
+insert into test2 values (111.123456789,111.123456789);
+select a, b, find_in_set(a, b) from test2;
+
+drop table if exists test4;
+create table test4 (d date);
+insert into test4 values ('2012-11-12');
+insert into test4 values ('2023-9-1');
+select d, find_in_set(d, '2023-09-01,2012-11-12') from test4;
+
+drop table if exists test2;
+create table test2 (a varchar(255), b varchar(255), c int);
+insert into test2 values ('aa','a,aa,aaa',1);
+insert into test2 values ('bbb','b,bb,bbb',2);
+select * from test2 where c in (select find_in_set(a,b) from test2);
+#多表测试
+drop table if exists test2;
+create table test2 (a varchar(255), b varchar(255), c int);
+insert into test2 values ('aa','a,aa,aaa',1);
+insert into test2 values ('bbb','b,bb,bbb',3);
+drop table if exists test3;
+create table test3 (a varchar(255), b varchar(255), c int);
+insert into test3 values ('aa','a,aa,aaa',2);
+insert into test3 values ('bbb','b,bb,bbb',3);
+select test2.a, test2.b, test3.c from test2, test3 where test2.a = test3.a and test2.c = find_in_set(test2.a, test2.b) ;
+
+drop table if exists test4;
+create table test4 (belts varchar(255));
+insert into test4 values ('red,white,yellow');
+insert into test4 values ('orange,white,pink');
+insert into test4 values ('white');
+insert into test4 values ('purple,orange,white');
+insert into test4 values ('black,brown,white');
+insert into test4 values ('yellow,red,white');
+select find_in_set('white', belts) as position, count(*) as count from test4 group by position order by position;
+drop table if exists t,test1,test2,test3,test4;
+
+drop database d1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

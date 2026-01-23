@@ -1,0 +1,415 @@
+##############################################################################################
+###1.测试功能点：在回收站关闭开启时，drop table的功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：xxx
+###7.编写/修改日期：xxx
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2,t3,t4 purge;
+--enable_warnings
+
+###2-1:回收站关闭时，测试无选项时drop table
+--echo -- close trash
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set global trash_bin_switch = false;
+
+#CASE1:drop one table
+--echo drop one table
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn2;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1;
+show recyclebin;
+show tables;
+drop table if exists t1;
+
+#CASE2:drop tables
+--echo drop tables
+connection conn2;
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2;
+show recyclebin;
+show tables;
+drop table if exists t1,t2;
+
+#CASE3:use db_name drop table
+--echo use db_name drop table
+connection conn2;
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1;
+show recyclebin;
+show tables;
+drop table if exists t1;
+drop database test1;
+
+###2-2:回收站关闭时，测试purge选项的drop table
+#do sq1
+##############################################################################################
+#CASE1: use purge drop one table
+--echo use purge drop one table
+connection conn2;
+using database test;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1 purge;
+show recyclebin;
+show tables;
+drop table if exists t1;
+
+#CASE2:use purge drop tables
+--echo use purge drop tables
+connection conn2;
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2 purge;
+show recyclebin;
+show tables;
+drop table if exists t1,t2;
+
+#CASE3:use db_name and purge drop table
+--echo use db name and purge drop table
+connection conn2;
+create database test1;
+using database test1;
+create table t1 (cl int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1 purge;
+show recyclebin;
+show tables;
+drop table if exists t1;
+drop database test1;
+
+###2-3:回收站关闭时，测试if exists选项的drop table
+#do sq1
+##############################################################################################
+#CASE1:use if exists drop one not existed table
+--echo use if exists drop one table
+connection conn2;
+drop table if exists test1.t1;
+show recyclebin;
+show tables;
+
+#CASE2:use if exists drop one existed table
+--echo use if exists drop one existed table
+connection conn2;
+using database test;
+drop table if exists t1;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table if exists t1;
+show recyclebin;
+show tables;
+
+#CASE3:use if exists drop existed tables
+--echo use if exists drop existed tables
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+insert into t2 values(1,1),(2,2);
+drop table if exists t1,t2;
+show recyclebin;
+
+#CASE4:use if exists and db_name drop not existed table
+--echo use if exists and db name drop not existed table
+drop table if exists test1.t1;
+show recyclebin;
+show tables;
+
+#CASE5:use if exists and db_name drop existed table
+--echo use if exists and db_name drop existed table
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop table if exists test1.t1;
+show recyclebin;
+show tables;
+drop database test1;
+
+###2-4:回收站开启时，测试无选项的drop table
+#do sq1
+##############################################################################################
+--echo -- open trash
+connect (conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn3;
+set global trash_bin_switch = true;
+
+#CASE1:drop one table
+connect (conn4,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn4;
+drop table if exists t1 purge;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE2:drop tables
+connection conn4;
+drop table if exists t1,t2 purge;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+show tables;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+#CASE3:use db_name drop table
+connection conn4;
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+flashback t1 to before drop;
+show recyclebin;
+show tables;
+drop table if exists t1 purge;
+drop database test1 purge;
+purge recyclebin;
+
+#CASE4:drop table delete expire_condition
+connection conn4;
+using database test;
+drop table if exists t1 purge;
+create table t1(c1 int primary key, c2 int,c3 modifytime);
+alter table t1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+drop table t1;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 't1',drop_name,1);
+eval select expire_condition from __first_tablet_entry where table_name = '$drop_name';
+
+###2-5:回收站开启时，测试purge选项的drop table
+#do sql
+##############################################################################################
+#CASE1:drop one table
+connection conn4;
+using database test;
+drop table if exists t1 purge;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1 purge;
+select drop_name,object_name,type from __all_trash;
+show tables;
+drop table if exists t1 purge;
+purge recyclebin;
+
+#CASE2:drop tables
+connection conn4;
+drop table if exists t1,t2 purge;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2 purge;
+show recyclebin;
+show tables;
+drop table if exists t1,t2 purge;
+purge recyclebin;
+
+#CASE3:use purge and db_name drop table
+connection conn4;
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1 purge;
+show recyclebin;
+show tables;
+drop table if exists t1 purge;
+drop database test1 purge;
+purge recyclebin;
+
+###2-6:回收站开启时，测试if exists选项的drop table
+#do sq1
+##############################################################################################:
+#CASE1:drop one not existed table
+connection conn4;
+using database test;
+drop table if exists t1 purge;
+drop table if exists t1;
+show recyclebin;
+show tables;
+purge recyclebin;
+
+#CASE2:drop not existed tables
+connection conn4;
+drop table if exists t1,t2 purge;
+drop table if exists t1,t2;
+show recyclebin;
+show tables;
+purge recyclebin;
+
+#CASE3:use db_name drop not existed table
+connection conn4;
+drop table if exists test1.t1;
+show recyclebin;
+show tables;
+purge recyclebin;
+
+#CASE4:drop one existed table
+connection conn4;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table if exists t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+purge recyclebin;
+
+#CASE5:drop existed tables
+connection conn4;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table if exists t1,t2;
+select drop_name,object_name, type from __all_trash;
+show tables;
+purge recyclebin;
+
+#CASE6:use db_name drop existed table
+connection conn4;
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop table if exists test1.t1;
+select drop_name, object_name,type from __all_trash;
+show tables;
+purge recyclebin;
+drop database test1 purge;
+
+###2-7:回收站关闭时，测试异常系
+#do sql
+##############################################################################################
+--echo -- close trash
+connect (conn5,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn5;
+set global trash_bin_switch = false;
+
+#CASE1:drop sys table
+connect (conn6,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn6;
+--error 5019
+drop table __all_trash;
+
+#CASE2:drop not exist table
+connection conn6;
+drop table if exists t1;
+--error 5019
+drop table t1;
+
+#CASE3:use db_name drop not exist table
+connection conn6;
+drop table if exists t1;
+--error 5019
+drop table test.t1;
+
+###2-8:回收站开启时，测试异常系
+#do sq1
+##############################################################################################
+--echo -- open trash
+connect (conn7,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn7;
+set global trash_bin_switch = true;
+
+#CASE1:drop sys table
+connect (conn8,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn8;
+--error 5019
+drop table __all_trash;
+
+#CASE2:drop not exist table
+connection conn8;
+drop table if exists t1;
+--error 5019
+drop table t1;
+
+#CASE3:use db_name drop not exist table
+connection conn8;
+drop table if exists t1;
+--error 5019
+drop table test.t1;
+
+###2-9:测试drop权限
+#do sq1
+##############################################################################################
+connection conn8;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+create user 'u1' identified by 'pass-12345';
+grant drop on * to 'u1';
+connect (conn9,$OBMYSQL_MS0,u1,pass-12345,test,$OBMYSQL_PORT);
+connection conn9;
+drop table t1 purge;
+
+connection conn8;
+revoke drop on * from 'u1';
+
+connection conn9;
+--error 5036
+drop table t2 purge;
+
+connection conn8;
+drop table if exists t1,t2 purge;
+drop user 'u1';
+
+###2-10:测试删除表长度限制，回收站开启时
+connection conn8;
+create table
+t_255_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa_250_s255(id int primary key,c2 varchar(10),c3 decimal(10));
+create table
+t_246_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa(id int primary key,c2 varchar(10),c3 decimal(10));
+--error 5108
+drop table
+t_255_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa_250_s255;
+drop table
+t_246_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa;
+
+###2-11:测试新增删除索引的长度限制
+connection conn8;
+create table t(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+create index
+t_230_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230 on t(c1);
+create index
+t_240_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240 on t2(c1);
+drop table t;
+--error 5108
+drop table t2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

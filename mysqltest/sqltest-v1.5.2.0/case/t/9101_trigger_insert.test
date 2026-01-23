@@ -1,0 +1,1791 @@
+####################################必填######################################################
+###1.测试功能点：触发器功能
+###1.1-before insert 触发器
+###1.2-after insert 触发器
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间: 66.029945 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-01-23
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1.1执行体中为case语句，case语句中没有用到referencing	
+set @a=1;
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+Begin
+Case 
+When @a>0
+Then
+    set @a=@a+1;   
+Else
+    set @a=@a+10;    
+End Case;
+End|
+delimiter ;|	
+INSERT INTO www VALUES (3,34);
+select @a;
+INSERT INTO www VALUES (11,45);
+select @a;
+set @a=0;
+INSERT INTO www VALUES (4,44);
+select @a;
+set @a=0;
+INSERT INTO www VALUES (15,65);
+select @a;
+select * from www;
+
+#1.2执行体中为leave语句和loop语句，执行体中没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+add_num:LOOP
+ set @a=@a+1;
+ IF @a>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (6,35);
+select @a;
+select * from www;
+
+#1.3执行体中为variable_set语句，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Declare num int Default 1;
+set num=num+1;
+set @a=num;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,45);
+select @a;
+select * from www;
+
+#1.4执行体中为if语句，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2>20 Then
+    Set new.c2=20;
+Else
+    Set new.c2=15;    
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,12);
+INSERT INTO www VALUES (5,33);
+select * from www;
+
+#1.5执行体中为repeat语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+repeat_loop:Repeat
+set new.c1=new.c1+1;
+Until new.c1>20
+End Repeat repeat_loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,45);
+select * from www;
+
+#1.6执行体中为while语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+While new.c1<18 
+Do
+set new.c1=new.c1+1;
+End While;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (6,66);
+select * from www;
+
+#1.7执行体中为iterate语句	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+loop_lable:Loop
+If new.c2=43 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE loop_lable;
+End If;
+set new.c2=new.c2+1;
+if new.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,34);
+INSERT INTO www VALUES (5,45);
+select * from www;
+
+#1.8上述语句任意个组合，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When new.c2<20 Then
+loop_lable:Loop
+If new.c2=43 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE loop_lable;
+End If;
+set new.c2=new.c2+1;
+if new.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set new.c2=100;
+End Case;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,10);
+INSERT INTO www VALUES (6,22);
+INSERT INTO www VALUES (10,15);
+select * from www;
+
+#1.9上述语句任意个组合，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @b=0;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When @a<2 Then
+loop_lable:Loop
+If @b=43 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set @b=100;
+End Case;
+END|
+delimiter ;|	
+set @a=1,@b=0;
+INSERT INTO www VALUES (3,10);
+select @a, @b;
+set @a=1,@b=55;
+INSERT INTO www VALUES (4,12);
+select @a, @b;
+set @a=5,@b=0;
+INSERT INTO www VALUES (5,23);
+select @a, @b;
+set @a=1,@b=0;
+INSERT INTO www VALUES (11,33);
+select @a, @b;
+
+
+#1.10执行体为空	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,10);
+select * from www;
+
+#1.11执行体中为prepare语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+END|
+delimiter ;|
+
+#1.12执行体中为update语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+INSERT INTO ww2 VALUES (1,10);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2<20 Then
+UPDATE ww2 SET c2=11 WHERE c1=1;
+End If;
+END|
+delimiter ;|
+INSERT INTO www VALUES (3,10); 
+select * from www;
+select * from ww2;
+
+#1.13上述语句任意个组合，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+INSERT INTO www VALUES (1,10);
+INSERT INTO www VALUES (2,20);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+DELETE FROM www WHERE c1=2;
+END|
+delimiter ;|
+--error 7022
+INSERT INTO www VALUES (3,30);
+select * from www;
+
+#1.14执行体中为case语句，case语句中用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case 
+When new.c2<20 Then
+    set new.c2=new.c2+1;
+Else
+    set new.c2=new.c2+100;
+End Case;
+END;|
+delimiter ;|	
+INSERT INTO www VALUES (3,5);
+INSERT INTO www VALUES (4,33);
+INSERT INTO www VALUES (5,16);
+INSERT INTO www VALUES (6,45);
+select * from www;
+
+
+#1.15执行体中为leave语句和loop语句，执行体中用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+add_num:LOOP
+ set new.c2=new.c2+1;
+ IF new.c2>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|
+INSERT INTO www VALUES (3,25);
+INSERT INTO www VALUES (4,66);
+set @a=0;
+INSERT INTO www VALUES (5,33);
+select * from www;
+
+
+#1.16执行体中为leave语句和loop语句，执行体中没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+add_num:LOOP
+ set @b=@b+1;
+ IF @b>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|	
+set @a=1,@b=0;
+INSERT INTO www VALUES (2,22);
+select @a, @b;
+set @a=1,@b=55;
+INSERT INTO www VALUES (3,33);
+select @a, @b;
+set @a=0,@b=10;
+INSERT INTO www VALUES (4,44);
+select @a, @b;
+select * from www;
+
+#1.17执行体中为variable_set语句，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+set new.c1=new.c1+1;
+set new.c2=new.c2+100;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,33);
+set @a=0;
+INSERT INTO www VALUES (5,55);
+select * from www;
+
+#1.18执行体中为if语句，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2>20 Then
+    Set new.c2=20;
+Else
+    Set new.c2=15;    
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,33);
+INSERT INTO www VALUES (4,4);
+set @a=1;
+INSERT INTO www VALUES (5,22);
+select * from www;
+
+#1.19执行体中为whlie语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+While @b>0 AND @b<20
+Do
+set @b=@b+1;
+End While;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (3,34);
+select @a, @b;
+set @a=1,@b=0;
+INSERT INTO www VALUES (4,56);
+select @a, @b;
+set @a=0,@b=0;
+INSERT INTO www VALUES (5,12);
+select @a, @b;
+
+#1.20执行体中为iterate语句	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+loop_lable:Loop
+If new.c2=43 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE loop_lable;
+End If;
+set new.c2=new.c2+1;
+if new.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,21);
+INSERT INTO www VALUES (4,45);
+INSERT INTO www VALUES (5,55);
+select * from www;
+
+#1.21上述语句任意个组合，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When new.c2<100 Then
+lable_loop:Loop
+If new.c2=21 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE lable_loop;
+End If;
+set new.c2=new.c2+1;
+If new.c2>55 Then
+LEAVE lable_loop;
+End If;
+End Loop;
+Else
+set new.c2=125;
+End Case;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,11);
+INSERT INTO www VALUES (4,21);
+INSERT INTO www VALUES (6,33);
+INSERT INTO www VALUES (8,58);
+INSERT INTO www VALUES (10,111);
+select * from www;
+
+
+#1.22上述语句两两组合，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+END|
+delimiter ;|
+
+#1.23上述语句任意个组合，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2<20 Then
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+DELETE FROM www WHERE c1=2;
+End If;
+END|
+delimiter ;|
+
+#1.24上述语句任意个组合，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+DELETE FROM www WHERE c1=2;
+END|
+delimiter ;|
+--error 7022
+INSERT INTO www VALUES (5,10);
+
+#1.25执行体中为repeat语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+repeat_loop:Repeat
+set new.c1=new.c1+1;
+Until new.c1>20
+End Repeat repeat_loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,56);
+INSERT INTO www VALUES (22,82);
+select * from www;
+
+#1.26执行体中为if语句，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2>20 Then
+    Set new.c2=20;
+Else
+    Set new.c2=15;    
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,35);
+INSERT INTO www VALUES (6,6);
+select * from www;
+
+#1.27执行体中为while语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+While new.c1<18
+Do
+set new.c1=new.c1+1;
+End While;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,14);
+INSERT INTO www VALUES (20,685);
+select * from www;
+
+#1.28执行体中为iterate语句	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+loop_lable:Loop
+If new.c2=35 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE loop_lable;
+End If;
+set new.c2=new.c2+1;
+if new.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,23);
+INSERT INTO www VALUES (5,40);
+INSERT INTO www VALUES (7,55);
+select * from www;
+
+#1.29上述语句任意个组合，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When new.c2<75 Then
+loop_lable:Loop
+If new.c2=35 Then
+set new.c1=new.c1+1;
+set new.c2=new.c2+1;
+ITERATE loop_lable;
+End If;
+set new.c2=new.c2+1;
+if new.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set new.c2=111;
+End Case;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,14);
+INSERT INTO www VALUES (5,40);
+INSERT INTO www VALUES (7,55);
+select * from www;
+
+#1.30上述语句任意个组合，并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2<20 Then
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+DELETE FROM www WHERE c1=2;
+End If;
+END|
+delimiter ;|
+
+#1.31上述语句任意个组合，并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+DELETE FROM www WHERE c1=2;
+END|
+delimiter ;|
+--error 7022
+INSERT INTO www VALUES (5,15);
+
+#1.32上述语句任意个组合	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When @a<20 Then
+loop_lable:Loop
+If @b=44 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set @b=123;
+End Case;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (2,442);
+SELECT @a,@b;
+set @a=1,@b=46;
+INSERT INTO www VALUES (4,24);
+SELECT @a,@b;
+set @a=1,@b=66;
+INSERT INTO www VALUES (3,344);
+SELECT @a,@b;
+set @a=77,@b=1;
+INSERT INTO www VALUES (8,652);
+SELECT @a,@b;
+
+#1.33上述语句任意个组合	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+BEFORE INSERT ON www
+FOR EACH ROW
+BEGIN
+DELETE FROM www WHERE c1=1;
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+UPDATE www SET c2=11 WHERE c1=1;
+INSERT INTO www VALUES (10,15);
+END|
+delimiter ;|
+
+
+#2.1执行体中为case语句,case语句中用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case 
+When new.c2<5 Then
+    set @a=@a+1;
+Else
+    set @a=@a+100;
+End Case;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,2);
+select @a;
+set @a=1;
+INSERT INTO www VALUES (6,6);
+select @a;
+
+#2.2执行体中为case语句,case语句中没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case 
+When @a>0
+Then
+    set @a=@a+1;
+Else
+    set @a=@a+10;
+End Case;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,5);
+select @a;
+set @a=0;
+INSERT INTO www VALUES (3,6);
+select @a;
+
+#2.3执行体中为leave语句和loop语句,执行体中用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set @a=new.c2+1;
+add_num:LOOP
+ set @a=@a+1;
+ IF @a>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,32);
+select @a;
+set @a=1;
+INSERT INTO www VALUES (5,63);
+select @a;
+
+#2.4执行体中为leave语句和loop语句,执行体中没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+add_num:LOOP
+ set @a=@a+1;
+ IF @a>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (7,23);
+select @a;
+set @a=55;
+INSERT INTO www VALUES (8,76);
+select @a;
+
+#2.5执行体中为variable_set语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set @a=@a+100;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (9,87);
+select @a;
+
+#2.6执行体中为if语句,并且用到referencing
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);	
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2<20 Then
+    Set @a=new.c1+1;
+Else
+    Set @a=111;    
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (5,13);
+select @a;
+set @a=1;
+INSERT INTO www VALUES (6,68);
+select @a;
+
+#2.7执行体中为if语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If @a>0 Then
+    set @a=10;
+Else
+    set @a=@a+100;
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (3,868);
+select @a;
+set @a=0;
+INSERT INTO www VALUES (4,210);
+select @a;
+
+#2.8执行体中为repeat语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set @a=new.c1+1;
+repeat_loop:Repeat
+set @a=@a+1;
+Until @a>20
+End Repeat repeat_loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (10,523);
+select @a;
+set @a=1;
+INSERT INTO www VALUES (33,13);
+select @a;
+
+#2.9执行体中为repeat语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+repeat_loop:Repeat
+set @a=@a+1;
+Until @a>20
+End Repeat repeat_loop;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (8,22);
+select @a;
+set @a=44;
+INSERT INTO www VALUES (9,73);
+select @a;
+
+#2.10执行体中为while语句,并且用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set @a=new.c2;
+While @a>0 AND @a<44
+Do
+set @a=@a+1;
+End While;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,2);
+select @a;
+set @a=1;
+INSERT INTO www VALUES (3,55);
+select @a;
+
+#2.11执行体中为whlie语句,并且没有用到referencing	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+While @a>0 AND @a<25
+Do
+set @a=@a+1;
+End While;
+set @a=@a+1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (5,73);
+select @a;
+set @a=0;
+INSERT INTO www VALUES (6,5);
+select @a;
+
+#2.12执行体中为iterate语句	
+drop table if exists www;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+loop_lable:Loop
+If @b=35 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=55 then
+LEAVE loop_lable;
+End If;
+End Loop;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (8,25);
+select @a, @b;
+set @a=1,@b=44;
+INSERT INTO www VALUES (9,16);
+select @a, @b;
+set @a=1,@b=60;
+INSERT INTO www VALUES (10,54);
+select @a, @b;
+
+#2.13执行体中为update语句,并且用到referencing
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);	
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE ww2 SET c2=8 WHERE c1=new.c1-1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,5);
+select * from ww2;
+
+#2.14执行体中为update语句,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE ww2 SET c2=3 WHERE c1=1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,3);
+select * from ww2;
+
+#2.15执行体中为insert语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If @a<22 Then
+set @a=@a+5;
+INSERT INTO ww2 VALUES (@a,new.c2+10);
+Else
+set @a=@a+100;
+End If;
+END|
+delimiter ;|	
+set @a=1;
+insert into www values(1,1);
+INSERT INTO www VALUES (2,2);
+set @a=50;
+INSERT INTO www VALUES (3,5);
+SELECT *, @a FROM ww2;
+
+#2.16执行体中为insert语句,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into www values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If @a<21 Then
+set @a=@a+4;
+INSERT INTO ww2 VALUES (@a,@a+3);
+Else
+set @a=@a+100;
+End If;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (3,75);
+SELECT * FROM ww2;
+set @a=50;
+INSERT INTO www VALUES (4,423);
+SELECT @a;
+
+#2.17执行体中为delete语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+DELETE FROM ww2 WHERE c1=new.c1-1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,22);
+SELECT * FROM ww2;
+
+#2.18执行体中为delete语句,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+DELETE FROM ww2 WHERE c1=1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,4);
+SELECT * FROM ww2;
+
+#2.19上述语句任意个组合,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If new.c2<20 Then
+ INSERT INTO ww2 VALUES (12,new.c2+50);
+Else
+ DELETE FROM ww2 WHERE c1=new.c2-21;
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (4,4);
+SELECT * FROM ww2;
+INSERT INTO www VALUES (3,22);
+SELECT * FROM ww2;
+
+#2.20上述语句任意个组合,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When @a<5 Then
+loop_lable:Loop
+If @b=30 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set @b=100;
+If @a<21 Then
+set @a=@a+4;
+INSERT INTO ww2 VALUES (@a,@a+3);
+End IF;
+DELETE FROM ww2 WHERE c1=1;
+End Case;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (2,34);
+SELECT @a,@b;
+set @a=1,@b=44;
+INSERT INTO www VALUES (3,22);
+SELECT @a,@b;
+set @a=1,@b=55;
+INSERT INTO www VALUES (4,437);
+SELECT @a,@b;
+
+#2.21执行体为空	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into www values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,2);
+SELECT * FROM www;
+
+
+#2.22执行体中为prepare语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=new.c1-1;
+END|
+delimiter ;|	
+
+#2.23执行体中为prepare语句,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+END|
+delimiter ;|	
+
+#2.24执行体中为variable_set语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set new.c1=new.c1+1;
+END|
+delimiter ;|
+	
+#2.25上述语句两两组合,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=new.c1-1;
+set new.c1=new.c1+1;
+END|
+delimiter ;|	
+
+#2.26上述语句两两组合,并且没有用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+set @a=@a+1;
+END|
+delimiter ;|	
+
+#2.27执行体中为case语句,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7007
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case 
+When old.c2<20 Then
+    set old.c2=old.c2+1;   
+Else
+    set old.c2=old.c2+10;    
+End Case;
+END|
+delimiter ;|
+
+#2.28上述语句任意个组合,并且用到referencing	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7007
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When old.c2<20 Then
+loop_lable:Loop
+If old.c2=43 Then
+set old.c1=old.c1+1;
+set old.c2=old.c2+1;
+ITERATE loop_lable;
+End If;
+set old.c2=old.c2+1;
+if old.c2>=50 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set old.c2=100;
+End Case;
+END|
+delimiter ;|
+	
+#2.29执行体中为case语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case 
+When @a>0
+Then
+    set @a=@a+1;
+Else
+    set @a=@a+10;
+End Case;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (2,52);
+SELECT @a;
+set @a=0;
+INSERT INTO www VALUES (3,453);
+SELECT @a;
+
+#2.30执行体中为leave语句和loop语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+add_num:LOOP
+ set @a=@a+1;
+ IF @a>=50 THEN LEAVE add_num;END IF;
+END LOOP add_num;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (4,78);
+SELECT @a;
+set @a=55;
+INSERT INTO www VALUES (5,13);
+SELECT @a;
+
+#2.31执行体中为variable_set语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+set @a=@a+122;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (6,114);
+SELECT @a;
+
+#2.32执行体中为if语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If @a>0 Then
+    set @a=@a+10;
+Else
+    set @a=@a+100;
+End If;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (7,56);
+SELECT @a;
+set @a=0;
+INSERT INTO www VALUES (8,132);
+SELECT @a;
+
+#2.33执行体中为repeat语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+repeat_loop:Repeat
+set @a=@a+1;
+Until @a>20
+End Repeat repeat_loop;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (9,34);
+SELECT @a;
+set @a=23;
+INSERT INTO www VALUES (10,64);
+SELECT @a;
+
+#2.34执行体中为while语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+While @a<35
+Do
+set @a=@a+1;
+End While;
+END|
+delimiter ;|	
+set @a=1;
+INSERT INTO www VALUES (11,75);
+SELECT @a;
+set @a=45;
+INSERT INTO www VALUES (12,875);
+SELECT @a;
+
+#2.35执行体中为iterate语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+loop_lable:Loop
+If @b=35 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=60 then
+LEAVE loop_lable;
+End If;
+End Loop;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (2,23);
+SELECT @a,@b;
+set @a=1,@b=45;
+INSERT INTO www VALUES (3,35);
+SELECT @a,@b;
+set @a=1,@b=66;
+INSERT INTO www VALUES (4,62);
+SELECT @a,@b;
+
+#2.36执行体中为update语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+INSERT INTO ww2 VALUES (1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+UPDATE ww2 SET c2=11 WHERE c1=1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,4);
+SELECT * FROM ww2;
+
+#2.37执行体中为insert语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+INSERT INTO ww2 VALUES (1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+If @a<15 Then
+set @a=@a+4;
+INSERT INTO ww2 VALUES (@a,@a+1);
+End If;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,4);
+SELECT * FROM ww2;
+
+#2.38执行体中为delete语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into ww2 values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+DELETE FROM ww2 WHERE c1=1;
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,2);
+SELECT * FROM ww2;
+
+#2.39上述语句任意个组合	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+INSERT INTO www VALUES (1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+Case
+When @a<10 Then
+loop_lable:Loop
+If @b=44 Then
+set @a=@a+1;
+set @b=@b+1;
+ITERATE loop_lable;
+End If;
+set @b=@b+1;
+if @b>=60 then
+LEAVE loop_lable;
+End If;
+End Loop;
+Else
+ set @b=234;
+UPDATE www SET c2=11 WHERE c1=1;
+End Case;
+END|
+delimiter ;|	
+set @a=1,@b=1;
+INSERT INTO www VALUES (2,298);
+SELECT @a,@b;
+set @a=1,@b=55;
+INSERT INTO www VALUES (3,66);
+SELECT @a,@b;
+set @a=1,@b=66;
+INSERT INTO www VALUES (4,25);
+SELECT @a,@b;
+
+#2.40执行体为空	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+create table ww2(c1 int primary key, c2 int);
+insert into www values(1,1);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+END|
+delimiter ;|	
+INSERT INTO www VALUES (2,2);
+SELECT * FROM www;
+
+#2.41执行体中为prepare语句	
+drop table if exists www,ww2;
+drop trigger if exists test;
+create table www(c1 int primary key, c2 int);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+CREATE TRIGGER test
+AFTER INSERT ON www
+FOR EACH ROW
+BEGIN
+PREPARE stmt1 FROM SELECT * FROM www WHERE c1=1;
+END|
+delimiter ;|	

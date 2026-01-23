@@ -1,0 +1,113 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1 (c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321312.123123',true),(-12321112147482647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 (c1) as select c1 from t1;
+alter view v1 ("列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列") as  select c2 from t1 with check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列	int(10)	YES		NULL	
+select * from v1;
+列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列
+-2
+2
+select c1 from t1;
+c1
+-12321112147482647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3003	1	1	select "test"."t1"."c2" as "列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1 (c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321312.123123',true),(-12321112147482647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 (c1) as select c1 from t1;
+alter view v1 ("C1c") as select c2 from t1 with check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+C1c	int(10)	YES		NULL	
+select * from v1;
+C1c
+-2
+2
+select c1 from t1;
+c1
+-12321112147482647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3006	1	1	select "test"."t1"."c2" as "C1c" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1 (c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321312.123123',true),(-12321112147482647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 (c1C) as select c1 from t1;
+alter view v1 ("列β") as select c2 from t1 with check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+列β	int(10)	YES		NULL	
+select * from v1;
+列β
+-2
+2
+select c1 from t1;
+c1
+-12321112147482647
+12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3009	1	1	select "test"."t1"."c2" as "列β" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1 (c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321312.123123',true),(-12321112147482647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 (c1C) as select c1 from t1;
+alter view v1 (c1C) as select c3 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1C	float	YES		NULL	
+select * from v1;
+c1C
+-3.15
+3.15
+select c3 from t1;
+c3
+-3.15
+3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3012	0	1	select "test"."t1"."c3" as "c1C" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1 (c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321312.123123',true),(-12321112147482647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 (c1C) as select c1 from t1;
+alter view v1 (c1C) as select c3 from t1 with local check option;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1C	float	YES		NULL	
+select * from v1;
+c1C
+-3.15
+3.15
+select c3 from t1;
+c3
+-3.15
+3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3015	2	1	select "test"."t1"."c3" as "c1C" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;

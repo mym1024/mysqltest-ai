@@ -1,0 +1,168 @@
+create table test_no_pk(c1 int,c2 varchar(10));
+ALTER TABLE test_no_pk ADD c3 int;
+ALTER TABLE test_no_pk DROP c3;
+insert into test_no_pk values(1,'a');
+insert into test_no_pk values(1,'a'),(2,'c'),(2,'c'),(3,'c'),(3,'c');
+UPDATE test_no_pk  set c2 = 'dd' WHERE c1 = 1;
+update test_no_pk  set c2 = 'cc';
+select * from test_no_pk;
+c1	c2
+1	cc
+1	cc
+2	cc
+2	cc
+3	cc
+3	cc
+select * from test_no_pk where c1=1;
+c1	c2
+1	cc
+1	cc
+select count(*) from test_no_pk;
+count(*)
+6
+desc test_no_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	varchar(10)	YES		NULL	
+show create table test_no_pk;
+Table	Create Table
+test.test_no_pk	CREATE TABLE test_no_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table if exists test_no_pk;
+create table test_no_pk(c1 int);
+ALTER TABLE test_no_pk ADD c3 int;
+ALTER TABLE test_no_pk DROP c3;
+insert into test_no_pk values(1);
+insert into test_no_pk values(1),(2),(2),(3),(3),(4),(4);
+select * from test_no_pk;
+c1
+1
+1
+2
+2
+3
+3
+4
+4
+update test_no_pk  set c1 = 5;
+select * from test_no_pk;
+c1
+5
+5
+5
+5
+5
+5
+5
+5
+select count(*) from test_no_pk;
+count(*)
+8
+desc test_no_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+show create table test_no_pk;
+Table	Create Table
+test.test_no_pk	CREATE TABLE test_no_pk (
+c1 INT(10)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table if exists test_no_pk;
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10));
+ALTER TABLE test_auto ADD c3 int;
+ALTER TABLE test_auto DROP c3;
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('a'),('c'),('a'),('c'),('b'),('d');
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+update test_auto  set c2 = 'cc';
+select * from test_auto;
+c1	c2
+1	cc
+2	cc
+3	cc
+4	cc
+5	cc
+6	cc
+7	cc
+select * from test_auto where c1=1;
+c1	c2
+1	cc
+select count(*) from test_auto;
+count(*)
+7
+show create table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE test_auto (
+c1 INT(10) AUTO_INCREMENT,
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+truncate table test_auto;
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	varchar(10)	YES		NULL	
+drop table if exists test_auto;
+drop table if exists test_pk;
+create table test_pk(c1 int  ,c2 varchar(10),primary key(c1,c2));
+ALTER TABLE test_pk ADD c3 int;
+ALTER TABLE test_pk DROP c3;
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+c1	c2
+1	a
+1	aa
+2	dd
+select * from test_pk where c1=1;
+c1	c2
+1	a
+1	aa
+select count(*) from test_pk;
+count(*)
+3
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+c2 VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table if exists test_pk;
+create table test_pk(c1 int  primary key);
+ALTER TABLE test_pk ADD c3 int;
+ALTER TABLE test_pk DROP c3;
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+select * from test_pk;
+c1
+1
+2
+3
+4
+11
+select * from test_pk where c1=1;
+c1
+1
+select count(*) from test_pk;
+count(*)
+5
+truncate table test_pk;
+desc test_pk;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+show create table test_pk;
+Table	Create Table
+test.test_pk	CREATE TABLE test_pk (
+c1 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table if exists test_pk;

@@ -1,0 +1,52 @@
+drop table if exists t1,t2,t3,t4;
+create table t1(pk varchar(30) primary key, a int);
+insert into t1 values('a',1);
+insert into t1 values('b',2),('c',3);
+update t1 set a=0 where pk='a';
+update t1 set a=0 where pk='z';
+delete from t1 where pk='a';
+delete from t1 where pk='z';
+replace into t1 values('g',1),('s',2),('h',3);
+select * from t1;
+pk	a
+b	2
+c	3
+g	1
+h	3
+s	2
+drop table t1;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create  hash partition function h(x) 'x+1';
+create table t1(pk varchar(30) primary key, a int) partition by(hs,h,pk);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	1	NULL
+hs#1	2	0	NULL
+hs#10	2	1	NULL
+hs#11	2	0	NULL
+hs#12	2	1	NULL
+hs#2	2	1	NULL
+hs#3	2	0	NULL
+hs#4	2	1	NULL
+hs#5	2	0	NULL
+hs#6	2	1	NULL
+hs#7	2	0	NULL
+hs#8	2	1	NULL
+hs#9	2	0	NULL
+__user_default_group	2	0	NULL
+insert into t1 values('a',1);
+insert into t1 values('b',2),('c',3);
+update t1 set a=0 where pk='a';
+update t1 set a=0 where pk='z';
+delete from t1 where pk='a';
+delete from t1 where pk='z';
+replace into t1 values('z',1),('w',2),('x',3);
+select * from t1;
+pk	a
+b	2
+c	3
+w	2
+x	3
+z	1
+drop table t1;

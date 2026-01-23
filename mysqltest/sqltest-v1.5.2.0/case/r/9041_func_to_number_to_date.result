@@ -1,0 +1,50 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+select to_date('2005-01-01','yyyy-MM-dd') test1 from dual;
+test1
+2005-01-01
+select to_date('19950101','yyyy-mm-dd') test2 from dual;
+test2
+1995-01-01
+SELECT TO_DATE('20240408', 'YYYYMMDD') test3 FROM DUAL;
+test3
+2024-04-08
+SELECT TO_DATE('2022-12-15 13:45:30', 'YYYY-MM-DD HH24:MI:SS') test4 FROM DUAL;
+test4
+2022-12-15
+select to_date('2024-01-01 08:00:00', 'YYYY-MM-DD HH24:MI:SS') - to_date('2024-01-02 08:00:00', 'YYYY-MM-DD HH24:MI:SS') test5 FROM dual;
+test5
+-1
+select to_date('2024-02-04 08:00:00', 'YYYY-MM-DD HH24:MI:SS') - to_date('2024-02-01 08:00:00', 'YYYY-MM-DD HH24:MI:SS') test6 FROM dual;
+test6
+3
+select ROUND((to_date('2024-01-01 08:00:00', 'YYYY-MM-DD HH24:MI:SS') - to_date('2024-01-02 08:00:00', 'YYYY-MM-DD HH24:MI:SS'))*24,2) test7 FROM dual;
+test7
+-24
+select to_char(to_date(concat('2024', '-01-01 00:00:00'),'yyyy-MM-dd HH24:mi:ss'),'yyyy-mm-dd') test8 from dual;
+test8
+2024-01-01
+SELECT TO_DATE('199912','YYYYMM'),TO_DATE('2000.05.20','YYYY.MM.DD'),(DATE '2008-12-31') XXDATE,TO_DATE('2008-12-31 12:31:30','YYYY-MM-DD HH24:MI:SS'),(TIMESTAMP '2008-12-31 12:31:30') XXTIMESTAMP FROM DUAL;
+TO_DATE('199912','YYYYMM')	TO_DATE('2000.05.20','YYYY.MM.DD')	XXDATE	TO_DATE('2008-12-31 12:31:30','YYYY-MM-DD HH24:MI:SS')	XXTIMESTAMP
+1999-12-01	2000-05-20	2008-12-31	2008-12-31	2008-12-31 12:31:30.000000
+SELECT TO_NUMBER('199912'),TO_NUMBER('450.05') FROM DUAL;
+TO_NUMBER('199912')	TO_NUMBER('450.05')
+199912	450.05
+SELECT TO_NUMBER(NULL) AS null_value FROM dual;
+null_value
+NULL
+SELECT TO_NUMBER('100.50') + TO_NUMBER('200.75') AS total FROM dual;
+total
+301.25
+SELECT TO_NUMBER('4') * TO_NUMBER('2.5') AS total FROM dual;
+total
+10
+SELECT TO_NUMBER('4') / TO_NUMBER('2.5') AS total FROM dual;
+total
+1.6
+SELECT TO_NUMBER('100.50') - TO_NUMBER('200.75') AS total FROM dual;
+total
+-100.25

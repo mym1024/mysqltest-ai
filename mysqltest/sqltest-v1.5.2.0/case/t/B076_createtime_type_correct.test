@@ -1,0 +1,49 @@
+##############################################################################################
+###1.测试功能点:未指定分区表中测试createtime类型数据的正确性
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1(pk int primary key,b createtime);
+insert into t1(pk) values(1);
+--real_sleep 1
+insert into t1(pk) values(2);
+--replace_column 2 searched
+select pk,b from t1;
+let $value_orig=query_get_value(select * from t1,b,1);
+--real_sleep 1
+replace into t1(pk) values(1);
+--real_sleep 1
+replace into t1(pk) values(2);
+let $value_now=query_get_value(select * from t1,b,1);
+if($value_now == $value_orig)
+{
+--echo succeed
+}
+
+disable_query_log;
+--replace_column 2 searched
+eval select pk,b from t1 where b='$value_now';
+enable_query_log;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

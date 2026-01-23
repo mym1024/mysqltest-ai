@@ -1,0 +1,132 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：重命名表名和表的列名，
+###                       其中表名不能旧表名必须存在，新表名不能存在；
+###                       列名不能为主键，旧列名必须存在，新列名不能存在。
+##
+#
+###2.测试项：（每新添一测试项，需在添加前注明测试项，注释填在新添sql前，不填在此处，如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：713 s
+###5.编写/修改人：hexiangsong
+###6.编写/修改日期：2019-12-05
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1,t2,m1,m2,n1,n2;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+sleep 5;
+
+###2-1：重命名表名，分别以旧表名与新表名进行[查询][显示表的列信息]
+create table t1 (c1 int primary key, c2 int);
+alter table t1 rename to t2;
+--error 5019
+select * from t1;
+select * from t2;
+
+create table m1 (c1 int primary key, c2 int);desc m1;
+desc m1;
+rename table m1 to m2;
+--error 5019
+desc m1;
+desc m2;
+drop table if exists t1,t2,m1,m2;
+
+###2-2：合并后，重命名表名，分别以旧表名与新表名进行[显示表的列信息]，并以新表名进行[插入]
+#
+create table t1 (c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+rename table t1 to t2;
+--error 5019
+desc t1;
+desc t2;
+insert into t2 values(4,4);
+
+rename table t2 to t1;
+select * from t1;
+--error 5019
+select * from t2;
+insert into t1 values(5,5);
+select * from t1;
+--error 5019
+select * from t2;
+drop table if exists t1,t2;
+
+###2-3：通过重命名，[交换]两个表的表名，
+create table n1(c1 int primary key,c2 int);
+create table n2(c1 int primary key,c2 int);
+insert into n1 values(1,1);
+insert into n2 values(1,1),(2,2);
+rename table n1 to n1_temp;
+rename table n2 to n1;
+rename table n1_temp to n2;
+select * from n1;
+select * from n2;
+drop table if exists n1,n2;
+
+###2-4：重命名表名为[已存在]的表的表名，重命名[未存在]的表名
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+--error 5019
+rename table t1 to t2;
+--error 5019
+rename table t100 to t200;
+drop table if exists t1,t2;
+
+###2-5：重命名列名[主键列]，[不含]关键字column
+create table t1(c1 int primary key,c2 int);
+--error 5002
+alter table t1 rename c1 to c3;
+desc t1;
+drop table if exists t1;
+
+###2-6：重命名列名[主键列]，[含]关键字column
+create table t1(c1 int primary key,c2 int);
+desc t1;
+--error 5002
+alter table t1 rename c1 to c3;
+desc t1;
+
+###2-7：合并后重命名列名[非主键列]，并执行[查询][插入]，再[重命名回]旧列名并[查询]
+insert into t1 values(1,1),(2,2),(3,3);
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+alter table t1 rename c2 to c3;
+select * from t1;
+insert into t1 values(4,4);
+alter table t1 rename c3 to c2;
+select * from t1;
+
+###2-8：重命名列名[非主键列]并同时[新增列]，再执行[查询]
+--error 5002
+alter table t1 rename c1 to c3,add c4 int;
+select * from t1;
+
+###2-9：重命名[未存在]的表名
+--error 5009
+alter table t1 rename c200 to c300;
+drop table t1;
+
+###2-10：删除列的同时，重命名主键列
+create table t1(c1 int primary key,c2 int,c3 int);
+desc t1;
+--error 5002
+alter table t1 drop c2,rename c1 to c3;
+desc t1;
+drop table t1;

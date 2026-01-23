@@ -1,0 +1,110 @@
+##############################################################################################
+###1.测试功能点：decimal的精度边界值测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：张二宝
+###7.编写/修改日期：2019-11-04
+###8.其他（选填）：***
+###
+##
+#
+##############################################################################################
+
+#######################################Do SQL#################################################
+
+create database test_decimal;
+using database test_decimal;
+sleep 5;
+
+###2-1-1：建表插入数据查询，有效数字超出decimal规定，溢出报错
+create table if not exists t1(c1 int primary key, c2 decimal(5,2));
+desc t1;
+insert into t1 values(1,1);
+insert into t1 values(2,12.12);
+insert into t1 values(3,123.123);
+select * from t1;
+select *, c1+c2 from t1 where c1 = 3 for update;
+select *, c1+c2 from t1 where c1 = 3;
+--error 58
+insert into t1 values(4,1234.12);
+
+###2-1-2：有效数字不变，增大decimal类型的精度，使得小数点前的有效数字变小，报参数错误，不允许修改
+--error 5014
+alter table t1 alter column c2 set data type decimal(5,3);
+desc t1;
+
+###2-1-3：插入数据查询，有效数字超出decimal规定，溢出报错，不超过则正常插入
+--error 58
+insert into t1 values(5,1234.12);
+
+insert into t1 values(6,123.123);
+insert into t1 values(7,12.12);
+insert into t1 values(8,1);
+select * from t1;
+select *, c1+c2 from t1 where c1 = 7 for update;
+select *, c1+c2 from t1 where c1 = 7;
+drop table if exists t1;
+
+###2-2-1：建表插入数据查询，有效数字超出decimal规定，溢出报错
+create table if not exists t2(c1 int primary key, c2 decimal(5,2));
+desc t2;
+insert into t2 values(1,1);
+insert into t2 values(2,12.12);
+insert into t2 values(3,123.123);
+select * from t2;
+select *, c1+c2 from t2 where c1 = 3 for update;
+select *, c1+c2 from t2 where c1 = 3;
+--error 58
+insert into t2 values(4,1234.12);
+
+###2-2-2：有效数字减少，decimal类型的精度不变，使得小数点前的有效数字变小，报参数错误，不允许修改
+--error 5014
+alter table t2 alter column c2 set data type decimal(4,2);
+desc t2;
+
+###2-2-3：插入数据查询，有效数字超出decimal规定，溢出报错，不超过则正常插入
+--error 58
+insert into t2 values(5,1234.12);
+
+insert into t2 values(6,123.123);
+insert into t2 values(7,12.12);
+insert into t2 values(8,1);
+select * from t2;
+select *, c1+c2 from t2 where c1 = 7 for update;
+select *, c1+c2 from t2 where c1 = 7;
+drop table if exists t2;
+
+###2-3-1：建表插入数据查询，有效数字超出decimal规定，溢出报错
+create table if not exists t3(c1 int primary key, c2 decimal(5,2));
+desc t3;
+insert into t3 values(1,1);
+insert into t3 values(2,12.12);
+insert into t3 values(3,123.123);
+select * from t3;
+select *, c1+c2 from t3 where c1 = 3 for update;
+select *, c1+c2 from t3 where c1 = 3;
+--error 58
+insert into t3 values(4,1234.12);
+
+###2-3-2：有效数字和decimal类型的精度同时减小，使得小数点前的有效数字变小，报参数错误，不允许修改
+--error 5014
+alter table t3 alter column c2 set data type decimal(4,3);
+desc t3;
+
+###2-3-3：插入数据查询，有效数字超出decimal规定，溢出报错，不超过则正常插入
+--error 58
+insert into t3 values(5,1234.12);
+
+insert into t3 values(6,123.123);
+insert into t3 values(7,12.12);
+insert into t3 values(8,1);
+select * from t3;
+select *, c1+c2 from t3 where c1 = 7 for update;
+select *, c1+c2 from t3 where c1 = 7;
+drop table if exists t3;
+
+drop database test_decimal;

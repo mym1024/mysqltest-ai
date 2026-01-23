@@ -1,0 +1,56 @@
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 varchar2(30));
+insert into t values(1,'aaa');
+insert into t values(2,'12345');
+insert into t values(3,'数据类型');
+update t set id2='abcdefg' where id1=2;
+delete from t where id1=1;
+select * from t;
+id1	id2
+2	abcdefg
+3	数据类型
+drop table if exists t;
+create table if not exists t(id1 nvarchar2(30) primary key, id2 int);
+insert into t values('aaa',1);
+insert into t values('12345',2);
+insert into t values('数据类型',3);
+update t set id1='数据' where id1='aaa';
+delete from t where id1='12345';
+select * from t;
+id1	id2
+数据	1
+数据类型	3
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 datetime(6));
+insert into t values(1,'2022-04-11 15:36:01');
+insert into t values(2,'2019-09-11 09:28:34');
+insert into t values(3,'2021-05-30 13:26:14');
+update t set id2='2021-06-30 13:26:33' where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	2021-06-30 13:26:33.000000
+2	2019-09-11 09:28:34.000000
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 number(6,3));
+insert into t values(1,123.4578);
+insert into t values(2,13.24645);
+insert into t values(3,5.12);
+update t set id2=256.78215 where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	256.782
+2	13.246
+drop table if exists t;
+create table if not exists t(id1 number primary key, id2 number);
+insert into t values(1,12);
+insert into t values(2,45798);
+insert into t values(3,512);
+update t set id2=5348 where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	5348
+2	45798
+drop table if exists t;

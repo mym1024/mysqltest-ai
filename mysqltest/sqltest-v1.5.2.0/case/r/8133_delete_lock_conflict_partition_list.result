@@ -1,0 +1,41 @@
+drop table if exists list1;
+create table list1(c1 int primary key,c2 varchar(30)) partition by list(c1) (partition q0 values in (1,2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0	__list@3001	c1
+insert into list1 values(1,'a'),(2,'b');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+begin;
+rollback;
+drop table if exists lislist1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+drop table if exists list1;
+create table list1(c1 int primary key,c2 varchar(30)) ;
+insert into list1 values(1,'a'),(2,'b');
+begin;
+rollback;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;
+drop table if exists list1;
+create table list1(c1 int primary key,c2 varchar(30)) ;
+insert into list1 values(1,'a'),(2,'b');
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+begin;
+begin;
+rollback;
+rollback;
+drop table if exists list1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+create table list1(c1 int primary key,c2 varchar(30)) ;
+insert into list1 values(1,'a'),(2,'b');
+begin;
+begin;
+rollback;
+rollback;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;

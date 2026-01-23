@@ -1,0 +1,11 @@
+drop table if exists t1,t2,t3,t4;
+create user 'u1' identified by 'password1*', 'u2' identified by 'password2*', 'u3' identified by 'password3*', 'u4' identified by 'password4*';
+GRANT SELECT ON test.* TO 'u1';
+create user 'u11' identified by '';
+ERROR 01007: YAO-5038: password must not be empty
+set password for 'u1' = 'password11*';
+set password for 'u_notexist' = 'password11*';
+ERROR 01007: YAO-5035: user not exist
+set password = 'password111*';
+set password = '';
+ERROR HY000: YAO--1: password can not be empty

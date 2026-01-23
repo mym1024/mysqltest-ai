@@ -1,0 +1,64 @@
+###1.测试功能点：带分区空表的一些特殊情况
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：20 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+#
+# Some special cases with empty tables
+#
+
+
+--disable_warnings
+drop table if exists t1;
+--error 5077
+drop partition function h1;
+--enable_warnings
+
+###2-1 对枚举分区中空表的测试
+create enum partition function e1(x) '[(1)],[(2)]';
+create table t1 (nr int ,b char(30),str char(10), primary key (nr)) partition by(ta1,e1,nr);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 10
+select count(*) from t1;
+select * from t1;
+select * from t1 limit 0;
+drop table t1;
+--real_sleep 3
+drop partition function e1;
+
+###2-1 对range分区中空表的测试
+create table t1 (nr int ,b char(30),str char(10), primary key (nr)) partition by range(nr)(partition q1 values less than(1),partition q2 values less than maxvalue);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+select count(*) from t1;
+select * from t1;
+select * from t1 limit 0;
+drop table t1;
+--real_sleep 3
+
+###2-1 对list分区中空表的测试
+create table t1 (nr int ,b char(30),str char(10), primary key (nr)) partition by list(nr)(partition p1 values in(1,2),partition p2 values in(3,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+select count(*) from t1;
+select * from t1;
+select * from t1 limit 0;
+drop table t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################
+

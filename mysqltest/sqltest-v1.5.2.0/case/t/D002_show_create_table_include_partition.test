@@ -1,0 +1,549 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+####################################必填######################################################
+###1.测试功能点：不同列类型，列选项，表选项下，以及不同在不同指定分区方式下，
+###                              显示的建表语句是否可用，所建的表是否与原表相同。
+###
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：xxx
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-12-24
+###7.其他（选填）：新编关于show create table功能case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+--enable_warnings
+
+#2-1：不同类型列不同选项建表
+create table if not exists t1(c1 int default 10,c2 bigint default 20,c3 integer not null,c4 mediumint default 20 not null,c5 smallint,c6 tinyint,c7 binary(30),c8 char(30),c9 varchar(30),c10 varbinary(30),c11 bool,c12 createtime,c13 datetime,c14 timestamp,c15 double,c16 real,c17 float,c18 modifytime,primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c17,c13,c14,c15,c16));
+
+###人工检查一些语句与上边建表语句是否相同
+show create table t1;
+
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+--real_sleep 2
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+###2-2：不同表选项建表
+drop table t1,t2;
+create table if not exists t1(c1 varchar(30) primary key,c2 int) EXPIRE_INFO = '$SYS_DATE > c1 + 24*60*60*1000000',REPLICA_NUM = 4,COMPRESS_METHOD = 'lzo_1_0';
+
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+
+drop table t1,t2;
+###先创建再绑定分区的表能否正常显示
+###2-3：hash的单列，多列，最多16列
+create hash partition function h(x) 'x+1';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(hs,h,c1);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+
+create hash partition function h2(x,y) 'x+y';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(h2,h2,c1,c2);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create hash partition function hd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) 'a1+a2+a3+a4+a5+a6+a7+a8+a9+a10+a11+a12+a13+a14+a15+a16';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(h,hd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+drop partition function h,h2,hd;
+
+###2-4：enum的单列，多列，最多16列
+create enum partition function em(x) '[(1),(2),(3),(4),(5),(6)],[(11),(12),(13)],[(25),(23),(21)]';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(en,em,c1);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create enum partition function em2(x,y) '[(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)],[(11,11),(12,12),(13,13)],[(25,25),(23,23),(21,21)]';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(em2,em2,c1,c2);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create enum partition function emd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '[(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)],[(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)]';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(em,emd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+drop partition function em,em2,emd;
+
+###2-5：range的单列，多列，最多16列
+create range partition function r1(x) '(\'10\'),(\'20\'),(maxvalue)';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(r,r1,c1);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create range partition function r2(x,y) '(\'10\',50),(\'20\',60),(maxvalue,maxvalue)';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(r,r2,c1,c2);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create range partition function r3(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(rr,r3,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+drop partition function r1,r2,r3;
+
+###2-6：以下划线开头的函数名以及分区未指定前缀名
+create range partition function _r4(x) '(\'10\'),(\'20\'),(maxvalue)';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(rr,_r4,c1);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(,_r4,c1);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+drop partition function _r4;
+
+
+###range和list分区自绑定建表能否正常显示以及未绑定分区
+###2-7：range分区
+create table t1(c1 int primary key,c2 int)
+partition by range(c1)
+(partition p0 values less than(5)
+,partition p1 values less than(10)
+,partition p2 values less than(maxvalue));
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2))
+partition by range columns(c1,c2)
+(partition p0 values less than(5,10)
+,partition p1 values less than(10,20)
+,partition p2 values less than(maxvalue,maxvalue));
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+###2-8：list分区
+create table t1(c1 int primary key,c2 int)
+partition by list(c1)
+(partition p0 values in(1,2,3,4,5,18,19)
+,partition p1 values in(6,7,8,9,10,16,17)
+,partition p2 values in(11,12,13,14,15));
+
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2))
+partition by list columns(c1,c2)
+(partition p0 values in((5,10),(4,9))
+,partition p1 values in((10,20),(9,19))
+,partition p2 values in((3,6),(4,5)));
+
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+
+
+###2-9：未分区
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16));
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(a);
+show create table t1;
+let $n1=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+
+exec echo "show create table t1"|mysql -rN -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest >./zp.sql 2>/dev/null;
+exec sed -i 's/t1/t2/g' ./zp.sql;
+exec sed -i '1s/test.t2//' ./zp.sql;
+exec mysql -h $RS0_IP -P$OBMYSQL_PORT -uadmin -padmin -Dtest <./zp.sql;
+
+let $n2=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+
+eval select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n2 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=$n1);
+eval select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n2 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=$n1);
+eval select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n2 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=$n1);
+drop table t1,t2;

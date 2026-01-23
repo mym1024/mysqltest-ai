@@ -1,0 +1,480 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：威士顿客户SQL适配
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhangtong
+###7.编写/修改日期：2024-04-29
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+###表名和列名含反单引号
+DROP TABLE IF EXISTS `t1`, `t2`;
+create table `t2`(`c1` INT ,`c2` varchar(64) PRIMARY KEY ,`c3` varchar(64));
+desc t2;
+CREATE TABLE `t1`  (
+  `cc1` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `cc2` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (cc1) USING BTREE,
+  INDEX idx_1 (cc1) USING BTREE,
+  INDEX idx_2 (cc2) USING BTREE,
+  KEY `key_1` (`cc1`) USING BTREE,
+  CONSTRAINT `FK_1` FOREIGN KEY (`cc1`) REFERENCES `t2` (`c2`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `FK_2` FOREIGN KEY (`cc2`) REFERENCES `t2` (`c2`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+create unique index idx_scope on t1(`cc2`);
+show index on t1;
+show create table t1;
+
+###字符集相关及表属性相关设置
+SHOW CHARACTER SET;
+SHOW COLLATION;
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1 (
+  c1 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '唯一编号',
+  c2 varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务组织' 
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性信息' ROW_FORMAT = Dynamic;
+show create table t1;
+
+DROP TABLE IF EXISTS t1;
+create table t1 (c1 int,c2 varchar(255) COLLATE utf8mb4_general_ci) COLLATE = utf8mb4_general_ci;
+show create table t1;
+
+DROP TABLE IF EXISTS t2;
+create table t2 (c1 int,c2 varchar(255) CHARACTER SET utf8mb4) CHARACTER SET = utf8mb4;
+show create table t1;
+
+DROP TABLE IF EXISTS t3;
+create table t3 (c1 int,c2 varchar(255) COLLATE utf8mb4_general_ci,c3 varchar(255) charset 'utf8mb4')ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into t3 values(1,'测试','中文字符'),(2,'分布','中文字符');
+#insert into t3 values(1,_utf8mb4'测试',_utf8mb4'中文字符'),(2,_utf8mb4'分布',_utf8mb4'中文字符');
+#alter table t3 add column c4 varchar(255) charset 'gb18030'; 
+show create table t3;
+select * from t3;
+#update t3 set c2=_utf8mb4'中文字符' where c2=_utf8mb4'测试';
+#select * from t3;
+
+#alter table t1 modify c3 varchar(255)  character set utf8mb4 collate utf8mb4_general_ci;
+#show create table t3;
+#select * from t3;
+
+#delete from t1 where data_gb18030 = _gb18030'分布'; 
+#select * from t3;
+
+#alter table t1 drop column c2;
+#show create table t3;
+#select * from t3;
+
+###主键后+B-tree 索引类型
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1  (
+  c1 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '唯一编号',
+  c2 varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务组织',
+  c3 varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (c1) USING BTREE,
+  INDEX id_x(c3) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性详细信息' ROW_FORMAT = Dynamic;
+
+###数据类型
+DROP TABLE IF EXISTS t1;
+create table t1 (
+	c1 int,
+	c2 tinyint(1) NULL DEFAULT NULL,
+	c3 smallint(6) DEFAULT NULL,
+	c4 longtext,
+	c5 text,
+	c6 blob,
+	c7 tinyblob,
+	c8 bigint(20) NOT NULL,
+	PRIMARY KEY (c1) USING BTREE,
+	INDEX id_x(c3) USING BTREE
+);
+desc t1;
+insert into t1 values(1,0,11,'一种用来存储非常大文本数据的类型，在MySQL中，它可以存储最大长度为 4 GB 的文本数据。这种类型通常用于存储长文本、大段文字或者大型文件内容','text类型是用来存储较长文本数据的数据类型，在MySQL中，有以下几种 text 类型',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',1000000),
+(2,1,22,'大段文章、长篇小说、大型报告等等。它不像整数类型有固定的数值范围，而是根据实际文本长度来决定占用的存储空间。','Hello, this is a sample text message',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',x'FFD8FFE000104A46494600010101006000600000FFE100164578696600004D4D002A0000000800060100000002000000110001000100000003000000FE0001000400000001000000000000005200480500010000006800060001000000020000',1000000);
+select c1,c2,c3,c4,c5,hex(c6),hex(c7),c8 from t1;
+
+###关键字
+DROP TABLE IF EXISTS t1;
+create table t1 (
+	result varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'result关键字',
+	traceId varchar(36) DEFAULT NULL,
+	move varchar(64) DEFAULT NULL,
+	action varchar(32) DEFAULT NULL,
+	createTime datetime DEFAULT NULL,
+	days datetime DEFAULT NULL,
+	query tinyint(1) NOT NULL,
+	sequence varchar(36) DEFAULT NULL,
+	minValue varchar(36) DEFAULT NULL,
+	scope varchar(36) DEFAULT NULL,
+	offset varchar(20) DEFAULT NULL,
+	cycle varchar(36) DEFAULT NULL,
+	limit varchar(36) DEFAULT NULL
+);
+desc t1;
+
+DROP TABLE IF EXISTS `t1`;
+create table t1 (
+	`result` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'result关键字',
+	`traceId` varchar(36) DEFAULT NULL COMMENT 'traceId关键字',
+	`move` varchar(64) DEFAULT NULL COMMENT 'move关键字',
+	`action` varchar(32) DEFAULT NULL COMMENT 'action关键字',
+	`createTime` datetime DEFAULT NULL COMMENT 'createTime关键字',
+	`days` datetime DEFAULT NULL COMMENT 'days关键字',
+	`query` tinyint(1) NOT NULL COMMENT 'query关键字',
+	`sequence` varchar(36) DEFAULT NULL COMMENT 'sequence关键字',
+	`minValue` varchar(36) DEFAULT NULL COMMENT 'minValue关键字',
+	`scope` varchar(36) DEFAULT NULL COMMENT 'scope关键字',
+	`offset` varchar(20) DEFAULT NULL COMMENT 'offset关键字',
+	`cycle` varchar(36) DEFAULT NULL COMMENT 'cycle关键字'
+);
+desc t1;
+
+###建表语句含外键引用不存在的表和字段(暂不适配)
+#DROP TABLE IF EXISTS t1;
+#CREATE TABLE t1  (
+#  c1 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+#  c2 varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+#  INDEX FK_89ht1e2nyct31ew0k1sl182q0(c2) USING BTREE,
+#  INDEX FK_bm0dbv5vmj7ufv0w7ug0dyhu1(c1) USING BTREE,
+#  CONSTRAINT FK_89ht1e2nyct31ew0k1sl182q0 FOREIGN KEY (c2) REFERENCES sys_documentinfo (id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+#  CONSTRAINT FK_bm0dbv5vmj7ufv0w7ug0dyhu1 FOREIGN KEY (c1) REFERENCES bas_auditinfo (id) ON DELETE RESTRICT ON UPDATE RESTRICT
+#) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+###建表语句含索引创建超过12个(临界个数小于16)
+DROP TABLE IF EXISTS t1,t2;
+CREATE TABLE `t1` ( `id` varchar(64) NOT NULL PRIMARY KEY);
+CREATE TABLE t2 (
+  id varchar(64) NOT NULL,
+  docCat varchar(255) DEFAULT NULL,
+  docDate datetime DEFAULT NULL,
+  docSourceType varchar(36) DEFAULT NULL,
+  fmLotNum varchar(255) DEFAULT NULL,
+  fmMaterielId varchar(36) DEFAULT NULL,
+  toLotNum varchar(255) DEFAULT NULL,
+  toMaterielId varchar(36) DEFAULT NULL,
+  transactionType varchar(36) NOT NULL,
+  fmUomId varchar(64) DEFAULT NULL,
+  toUomId varchar(64) DEFAULT NULL,
+  fmWarehouseCode varchar(36) DEFAULT NULL,
+  toWarehouseCode varchar(36) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY FK_3n0lsnpngy4r2nhlpdeciix4p (fmUomId),
+  KEY FK_qqr5bhqcvx1ampdnfaedik1vy (toUomId),
+  KEY t2_idx_fmMatId (fmMaterielId),
+  KEY t2_idx_toMatId (toMaterielId),
+  KEY t2_tln_idx (fmLotNum),
+  KEY t2_fln_idx (toLotNum),
+  KEY t2_tt_idx (transactionType),
+  KEY t2_dd_idx (docDate),
+  KEY t2_dc_idx (docCat),
+  KEY t2_dst_idx (docSourceType),
+  KEY t2_fmwc_idx (fmWarehouseCode),
+  KEY t2_towc_idx (toWarehouseCode),
+  KEY FK13(toWarehouseCode),
+  KEY FK14(toWarehouseCode),
+  KEY FK15 (toWarehouseCode),
+  CONSTRAINT FK_3n0lsnpngy4r2nhlpdeciix4p FOREIGN KEY (fmUomId) REFERENCES t1 (id),
+  CONSTRAINT FK_qqr5bhqcvx1ampdnfaedik1vy FOREIGN KEY (toUomId) REFERENCES t1 (id)
+) ;
+show index on t2;
+show create table t2;
+DROP TABLE IF EXISTS t2;
+DROP TABLE IF EXISTS t1;
+#--error 1
+CREATE TABLE `t1` ( 
+	`id` varchar(64) NOT NULL,
+	`name` varchar(64) NOT NULL,
+	PRIMARY KEY (id),
+	KEY FK1 (id),
+	KEY FK2 (id),
+	KEY FK3 (id),
+	KEY FK4 (id),
+	KEY FK5 (id),
+	KEY FK6 (id),
+	KEY FK7 (id),
+	KEY FK8 (id),
+	KEY FK9 (id),
+	KEY FK10 (name),
+	KEY FK11 (name),
+	KEY FK12 (name),
+	KEY FK13 (name),
+	KEY FK14 (name),
+	KEY FK15 (name),
+	KEY FK16 (name),
+	KEY FK17 (name)
+);
+
+###建表语句外键引用的列字段长度小于引用父表字段长度
+DROP TABLE IF EXISTS t1;
+CREATE TABLE t1 (
+  id varchar(64) NOT NULL,
+  bizOrgCode varchar(36) DEFAULT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS t2;
+CREATE TABLE t2 (
+  id varchar(64) NOT NULL,
+  inCheckId varchar(36) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY FK_rtvexgd7o9yhbf9bjohjvcm7x (inCheckId),
+  CONSTRAINT FK_rtvexgd7o9yhbf9bjohjvcm7x FOREIGN KEY (inCheckId) REFERENCES t1 (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+###unique_fk
+CREATE TABLE unique_table (
+    id INT PRIMARY KEY,
+    unique_nullable_column INT NULL,
+    other_column VARCHAR(255),
+    UNIQUE KEY idx_unique_nullable_column (unique_nullable_column)
+);
+
+INSERT INTO unique_table VALUES(1,NULL, 'data1'),(2,123, 'data2'),(3,NULL, 'data3'),(4,456, 'data4'),(5,NULL, 'data5');
+select * from unique_table;
+
+--error 5006
+CREATE TABLE parent_table1 (
+    parent_id VARCHAR(10) AUTO_INCREMENT PRIMARY KEY,
+    data VARCHAR(50)
+);
+--error 18
+CREATE TABLE child_table1 (
+    child_id INT AUTO_INCREMENT PRIMARY KEY,
+    parent_id VARCHAR(15),
+    FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id)
+);
+###外键不设置级联更新删除
+CREATE TABLE parent_table (
+    parent_id VARCHAR(10) PRIMARY KEY,
+    data VARCHAR(50)
+);
+
+CREATE TABLE child_table (
+    child_id INT PRIMARY KEY,
+    parent_id VARCHAR(15),
+    FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id) 
+);
+
+show create table child_table;
+INSERT INTO parent_table (parent_id, data) VALUES ('parent_1', 'Parent Data 1'),('parent_2', 'Parent Data 2'),('parent_3', 'Parent Data 3');
+INSERT INTO child_table (child_id, parent_id) VALUES (1, 'parent_1'),(2, 'parent_2');
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###给子表插入一条父表parent_id不存在的数据
+--error 5209
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_add');
+###给子表插入一条父表parent_id存在的数据
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_1');
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试在父表中更新 parent_id 字段的值，使其超出子表中的字段长度限制
+--error 119
+UPDATE parent_table SET parent_id = 'new_parent_id_exceeding_length_limit' WHERE parent_id = 'parent_1';
+--sleep 3
+###尝试在父表中更新 parent_id 字段的值，使其小于子表中的字段长度限制
+--error 119
+UPDATE parent_table SET parent_id = 'new_parent' WHERE parent_id = 'parent_1';
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试将子表中的外键值更新为一个不存在于父表中的值
+--error 5209
+UPDATE child_table SET parent_id = 'parent_10' WHERE child_id = 1;
+###尝试将子表中的外键值更新为一个存在于父表中的值
+UPDATE child_table SET parent_id = 'parent_3' WHERE child_id = 2;
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试在父表中删除parent_id字段值在子表中存在的数据
+--error 5209
+DELETE FROM parent_table WHERE parent_id = 'parent_3';
+###尝试在子表中删除parent_id字段值在子表中存在的数据
+DELETE FROM child_table WHERE parent_id = 'parent_2';
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+--error 16
+drop table parent_table;
+drop table child_table;
+drop table parent_table;
+
+
+###外键设置级联更新删除
+CREATE TABLE parent_table (
+    parent_id VARCHAR(10) PRIMARY KEY,
+    data VARCHAR(50)
+);
+
+CREATE TABLE child_table (
+    child_id INT PRIMARY KEY,
+    parent_id VARCHAR(15),
+    FOREIGN KEY (parent_id) REFERENCES parent_table(parent_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+show create table child_table;
+INSERT INTO parent_table (parent_id, data) VALUES ('parent_1', 'Parent Data 1'),('parent_2', 'Parent Data 2'),('parent_3', 'Parent Data 3');
+INSERT INTO child_table (child_id, parent_id) VALUES (1, 'parent_1'),(2, 'parent_2');
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###给子表插入一条父表parent_id不存在的数据
+--error 5209
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_add');
+###给子表插入一条父表parent_id存在的数据
+INSERT INTO child_table (child_id, parent_id) VALUES (3, 'parent_1');
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试在父表中更新 parent_id 字段的值，使其超出子表中的字段长度限制
+--error 119
+UPDATE parent_table SET parent_id = 'new_parent_id_exceeding_length_limit' WHERE parent_id = 'parent_1';
+###尝试在父表中更新 parent_id 字段的值，使其小于子表中的字段长度限制
+UPDATE parent_table SET parent_id = 'new_parent' WHERE parent_id = 'parent_1';
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试将子表中的外键值更新为一个不存在于父表中的值
+--error 5209
+UPDATE child_table SET parent_id = 'parent_10' WHERE child_id = 1;
+###尝试将子表中的外键值更新为一个存在于父表中的值
+UPDATE child_table SET parent_id = 'parent_3' WHERE child_id = 2;
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+###尝试在父表中删除parent_id字段值在子表中存在的数据
+DELETE FROM parent_table WHERE parent_id = 'parent_3';
+###尝试在子表中删除parent_id字段值在子表中存在的数据
+DELETE FROM child_table WHERE parent_id = 'parent_2';
+SELECT * FROM parent_table;
+SELECT * FROM child_table;
+
+--error 16
+drop table parent_table;
+drop table child_table;
+drop table parent_table;
+
+###issue212 Feature-WSD-1.0-【Dbeaver适配】-IssueList
+#全局状态
+SHOW GLOBAL STATUS;
+SHOW STATUS;
+#用户权限
+SHOW PRIVILEGES;
+#查询表信息
+#/*ApplicationName=Dbeaver*/ SHOW TABLE STATUS FROM TEST LIKE 't1';
+#SHOW FULL TABLES FROM TEST WHERE Tables_in_test = 't1' ;
+#库查询(mysql和ob也会报错 不对应)
+#show databases WHERE Database='test';
+#查看数据库源
+SHOW CREATE DATABASE test;
+#连接测试
+SHOW PLUGINS;
+#用户权限
+SHOW GRANTS FOR 'admin'@'%';
+#删除数据库
+create database test1;
+DROP SCHEMA `test1`;
+#查看表结构
+create table test(c1 int);
+show create table test;
+#创建表失败
+CREATE TABLE test.NewTable (
+	Column1 INT auto_increment NOT NULL,  
+	Column2 varchar(100) DEFAULT 000 NULL, 
+	Column3 BOOL NULL,  
+	Column4 TIMESTAMP NULL, 
+	Column5 varchar(100) NULL,  
+	Column6 varchar(100) NOT NULL,  
+	CONSTRAINT NewTable_pk PRIMARY KEY (Column1), 
+	CONSTRAINT NewTable_unique UNIQUE KEY (Column6) ) ENGINE=InnoDB; 
+#创建外键失败
+
+#添加数据报错
+SHOW WARNINGS;
+#修改数据类型失败(语法适配)
+create table tbl1(c1 int,c2 int,c3 int);
+ALTER TABLE test.tbl1 MODIFY COLUMN c3 VARCHAR(10) NULL; 
+#修改列名称
+ALTER TABLE test.tbl1 CHANGE c3 c33 int NOT NULL;
+desc tbl1;
+insert into tbl1 values(1,1,1);
+ALTER TABLE test.tbl1 CHANGE c33 c3 int NOT NULL;
+desc tbl1;
+#创建存储过程不支持指定库
+create database test1;
+use test1;
+delimiter //;
+create procedure test1.p(aaa int) 
+begin 
+select aaa; 
+set aaa=2; 
+end;//
+call test1.p(9)//
+call p(9)//
+--error 5727
+call yao.p(9)//
+delimiter ;//
+
+#创建自增表失败
+drop table test.NewTable;
+CREATE TABLE test.NewTable (  
+	Column1 INT auto_increment NOT NULL,  
+	CONSTRAINT NewTable_pk PRIMARY KEY (Column1) 
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	
+CREATE TABLE test_auto_increment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50)
+) ENGINE=InnoDB;
+INSERT INTO test_auto_increment (name) VALUES ('Alice');
+INSERT INTO test_auto_increment (name) VALUES ('Bob');
+INSERT INTO test_auto_increment (name) VALUES ('Charlie');
+SELECT * FROM test_auto_increment;
+SELECT MAX(id) FROM test_auto_increment;
+TRUNCATE TABLE test_auto_increment;
+#已存在自增表修改自增开始点
+ALTER TABLE test.test_auto_increment AUTO_INCREMENT=21;
+INSERT INTO test_auto_increment (name) VALUES ('David');
+INSERT INTO test_auto_increment (name) VALUES ('Eva');
+SELECT * FROM test_auto_increment;
+
+###1.3.2.1对应issue
+#支持建索引、序列包含库名前缀
+create table test.tbl2(c1 int,c2 varchar(25));
+create index test.idx1 on test.tbl2(c1);
+show index on test.tbl2;
+
+create or replace sequence test.seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 18 cycle;
+#select nextval for test.seq1 from t1;
+#select prevval for test.seq1 from t1;
+
+#issue221:兼容Mysql5.x版本查询表、列索引等信息(其中大小写敏感未对应)
+CREATE TABLE NUMERIC_TABLE  (
+  ID number(10) NOT NULL COMMENT '数值类型，最大10位数字，主键，不允许为空',
+  EXACT_NUMBER number(10, 2) NULL COMMENT '数值类型，最大10位数字，其中2位为小数',
+  ANY_PRECISION_NUMBER number NULL COMMENT '数值类型，不带精度',
+  APPROXIMATE_NUMBER FLOAT NULL COMMENT '浮点数，精度为6',
+  PRIMARY KEY (ID)
+) COMMENT = '包含不同类型数值数据的示例表';
+
+SHOW KEYS FROM `NUMERIC_TABLE` FROM `test1`;
+SHOW FULL TABLES FROM `test1` LIKE 'NUMERIC_TABLE';
+SHOW FULL COLUMNS FROM `NUMERIC_TABLE` FROM `test1` LIKE '%';
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

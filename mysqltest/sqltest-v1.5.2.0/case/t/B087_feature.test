@@ -1,0 +1,92 @@
+##############################################################################################
+###1.测试功能点：测试里程碑版本新支持的小功能
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：zhangt
+###7.编写/修改日期：2024-02
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+###2-1：v1.3.0.0新支持：汉字列别名
+create table t1(pk int primary key,b int);
+create table t2(pk int primary key,b int);
+insert into t1 values(1,1),(2,2);
+insert into t2 values(1,1);
+select sum(pk) as 总数,pk*b as 乘 from t1;
+select 表1.pk as 表1_PK,表2.pk as 表2_PK FROM t1 表1 JOIN t2 表2 on 表1.b = 表2.b;
+select b as 排序 from t1 order by 排序 desc;
+select 表1.pk,(SELECT COUNT(*) FROM t2 where b = 表1.b) as 子查询 from t1 表1;
+drop table t1,t2;
+
+create table test(id int,age int,score double,high float,name varchar(30),isgoodman bool,todaydate date);
+insert into test values(1,23,66.6,165,'aaa',true,'1997-08-19'),(2,28,99,180,'bbb',true,'2000-08-19'),(3,99,34,157,'ccc',false,'1996-08-19');
+##select 选择列表中使用中文列别名
+select id as 序号 from test;
+select score as 分数 from test;
+select high as 身高 from test; 
+select name as 姓名 from test; 
+select isgoodman as 是否好人 from test; 
+select count(*) as 总人数 from test;
+select todaydate as 日期 from test; 
+--error 5001
+select name as 姓 名 from test; 
+select age as 年龄,name as 姓名,todaydate as 日期 from test;
+select score as 得分,high as 身高,isgoodman as 是否好人 from test;
+select id as 序号,score as 得分,high as 身高,isgoodman as 是否好人 ,name as 姓名, todaydate as 日期 from test;
+select count(*) as 总数,id as 序号,score as 得分,high as 身高,isgoodman as 是否好人 ,name as 姓名, todaydate as 日期 from test group by 身高;
+select high as 身高 from test where 身高 < 170;
+##在group by字句中使用中文列别名
+select age as 年龄 ,count(*) from test group by  年龄;
+select age as 年龄 ,count(*) from test group by  年龄 having 年龄<=20;
+--error 5006
+select count(*) as 人数 from test where 人数 >1 group by age;
+##在order by字句中使用中文列别名
+select high as 身高 from test order by 身高;
+--error 5001
+select count(*) as 人数 from test where group by age order by 人数;
+##汉字英文数字混合及长度
+select id as my序号 from test;
+select id as 序号my from test;
+select id as 序my号 from test;
+select id as my序my号my序号 from test;
+select age as 111年龄 from test;
+select age as 年龄222 from test;
+select age as 年333龄 from test;
+select age as 11年333龄22年 from test;
+select age as _年龄 from test;
+select age as 年__龄 from test;
+select age as 年龄__ from test;
+select age as __年__龄__ from test;
+select name as 123__11abc年__a1q_龄23__ from test;
+select name as _你125a_aq1年12ad_龄23_的_5 from test;
+select name as 年龄414__as姓名12_abd__ from test;
+
+###2-2: v1.3.0.0新支持：USING BTREE形式普通索引在表结构中创建
+create table t1(pk int primary key,b int, KEY index_1(b) USING BTREE);
+show index on t1;
+insert into t1 values(1,1),(2,2);
+delete from t1 where b =2;
+select * from t1;
+create index index_2 on t1(b);
+show index on t1;
+DROP INDEX index_2 ON t1;
+show index on t1;
+create table t2(pk int primary key,b int,c int, KEY index_1(b,c) USING BTREE);
+show index on t2;
+drop table t1,t2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

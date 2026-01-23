@@ -1,0 +1,304 @@
+drop table if exists t1,t2,t3,t4 purge;
+-- close trash
+set global trash_bin_switch = false;
+drop one table
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+drop table if exists t1;
+drop tables
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+drop table if exists t1,t2;
+use db_name drop table
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test1
+drop table if exists t1;
+drop database test1;
+use purge drop one table
+using database test;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+drop table if exists t1;
+use purge drop tables
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+drop table if exists t1,t2;
+use db name and purge drop table
+create database test1;
+using database test1;
+create table t1 (cl int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test1
+drop table if exists t1;
+drop database test1;
+use if exists drop one table
+drop table if exists test1.t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name
+use if exists drop one existed table
+using database test;
+drop table if exists t1;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table if exists t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+use if exists drop existed tables
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+insert into t2 values(1,1),(2,2);
+drop table if exists t1,t2;
+show recyclebin;
+drop_name	drop_time	object_name	type
+use if exists and db name drop not existed table
+drop table if exists test1.t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+use if exists and db_name drop existed table
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop table if exists test1.t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test1
+drop database test1;
+-- open trash
+set global trash_bin_switch = true;
+drop table if exists t1 purge;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3013	t1	2
+show tables;
+table_name_in_test
+drop table if exists t1 purge;
+purge recyclebin;
+drop table if exists t1,t2 purge;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3014	t1	2
+t2_3015	t2	2
+show tables;
+table_name_in_test
+drop table if exists t1,t2 purge;
+purge recyclebin;
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3016	t1	2
+show tables;
+table_name_in_test1
+flashback t1 to before drop;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test1
+t1
+drop table if exists t1 purge;
+drop database test1 purge;
+purge recyclebin;
+using database test;
+drop table if exists t1 purge;
+create table t1(c1 int primary key, c2 int,c3 modifytime);
+alter table t1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+drop table t1;
+select expire_condition from __first_tablet_entry where table_name = 't1_3017';
+expire_condition
+$SYS_DATE>c3+1*1*1*60*1000000
+using database test;
+drop table if exists t1 purge;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table t1 purge;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3017	t1	2
+show tables;
+table_name_in_test
+drop table if exists t1 purge;
+purge recyclebin;
+drop table if exists t1,t2 purge;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+insert into t2 values (1,1),(2,2);
+drop table t1,t2 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+drop table if exists t1,t2 purge;
+purge recyclebin;
+create database test1;
+using database test1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2);
+drop table test1.t1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test1
+drop table if exists t1 purge;
+drop database test1 purge;
+purge recyclebin;
+using database test;
+drop table if exists t1 purge;
+drop table if exists t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+purge recyclebin;
+drop table if exists t1,t2 purge;
+drop table if exists t1,t2;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+purge recyclebin;
+drop table if exists test1.t1;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+purge recyclebin;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table if exists t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3022	t1	2
+show tables;
+table_name_in_test
+purge recyclebin;
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table if exists t1,t2;
+select drop_name,object_name, type from __all_trash;
+drop_name	object_name	type
+t1_3023	t1	2
+t2_3024	t2	2
+show tables;
+table_name_in_test
+purge recyclebin;
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop table if exists test1.t1;
+select drop_name, object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3025	t1	2
+show tables;
+table_name_in_test1
+purge recyclebin;
+drop database test1 purge;
+-- close trash
+set global trash_bin_switch = false;
+drop table __all_trash;
+ERROR 42S02: YAO-5019: table 'test.__all_trash' does not exist
+drop table if exists t1;
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop table if exists t1;
+drop table test.t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+-- open trash
+set global trash_bin_switch = true;
+drop table __all_trash;
+ERROR 42S02: YAO-5019: table 'test.__all_trash' does not exist
+drop table if exists t1;
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop table if exists t1;
+drop table test.t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+create user 'u1' identified by 'pass-12345';
+grant drop on * to 'u1';
+drop table t1 purge;
+revoke drop on * from 'u1';
+drop table t2 purge;
+ERROR HY000: YAO-5036: no privilege
+drop table if exists t1,t2 purge;
+drop user 'u1';
+create table
+t_255_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa_250_s255(id int primary key,c2 varchar(10),c3 decimal(10));
+create table
+t_246_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa(id int primary key,c2 varchar(10),c3 decimal(10));
+drop table
+t_255_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa_250_s255;
+ERROR HY000: YAO-5108: drop table name or index name is too long in open trash
+drop table
+t_246_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa;
+create table t(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+create index
+t_230_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230 on t(c1);
+create index
+t_240_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240 on t2(c1);
+drop table t;
+drop table t2;
+ERROR HY000: YAO-5108: drop table name or index name is too long in open trash

@@ -1,0 +1,184 @@
+##############################################################################################
+###1.测试功能点：在不同类型的分区表上执行超过129张表的union操作
+##                  bug#18175：union select over 129 tables with a sum function fails
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：35s
+###6.编写/修改人： huangpeng
+###7.编写/修改日期：2019-11-28
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+###2-1:在enum类型的分区表上执行超过129张表的union操作
+
+create enum partition function e1(x) '[(1)],[(100)],[(1000)]';
+create table t1(c1 int primary key,c2 int) partition by(t11,e1,c1);
+sleep 5;
+insert into t1(c1) values(1000);
+sleep 5;
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1) union
+(select avg(1) from t1) union (select avg(1) from t1) union (select avg(1) from t1);
+
+
+###2-2:在list类型的分区表上执行超过129张表的union操作
+create table t2(c1 int primary key,c2 int) partition by list(c1)(partition p21 values in(1,10),partition p22 values in(100,1000));
+sleep 5;
+insert into t2(c1) values(1000);
+sleep 5;
+
+
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2) union
+(select avg(1) from t2) union (select avg(1) from t2) union (select avg(1) from t2);
+
+
+###2-3:在range类型的分区表上执行超过129张表的union操作
+create table t3(c1 int primary key,c2 int) partition by range(c1)(partition p31 values less than(100),partition p32 values less than maxvalue);
+
+
+sleep 5;
+insert into t3(c1) values(1000);
+sleep 5;
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3) union
+(select avg(1) from t3) union (select avg(1) from t3) union (select avg(1) from t3);
+
+drop table t1,t2,t3;
+drop partition function e1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

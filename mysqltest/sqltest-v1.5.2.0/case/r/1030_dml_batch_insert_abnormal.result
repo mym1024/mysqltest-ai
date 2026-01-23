@@ -1,0 +1,69 @@
+drop table if exists t1,t2;
+create table t1(c1 int primary key, c2 int not null);
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2);
+select * from t2;
+c1	c2
+1	1
+2	2
+insert into t1 (c1) select c1 from t2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from t1;
+c1	c2
+insert into t1 (c2) select c1 from t2;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from t1;
+c1	c2
+insert into t1 select * from t2;
+select * from t1;
+c1	c2
+1	1
+2	2
+insert into t1 select * from t1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	1
+2	2
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	1
+2	2
+drop table if exists t1,t2,t3;
+create table t1(c1 int primary key, c2 int);
+create table t2(c1 int primary key, c2 int);
+create table t3(c1 int primary key, c2 varchar(30));
+insert into t3 values(10,'hhaa');
+select * from t3;
+c1	c2
+10	hhaa
+insert into t1 select * from t3;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from t1;
+c1	c2
+insert into t1(c1) select * from t3;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2
+insert into t2(c2) select c1 from t3;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from t2;
+c1	c2
+drop table if exists t1,t2,t3;
+create table t1(c1 int, c2 real, c3 varchar(30), primary key(c1,c2));
+create table t2(c1 int primary key, c2 real);
+insert into t2 values(1, 1.256);
+select * from t2;
+c1	c2
+1	1.256
+insert into t1(c1,c2) select * from t2;
+select * from t1;
+c1	c2	c3
+1	1.256	NULL
+insert into t1 select * from t2;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2	c3
+1	1.256	NULL

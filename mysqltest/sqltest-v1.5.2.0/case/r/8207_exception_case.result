@@ -1,0 +1,515 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5;
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x,y) '(10,30),(20,40),(maxvalue,maxvalue)';
+create range partition function r_3(x) '(\'10\'),(\'20\'),(maxvalue)';
+create range partition function r_4(x,y) '(\'10\',\'30\'),(\'20\',\'40\'),(maxvalue,maxvalue)';
+create range partition function r_5(x,y) '(10,\'30\'),(20,\'40\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x) 'x';
+create hash partition function h_2(x,y) 'x+y';
+create enum partition function e_1(x) '[(1),(2)],[(3),(4)]';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+e_1	1	x	[(1),(2)],[(3),(4)]
+h_1	1	x	x
+h_2	2	x,y	x+y
+r_1	1	x	(10),(20),(maxvalue)
+r_2	2	x,y	(10,30),(20,40),(maxvalue,maxvalue)
+r_3	1	x	('10'),('20'),(maxvalue)
+r_4	2	x,y	('10','30'),('20','40'),(maxvalue,maxvalue)
+r_5	2	x,y	(10,'30'),(20,'40'),(maxvalue,maxvalue)
+create table t1(a int primary key,b int,c int);
+create table t2(a int,b int,c int,primary key(a,b));
+create table t3(a varchar(10) primary key,b varchar(10),c int);
+create table t4(a varchar(10) ,b varchar(10),c int,primary key(a,b));
+create table t5(a varchar(10),b int,c int,primary key(a,b));
+"refresh"
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+__user_default_group	2	0	NULL
+alter table t1 partition rule to(t1,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t2 partition rule to(t2,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t3 partition rule to(t3,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t4 partition rule to(t4,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t5 partition rule to(t5,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t1 partition rule to(t1,r_3,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_1,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_4,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_2,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t2 partition rule to(t2,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t4 partition rule to(t4,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_4,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_2,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3 partition rule to(t3,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t2 partition rule to(t2,r_1,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t4 partition rule to(t4,r_3,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_1,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t3 partition rule to(t3,r_3,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t2 partition rule to(t3,r_2,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t4 partition rule to(t3,r_4,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t1 partition rule to(t1,e_1,a);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+drop table t1,t2,t3,t4,t5;
+drop partition function r_1,r_2,r_3,r_4,r_5,h_1,h_2,e_1;
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x,y) '(10,30),(20,40),(maxvalue,maxvalue)';
+create range partition function r_3(x) '(\'10\'),(\'20\'),(maxvalue)';
+create range partition function r_4(x,y) '(\'10\',\'30\'),(\'20\',\'40\'),(maxvalue,maxvalue)';
+create range partition function r_5(x,y) '(10,\'30\'),(20,\'40\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x) 'x';
+create hash partition function h_2(x,y) 'x+y';
+create enum partition function e_1(x) '[(1),(2)],[(3),(4)]';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+e_1	1	x	[(1),(2)],[(3),(4)]
+h_1	1	x	x
+h_2	2	x,y	x+y
+r_1	1	x	(10),(20),(maxvalue)
+r_2	2	x,y	(10,30),(20,40),(maxvalue,maxvalue)
+r_3	1	x	('10'),('20'),(maxvalue)
+r_4	2	x,y	('10','30'),('20','40'),(maxvalue,maxvalue)
+r_5	2	x,y	(10,'30'),(20,'40'),(maxvalue,maxvalue)
+create table t1(a int primary key,b int,c int) partition by(t1,r_1,a);
+create table t2(a int,b int,c int, primary key(a,b)) partition by(t2,r_2,a,b);
+create table t3(a varchar(10) primary key,b varchar(10),c int) partition by(t3,r_3,a);
+create table t4(a varchar(10) ,b varchar(10),c int,primary key(a,b))partition by(t4,r_4,a,b);
+create table t5(a int,b varchar(10),c int,primary key(a,b))partition by(t5,r_5,a,b);
+create table t1_1(a int primary key,b int,c int) partition by range(a)(partition p0 values less than(10),partition p1 values less than(20),partition p2 values less than (maxvalue));
+create table t2_1(a int,b int,c int, primary key(a,b)) partition by range columns(a,b) (partition p0 values less than(10,20),partition p1 values less than(20,30),partition p2 values less than (maxvalue,maxvalue));
+create table t3_1(a varchar(10) primary key,b varchar(10),c int) partition by range(a)(partition p0 values less than('10'),partition p1 values less than('20'),partition p2 values less than (maxvalue));
+create table t4_1(a varchar(10) ,b varchar(10),c int,primary key(a,b)) partition by range columns(a,b) (partition p0 values less than('10','20'),partition p1 values less than('20','30'),partition p2 values less than (maxvalue,maxvalue));
+create table t5_1(a varchar(10),b int,c int,primary key(a,b)) partition by range columns(a,b) (partition p0 values less than('10',20),partition p1 values less than('20',30),partition p2 values less than (maxvalue,maxvalue));
+"refresh"
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+t1#0	2	1	NULL
+t1#1	2	0	NULL
+t1#2	2	1	NULL
+t1_1#p0	2	0	NULL
+t1_1#p1	2	1	NULL
+t1_1#p2	2	0	NULL
+t2#0	2	0	NULL
+t2#1	2	1	NULL
+t2#2	2	0	NULL
+t2_1#p0	2	1	NULL
+t2_1#p1	2	0	NULL
+t2_1#p2	2	1	NULL
+t3#0	2	1	NULL
+t3#1	2	0	NULL
+t3#2	2	1	NULL
+t3_1#p0	2	0	NULL
+t3_1#p1	2	1	NULL
+t3_1#p2	2	0	NULL
+t4#0	2	0	NULL
+t4#1	2	1	NULL
+t4#2	2	0	NULL
+t4_1#p0	2	1	NULL
+t4_1#p1	2	0	NULL
+t4_1#p2	2	1	NULL
+t5#0	2	1	NULL
+t5#1	2	0	NULL
+t5#2	2	1	NULL
+t5_1#p0	2	0	NULL
+t5_1#p1	2	1	NULL
+t5_1#p2	2	0	NULL
+__user_default_group	2	0	NULL
+alter table t1 partition rule to(t1,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t2 partition rule to(t2,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t3 partition rule to(t3,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t4 partition rule to(t4,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t5 partition rule to(t5,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t1_1 partition rule to(t1,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t2_1 partition rule to(t2,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t3_1 partition rule to(t3,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t4_1 partition rule to(t4,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t5_1 partition rule to(t5,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t1 partition rule to(t1,r_3,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_1,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_4,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_2,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t2 partition rule to(t2,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t4 partition rule to(t4,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t1_1 partition rule to(t1,r_3,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3_1 partition rule to(t3,r_1,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5_1 partition rule to(t5,r_4,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5_1 partition rule to(t5,r_2,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t2_1 partition rule to(t2,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t4_1 partition rule to(t4,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_4,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_2,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t2 partition rule to(t2,r_1,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t4 partition rule to(t4,r_3,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3 partition rule to(t3,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3_1 partition rule to(t3,r_4,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1_1 partition rule to(t1,r_2,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t2_1 partition rule to(t2,r_1,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t4_1 partition rule to(t4,r_3,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3_1 partition rule to(t3,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1_1 partition rule to(t1,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_1,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t3 partition rule to(t3,r_3,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t2 partition rule to(t3,r_2,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t4 partition rule to(t3,r_4,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t1_1 partition rule to(t1,r_1,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t3_1 partition rule to(t3,r_3,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t2_1 partition rule to(t3,r_2,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t4_1 partition rule to(t3,r_4,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t1 partition rule to(t1,e_1,a);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+alter table t1_1 partition rule to(t1,e_1,a);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+drop table t1,t2,t3,t4,t5,t1_1,t2_1,t3_1,t4_1,t5_1;
+drop partition function r_1,r_2,r_3,r_4,r_5,h_1,h_2,e_1;
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x,y) '(10,30),(20,40),(maxvalue,maxvalue)';
+create range partition function r_3(x) '(\'10\'),(\'20\'),(maxvalue)';
+create range partition function r_4(x,y) '(\'10\',\'30\'),(\'20\',\'40\'),(maxvalue,maxvalue)';
+create range partition function r_5(x,y) '(10,\'30\'),(20,\'40\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x) 'x';
+create hash partition function h_2(x,y) 'x+y';
+create enum partition function e_1(x) '[(1),(2)],[(3),(4)]';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+e_1	1	x	[(1),(2)],[(3),(4)]
+h_1	1	x	x
+h_2	2	x,y	x+y
+r_1	1	x	(10),(20),(maxvalue)
+r_2	2	x,y	(10,30),(20,40),(maxvalue,maxvalue)
+r_3	1	x	('10'),('20'),(maxvalue)
+r_4	2	x,y	('10','30'),('20','40'),(maxvalue,maxvalue)
+r_5	2	x,y	(10,'30'),(20,'40'),(maxvalue,maxvalue)
+create table t1(a int primary key,b int,c int) partition by list(a)(partition p0 values in(1,2,3),partition p1 values in(4,5,6));
+create table t2(a int,b int,c int, primary key(a,b)) partition by list columns(a,b)(partition p0 values in((1,2),(2,4),(3,6)),partition p1 values in((4,8),(5,10),(6,12)));
+create table t3(a varchar(10) primary key,b varchar(10),c int) partition by list(a)(partition p0 values in('1','2','3'),partition p1 values in('4','5','6'));
+create table t4(a varchar(10) ,b varchar(10),c int,primary key(a,b))partition by list columns(a,b)(partition p0 values in(('1','2'),('2','4'),('3','6')),partition p1 values in(('4','8'),('5','10'),('6','12')));
+create table t5(a varchar(10),b int,c int,primary key(a,b))partition by list columns(a,b)(partition p0 values in(('1',2),('2',4),('3',6)),partition p1 values in(('4',8),('5',10),('6',12)));
+"refresh"
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+t1#0	2	1	NULL
+t1#1	2	0	NULL
+t1#2	2	1	NULL
+t1#p0	2	1	NULL
+t1#p1	2	0	NULL
+t1_1#p0	2	0	NULL
+t1_1#p1	2	1	NULL
+t1_1#p2	2	0	NULL
+t2#0	2	0	NULL
+t2#1	2	1	NULL
+t2#2	2	0	NULL
+t2#p0	2	1	NULL
+t2#p1	2	0	NULL
+t2_1#p0	2	1	NULL
+t2_1#p1	2	0	NULL
+t2_1#p2	2	1	NULL
+t3#0	2	1	NULL
+t3#1	2	0	NULL
+t3#2	2	1	NULL
+t3#p0	2	1	NULL
+t3#p1	2	0	NULL
+t3_1#p0	2	0	NULL
+t3_1#p1	2	1	NULL
+t3_1#p2	2	0	NULL
+t4#0	2	0	NULL
+t4#1	2	1	NULL
+t4#2	2	0	NULL
+t4#p0	2	1	NULL
+t4#p1	2	0	NULL
+t4_1#p0	2	1	NULL
+t4_1#p1	2	0	NULL
+t4_1#p2	2	1	NULL
+t5#0	2	1	NULL
+t5#1	2	0	NULL
+t5#2	2	1	NULL
+t5#p0	2	1	NULL
+t5#p1	2	0	NULL
+t5_1#p0	2	0	NULL
+t5_1#p1	2	1	NULL
+t5_1#p2	2	0	NULL
+__user_default_group	2	0	NULL
+alter table t1 partition rule to(t1,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t2 partition rule to(t2,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t3 partition rule to(t3,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t4 partition rule to(t4,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t5 partition rule to(t5,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t1 partition rule to(t1,r_3,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_1,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_4,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_2,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t2 partition rule to(t2,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t4 partition rule to(t4,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_4,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_2,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3 partition rule to(t3,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t2 partition rule to(t2,r_1,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t4 partition rule to(t4,r_3,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_1,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t3 partition rule to(t3,r_3,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t2 partition rule to(t3,r_2,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t4 partition rule to(t3,r_4,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t1 partition rule to(t1,e_1,a);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+drop table t1,t2,t3,t4,t5;
+drop partition function r_1,r_2,r_3,r_4,r_5,h_1,h_2,e_1;
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x,y) '(10,30),(20,40),(maxvalue,maxvalue)';
+create range partition function r_3(x) '(\'10\'),(\'20\'),(maxvalue)';
+create range partition function r_4(x,y) '(\'10\',\'30\'),(\'20\',\'40\'),(maxvalue,maxvalue)';
+create range partition function r_5(x,y) '(10,\'30\'),(20,\'40\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x) 'x';
+create hash partition function h_2(x,y) 'x+y';
+create enum partition function e_1(x) '[(1),(2)],[(3),(4)]';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+e_1	1	x	[(1),(2)],[(3),(4)]
+h_1	1	x	x
+h_2	2	x,y	x+y
+r_1	1	x	(10),(20),(maxvalue)
+r_2	2	x,y	(10,30),(20,40),(maxvalue,maxvalue)
+r_3	1	x	('10'),('20'),(maxvalue)
+r_4	2	x,y	('10','30'),('20','40'),(maxvalue,maxvalue)
+r_5	2	x,y	(10,'30'),(20,'40'),(maxvalue,maxvalue)
+create table t1(a int primary key,b int,c int) partition by(t1,h_1,a);
+create table t2(a int,b int,c int,primary key(a,b)) partition by(t2,h_2,a,b);
+create table t3(a varchar(10) primary key,b varchar(10),c int) partition by(t3,h_1,a);
+create table t4(a varchar(10) ,b varchar(10),c int,primary key(a,b)) partition by(t4,h_2,a,b);
+create table t5(a varchar(10),b int,c int,primary key(a,b)) partition by(t5,h_2,a,b);
+"refresh"
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+t1#0	2	1	NULL
+t1#1	2	0	NULL
+t1#10	2	1	NULL
+t1#11	2	0	NULL
+t1#12	2	1	NULL
+t1#2	2	1	NULL
+t1#3	2	0	NULL
+t1#4	2	1	NULL
+t1#5	2	0	NULL
+t1#6	2	1	NULL
+t1#7	2	0	NULL
+t1#8	2	1	NULL
+t1#9	2	0	NULL
+t1#p0	2	1	NULL
+t1#p1	2	0	NULL
+t1_1#p0	2	0	NULL
+t1_1#p1	2	1	NULL
+t1_1#p2	2	0	NULL
+t2#0	2	0	NULL
+t2#1	2	1	NULL
+t2#10	2	0	NULL
+t2#11	2	1	NULL
+t2#12	2	0	NULL
+t2#2	2	0	NULL
+t2#3	2	1	NULL
+t2#4	2	0	NULL
+t2#5	2	1	NULL
+t2#6	2	0	NULL
+t2#7	2	1	NULL
+t2#8	2	0	NULL
+t2#9	2	1	NULL
+t2#p0	2	1	NULL
+t2#p1	2	0	NULL
+t2_1#p0	2	1	NULL
+t2_1#p1	2	0	NULL
+t2_1#p2	2	1	NULL
+t3#0	2	1	NULL
+t3#1	2	0	NULL
+t3#10	2	1	NULL
+t3#11	2	0	NULL
+t3#12	2	1	NULL
+t3#2	2	1	NULL
+t3#3	2	0	NULL
+t3#4	2	1	NULL
+t3#5	2	0	NULL
+t3#6	2	1	NULL
+t3#7	2	0	NULL
+t3#8	2	1	NULL
+t3#9	2	0	NULL
+t3#p0	2	1	NULL
+t3#p1	2	0	NULL
+t3_1#p0	2	0	NULL
+t3_1#p1	2	1	NULL
+t3_1#p2	2	0	NULL
+t4#0	2	0	NULL
+t4#1	2	1	NULL
+t4#10	2	0	NULL
+t4#11	2	1	NULL
+t4#12	2	0	NULL
+t4#2	2	0	NULL
+t4#3	2	1	NULL
+t4#4	2	0	NULL
+t4#5	2	1	NULL
+t4#6	2	0	NULL
+t4#7	2	1	NULL
+t4#8	2	0	NULL
+t4#9	2	1	NULL
+t4#p0	2	1	NULL
+t4#p1	2	0	NULL
+t4_1#p0	2	1	NULL
+t4_1#p1	2	0	NULL
+t4_1#p2	2	1	NULL
+t5#0	2	1	NULL
+t5#1	2	0	NULL
+t5#10	2	1	NULL
+t5#11	2	0	NULL
+t5#12	2	1	NULL
+t5#2	2	1	NULL
+t5#3	2	0	NULL
+t5#4	2	1	NULL
+t5#5	2	0	NULL
+t5#6	2	1	NULL
+t5#7	2	0	NULL
+t5#8	2	1	NULL
+t5#9	2	0	NULL
+t5#p0	2	1	NULL
+t5#p1	2	0	NULL
+t5_1#p0	2	0	NULL
+t5_1#p1	2	1	NULL
+t5_1#p2	2	0	NULL
+__user_default_group	2	0	NULL
+alter table t1 partition rule to(t1,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t2 partition rule to(t2,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t3 partition rule to(t3,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t4 partition rule to(t4,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t5 partition rule to(t5,r_8,a);
+ERROR HY000: YAO-4001: partition function 'r_8' doesn't exist
+alter table t1 partition rule to(t1,r_3,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_1,a);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_4,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t5 partition rule to(t5,r_2,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t2 partition rule to(t2,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t4 partition rule to(t4,r_5,a,b);
+ERROR HY000: YAO-4001: Wrong type of parameters
+alter table t3 partition rule to(t3,r_4,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_2,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t3 partition rule to(t3,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_5,a);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t2 partition rule to(t2,r_1,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t4 partition rule to(t4,r_3,a,b);
+ERROR HY000: YAO-4001: Wrong number of parameters
+alter table t1 partition rule to(t1,r_1,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t3 partition rule to(t3,r_3,b);
+ERROR HY000: YAO-5081: parameter[b] is not rowkey
+alter table t2 partition rule to(t3,r_2,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t4 partition rule to(t3,r_4,a,c);
+ERROR HY000: YAO-5081: parameter[c] is not rowkey
+alter table t1 partition rule to(t1,e_1,a);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+drop table t1,t2,t3,t4,t5;
+drop partition function r_1,r_2,r_3,r_4,r_5,h_1,h_2,e_1;

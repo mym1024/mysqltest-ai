@@ -1,0 +1,490 @@
+create table proc_test(id int  primary key, age int, name varchar(20));
+insert into proc_test values(2,2,'a'),(3,3,'a'),(9,9,'a');
+select * from proc_test;
+id	age	name
+2	2	a
+3	3	a
+9	9	a
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+if 1=1 
+then select 1;
+end if;
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p()
+begin
+declare continue handler for sqlstate '23000' 
+if 1=1 
+then select 1;
+end if;
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+begin 
+if 1=1 
+then select 1;
+end if;
+select 'continue' from dual;
+end; 
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+1
+1
+'continue'
+continue
+drop procedure p//
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+begin 
+if 1=1 
+then select 1;
+end if;
+select 'continue' from dual;
+end; 
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+1
+1
+'continue'
+continue
+1
+1
+'continue'
+continue
+drop procedure p//
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+if 1=1 
+then select 1;
+end if;
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+if 1=1 
+then select 1; 
+end if;
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+begin 
+if 1=1 
+then select 1;
+end if;
+select 'continue' from dual;
+end; 
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+1
+1
+'continue'
+continue
+drop procedure p//
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+begin 
+if 1=1 
+then select 1;
+end if;
+select 'continue' from dual;
+end; 
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+1
+1
+'continue'
+continue
+drop procedure p//
+create procedure p() 
+begin 
+declare a int;
+declare cond_p1 condition for '23000';
+declare cond_p2 condition for 'HY000';
+declare csr cursor for select * from proc_test;
+declare exit handler for cond_p1 select 1;
+declare exit handler for cond_p2 select 2;
+set a=1;
+insert into proc_test values(9,9,'a');
+open csr;
+open csr;
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+declare continue handler for sqlstate '23000' 
+lp:loop 
+leave lp;
+end loop;
+declare continue handler for sqlstate 'HY000' 
+lp:begin 
+insert into proc_test values(2,1,'c');
+end;
+select a;
+end;//
+call p()//
+a
+1
+drop procedure p//
+create table t1(id int, age int, name varchar(20));//
+insert into t1 values(2,2,'a'),(3,3,'a'),(4,4,'a');//
+select * from t1;//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+create table t2(id int primary key, age int, name varchar(20));//
+insert into t2 values(2,2,'a'),(3,3,'a'),(4,4,'a');//
+select * from t2;//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+create procedure p(in p_in int) 
+begin 
+select p_in; 
+set p_in=2; 
+select p_in; 
+end;//
+set @pin=25//
+call p(@pin)//
+p_in
+25
+p_in
+2
+select @pin//
+@pin
+25
+drop procedure p//
+create procedure p(out p_out int) 
+begin 
+select p_out; 
+set p_out=2; 
+select p_out; 
+end;//
+set @pout=25//
+call p(@pout)//
+p_out
+NULL
+p_out
+2
+select @pout//
+@pout
+2
+drop procedure p//
+create procedure p(out p_out varchar(20)) 
+begin 
+declare a int default 1;
+lp:loop set a=a+1;
+if a=3 
+then leave lp;
+end if;
+end loop;
+end;//
+set @a='a'//
+call p(@a)//
+drop procedure p//
+create procedure p(inout p_inout int) 
+begin 
+select p_inout; 
+set p_inout=2; 
+select p_inout; 
+end;//
+set @pinout=25//
+call p(@pinout)//
+p_inout
+25
+p_inout
+2
+select @pinout//
+@pinout
+2
+drop procedure p//
+create procedure p(inout p_inout float) 
+begin 
+declare a int default 1;
+repeat set a=a+1; 
+delete from t1 where id=2;
+insert into t1 values(1,1,'b');
+until a=3 
+end repeat;
+select * from t1;
+end;//
+set @a=1.2;//
+call p(@a);//
+id	age	name
+3	3	a
+4	4	a
+1	1	b
+1	1	b
+drop procedure p//
+create procedure p(in p_in double,out p_out double,inout p_inout double)
+begin 
+declare a int default 1;
+declare b int default 1;
+declare cond_p0 condition for sqlstate '23000';
+declare cond_p1 condition for 5024;
+declare exit handler for cond_p0 select 1;
+declare exit handler for cond_p1 select 2;
+while a<3 do set a=a+1;
+delete from t2 where id=4;
+insert into t2 values(5,1,'c');
+end while;
+select * from t2;
+end;//
+set @b=1.23;//
+set @d='c'//
+call p(1.22,@b,@d)//
+1
+1
+drop procedure p//
+create procedure p(in p_in double,out p_out double,inout p_inout double) 
+begin 
+declare a int default 1;
+declare b int default 1;
+declare cond_p0 condition for sqlstate '23000';
+declare cond_p1 condition for 5024;
+declare csr cursor for select * from t2;
+open csr;
+fetch csr 
+into a,b;
+close csr;
+end;//
+set @a=1.8//
+set @b='d'//
+call p(1.23,@a,@b);//
+drop procedure p//
+create procedure p(in p_in double,out p_out double,inout p_inout double) 
+begin 
+declare a int default 1;
+declare b int default 1;
+declare cond_p0 condition for sqlstate '23000';
+declare cond_p1 condition for 5024;
+declare exit handler for cond_p0 select 1;
+declare exit handler for cond_p1 select 2;
+lp:loop set a=a+1;
+if a=3 
+then leave lp;
+end if;
+insert into t2 values(8,8,'b');
+end loop;
+end;//
+set @a=1.22,@b=1.23,@c=1.24;//
+call p(@a,@b,@c);//
+select * from t2//
+id	age	name
+2	2	a
+3	3	a
+5	1	c
+8	8	b
+call p(@a,@b,@c);//
+1
+1
+drop procedure p//
+create procedure p()
+begin 
+declare a,b int;
+declare cur1 cursor for select * from proc_test;
+open cur1;
+fetch cur1 into a,b;
+fetch cur1 into a,b;
+fetch cur1 into a,b;
+end;$$
+call p()$$
+drop procedure p$$
+create procedure p()
+begin 
+declare cur1 cursor for select age from proc_test;
+open cur1;
+fetch cur1 into @a;
+close cur1;
+select @a;
+end;&&
+call p()&&
+@a
+2
+drop procedure p&&
+create procedure p()
+begin 
+declare cur1 cursor for select id from proc_test;
+declare cur2 cursor for select age from proc_test;
+open cur1;
+fetch cur1 into @a;
+close cur1;
+select @a;
+open cur2;
+fetch cur2 into @a;
+close cur2;
+select @a;
+end;//
+call p()//
+@a
+2
+@a
+2
+drop procedure p//
+create procedure p()
+begin 
+declare a,b int;
+declare cur1 cursor for select * from proc_test;
+open cur1;
+fetch cur1 into a,b;
+close cur1;
+select a,b;
+end;//
+call p()//
+a	b
+2	2
+create procedure p1()
+begin 
+declare a,b int;
+declare cur1 cursor for select * from proc_test;
+open cur1;
+fetch cur1 into a,b;
+close cur1;
+select a,b;
+end;//
+call p1()//
+a	b
+2	2
+drop procedure p//
+drop procedure p1//
+create procedure p() 
+begin
+declare oage int;
+declare cur cursor for select age from proc_test;
+open cur;
+fetch cur into oage;
+select oage;
+close cur;
+end //
+call p()//
+oage
+2
+drop procedure p//
+create procedure p() 
+begin
+declare done boolean default false;
+declare oage int;
+declare cur cursor for select age from proc_test;
+declare continue handler for not found set done = 1;
+open cur;
+repeat 
+fetch cur into oage;
+select oage;
+until done end repeat;
+close cur;
+end //
+call p()//
+oage
+2
+oage
+3
+oage
+9
+oage
+9
+drop procedure p//
+set @@sql_mode = 'NO_ANSI_QUOTES';//
+create procedure p(in in_name varchar(10))
+begin
+select * from proc_test where name = in_name;
+end;//
+call p("a")//
+ERROR HY000: YAO-5006: Unknown value a
+set @@sql_mode = 'ANTI_ANSI_AS_QUOTE';//
+call p("a")//
+id	age	name
+2	2	a
+3	3	a
+9	9	a
+drop procedure p//
+set @@sql_mode = 'NO_PIPES_AS_CONCAT';//
+create procedure p(in in_name varchar(10))
+begin
+select (id || name) as new from proc_test where name = in_name;
+end;//
+call p('a')//
+new
+1
+1
+1
+drop procedure p//
+create function getNum() 
+returns int 
+begin 
+declare a int default 0; 
+return a; 
+end //
+select getNum()//
+getNum()
+0
+create procedure p() 
+begin 
+select getNum();  
+end//
+call p()//
+getNum()
+0
+drop procedure p//
+create procedure p1() 
+begin
+declare a int;
+set a = getNum();  
+select a;
+end//
+call p1()//
+a
+0
+drop procedure p1//
+create  user  'test' identified by 'admin@1234';
+grant all privileges on __all_procedure to 'test';
+grant create on test.* to 'test';
+create procedure p() 
+begin 
+create table test_user(id int  primary key, age int);
+select 1; 
+end;//
+call p()//
+1
+1
+drop procedure p//

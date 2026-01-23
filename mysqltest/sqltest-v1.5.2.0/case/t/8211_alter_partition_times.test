@@ -1,0 +1,620 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：alter table 修改分区方式正常系--反复修改分区规则，测试3次修改
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-03-20
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1_e,t2_e,t3_r,t2_r,t1_r,t4_r,t1_l,t2_l,t1_h,t2_h;
+--enable_warnings
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+###2-1:从enum分区表开始修改
+create enum partition function e_1(x) '[(1),(2),(3)],[(4),(5),(6)]';
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x) '(40),(80),(maxvalue)';
+create hash partition function h_1(x) 'x';
+show partition functions;
+create table t1_e(a int primary key,b int) partition by(ee,e_1,a);
+create index il1 on t1_e(b);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 4
+
+show index on t1_e;
+show partition groups;
+
+insert into t1_e values(1,1),(4,1),(2,1),(5,1);
+--error 5702
+insert into t1_e values(8,1);
+--real_sleep 1
+
+select * from t1_e;
+delete from t1_e where a=2;
+delete from t1_e where a=4;
+select * from t1_e;
+
+
+truncate table t1_e;
+insert into t1_e values(1,1),(4,1),(2,1),(5,1);
+--real_sleep 1
+
+select * from t1_e;
+delete from t1_e where a=2;
+delete from t1_e where a=4;
+select * from t1_e;
+alter table t1_e partition rule to(rr,r_1,a);
+
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1_e;
+select * from t1_e;
+insert into t1_e values(4,1),(2,1),(8,1),(15,1),(20,1);
+replace into t1_e values(8,3);
+update t1_e set b=5 where a=2;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=1;
+delete from t1_e where a=5;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(4,1),(2,1),(8,1);
+--real_sleep 1
+select * from t1_e;
+alter table t1_e partition rule to(rr,r_2,a);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+insert into t1_e values(30,1),(40,1),(80,1),(45,1),(20,1);
+replace into t1_e values(80,3);
+update t1_e set b=5 where a=2;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=40;
+delete from t1_e where a=80;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(40,1),(20,1),(80,1);
+--real_sleep 1
+select * from t1_e;
+alter table t1_e partition rule to(hh,h_1,a);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 550
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+insert into t1_e values(130,1),(55,1),(85,1),(45,1),(25,1);
+replace into t1_e values(80,3);
+update t1_e set b=5 where a=25;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=45;
+delete from t1_e where a=85;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(45,1),(25,1),(85,1);
+--real_sleep 1
+select * from t1_e;
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+drop table  t1_e;
+drop partition function r_1,r_2,h_1;
+
+
+###2-2:从list分区表开始修改
+create range partition function r_1(x) '(10),(20),(maxvalue)';
+create range partition function r_2(x) '(40),(80),(maxvalue)';
+create hash partition function h_1(x) 'x';
+show partition functions;
+create table t1_e(a int primary key,b int) partition by list(a) (partition p0 values in(1,2,3),partition p1 values in(4,5,6));
+create index il1 on t1_e(b);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+show index on t1_e;
+show partition groups;
+
+insert into t1_e values(1,1),(4,1),(2,1),(5,1);
+--error 5702
+insert into t1_e values(8,1);
+--real_sleep 1
+
+select * from t1_e;
+delete from t1_e where a=2;
+delete from t1_e where a=4;
+select * from t1_e;
+
+
+truncate table t1_e;
+insert into t1_e values(1,1),(4,1),(2,1),(5,1);
+--real_sleep 1
+
+select * from t1_e;
+delete from t1_e where a=2;
+delete from t1_e where a=4;
+select * from t1_e;
+alter table t1_e partition rule to(rr,r_1,a);
+
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1_e;
+select * from t1_e;
+insert into t1_e values(4,1),(2,1),(8,1),(15,1),(20,1);
+replace into t1_e values(8,3);
+update t1_e set b=5 where a=2;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=1;
+delete from t1_e where a=5;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(4,1),(2,1),(8,1);
+--real_sleep 1
+select * from t1_e;
+alter table t1_e partition rule to(rr,r_2,a);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+insert into t1_e values(30,1),(40,1),(80,1),(45,1),(20,1);
+replace into t1_e values(80,3);
+update t1_e set b=5 where a=2;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=40;
+delete from t1_e where a=80;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(40,1),(20,1),(80,1);
+--real_sleep 1
+select * from t1_e;
+alter table t1_e partition rule to(hh,h_1,a);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 550
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+insert into t1_e values(130,1),(55,1),(85,1),(45,1),(25,1);
+replace into t1_e values(80,3);
+update t1_e set b=5 where a=25;
+--real_sleep 1
+select * from t1_e;
+delete from t1_e where a=45;
+delete from t1_e where a=85;
+select * from t1_e;
+
+truncate table t1_e;
+select * from t1_e;
+insert into t1_e values(45,1),(25,1),(85,1);
+--real_sleep 1
+select * from t1_e;
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_e;
+select * from t1_e;
+
+drop table  t1_e;
+drop partition function e_1,r_1,r_2,h_1;
+
+
+###2-3:从range分区表开始修改
+create range partition function r_1(x,y) '(10,\'abc\'),(20,\'fgh\'),(maxvalue,maxvalue)';
+create range partition function r_2(x,y) '(40,\'abc\'),(80,\'fgh\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x,y) 'x+y';
+show partition functions;
+create table t1_r(a int,b varchar(10) ,c int,primary key(a,b)) partition by range columns(a,b) (partition p0 values less than (4,'bc'),partition p1 values less than(7,'gh'), partition p2 values less than(maxvalue,maxvalue));
+create index il1 on t1_r(c);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+show index on t1_r;
+show partition groups;
+
+insert into t1_r values(1,'bc',1),(4,'bc',1),(4,'gh',1),(7,'gh',1),(8,'bc',1),(8,'gh',1),(11,'abc',1);
+--real_sleep 1
+
+select * from t1_r;
+delete from t1_r where a=1 and b='bc';
+delete from t1_r where a=11 and b='abc';
+select * from t1_r;
+alter table t1_r partition rule to (rr,r_1,a,b);
+show partition groups;
+
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1_r;
+select * from t1_r;
+insert into t1_r values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+replace into t1_r values(8,'gg',3);
+update t1_r set c=5 where a=21 and b='abc';
+--real_sleep 3
+select * from t1_r;
+delete from t1_r where a=1 and b='abc';
+delete from t1_r where a=8 and b='fgh';
+--real_sleep 1
+select * from t1_r;
+
+truncate table t1_r;
+select * from t1_r;
+insert into t1_r values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+--real_sleep 3
+select * from t1_r;
+alter table t1_r partition rule to(rr,r_2,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_r;
+select * from t1_r;
+
+insert into t1_r values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+replace into t1_r values(80,'rgh',3);
+update t1_r set c=5 where a=40 and b='fbc';
+--real_sleep 3
+select * from t1_r;
+delete from t1_r where a=40 and b='fbc';
+delete from t1_r where a=80 and b='rgh';
+--real_sleep 1
+select * from t1_r;
+
+truncate table t1_r;
+select * from t1_r;
+insert into t1_r values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+--real_sleep 3
+select * from t1_r;
+alter table t1_r partition rule to(hh,h_1,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_r;
+select * from t1_r;
+truncate table t1_r;
+insert into t1_r values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 3
+replace into t1_r values(80,'rgh',3),(80,'fbc',3),(130,'abc',3);
+update t1_r set c=5 where a=55 and b='rgh';
+--real_sleep 1
+select * from t1_r;
+delete from t1_r where a=45 and b='fbc' ;
+delete from t1_r where a=85 and b='rgh';
+--real_sleep 1
+select * from t1_r;
+
+truncate table t1_r;
+select * from t1_r;
+insert into t1_r values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 1
+select * from t1_r;
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_r;
+--real_sleep 1
+select * from t1_r;
+
+drop table  t1_r;
+drop partition function r_1,r_2,h_1;
+
+
+###2-4:从hash分区表开始修改
+create range partition function r_1(x,y) '(10,\'abc\'),(20,\'fgh\'),(maxvalue,maxvalue)';
+create range partition function r_2(x,y) '(40,\'abc\'),(80,\'fgh\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x,y) 'x+y';
+show partition functions;
+create table t1_h(a int,b varchar(10) ,c int,primary key(a,b)) partition by (hh,h_1,a,b);
+create index il1 on t1_h(c);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+show index on t1_h;
+show partition groups;
+
+insert into t1_h values(1,'bc',1),(4,'bc',1),(4,'gh',1),(7,'gh',1),(8,'bc',1),(8,'gh',1),(11,'abc',1);
+--real_sleep 1
+
+select * from t1_h;
+delete from t1_h where a=1 and b='bc';
+delete from t1_h where a=11 and b='abc';
+select * from t1_h;
+
+truncate table t1_h;
+insert into t1_h values(1,'bc',1),(4,'bb',1),(4,'bc',1),(4,'bd',1),(7,'gh',1),(8,'gg',1),(8,'gh',1),(8,'gi',1),(11,'abc',1);
+--real_sleep 1
+
+select * from t1_h;
+delete from t1_h where a=1 and b='bc';
+delete from t1_h where a=11 and b='abc';
+select * from t1_h;
+alter table t1_h partition rule to (rr,r_1,a,b);
+show partition groups;
+
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1_h;
+select * from t1_h;
+insert into t1_h values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+replace into t1_h values(8,'gg',3);
+update t1_h set c=5 where a=21 and b='abc';
+--real_sleep 1
+select * from t1_h;
+delete from t1_h where a=1 and b='abc';
+delete from t1_h where a=8 and b='fgh';
+select * from t1_h;
+
+truncate table t1_h;
+select * from t1_h;
+insert into t1_h values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+--real_sleep 1
+select * from t1_h;
+alter table t1_h partition rule to(rr,r_2,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_h;
+select * from t1_h;
+
+insert into t1_h values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+replace into t1_h values(80,'rgh',3);
+update t1_h set c=5 where a=40 and b='fbc';
+--real_sleep 1
+select * from t1_h;
+delete from t1_h where a=40 and b='fbc';
+delete from t1_h where a=80 and b='rgh';
+select * from t1_h;
+
+truncate table t1_h;
+select * from t1_h;
+insert into t1_h values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+--real_sleep 1
+select * from t1_h;
+alter table t1_h partition rule to(rr,r_1,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_h;
+select * from t1_h;
+truncate table t1_h;
+insert into t1_h values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 1
+replace into t1_h values(80,'rgh',3),(80,'fbc',3),(130,'abc',3);
+update t1_h set c=5 where a=55 and b='rgh';
+--real_sleep 1
+select * from t1_h;
+delete from t1_h where a=45 and b='fbc' ;
+delete from t1_h where a=85 and b='rgh';
+select * from t1_h;
+
+truncate table t1_h;
+select * from t1_h;
+insert into t1_h values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 1
+select * from t1_h;
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1_h;
+select * from t1_h;
+
+drop table  t1_h;
+drop partition function r_1,r_2,h_1;
+
+###2-5:从无分区表开始修改
+create range partition function r_1(x,y) '(10,\'abc\'),(20,\'fgh\'),(maxvalue,maxvalue)';
+create range partition function r_2(x,y) '(40,\'abc\'),(80,\'fgh\'),(maxvalue,maxvalue)';
+create hash partition function h_1(x,y) 'x+y';
+show partition functions;
+create table t1(a int,b varchar(10) ,c int,primary key(a,b));
+create index il1 on t1(c);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+show index on t1;
+show partition groups;
+
+insert into t1 values(1,'bc',1),(4,'bc',1),(4,'gh',1),(7,'gh',1),(8,'bc',1),(8,'gh',1),(11,'abc',1);
+--real_sleep 1
+
+select * from t1;
+delete from t1 where a=1 and b='bc';
+delete from t1 where a=11 and b='abc';
+select * from t1;
+
+truncate table t1;
+insert into t1 values(1,'bc',1),(4,'bb',1),(4,'bc',1),(4,'bd',1),(7,'gh',1),(8,'gg',1),(8,'gh',1),(8,'gi',1),(11,'abc',1);
+--real_sleep 1
+
+select * from t1;
+delete from t1 where a=1 and b='bc';
+delete from t1 where a=11 and b='abc';
+select * from t1;
+alter table t1 partition rule to (rr,r_1,a,b);
+show partition groups;
+
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+select * from t1;
+insert into t1 values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+replace into t1 values(8,'gg',3);
+update t1 set c=5 where a=21 and b='abc';
+--real_sleep 1
+select * from t1;
+delete from t1 where a=1 and b='abc';
+delete from t1 where a=8 and b='fgh';
+select * from t1;
+
+truncate table t1;
+select * from t1;
+insert into t1 values(1,'abc',1),(10,'abb',1),(10,'abc',1),(10,'abd',1),(20,'fgg',1),(20,'fgh',1),(20,'fgi',1),(8,'abc',1),(8,'fgh',1),(21,'fgh',1),(21,'abc',1);
+--real_sleep 1
+select * from t1;
+alter table t1 partition rule to(rr,r_2,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1;
+select * from t1;
+
+insert into t1 values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+replace into t1 values(80,'rgh',3);
+update t1 set c=5 where a=40 and b='fbc';
+--real_sleep 1
+select * from t1;
+delete from t1 where a=40 and b='fbc';
+delete from t1 where a=80 and b='rgh';
+select * from t1;
+
+truncate table t1;
+select * from t1;
+insert into t1 values(10,'fbc',1),(40,'fbb',1),(40,'fbc',1),(40,'fbd',1),(80,'rgg',1),(80,'rgh',1),(80,'rgi',1),(45,'fbc',1),(45,'rgh',1),(81,'rgh',1),(81,'fbc',1);
+--real_sleep 1
+select * from t1;
+alter table t1 partition rule to(hh,h_1,a,b);
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1;
+select * from t1;
+truncate table t1;
+insert into t1 values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 1
+replace into t1 values(80,'rgh',3),(80,'fbc',3),(130,'abc',3);
+update t1 set c=5 where a=55 and b='rgh';
+--real_sleep 1
+select * from t1;
+delete from t1 where a=45 and b='fbc' ;
+delete from t1 where a=85 and b='rgh';
+select * from t1;
+
+truncate table t1;
+select * from t1;
+insert into t1 values(130,'fbc',1),(55,'rgh',1),(85,'rgh',1),(45,'fbc',1),(25,'rgh',1);
+--real_sleep 1
+select * from t1;
+show partition groups;
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show index on t1;
+select * from t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,162 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：alter操作删除current expire_info,带索引
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：6 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-10-16 / mod:2020-12-24:zyy
+###8.其他（选填）：According to the 608-expire_info_support_int_type, mod this case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+##################################### MODIFYTIME ###################################################
+#创建含有modifytime属性列的数据表Test1:
+create table test1(c1 int primary key, c2 int, c3 modifytime)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t1_1 on test1(c2);
+
+###2-1: alter删除current expire_info条件:
+alter table test1 drop current expire_info;
+
+###2-2: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test1 drop current expire_info;
+
+
+##################################### CREATETIME ###################################################
+#创建含有createtime属性列的数据表test2:
+create table test2(c1 int primary key, c2 int, c3 createtime)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t2_1 on test2(c2);
+
+###2-3: alter删除current expire_info条件:
+alter table test2 drop current expire_info;
+
+###2-4: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test2 drop current expire_info;
+
+
+##################################### VARCHAR ###################################################
+#创建含有varchar属性列的数据表test3:
+create table test3(c1 int primary key, c2 int, c3 varchar(30))expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t3_1 on test3(c2);
+
+###2-5: alter删除current expire_info条件:
+alter table test3 drop current expire_info;
+
+###2-6: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test3 drop current expire_info;
+
+
+##################################### CHAR ###################################################
+#创建含有char属性列的数据表test4:
+create table test4(c1 int primary key, c2 int, c3 char(30))expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t4_1 on test4(c2);
+
+###2-7: alter删除current expire_info条件:
+alter table test4 drop current expire_info;
+
+###2-8: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test4 drop current expire_info;
+
+
+##################################### DATETIME ###################################################
+#创建含有datetime属性列的数据表test5:
+create table test5(c1 int primary key, c2 int, c3 datetime)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t5_1 on test5(c2);
+
+###2-9: alter删除current expire_info条件:
+alter table test5 drop current expire_info;
+
+###2-10: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test5 drop current expire_info;
+
+
+##################################### TIMESTAMP ###################################################
+#创建含有timestamp属性列的数据表test6:
+create table test6(c1 int primary key, c2 int, c3 timestamp)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建索引
+create index t6_1 on test6(c2);
+
+###2-11: alter删除current expire_info条件:
+alter table test6 drop current expire_info;
+
+###2-12: alter删除current expire_info条件:(无current expire_info条件删除失败)
+--error 1046
+alter table test6 drop current expire_info;
+
+
+##################################### INT ###################################################
+#创建含有int属性列的数据表test7:
+#--error 2
+create table test7(c1 int primary key, c2 int, c3 int)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### FLOAT ###################################################
+#创建含有float属性列的数据表test8:
+--error 2
+create table test8(c1 int primary key, c2 int, c3 float)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DOUBLE ###################################################
+#创建含有double属性列的数据表test9:
+#--error 2
+create table test9(c1 int primary key, c2 int, c3 int)expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DECIMAL ###################################################
+#创建含有decimal属性列的数据表test10:
+--error 2
+create table test10(c1 int primary key, c2 int, c3 decimal(30,15))expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_query_log
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

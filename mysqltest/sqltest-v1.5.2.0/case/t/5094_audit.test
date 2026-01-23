@@ -1,0 +1,389 @@
+##############################################################################################
+###1.测试功能点：audit审计功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhangtong
+###7.编写/修改日期：2023-06-29
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-1:audit审计功能测试
+create table t1 (c1 int,c2 int, primary key(c1));
+create table t2 (c1 int,c2 int, primary key(c1));
+
+##表审计
+--error 5088
+audit select on table t1;
+set @@yao_audit_open=true;
+audit select on table t1;
+select * from __all_audit_rules;
+--sleep 2
+select * from t1;
+--sleep 2
+no audit;
+select * from __all_audit_rules;
+--sleep 2
+select * from t1;
+
+--sleep 2
+audit select on table t1;
+select t1.c1 from t1, t2 where t1.c1 = t2.c1;
+--sleep 2
+select * from t1 join t2 on t1.c1=t2.c1 where t1.c1=1;
+--sleep 2
+select * from t2;
+--sleep 2
+noaudit select on table t1;
+--sleep 2
+
+audit alter table on table t1;
+alter table  t1 rename to tt1;
+--sleep 2
+alter table  tt1 rename to t1;
+--sleep 2
+select * from __all_audit_rules;
+set @@yao_audit_open=false;
+select * from __all_audit_rules;
+
+set @@yao_audit_open=true;
+audit insert table on table t1;
+select * from __all_audit_rules;
+--sleep 3
+insert into t1 values(2, 1);
+--sleep 2
+noaudit insert table on table t1;
+select * from __all_audit_rules;
+
+audit index on table t1;
+create index idx_t1 on t1(c2);
+--sleep 2
+drop index idx_t1 on t1;
+
+audit grant table on table t1;
+grant all on t1 to 'admin';
+--sleep 2
+
+audit system audit on table t1;
+audit select on table t1;
+select * from __all_audit_rules;
+noaudit system audit on table t1;
+no audit;
+
+audit select, delete table, update table, insert table, index, alter table, system audit on table t1;
+select * from __all_audit_rules;
+select * from t1;
+--sleep 2
+delete from t1 where c1 = 1;
+--sleep 2
+update t1 set c1 = 1 where c2 = 1;
+--sleep 2
+insert into t1 values(3, 1);
+--sleep 2
+create index idx_t1_test on t1(c1);
+--sleep 2
+drop index idx_t1_test on t1;
+--sleep 2
+alter table t1 add column temp int;
+--sleep 2
+no audit;
+
+audit select on table t1 whenever not successful;
+audit delete table on table t1 whenever not successful;
+audit update table on table t1 whenever not successful;
+select * from __all_audit_rules;
+--error 5009
+select * from t1 where c4 = 1;
+--error 5009
+delete from t1 where c4 = 1;
+--error 5009
+update t1 set c1 = 1 where c4 = 1;
+no audit;
+
+##列审计
+--sleep 5
+audit select on column t1.c1;
+--sleep 2
+select t1.c1 from t1, t2 where t1.c1 = t2.c1;
+--sleep 2
+select * from t1 join t2 on t1.c1=t2.c1 where t1.c1=1;
+--sleep 2
+select c1, c2 from t1;
+--sleep 2
+select t1.c2 from t1;
+--sleep 2
+select c2 as c1 from t1;
+--sleep 2
+noaudit select on column t1.c1;
+
+audit alter table on column t1.c1;
+audit alter table on column t1.c2 whenever not successful;
+select * from __all_audit_rules;
+--error 5008
+alter table  t1 rename c2 to c1;
+alter table  t1 rename to test1;
+--sleep 2
+no audit;
+
+CREATE TABLE t1 (c1 INT,c2 INT, PRIMARY KEY(c1));
+audit update table on column t1.c2;
+--sleep 2
+alter table  t1 rename c2 to cc2;
+--sleep 2
+alter table  t1 rename cc2 to c2;
+--sleep 2
+update t1 set c2 = 1 where c1 = 1;
+--sleep 2
+no audit;
+
+audit index on column t1.c2 whenever not successful;
+create index idx_t1 on t1(c2);
+--sleep 2
+--error 5610
+create index idx_t2 on t1(c3);
+drop index idx_t1 on t1;
+no audit;
+
+audit select on column t1.c2;
+audit alter table on column t1.c2;
+audit update table on column t1.c2;
+audit index on column t1.c2;
+audit system audit on column t1.c2;
+select * from t1;
+--sleep 2
+alter table  t1 rename c2 to cc2;
+--sleep 2
+update t1 set cc2 = c1;
+--sleep 2
+create index idx_1 on t1(cc2);
+--sleep 2
+drop index idx_1 on t1;
+select * from __all_audit_rules;
+no audit;
+
+drop table t1;
+CREATE TABLE t1 (c1 INT,c2 INT, PRIMARY KEY(c1));
+audit select, update table, index, alter table, system audit on column t1.c2 whenever not successful;
+--error 5009
+select c2, c4 from t1;
+--error 5009
+update t1 set c2 = 1 where c4 = 1;
+--sleep 2
+create index idx_t1_1 on t1(c2);
+--sleep 2
+create index idx_t1_2 on t1(c2);
+--error 5008
+alter table t1 rename c2 to c1;
+select * from __all_audit_rules;
+no audit;
+
+##库审计
+--sleep 5
+audit alter table on database "test";
+alter table t1 rename to tt1;
+
+audit delete table on database "test";
+delete from tt1 where c1=1;
+noaudit delete table on database "test";
+
+audit replace on database "test";
+replace into tt1 values(2, 1);
+
+audit index on database "test" whenever not successful;
+--error 5025
+create index idx_t4 on t1(c2);
+--error 152
+drop index idx_t2 on tt1;
+
+audit table on database "test" whenever not successful;
+--error 5019
+truncate table t4;
+select * from __all_audit_rules;
+no audit;
+
+audit select on database "yao";
+using database yao;
+create table t1(c1 int primary key, c2 int);
+select * from t1;
+using database test;
+audit select on database "test";
+create table t1(c1 int primary key, c2 int);
+select * from t1;
+
+audit grant table on database "test";
+grant all on t1 to 'admin';
+audit session on database "test";
+audit table on database "test";
+truncate table t1;
+select * from __all_audit_rules;
+no audit;
+
+drop table t1;
+create table t1 (c1 bigint primary key,c2 int,c3 integer,c4 mediumint,c5 smallint,c6 tinyint);
+insert into t1 values(1,1,1,1,1,1),(-1,-1,-1,-1,-1,-1),(0,0,0,0,0,0);
+audit view on database "test";
+create view v1 as select * from t1;
+drop view v1;
+select * from __all_audit_rules;
+no audit;
+
+audit user on database "test";
+CREATE USER 'test1' IDENTIFIED BY '122qqq...A';
+GRANT ALL PRIVILEGES, GRANT OPTION ON *.* TO 'test1';
+noaudit user on database "test";
+
+##组合审计开启
+audit select on table tt1;
+audit select;
+select * from tt1;
+--sleep 2
+no audit;
+
+audit select on column tt1.c1;
+audit select;
+select * from tt1;
+--sleep 2
+no audit;
+
+--sleep 2
+audit select on database "test";
+audit select;
+select * from tt1;
+--sleep 2
+create database test2;
+--sleep 2
+using database test2;
+create table t4 (c1 int,c2 int, primary key(c1));
+audit select; 
+select * from t4;
+--sleep 2
+no audit;
+
+audit select on table t1;
+connect (conn2,$OBMYSQL_MS0,test1,122qqq...A,test,$OBMYSQL_PORT);
+connection conn2;
+set @@yao_audit_open=true;
+select * from t1;
+--sleep 2
+no audit;
+
+drop table t1;
+create table t1 (c1 int,c2 int, primary key(c1));
+
+###用户审计
+audit insert table by admin;
+audit create table by test1;
+select * from __all_audit_rules;
+no audit;
+--sleep 2
+
+###列、表、库、用户、语句的所有审计规则
+#库(24个)
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test";
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test";
+
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit on database "test" whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,system audit,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE on database "test" whenever not successful;
+
+audit all on database "test";
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on database "test";
+
+audit all on database "test" whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on database "test" whenever not successful;
+#表(8个)
+audit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1;
+
+audit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1 whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select, delete table, update table, insert table, index, alter table,grant table,system audit on table t1 whenever not successful;
+
+audit all on table t1;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on table t1;
+
+audit all on table t1 whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on table t1 whenever not successful;
+#列(7个)
+audit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2;
+
+audit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2 whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select, delete table, update table, insert table, index, alter table,system audit on column t1.c2 whenever not successful;
+
+audit all on column t1.c2;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on column t1.c2;
+
+audit all on column t1.c2 whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all on column t1.c2 whenever not successful;
+#用户(24个)
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by admin;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by admin;
+
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by test1 whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit by test1;
+
+audit all by admin;
+--sleep 2
+select * from __all_audit_rules;
+noaudit all by admin; 
+
+audit all by admin whenever not successful; 
+--sleep 2
+select * from __all_audit_rules;
+noaudit all by admin whenever not successful; 
+
+#语句(24个)
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit;
+
+audit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit whenever not successful;
+--sleep 2
+select * from __all_audit_rules;
+noaudit select,replace,table,delete table, update table, insert table,create table,drop table,truncate table, index, alter table,view,user,database,session,grant table,SEQUENCE,PROCEDURE,role,TRIGGER,ALTER SEQUENCE,GRANT PROCEDURE,EXECUTE PROCEDURE,system audit whenever not successful;
+
+--exec cp ../yaobase/log/audit.log ./mysql_test/audit/
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

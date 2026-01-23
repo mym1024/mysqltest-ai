@@ -1,0 +1,731 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5,t6;
+create table t1(c1 int primary key, c2 int not null, c3 int not null, unique(c2,c3));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO	MUL	NULL	
+c3	int(10)	NO		NULL	
+create table t2(c1 int primary key,c2 int not null,unique idx_1 (c2));
+show create table t2;
+Table	Create Table
+test.t2	CREATE TABLE `t2` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `idx_1`(`c2`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show index on t2;
+index_name	status	index_type
+__3003__idx__idx_1	1	1
+create table t3(c1 int primary key, c2 varchar(20) not null unique);
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(20)	NO	UNI	NULL	
+create table t4(c1 int primary key, c2 timestamp not null unique);
+desc t4;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	timestamp	NO	UNI	NULL	
+create table t5(c1 int primary key, c2 int not null, c3 int not null, c4 int not null, unique idx_2 (c2)storing(c3,c4));
+show create table t5;
+Table	Create Table
+test.t5	CREATE TABLE `t5` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+`c3` INT(10) NOT NULL,
+`c4` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `idx_2`(`c2`) STORING(`c3`, `c4`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1,t2,t3,t4,t5;
+create table t1(c1 int primary key, c2 int unique);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `c2`(`c2`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1;
+create table t1(c1 int, c2 int not null unique);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+ UNIQUE KEY `c2`(`c2`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1;
+create table t1(c1 int primary key auto_increment, c2 int not null unique);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10) AUTO_INCREMENT,
+`c2` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `c2`(`c2`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1;
+create table t1(c1 int primary key, c2 int not null unique auto_increment);
+ERROR HY000: YAO-5206: There can be only one auto column and it must be defined as a primary key
+create table t1(c1 int primary key ,c2 createtime not null unique);
+ERROR HY000: YAO-5006: cannot build unique index on the CreateTime/ModifyTime column!
+create table t1(c1 int primary key, c2 int not null, unique(c3));
+ERROR HY004: YAO-31: unknow column name.
+create table t1(c1 int not null primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3,c1));
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+create table t1(c1 int not null primary key, c2 int not null, unique index idx_1(c2) storing(c2));
+ERROR HY000: YAO-5209: The unique index column    is duplicate
+create table t1(c1 int primary key, c2 int not null, c3 int not null, c4 int not null,c5 int not null, c6 int not null, c7 int not null, c8 int not null, c9 int not null, c10 int not null ,c11 int not null, c12 int not null, c13 int not null, c14 int not null, c15 int not null, c16 int not null, c17 int not null, c18 int not null, unique(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18));
+drop table t1;
+create table t2(c1 int primary key,c2 int not null unique,c3 int not null unique,c4 int not null unique, c5 int not null unique, c6 int not null unique,c7 int not null unique, c8 int not null unique,c9 int not null unique, c10 int not null unique,c11 int not null unique,c12 int not null unique);
+create table t3(c1 int primary key,c2 int not null unique,c3 int not null unique,c4 int not null unique, c5 int not null unique, c6 int not null unique,c7 int not null unique, c8 int not null unique,c9 int not null unique, c10 int not null unique,c11 int not null unique);
+show index on t2;
+index_name	status	index_type
+__3019__idx__c2	1	1
+__3019__idx__c3	1	1
+__3019__idx__c4	1	1
+__3019__idx__c5	1	1
+__3019__idx__c6	1	1
+__3019__idx__c7	1	1
+__3019__idx__c8	1	1
+__3019__idx__c9	1	1
+__3019__idx__c10	1	1
+__3019__idx__c11	1	1
+__3019__idx__c12	1	1
+drop table t2,t3;
+create table t1(c1 int primary key ,c2 int not null unique);
+replace into t1 values(1,1);
+ERROR 0A000: YAO-7: Not supported feature or function
+set @a=1;
+insert into t1 values(1,@a);
+insert into t1 values(2,@a);
+ERROR 23000: YAO-5024: Duplicate entry ' <3043.17>=int32:1 <3043.32783>=null:' for key 'PRIMARY'
+select * from t1;
+c1	c2
+1	1
+create table t3(c1 int primary key, c2 timestamp not null unique);
+insert into t3 values(1,'2023-06-12 12:00:00.123456');
+insert into t3 values(2,'2023-06-12 12:00:00.456789');
+insert into t3 values(3,'2023-06-12 12:00:00.456789');
+ERROR 23000: YAO-5024: Duplicate entry ' <3045.17>=precisedatetime:1686542400456789 <3045.32783>=null:' for key 'PRIMARY'
+select * from t3;
+c1	c2
+1	2023-06-12 12:00:00.123456
+2	2023-06-12 12:00:00.456789
+show index on t3;
+index_name	status	index_type
+__3044__idx__c2	1	1
+__3044__idx__c2
+select * from __3044__idx__c2;
+c1	c2	shadow_pk_0
+1	2023-06-12 12:00:00.123456	NULL
+2	2023-06-12 12:00:00.456789	NULL
+update t3 set c2='2023-06-12 12:00:00.456789' where c2='2023-06-12 12:00:00.123456';
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+update t3 set c2='2023-06-14 12:00:01.555555' where c2='2023-06-12 12:00:00.123456';
+select * from t3;
+c1	c2
+1	2023-06-14 12:00:01.555555
+2	2023-06-12 12:00:00.456789
+select * from __3044__idx__c2;
+c1	c2	shadow_pk_0
+2	2023-06-12 12:00:00.456789	NULL
+1	2023-06-14 12:00:01.555555	NULL
+delete from t3 where c2='2023-06-12 12:00:00.456789';
+select * from t3;
+c1	c2
+1	2023-06-14 12:00:01.555555
+select * from __3044__idx__c2;
+c1	c2	shadow_pk_0
+1	2023-06-14 12:00:01.555555	NULL
+update t3 set c2='2023-06-14 12:00:01.666666' where c1=1;
+select * from t3;
+c1	c2
+1	2023-06-14 12:00:01.666666
+drop unique index c2 on t3;
+show index on t3;
+index_name	status	index_type
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	timestamp	NO		NULL	
+drop table t1,t3;
+create table t1(c1 int primary key, c2 int not null , c3 int not null);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO		NULL	
+c3	int(10)	NO		NULL	
+alter table t1 add unique uk_1(c2);
+alter table t1 add unique uk_1(c2);
+ERROR HY000: YAO-17: Entry already exist
+alter table t1 add unique index uk_2(c2);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO	UNI	NULL	
+c3	int(10)	NO		NULL	
+show index on t1;
+index_name	status	index_type
+__3046__idx__uk_1	1	1
+__3046__idx__uk_2	1	1
+alter table t1 drop c2;
+ERROR HY000: YAO--1: column [17] cannot be deleted,there is a index use it!
+alter table t1 drop unique uk_1;
+alter table t1 drop unique uk_2;
+alter table t1 drop c2;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c3	int(10)	NO		NULL	
+show index on t1;
+index_name	status	index_type
+alter table t1 add  c4 int unique;
+ERROR 0A000: YAO-7: New added column can not be unique key
+alter table t1 add  c5 int not null unique;
+ERROR 0A000: YAO-7: New added column can not be unique key
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c3	int(10)	NO		NULL	
+show index on t1;
+index_name	status	index_type
+alter table t1 add unique index idx_1(c3);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c3	int(10)	NO	UNI	NULL	
+show index on t1;
+index_name	status	index_type
+__3046__idx__idx_1	1	1
+alter table t1 add  c6 int not null;
+create unique index idx_c6 on t1(c6);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c3	int(10)	NO	UNI	NULL	
+c6	int(10)	NO	UNI	NULL	
+show index on t1;
+index_name	status	index_type
+__3046__idx__idx_1	1	1
+__3046__idx__idx_c6	1	1
+create hash partition function h(x) 'x%3';
+create table t2(c1 int primary key, c2 int not null unique, c3 int not null)partition by(hs,h,c1);
+insert into t2 values(1,1,1);
+insert into t2 values(2,2,2);
+insert into t2 values(3,3,3);
+insert into t2 values(4,2,3);
+ERROR 23000: YAO-5024: Duplicate entry ' <3052.17>=int32:2 <3052.32783>=null:' for key 'PRIMARY'
+select * from t2;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+explain select c3 from t2 where c2=3;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3051,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3051}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c3","TableRef":3051},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3051}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3051, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3051, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3051,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=1,index tid=3052;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65518>=[COL<3052,17>|int:3|EQ<2>|],])Project(columns=[expr<3052,16>=[COL<3052,16>|],expr<3052,17>=[COL<3052,17>|]])(sequence_values_=[])>)
+
+create table t3(c1 int primary key, c2 int not null , c3 int not null, unique index idx_1(c2) storing(c3))partition by(hs,h,c1);
+insert into t3 values(1,1,1);
+insert into t3 values(2,2,2);
+insert into t3 values(3,3,3);
+select * from t3;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+explain select c3 from t3 where c2=3;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3053,"TableName":"test.t3","AliasName":"NULL","Type":"BASE_TABLE","RefId":3053}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c3","TableRef":3053},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3053}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3053, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3053, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3053,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=1,index tid=3054; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65518>=[COL<3054,17>|int:3|EQ<2>|],])Project(columns=[expr<3054,18>=[COL<3054,18>|],expr<3054,17>=[COL<3054,17>|]])(sequence_values_=[])>)
+
+drop table t1,t2,t3;
+create table t1(c1 int primary key, c2 int not null unique);
+set autocommit = 0;
+insert into t1 values(1,1);
+set autocommit = 0;
+insert into t1 values(2,1);
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1,null:' for key 'PRIMARY'
+update t1 set c2=2 where c1=1;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+delete from t1 where c1=1;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+commit;
+commit;
+select * from t1;
+c1	c2
+1	1
+set autocommit = 1;
+drop table t1;
+create table t1(c1 int primary key, c2 varchar(10) not null unique);
+Okay
+set autocommit=0;
+show variables like 'autocommit';
+variable_name	value
+autocommit	0
+insert into t1 values(1,'abc');
+select * from t1 where c1 = 1;
+c1	c2
+1	abc
+commit;
+insert into t1 values (2, 'def');
+select * from t1 where c1 = 2;
+c1	c2
+2	def
+rollback;
+select * from t1;
+c1	c2
+1	abc
+delete from t1 where c1=1;
+rollback;
+select * from t1;
+c1	c2
+1	abc
+update t1 set c2='aaa' where c1=1;
+commit;
+set autocommit=1;
+drop table t1;
+create table t1(c1 int primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+`c3` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `idx_1`(`c2`) STORING(`c3`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show index on t1;
+index_name	status	index_type
+__3059__idx__idx_1	1	1
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO	UNI	NULL	
+c3	int(10)	NO		NULL	
+create table t2(c1 int primary key, c2 int not null, c3 int not null);
+show create table t2;
+Table	Create Table
+test.t2	CREATE TABLE `t2` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+`c3` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create unique index idx_1 on t2(c2) storing(c3);
+show create table t2;
+Table	Create Table
+test.t2	CREATE TABLE `t2` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+`c3` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `idx_1`(`c2`) STORING(`c3`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show index on t2;
+index_name	status	index_type
+__3061__idx__idx_1	1	1
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO	UNI	NULL	
+c3	int(10)	NO		NULL	
+create table t4(c1 int primary key not null, c2 int not null, c3 int not null);
+alter table t4 add constraint indx_1 unique (c2);
+alter table t4 add constraint indx_2 unique (c1);
+alter table t4 add constraint indx_3 unique index (c3);
+show index on t4;
+index_name	status	index_type
+__3063__idx__indx_1	1	1
+__3063__idx__indx_2	1	1
+__3063__idx__indx_3	1	1
+create table t3(c1 int not null primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3,c1));
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+create table t3(c1 int primary key, c2 int not null, c3 int not null);
+create unique index idx_1 on t3(c2) storing(c2);
+ERROR HY000: YAO--1: There is same column in storing columns and index_columns: 'c2'
+drop table t1,t2,t3,t4;
+create table t1(c1 int primary key, c2 int not null);
+create unique index idx_1 on t1(c2);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10) NOT NULL,
+ PRIMARY KEY(`c1`),
+ UNIQUE KEY `idx_1`(`c2`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop unique index idx_1 on t1;
+show index on t1;
+index_name	status	index_type
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	NO		NULL	
+create unique index idx_1 on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3068__idx__idx_1	1	1
+drop unique index idx_1 on t1;
+create unique index idx_1 on t1(c2,c2);
+ERROR 42S21: YAO-5008: Not unique index_colums_: 'c2'
+create unique index idx_1 on t1(c3);
+ERROR HY000: YAO-5610: Index Columns c3 are not found
+create table t2(c1 int primary key, c2 int not null, c3 int not null, c4 int not null, c5 int not null, c6 int not null,c7 int not null, c8 int not null, c9 int not null, c10 int not null, c11 int not null, c12 int not null);
+create unique index idx_1 on t2(c2);
+create unique index idx_2 on t2(c3);
+create unique index idx_3 on t2(c4);
+create unique index idx_4 on t2(c5);
+create unique index idx_5 on t2(c6);
+create unique index idx_6 on t2(c7);
+create unique index idx_7 on t2(c8);
+create unique index idx_8 on t2(c9);
+create unique index idx_9 on t2(c10);
+create unique index idx_10 on t2(c11);
+create unique index idx_11 on t2(c12);
+show index on t2;
+index_name	status	index_type
+__3071__idx__idx_1	1	1
+__3071__idx__idx_2	1	1
+__3071__idx__idx_3	1	1
+__3071__idx__idx_4	1	1
+__3071__idx__idx_5	1	1
+__3071__idx__idx_6	1	1
+__3071__idx__idx_7	1	1
+__3071__idx__idx_8	1	1
+__3071__idx__idx_9	1	1
+__3071__idx__idx_10	1	1
+__3071__idx__idx_11	1	1
+drop table t1,t2;
+create table t2(c1 int not null primary key,c2 int  not null,c3  int not null ,c4 int not null,c5 int not null,c6 int not null,c7 int not null,c8 int not null,c9 int not null,c10 int not null,c11 int not null,c12 int not null,c13 int not null,c14 int not null,c15 int not null,c16 int not null,c17 int not null,c18 int not null,c19 int not null,c20 int not null,c21 int not null,c22 int not null,c23 int not null,c24 int not null,c25 int not null,c26 int not null,c27 int not null,c28 int not null,c29 int not null,c30 int not null,c31 int not null,c32 int not null,c33 int not null,c34 int not null,c35 int not null,c36 int not null,c37 int not null,c38 int not null,c39 int not null,c40 int not null,c41 int not null,c42 int not null,c43 int not null,c44 int not null,c45 int not null,c46 int not null,c47 int not null,c48 int not null,c49 int not null,c50 int not null,c51 int not null,c52 int not null,c53 int not null,c54 int not null,c55 int not null,c56 int not null,c57 int not null,c58 int not null,c59 int not null,c60 int not null,c61 int not null,c62 int not null,c63 int not null,c64 int not null,c65 int not null,c66 int not null,c67 int not null,c68 int not null,c69 int not null,c70 int not null,c71 int not null,c72 int not null,c73 int not null,c74 int not null,c75 int not null,c76 int not null,c77 int not null,c78 int not null,c79 int not null,c80 int not null,c81 int not null,c82 int not null,c83 int not null,c84 int not null,c85 int not null,c86 int not null,c87 int not null,c88 int not null,c89 int not null,c90 int not null,c91 int not null,c92 int not null,c93 int not null,c94 int not null,c95 int not null,c96 int not null,c97 int not null,c98 int not null,c99 int not null,c100 int not null,c101 int not null,c102 int not null,unique index idx_1(c2,c1) storing(c3 ,c4 ,c5 ,c6 ,c7 ,c8 ,c9 ,c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16 ,c17 ,c18 ,c19 ,c20 ,c21 ,c22 ,c23 ,c24 ,c25 ,c26 ,c27 ,c28 ,c29 ,c30 ,c31 ,c32 ,c33 ,c34 ,c35 ,c36 ,c37 ,c38 ,c39 ,c40 ,c41 ,c42 ,c43 ,c44 ,c45 ,c46 ,c47 ,c48 ,c49 ,c50 ,c51 ,c52 ,c53 ,c54 ,c55 ,c56 ,c57 ,c58 ,c59 ,c60 ,c61 ,c62 ,c63 ,c64 ,c65 ,c66 ,c67 ,c68 ,c69 ,c70 ,c71 ,c72 ,c73 ,c74 ,c75 ,c76 ,c77 ,c78 ,c79 ,c80 ,c81 ,c82 ,c83 ,c84 ,c85 ,c86 ,c87 ,c88 ,c89 ,c90 ,c91 ,c92 ,c93 ,c94 ,c95 ,c96 ,c97 ,c98 ,c99,c100,c101));
+ERROR HY000: YAO-5042: index's column num cannot be greater than 100
+create table t2(c1 int not null primary key,c2 int  not null,c3  int not null ,c4 int not null,c5 int not null,c6 int not null,c7 int not null,c8 int not null,c9 int not null,c10 int not null,c11 int not null,c12 int not null,c13 int not null,c14 int not null,c15 int not null,c16 int not null,c17 int not null,c18 int not null,c19 int not null,c20 int not null,c21 int not null,c22 int not null,c23 int not null,c24 int not null,c25 int not null,c26 int not null,c27 int not null,c28 int not null,c29 int not null,c30 int not null,c31 int not null,c32 int not null,c33 int not null,c34 int not null,c35 int not null,c36 int not null,c37 int not null,c38 int not null,c39 int not null,c40 int not null,c41 int not null,c42 int not null,c43 int not null,c44 int not null,c45 int not null,c46 int not null,c47 int not null,c48 int not null,c49 int not null,c50 int not null,c51 int not null,c52 int not null,c53 int not null,c54 int not null,c55 int not null,c56 int not null,c57 int not null,c58 int not null,c59 int not null,c60 int not null,c61 int not null,c62 int not null,c63 int not null,c64 int not null,c65 int not null,c66 int not null,c67 int not null,c68 int not null,c69 int not null,c70 int not null,c71 int not null,c72 int not null,c73 int not null,c74 int not null,c75 int not null,c76 int not null,c77 int not null,c78 int not null,c79 int not null,c80 int not null,c81 int not null,c82 int not null,c83 int not null,c84 int not null,c85 int not null,c86 int not null,c87 int not null,c88 int not null,c89 int not null,c90 int not null,c91 int not null,c92 int not null,c93 int not null,c94 int not null,c95 int not null,c96 int not null,c97 int not null,c98 int not null,c99 int not null,c100 int not null,c101 int not null,c102 int not null,unique index idx_1(c2,c1) storing(c3 ,c4 ,c5 ,c6 ,c7 ,c8 ,c9 ,c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16 ,c17 ,c18 ,c19 ,c20 ,c21 ,c22 ,c23 ,c24 ,c25 ,c26 ,c27 ,c28 ,c29 ,c30 ,c31 ,c32 ,c33 ,c34 ,c35 ,c36 ,c37 ,c38 ,c39 ,c40 ,c41 ,c42 ,c43 ,c44 ,c45 ,c46 ,c47 ,c48 ,c49 ,c50 ,c51 ,c52 ,c53 ,c54 ,c55 ,c56 ,c57 ,c58 ,c59 ,c60 ,c61 ,c62 ,c63 ,c64 ,c65 ,c66 ,c67 ,c68 ,c69 ,c70 ,c71 ,c72 ,c73 ,c74 ,c75 ,c76 ,c77 ,c78 ,c79 ,c80 ,c81 ,c82 ,c83 ,c84 ,c85 ,c86 ,c87 ,c88 ,c89 ,c90 ,c91 ,c92 ,c93 ,c94 ,c95 ,c96 ,c97 ,c98 ,c99,c100));
+ERROR HY000: YAO-5042: index's column num cannot be greater than 100
+create table t3(c1 int primary key,c2 int not null,unique index tttttt012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789ttttttt01234567890123456789012345677890123456789012345678901234567890123456789012345678901234567890123456789012345123(c2));
+ERROR HY000: YAO-5078: New table name is too long
+create table t3(c1 int primary key,c2 int not null,unique index tttttt012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789ttttttt0123456789012345678901234567789012345678901234567890123456789012345678901234567890123456789012345678901234512(c2));
+show index on t3;
+index_name	status	index_type
+__3084__idx__tttttt012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789ttttttt0123456789012345678901234567789012345678901234567890123456789012345678901234567890123456789012345678901234512	1	1
+create table t1(c1 int primary key, c2 int not null, c3 int not null,unique index idx_1(c2), unique index idx_2(c2) storing(c3))partition by(hs,h,c1);
+create index idx_3 on t1(c2);
+create index idx_4 on t1(c2) storing(c3);
+show index on t1;
+index_name	status	index_type
+__3086__idx__idx_1	1	1
+__3086__idx__idx_2	1	1
+__3086__idx__idx_3	4	0
+__3086__idx__idx_4	4	0
+“merge”
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3086__idx__idx_1	1	1
+__3086__idx__idx_2	1	1
+__3086__idx__idx_3	1	0
+__3086__idx__idx_4	1	0
+insert into t1 values(1,1,1);
+insert into t1 values(1,2,2);
+ERROR 23000: YAO-5024: Duplicate entry ' <3086.16>=int32:1' for key 'PRIMARY'
+insert into t1 values(2,2,2);
+insert into t1 values(3,2,3);
+ERROR 23000: YAO-5024: Duplicate entry ' <3087.17>=int32:2 <3087.32783>=null:' for key 'PRIMARY'
+insert into t1 values(3,3,3);
+select * from t1;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+__3086__idx__idx_1
+__3086__idx__idx_2
+__3086__idx__idx_3
+__3086__idx__idx_4
+delete from t1 where c1=3 and c3=3;
+select * from t1;
+c1	c2	c3
+1	1	1
+2	2	2
+select * from __3086__idx__idx_1;
+c1	c2	shadow_pk_0
+1	1	NULL
+2	2	NULL
+select * from __3086__idx__idx_2;
+c1	c2	c3	shadow_pk_0
+1	1	1	NULL
+2	2	2	NULL
+select * from __3086__idx__idx_3;
+c1	c2	yao_virtual_col
+1	1	NULL
+2	2	NULL
+select * from __3086__idx__idx_4;
+c1	c2	c3
+1	1	1
+2	2	2
+update t1 set c1=4 where c1=1;
+select * from t1;
+c1	c2	c3
+2	2	2
+4	1	1
+select * from __3086__idx__idx_1;
+c1	c2	shadow_pk_0
+4	1	NULL
+2	2	NULL
+select * from __3086__idx__idx_2;
+c1	c2	c3	shadow_pk_0
+4	1	1	NULL
+2	2	2	NULL
+select * from __3086__idx__idx_3;
+c1	c2	yao_virtual_col
+4	1	NULL
+2	2	NULL
+select * from __3086__idx__idx_4;
+c1	c2	c3
+4	1	1
+2	2	2
+drop unique index idx_1 on t1;
+show index on t1;
+index_name	status	index_type
+__3086__idx__idx_2	1	1
+__3086__idx__idx_3	1	0
+__3086__idx__idx_4	1	0
+drop table t1,t3;
+create table t1 (c1 int primary key,c2 varchar(8)) ;
+create table t2 (d1 int primary key,d2 varchar(8)) ;
+create unique index on t1(c2);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create unique index t1_index on t1(c2);
+create unique index t2_index on t2(d2);
+show index on t1;
+index_name	status	index_type
+__3091__idx__t1_index	1	1
+show index on t2;
+index_name	status	index_type
+__3092__idx__t2_index	1	1
+set autocommit=0;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+set autocommit=0;
+insert into t1 values(2,2);
+select * from t1,t2 where t1.c1=t2.d1;
+c1	c2	d1	d2
+select * from t1 left join t2 on t1.c1=t2.d1;
+c1	c2	d1	d2
+2	2	NULL	NULL
+select * from t1 right join t2 on t1.c1=t2.d1;
+c1	c2	d1	d2
+select * from t1 inner join t2 on t1.c1=t2.d1;
+c1	c2	d1	d2
+select/*+join(si)*/ * from t1 left join t2 on t1.c1=t2.d1;
+c1	c2	d1	d2
+2	2	NULL	NULL
+select/*+join(bloomfilter_join)*/ * from t1 left join t2 on t1.c1=t2.d1;
+c1	c2	d1	d2
+2	2	NULL	NULL
+commit;
+select * from t1;
+c1	c2
+1	1
+2	2
+set autocommit=1;
+drop table t1,t2;
+create table t1 (c1 int primary key,c2 varchar(8));
+create table t2 (d1 int primary key,d2 varchar(8));
+create unique index t1_index on t1(c2);
+create unique index t2_index on t2(d2);
+show index on t1;
+index_name	status	index_type
+__3095__idx__t1_index	1	1
+show index on t2;
+index_name	status	index_type
+__3096__idx__t2_index	1	1
+begin;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+begin;
+insert into t1 values(2,2);
+commit;
+select * from t1;
+c1	c2
+1	1
+2	2
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 varchar(8)) ;
+create unique index c_index on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3099__idx__c_index	1	1
+begin;
+insert into t1 values(1,concat(1,'a'));
+insert into t1 values(2,concat(2,'a'));
+insert into t1 values(3,concat(3,'a'));
+insert into t1 values(4,concat(4,'a'));
+insert into t1 values(5,concat(5,'a'));
+insert into t1 values(6,concat(6,'a'));
+insert into t1 values(7,concat(7,'a'));
+insert into t1 values(8,concat(8,'a'));
+insert into t1 values(9,concat(9,'a'));
+insert into t1 values(10,concat(10,'a'));
+insert into t1 values(11,concat(11,'a'));
+insert into t1 values(12,concat(12,'a'));
+insert into t1 values(13,concat(13,'a'));
+insert into t1 values(14,concat(14,'a'));
+insert into t1 values(15,concat(15,'a'));
+insert into t1 values(16,concat(16,'a'));
+insert into t1 values(17,concat(17,'a'));
+insert into t1 values(18,concat(18,'a'));
+insert into t1 values(19,concat(19,'a'));
+set autocommit=0;
+show variables like 'autocommit';
+variable_name	value
+autocommit	0
+insert into t1 values (99,'aa');
+select count(*) from t1;
+count(*)
+20
+commit;
+update t1 set c2 ='bb' where c1=99;
+select * from t1 where c1 =99;
+c1	c2
+99	bb
+rollback;
+select * from t1 where c1 =99;
+c1	c2
+99	aa
+rollback;
+delete from t1 where c1 = 99;
+select count(*) from t1;
+count(*)
+19
+rollback;
+select * from t1 where c1 =99;
+c1	c2
+99	aa
+set autocommit=1;
+__3099__idx__c_index
+select * from t1;
+c1	c2
+1	1a
+2	2a
+3	3a
+4	4a
+5	5a
+6	6a
+7	7a
+8	8a
+9	9a
+10	10a
+11	11a
+12	12a
+13	13a
+14	14a
+15	15a
+16	16a
+17	17a
+18	18a
+19	19a
+99	aa
+select * from __3099__idx__c_index order by c2 desc;
+c1	c2	shadow_pk_0
+99	aa	NULL
+9	9a	NULL
+8	8a	NULL
+7	7a	NULL
+6	6a	NULL
+5	5a	NULL
+4	4a	NULL
+3	3a	NULL
+2	2a	NULL
+1	1a	NULL
+19	19a	NULL
+18	18a	NULL
+17	17a	NULL
+16	16a	NULL
+15	15a	NULL
+14	14a	NULL
+13	13a	NULL
+12	12a	NULL
+11	11a	NULL
+10	10a	NULL
+drop table t1;

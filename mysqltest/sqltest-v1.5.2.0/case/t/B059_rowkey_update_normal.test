@@ -1,0 +1,167 @@
+##############################################################################################
+###1.测试功能点：主键更新
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database rowkey_database;
+using database rowkey_database;
+sleep 5;
+
+--disable_warnings
+drop table if exists t;
+
+###2-1:全主键条件等值单行更新全表所有列，混合数据类型
+create table  t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9,id2=9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where id1=0 and id2=1 and id3 ='1000-10-10 10:10:10' and id4='aaa' and id5=true and id6=1.1 and id7=2.2 and id8='3.3' and id9=1;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-2:全主键条件等值单行更新部分主键列，混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9 where id1=10 and id2=10 and id3 ='1000-10-10 10:10:10' and id4='aaa' and id5=true and id6=1.1 and id7=2.2 and id8='3.3' and id9=1;
+--real_sleep 5
+select * from t;
+drop table t;
+###2-3:全主键条件等值单行更新混合列，混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9,id3='1111-11-11 11:11:11',id5=0,id7=0.0 ,id9=0,col2=0,col4='000',col6=0.0,col8=0.0 where id1=0 and id2=1 and id3 ='1000-10-10 10:10:10' and id4='aaa' and id5=true and id6=1.1 and id7=2.2 and id8='3.3' and id9=1;
+--real_sleep 5
+select * from t;
+drop table t;
+
+
+###2-4:全主键条件等值单行更新主键列(表达式)，混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9, id3 ='1111-11-11 11:11:11', id4='ccc', id5=id5+10,id6=id6+10.0, id7=id7+10.0, id8=id8+10.0, id9=id9+10 where id1=0 and id2=1 and id3 ='1000-10-10 10:10:10' and id4='aaa' and id5=true and id6=1.1 and id7=2.2 and id8='3.3' and id9=1;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-5:全主键条件等值单行更新全表所有列（表达式），混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9,id3='1111-11-11 11:11:11',id5=id5+10,id6=id6+10.0,id7=id7+10.0,id8=id8+10.0 ,id9=id9+10,col1=col1+0,col2=col2+0,col3='1111-11-11 11:11:11',col5=col5+10,col6=col6+10.0,col7=col7+10.0,col8=col8+10.0 where id1=0 and id2=1 and id3 ='1000-10-10 10:10:10' and id4='aaa' and id5=true and id6=1.1 and id7=2.2 and id8='3.3' and id9=1;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-6:非全主键范围限定单行更新全表所有列，混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9,id2=9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where id1>0 and id1<2;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-7:非主键条件等值单行更新全表所有列，混合数据类型
+create table  t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9,id2=9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where col1=2 and col2=3 and col3='1000-10-10 10:10:10' and col4='bbb' and col5=1 and col6=1.1 and col7=2.2;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-8:非主键范围限定单行更新全表所有列，混合数据类型
+create table t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=9,id2=9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where col1>=2 and col2>=3;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-9:单行更新,主键值实际未变
+create table  t(id1 int primary key,col1 int);
+replace into t values(0,0);
+replace into t values(1,0);
+update t set id1=0,col1=1 where id1=0;
+--real_sleep 5
+select * from t;
+drop table t;
+
+
+###2-10:非全主键范围限定多行更新全表所有列（表达式），混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9,id3='1111-11-11 11:11:11',id5=id5+10,id6=id6+10.0,id7=id7+10.0,id8=id8+10.0 ,id9=id9+10,col1=col1+0,col2=col2+0,col3='1111-11-11 11:11:11',col5=col5+10,col6=col6+10.0,col7=col7+10.0,col8=col8+10.0 where id1>=0;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-11:非全主键范围限定多行更新主键列（表达式），混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9,id3='1111-11-11 11:11:11',id4='ccc',id5=id5+10,id6=id6+10.0,id7=id7+10.0,id8=id8+10.0 ,id9=id9+10 where id1>=0;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-12:非全主键范围限定多行更新部分主键列（表达式），混合数据类型
+create table if not exists t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9 where id1>50;
+--real_sleep 5
+select * from t;
+drop table t;
+
+###2-13:非主键条件等值多行更新全表所有列(表达式)，混合数据类型
+create table  t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where col1=2 and col2=3 and col3='1000-10-10 10:10:10' and col4='bbb' and col5=1 and col6=1.1 and col7=2.2;
+--real_sleep 5
+select * from t;
+drop table t;
+
+
+###2-14:非主键范围限定多行更新全表所有列(表达式)，混合数据类型
+create table  t(id1 int,id2 bigint,id3 datetime,id4 varchar(30),id5 bool,id6 decimal(10,1),id7 double,id8 float,id9 int,col1 int,col2 bigint,col3 datetime,col4 varchar(30),col5 bool,col6 decimal(10,1),col7 double,col8 float,primary key(id1,id2,id3,id4,id5,id6,id7,id8,id9));
+replace into t values(0,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(1,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+replace into t values(2,1,'1000-10-10 10:10:10','aaa',true,1.1,2.2,3.3,1,2,3,'1000-10-10 10:10:10','bbb',true,1.1,2.2,3.3);
+update t set id1=id1+9,id2=id2+9,id3='1111-11-11 11:11:11',id4='000',id5=0,id6=0.0,id7=0.0,id8=0.0 ,id9=0,col1=0,col2=0,col3='1111-11-11 11:11:11',col4='000',col5=0,col6=0.0,col7=0.0,col8=0.0 where col1>=0;
+--real_sleep 5
+select * from t;
+drop table t;
+
+
+###2-15:多行更新,主键值实际未变
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+0,col1=1 where id1>=0;
+--real_sleep 5
+select * from t;
+drop table t;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

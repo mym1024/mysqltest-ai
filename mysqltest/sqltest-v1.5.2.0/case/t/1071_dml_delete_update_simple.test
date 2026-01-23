@@ -1,0 +1,64 @@
+####################################必填######################################################
+###1.测试功能点：主键与非主键的DML操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+drop table if exists test27;
+
+
+###2-1：非主键更新
+create table test27(c1 int primary key,c2 int,c3 int,c4 int);
+
+insert into test27 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test27;
+update test27 set c2=7 where c3 > 1;
+select * from test27;
+insert into test27 values(5,5,5,5);
+select * from test27;
+update test27 set c2=8 where c3 = 5;
+
+
+###2-2：主键更新，删除，插入
+drop table if exists test1;
+create table test1(c1 int primary key,c2 int,c3 int,c4 int);
+
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+delete from test1 where c1 > 1;
+select * from test1;
+insert into test1 values(2,2,2,2),(3,3,3,3),(4,4,4,4);
+delete from test1 where c1=1;
+select * from test1;
+delete from test1;
+
+select * from test1;
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+delete from test1 where c2=1;
+select * from test1;
+insert into test1 values(1,1,1,1);
+select * from test1;
+delete from test1 where c2 in (1,2,3,4);
+select * from test1;
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+delete from test1 where c2>1;
+select * from test1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

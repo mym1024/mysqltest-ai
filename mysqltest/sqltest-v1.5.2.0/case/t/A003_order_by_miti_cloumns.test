@@ -1,0 +1,62 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：多个列进行order by排序
+#                
+#                 
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：501s
+###6.编写/修改人： liuchangyuan
+###7.编写/修改日期：2019-10-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+
+
+
+create table t1(c1 int primary key,c2 int,c3 int);
+insert into t1 values(1,9,2),(2,8,4),(3,7,5),(4,7,6),(5,7,4);
+
+###2-1:合并前多个列order by排序
+select * from t1;
+select * from t1 order by c1 desc;
+select * from t1 order by c1 asc;
+select * from t1 order by c1 desc,c1 desc;
+
+select * from t1 order by c2 desc,c2 asc;
+select * from t1 order by c2 asc,c2 desc;
+
+select * from t1 order by c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+
+###2-2:合并后多个列order by排序
+select * from t1 order by c1 desc;
+select * from t1 order by c1 asc;
+select * from t1 order by c1 desc,c1 desc;
+
+select * from t1 order by c2 desc,c2 asc;
+select * from t1 order by c2 asc,c2 desc;
+
+select * from t1 order by c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc,c3 asc,c3 desc;
+
+drop table if exists t1,t2;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,43 @@
+drop table if exists t1,t2;
+create table t1 (USR_ID int not null,MAX_REQ int not null,primary key (USR_ID))partition by range (USR_ID)(partition v1 values less than(2),partition v2 values less than maxvalue);
+Okay
+insert into t1 values(1,3);
+select count(*) + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ from t1 group by MAX_REQ;
+count(*) + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ + MAX_REQ - MAX_REQ
+1
+select Case When Count(*) < MAX_REQ Then 1 Else 0 End from t1 where t1.USR_ID = 1 group by MAX_REQ;
+Case When Count(*) < MAX_REQ Then 1 Else 0 End
+1
+drop table t1;
+create enum partition function e1(x)'[(a)],[(b)],[(c)]';
+create table t1(a char(10) primary key, b char(10));
+Okay
+insert into t1(a) values('a'),('b'),('c');
+select max(a) from t1;
+max(a)
+c
+drop table t1;
+drop partition function e1;
+create hash partition function h1(x)'(x+3)*2';
+create table t1(a int primary key, b int) partition by (ht1, h1, a);
+Okay
+insert into t1(a) values(1);
+select max(a) as b from t1 having b=1;
+b
+1
+select a from t1 having a=1;
+a
+1
+drop table t1;
+drop partition function h1;
+create table t1(a int primary key, b int) partition by list(a)(partition f1 values in(1,3), partition f2 values in(2,4));
+Okay
+insert into t1(a) values (1),(2),(3),(4);
+select MAX(a) from t1 where a > 5;
+MAX(a)
+NULL
+select MIN(a) from t1 where a < 0;
+MIN(a)
+NULL
+drop table t1;
+Okay

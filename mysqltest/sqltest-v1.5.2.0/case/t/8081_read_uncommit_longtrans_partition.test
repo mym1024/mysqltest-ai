@@ -1,0 +1,100 @@
+####################################必填######################################################
+###1.测试功能点：读未提交有分区数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：14 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-11-7
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists c;
+--enable_warnings
+
+#创建range分区
+create table c(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+--echo "refresh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+# 建立连接，设置手动提交
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+begin;
+insert into c values(1,1);
+
+connection conn2;
+begin;
+insert into c values(2,1);
+
+connection conn1;
+###2-1:读未提交有分区数据
+select * from c where c1=2;
+select * from c where c2=1;
+select * from c;
+
+connection conn2;
+commit;
+
+connection conn1;
+###2-2:读未提交有分区数据
+select * from c where c1=2;
+select * from c where c2=1;
+select * from c;
+commit;
+drop table c;
+
+
+#创建range分区
+create table c(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+--echo "refresh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+# 建立连接，设置手动提交
+connect(conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn4,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn3;
+begin;
+--let $count=1
+while($count<15)
+{
+	--let $stmt=insert into c values($count,'a')
+	eval $stmt;
+	inc $count;
+}
+commit;
+
+connection conn4;
+begin;
+--let $count1=1
+while($count1<15)
+{
+	--let $stmt1=update c set c2='b' where c1=$count1
+	eval $stmt1;
+	inc $count1;
+}
+
+connection conn1;
+###2-1:读未提交有分区数据
+select * from c where c1=2;
+select * from c;
+commit;
+commit;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

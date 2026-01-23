@@ -1,0 +1,938 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210120
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+###2-1:基于基本表/视图的列，列进行复合运算,使用系统函数cast
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select cast(c1 as decimal(27,10)),cast(c2 as double),cast(c3 as varchar(100)) from t1;
+create view v2 as select cast(c4 as float),cast(c5 as decimal(11,3)),cast(c6 as varchar(100)),cast(c7 as bigint) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select cast(c1 as decimal(27,10)),cast(c2 as double),cast(c3 as varchar(100)) from t1;
+select * from v2;
+select cast(c4 as float),cast(c5 as decimal(11,3)),cast(c6 as varchar(100)),cast(c7 as bigint) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-2:基于基本表/视图的多个列，列进行复合运算,使用系统函数cast
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 varchar(100) primary key,c2 decimal(10,5));
+insert into t1 values ('12321312.123123',77777.97687),('-7878787.3569',-77777.77777);
+create view v1 as select cast(c1 as decimal),cast(c2 as varchar(100)) from t1;
+create view v2 as select cast(1.23569*2.35678 as bool),cast(298.787878 as int),cast(5656 as decimal(10,5));
+create view v3 as select cast('11:00:45' as time),cast('2021-01-28' as date),cast('2021-01-28 11:11:52.236272' as timestamp);
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select cast(c1 as decimal),cast(c2 as varchar(100)) from t1;
+select * from v2;
+select cast(1.23569*2.35678 as bool),cast(298.787878 as int),cast(5656 as decimal(10,5));
+select * from v3;
+select cast('11:00:45' as time),cast('2021-01-28' as date),cast('2021-01-28 11:11:52.236272' as timestamp);
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-3:基于基本表/视图的多个列，列进行复合运算,使用系统函数concat
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select concat(c1,c2),concat(c1,c1),concat(c1 ,concat(c3,c5)),concat(concat(c1,c2),2.56878 *2.65656) from t1;
+create view v2 as select concat(1.35656,concat('_','name')),concat(25.2577,999);
+desc v1;
+desc v2;
+select * from v1;
+select concat(c1,c2),concat(c1,c1),concat(c1 ,concat(c3,c5)),concat(concat(c1,c2),2.56878 *2.65656) from t1;
+select * from v2;
+select concat(1.35656,concat('_','name')),concat(25.2577,999);
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-4:基于基本表/视图的多个列，列进行复合运算,使用系统函数current_date
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_date();
+create view v2 as select * from (select current_date());
+create view v3 as select * from (select current_date()) t1;
+desc v1;
+desc v2;
+desc v3;
+--replace_column 1 '2021-03-23'
+select * from v1;
+--replace_column 1 '2021-03-23'
+select current_date();
+--replace_column 1 '2021-03-23'
+select * from v2;
+--replace_column 1 '2021-03-23'
+select * from (select current_date());
+--replace_column 1 '2021-03-23'
+select * from v3;
+--replace_column 1 '2021-03-23'
+select * from (select current_date()) t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-5:基于基本表/视图的多个列，列进行复合运算,使用系统函数current_time()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_time();
+create view v2 as select * from (select current_time());
+create view v3 as select * from (select current_time()) t1;
+desc v1;
+desc v2;
+desc v3;
+--replace_column 1 '16:01:29'
+select * from v1;
+--replace_column 1 '16:01:29'
+select current_time();
+--replace_column 1 '16:01:29'
+select * from v2;
+--replace_column 1 '16:01:29'
+select * from (select current_time());
+--replace_column 1 '16:01:29'
+select * from v3;
+--replace_column 1 '16:01:29'
+select * from (select current_time()) t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:基于基本表/视图的多个列，列进行复合运算,使用系统函数current_timestamp()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_timestamp();
+create view v2 as select * from (select * from(select current_timestamp()));
+create view v3 as select * from (select *from(select current_timestamp() t1) t2);
+desc v1;
+desc v2;
+desc v3;
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select * from v1;
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select current_timestamp();
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select * from v2;
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select * from (select * from(select current_timestamp()));
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select * from v3;
+--replace_column 1 '2021-03-23 17:22:19.561809'
+select * from (select *from(select current_timestamp() t1) t2);
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-7:基于基本表/视图的多个列，列进行复合运算,使用系统函数year()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select year('2021-01-28 14:05:29.833895');
+create view v2 as select year('2021-01-28 14:05:29');
+create view v3 as select year('2021-01-28');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select year('2021-01-28 14:05:29.833895');
+select * from v2;
+select year('2021-01-28 14:05:29');
+select * from v3;
+select year('2021-01-28');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-8:基于基本表/视图的多个列，列进行复合运算,使用系统函数month()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select month('2021-01-28 14:05:29.833895');
+create view v2 as select month('2021-01-28 14:05:29');
+create view v3 as select month('2021-01-28');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select month('2021-01-28 14:05:29.833895');
+select * from v2;
+select month('2021-01-28 14:05:29');
+select * from v3;
+select month('2021-01-28');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-9:基于基本表/视图的多个列，列进行复合运算,使用系统函数day()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select day('2021-01-28 14:05:29.833895');
+create view v2 as select day('2021-01-28 14:05:29');
+create view v3 as select day('2021-01-28');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select day('2021-01-28 14:05:29.833895');
+select * from v2;
+select day('2021-01-28 14:05:29');
+select * from v3;
+select day('2021-01-28');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-10:基于基本表/视图的多个列，列进行复合运算,使用系统函数days()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select days('2021-01-28 14:05:29.833895');
+create view v2 as select days('2021-01-28 14:05:29');
+create view v3 as select days('2021-01-28');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select days('2021-01-28 14:05:29.833895');
+select * from v2;
+select days('2021-01-28 14:05:29');
+select * from v3;
+select days('2021-01-28');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-11:基于基本表/视图的多个列，列进行复合运算,使用系统函数hour()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select hour('2021-01-28 14:05:29.833895');
+create view v2 as select hour('2021-01-28 14:05:29');
+desc v1;
+desc v2;
+select * from v1;
+select days('2021-01-28 14:05:29.833895');
+select * from v2;
+select days('2021-01-28 14:05:29');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-12:基于基本表/视图的多个列，列进行复合运算,使用系统函数minute()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select minute('2021-01-28 14:05:29.833895');
+create view v2 as select minute('2021-01-28 14:05:29');
+create view v3 as select minute('14:05:27');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select minute('2021-01-28 14:05:29.833895');
+select * from v2;
+select minute('2021-01-28 14:05:29');
+select * from v3;
+select minute('14:05:27');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-13:基于基本表/视图的多个列，列进行复合运算,使用系统函数second(param)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select second('2021-01-28 14:05:29.833895');
+create view v2 as select second('2021-01-28 14:05:29');
+create view v3 as select second('14:05:27');
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select second('2021-01-28 14:05:29.833895');
+select * from v2;
+select second('2021-01-28 14:05:29');
+select * from v3;
+select second('14:05:27');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-14:基于基本表/视图的多个列，列进行复合运算,使用系统函数date_add(param)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 int primary key,c2 createtime,c3 date,c4 time,c5 timestamp);
+insert into t1(c1,c3,c4,c5) values (1,'2021-01-28','14:05:29','2021-01-28 14:05:29.833895');
+create view v1 as select date_add(c3,interval 5566 years),date_add(c4,interval 5566 hours),date_add(c5,interval 5566 years) from t1;
+desc v1;
+select * from v1;
+select date_add(c3,interval 5566 years),date_add(c4,interval 5566 hours),date_add(c5,interval 5566 years) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-15:基于基本表/视图的多个列，列进行复合运算,使用系统函数date_add(param)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select date_add(date '2021-01-28',interval 5566 years);
+create view v2 as select date_add (time '14:05:29',interval 5566 hours);
+create view v3 as select date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years);
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select date_add(date '2021-01-28',interval 5566 years);
+select * from v2;
+select date_add (time '14:05:29',interval 5566 hours);
+select * from v3;
+select date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years);
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-16:基于基本表/视图的多个列，列进行复合运算,使用系统函数date_sub(date,interval expr type)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 int primary key,c2 createtime,c3 date,c4 time,c5 timestamp);
+insert into t1(c1,c3,c4,c5) values (1,'2021-01-28','14:05:29','2021-01-28 14:05:29.833895');
+create view v1 as select date_sub(c3,interval 556 years),date_sub(c4,interval 556 hours),date_sub(c5,interval 556 years) from t1;
+desc v1;
+select * from v1;
+select date_sub(c3,interval 556 years),date_sub(c4,interval 556 hours),date_sub(c5,interval 556 years) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-17:基于基本表/视图的多个列，列进行复合运算,使用系统函数date_sub(date,interval expr type)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select date_sub(date '2021-01-28',interval 556 years);
+create view v2 as select date_sub (time '14:05:29',interval 556 hours);
+create view v3 as select date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years);
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select date_sub(date '2021-01-28',interval 556 years);
+select * from v2;
+select date_sub (time '14:05:29',interval 556 hours);
+select * from v3;
+select date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-18:基于基本表/视图的多个列，列进行复合运算,使用系统函数hex(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select hex(c1),hex(c2),hex(c3),hex(c4),hex(c5),hex(c6),hex(c7) from t1;
+create view v2 as select hex(c1*c2+c1),hex(length(c1)),hex(c2*c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select hex(c1),hex(c2),hex(c3),hex(c4),hex(c5),hex(c6),hex(c7) from t1;
+select * from v2;
+select hex(c1*c2+c1),hex(length(c1)),hex(c2*c5) from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-19:基于基本表/视图的多个列，列进行复合运算,使用系统函数hex(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select hex('c1'),hex('create view test'),hex('3.1415926535897932384626'),hex(121212*35878),hex(1*3*5*7*11*13*15*17);
+create view v2 as select hex('c1*c2+c1'),hex('__length_(c1)'),hex('c++');
+desc v1;
+desc v2;
+select * from v1;
+select hex('c1'),hex('create view test'),hex('3.1415926535897932384626'),hex(121212*35878),hex(1*3*5*7*11*13*15*17);
+select * from v2;
+select hex('c1*c2+c1'),hex('__length_(c1)'),hex('c++');
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-20:基于基本表/视图的多个列，列进行复合运算,使用系统函数int2ip(int_value)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select int2ip(c1),int2ip(c2),int2ip(c3),int2ip(c4),int2ip(c5),int2ip(c6),int2ip(c7) from t1;
+create view v2 as select int2ip(c1*c2+c1),int2ip(length(c1)),int2ip(c2*c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select int2ip(c1),int2ip(c2),int2ip(c3),int2ip(c4),int2ip(c5),int2ip(c6),int2ip(c7) from t1;
+select * from v2;
+select int2ip(c1*c2+c1),int2ip(length(c1)),int2ip(c2*c5) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-21:基于基本表/视图的多个列，列进行复合运算,使用系统函数int2ip(int_value)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select int2ip('1234597'),int2ip(1234597),int2ip(2555),int2ip(121212*35878),int2ip(1*3*5*7*11*13*15*17);
+desc v1;
+select * from v1;
+select int2ip('1234597'),int2ip(1234597),int2ip(2555),int2ip(121212*35878),int2ip(1*3*5*7*11*13*15*17);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-22:基于基本表/视图的多个列，列进行复合运算,使用系统函数ip2int('IP_ADDR')
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select ip2int('0.0.0.0'),ip2int('255.255.255.255'),ip2int('196.128.0.130');
+desc v1;
+select * from v1;
+select ip2int('0.0.0.0'),ip2int('255.255.255.255'),ip2int('196.128.0.130');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-23:基于基本表/视图的多个列，列进行复合运算,使用系统函数length(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select length(c1),length(c2),length(c3),length(c4),length(c5),length(c6),length(c7) from t1;
+create view v2 as select length(c1*c2+c1),length(length(c1)),length(c2*c5+c1+c2+c3) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select length(c1),length(c2),length(c3),length(c4),length(c5),length(c6),length(c7) from t1;
+select * from v2;
+select length(c1*c2+c1),length(length(c1)),length(c2*c5+c1+c2+c3) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-24:基于基本表/视图的多个列，列进行复合运算,使用系统函数length(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select length('0.0.0.0'),length(2*3*5*7*11*13*17*19*23*29*31);
+desc v1;
+select * from v1;
+select length('0.0.0.0'),length(2*3*5*7*11*13*17*19*23*29*31);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-25:基于基本表/视图的多个列，列进行复合运算,使用系统函数str1 [not] like str2
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select 'ab%' like 'ab%_','ab%' not like 'ab%_';
+desc v1;
+select * from v1;
+select 'ab%' like 'ab%_','ab%' not like 'ab%_';
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-26:基于基本表/视图的多个列，列进行复合运算,使用系统函数str1 [not] like str2
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abcabc'),(2,'c','ccccccc'),(3,'ab%','abc+_');
+create view v1 as select 'ab%' like c2,'ab%' like c3,c2 like c3 from t1;
+create view v2 as select 'ab%' not like c2,'ab%' not like c3,c2 not like c3 from t1;
+desc v1;
+desc v2;
+select * from v1;
+select 'ab%' like c2,'ab%' like c3,c2 like c3 from t1;
+select * from v2;
+select 'ab%' not like c2,'ab%' not like c3,c2 not like c3 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-27:基于基本表/视图的多个列，列进行复合运算,使用系统函数now()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select now();
+create view v2 as select * from (select now());
+create view v3 as select * from (select now())t1;
+desc v1;
+desc v2;
+desc v3;
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select * from v1;
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select now();
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select * from v2;
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select * from (select now());
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select * from v3;
+--replace_column 1 '2021-03-23 17:24:32.120353'
+select * from (select now())t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-28:基于基本表/视图的多个列，列进行复合运算,使用系统函数nvl(str1,str2)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select nvl('ab%','ab%_'),nvl('ab%_','ab%_'),nvl('cc1','cc2');
+create view v2 as select nvl('ab%',null),nvl(null,'ab%_'),nvl(null,null);
+desc v1;
+desc v2;
+select * from v1;
+select nvl('ab%','ab%_'),nvl('ab%_','ab%_'),nvl('cc1','cc2');
+select * from v2;
+select nvl('ab%',null),nvl(null,'ab%_'),nvl(null,null);
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-29:基于基本表/视图的多个列，列进行复合运算,使用系统函数nvl(str1,str2)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abcabc'),(2,'c','ccccccc'),(3,'ab%','abc+_');
+create view v1 as select nvl('ab%',c2),nvl('ab%_',c3),nvl(c2,c3) from t1;
+desc v1;
+select * from v1;
+select nvl('ab%',c2),nvl('ab%_',c3),nvl(c2,c3) from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-30:基于基本表/视图的多个列，列进行复合运算,使用系统函数round(number,digits)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select round(c1,2),round(c1,0),round(c1,-1) from t1;
+create view v2 as select round(c2,2),round(c2,0),round(c2,-1) from t1;
+create view v3 as select round(c3,2),round(c3,0),round(c3,-1) from t1;
+create view v4 as select round(c4,2),round(c4,0),round(c4,-1) from t1;
+create view v5 as select round(c5,2),round(c5,0),round(c5,-1) from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+desc v5;
+select * from v1;
+select round(c1,2),round(c1,0),round(c1,-1) from t1;
+select * from v2;
+select round(c2,2),round(c2,0),round(c2,-1) from t1;
+select * from v3;
+select round(c3,2),round(c3,0),round(c3,-1) from t1;
+select * from v4;
+select round(c4,2),round(c4,0),round(c4,-1) from t1;
+select * from v5;
+select round(c5,2),round(c5,0),round(c5,-1) from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+
+###2-31:基于基本表/视图的多个列，列进行复合运算,使用系统函数round(number,digits)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select round(79879879779789797.356897878,-10),round(123456789.36679798,2);
+create view v2 as select round(-10897898788888,0),round(-78789789798798,-2),round(-464678993123.2365,3);
+desc v1;
+desc v2;
+select * from v1;
+select round(79879879779789797.356897878,-10),round(123456789.36679798,2);
+select * from v2;
+select round(-10897898788888,0),round(-78789789798798,-2),round(-464678993123.2365,3);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+
+
+###2-32:基于基本表/视图的多个列，列进行复合运算,使用系统函数strict_current_timestamp()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select strict_current_timestamp();
+create view v2 as select * from (select strict_current_timestamp());
+create view v3 as select * from (select strict_current_timestamp())t1;
+desc v1;
+desc v2;
+desc v3;
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select * from v1;
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select strict_current_timestamp();
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select * from v2;
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select * from (select strict_current_timestamp());
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select * from v3;
+--replace_column 1 '2021-03-23 17:25:09.814040'
+select * from (select strict_current_timestamp())t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-33:基于基本表/视图的多个列，列进行复合运算,使用系统函数unhex(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select unhex(c1),unhex(c2),unhex(c3),unhex(c4),unhex(c5),unhex(c6),unhex(c7) from t1;
+create view v2 as select unhex(c1*c2+c1),unhex(length(c1)),unhex(c2*c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select unhex(c1),unhex(c2),unhex(c3),unhex(c4),unhex(c5),unhex(c6),unhex(c7) from t1;
+select * from v2;
+select unhex(c1*c2+c1),unhex(length(c1)),unhex(c2*c5) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-34:基于基本表/视图的多个列，列进行复合运算,使用系统函数unhex(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select unhex('c1'),unhex('create view test'),unhex('3.1415926535897932384626'),unhex(121212*35878),unhex(1*3*5*7*11*13*15*17);
+create view v2 as select unhex('c1*c2+c1'),unhex('__length_(c1)'),unhex('c++');
+desc v1;
+desc v2;
+select * from v1;
+select unhex('c1'),unhex('create view test'),unhex('3.1415926535897932384626'),unhex(121212*35878),unhex(1*3*5*7*11*13*15*17);
+select * from v2;
+select unhex('c1*c2+c1'),unhex('__length_(c1)'),unhex('c++');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-35:基于基本表/视图的多个列，列进行复合运算,使用系统函数upper(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abc_abc'),(2,'a_bc','abc_abc'),(3,'abc__','abc+_');
+create view v1 as select upper(c2),upper(c3),upper(c2||c3) from t1;
+create view v2 as select upper('abcbcbccbbb'),upper('cbase'),upper('cbase_su123');
+desc v1;
+desc v2;
+select * from v1;
+select upper(c2),upper(c3),upper(c2||c3) from t1;
+select * from v2;
+select upper('abcbcbccbbb'),upper('cbase'),upper('cbase_su123');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-36:基于基本表/视图的多个列，列进行复合运算,使用系统函数lower(str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'ABC','ABC_ABC'),(2,'A_BC','ABC_ABC'),(3,'ABC__','ABC+_');
+create view v1 as select lower(c2),lower(c3),lower(c2||c3) from t1;
+create view v2 as select lower('abcbcbccbbb'),lower('cbase'),lower('cbase_su123');
+desc v1;
+desc v2;
+select * from v1;
+select lower(c2),lower(c3),lower(c2||c3) from t1;
+select * from v2;
+select lower('abcbcbccbbb'),lower('cbase'),lower('cbase_su123');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-37:基于基本表/视图的多个列，列进行复合运算,使用系统函数SUBSTR(str,pos,len),substr(str,pos),substr(str from pos)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'ABCABC_ABC'),(2,'A_BC_ABC_ABC'),(3,'ABC__ABC+_');
+create view v1 as select substr(c2,3,5),substr(c2,3),substr(c2 from 3) from t1;
+create view v2 as select substr('123456789',2,3),substr('cbase',1),substr('cbase_123' from 1);
+desc v1;
+desc v2;
+select * from v1;
+select substr(c2,3,5),substr(c2,3),substr(c2 from 3) from t1;
+select * from v2;
+select substr('123456789',2,3),substr('cbase',1),substr('cbase_123' from 1);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-38:基于基本表/视图的多个列，列进行复合运算,使用系统函数trim([[{both | leading | trailing}] [remstr] from ] str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,' ABCABC_ABC  '),(2,'  A_BC_ABC_ABC  '),(3,'  ABC__ABC+_       ');
+create view v1 as select trim(both from c2),trim(leading from c2),trim(trailing from c2),trim(c2) from t1;
+create view v2 as select trim(both from ' 123567   '),trim(leading from ' 123567     '),trim(trailing from ' 123567     '),trim(' 123567    ');
+desc v1;
+desc v2;
+select * from v1;
+select trim(both from c2),trim(leading from c2),trim(trailing from c2),trim(c2) from t1;
+select * from v2;
+select trim(both from ' 123567   '),trim(leading from ' 123567     '),trim(trailing from ' 123567     '),trim(' 123567    ');
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-39:基于基本表/视图的多个列，列进行复合运算,使用系统函数trim([[{both | leading | trailing}] [remstr] from ] str)
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'__ABCABC_ABC____'),(2,'__A_BC_ABC_ABC______'),(3,'___ABC__ABC+___________');
+create view v1 as select trim(both '_' from c2),trim(leading '_' from c2),trim(trailing '_' from c2) from t1;
+create view v2 as select trim(both '_' from '__123567___'),trim(leading '_' from '__123567___'),trim(trailing '_' from '__123567___');
+desc v1;
+desc v2;
+select * from v1;
+select trim(both '_' from c2),trim(leading '_' from c2),trim(trailing '_' from c2) from t1;
+select * from v2;
+select trim(both '_' from '__123567___'),trim(leading '_' from '__123567___'),trim(trailing '_' from '__123567___');
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-40:基于基本表/视图的多个列，列进行复合运算,使用系统函数decode()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'__ABCABC_ABC____'),(2,'__A_BC_ABC_ABC______'),(-1,'___ABC__ABC+___________');
+create view v1 as select c1,c2,decode(c1,c1>=1,'a',c1>=2,'b','c') from t1;
+desc v1;
+select * from v1;
+select c1,c2,decode(c1,c1>=1,'a',c1>=2,'b','c') from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-41:基于基本表/视图的多个列，列进行复合运算,使用系统函数floor()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100));
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123'),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569');
+create view v1 as select floor(c1),floor(c2),floor(c3),floor(c4),floor(c5),floor(c6) from t1;
+create view v2 as select floor(c1*c2+c1),floor(length(c1)),floor(c2*c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select floor(c1),floor(c2),floor(c3),floor(c4),floor(c5),floor(c6) from t1;
+select * from v2;
+select floor(c1*c2+c1),floor(length(c1)),floor(c2*c5) from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+
+###2-42:基于基本表/视图的多个列，列进行复合运算,使用系统函数ceil()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100));
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123'),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569');
+create view v1 as select ceil(c1),ceil(c2),ceil(c3),ceil(c4),ceil(c5),ceil(c6) from t1;
+create view v2 as select ceil(c1*c2+c1),ceil(length(c1)),ceil(c2*c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select ceil(c1),ceil(c2),ceil(c3),ceil(c4),ceil(c5),ceil(c6) from t1;
+select * from v2;
+select ceil(c1*c2+c1),ceil(length(c1)),ceil(c2*c5) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-43:测试系统函数nvl2
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+#创建不同数据类型的不同分区类型的表
+--echo create table
+create table t1 (pid int primary key, name varchar(30), salary float, pdate date, c1 int, c2 int, c3 varchar(30), c4 int);
+create table t2 (pid int primary key, name varchar(30), salary float, pdate date, c1 int);
+create table t3(c1 int primary key,c2 bigint);
+
+#初始化各个表
+--echo insert data
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(1, 'xiaowang', 15498.26, '1998-01-01', 10, 1001, 'wang');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(2, 'xiaozeng', 16666.54, '1998-08-20', 12, 1002, 'zeng');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(3, 'xiaoming', 16267.86, '1997-03-12', 13, 1003, 'ming');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(4, 'xiaochen', 17566.78, '1998-09-03', 14, 1004, 'chen');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(5, 'xiaoli', 9751.85, '1999-11-11', 15, 1005, 'li');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(6, 'xiaozhao', 14958.64, '2000-12-27', 16, 1006, 'zhao');
+insert into t2 (pid, name, salary, pdate, c1) values(1, 'xiaosun', 8654.67, '2000-06-21', 111);
+insert into t2 (pid, name, salary, pdate, c1) values(2, 'xiaoqian', 4653.82, '2000-11-08', 222);
+insert into t2 (pid, name, salary, pdate, c1) values(3, 'xiaohua', 6556.87, '1999-01-18', 333);
+insert into t2 (pid, name, salary, pdate, c1) values(4, 'xiaowu', 5959.07, '1999-07-14', 444);
+insert into t2 (pid, name, salary, pdate, c1) values(5, 'xiaopang', 8965.95, '2001-09-18', 555);
+insert into t2 (pid, name, salary, pdate, c1) values(6, 'xiaogao', 7653.59, '2000-05-25', 666);
+insert into t3 values(2147483647,9223372036854775807);
+insert into t3 values(-2147483648,-9223372036854775808);
+
+--echo start nvl2
+#参数为空不同
+select nvl2(c4,c1,c2) from t1 where pid=1;
+select nvl2(c4,c4,c1) from t1 where pid=1;
+select nvl2(c1,c4,c4) from t1 where pid=1;
+select nvl2(c4,c2,c4) from t1 where pid=1;
+select nvl2(c1,c4,c2) from t1 where pid=1;
+select nvl2(c4,c4,c4) from t1 where pid=1;
+
+#参数数据类型相同
+select nvl2(pid,c1,c2) from t1 where pid=1;
+select nvl2('abc',name,c3) from t1 where pid=1;
+select nvl2('1998-09-03 ','1998-08-20',pdate) from t1 where pid=1;
+select nvl2(cast(3.141 as float),cast(23.4687 as float),salary) from t1 where pid=1;
+select nvl2(true,true,true) from t1 where pid=1;
+select nvl2(2.25,3.15,4.45) from t1 where pid=1;
+select nvl2(null,3.15,4.45) from t1 where pid=1;
+
+#参数数据类型不同
+select nvl2(pid,name,pdate) from t1 where pid=1;
+select nvl2(c4,name,salary) from t1 where pid=1;
+select nvl2(pid,name,pdate) from t1;
+select nvl2(c4,name,pdate) from t1;
+select nvl2(name,c4,pdate) from t1;
+select nvl2(pdate,pid,c4) from t1;
+select nvl2(name,pdate,pid) from t1;
+select nvl2(c4,c4,pdate) from t1;
+select nvl2(c4,name,c4) from t1;
+select nvl2(c4,name,name) from t1;
+select nvl2(pdate,c4,name) from t1;
+select nvl2(pdate,c4,c4) from t1;
+
+#含有四则运算
+select nvl2(c1,c1+c2,c2-c1) from t1;
+select nvl2(c4,c1+c2,c2-c1) from t1;
+select nvl2(c4,c1*c2,c2/c1) from t1;
+select nvl2(c1,c1*c2,c2/c1) from t1;
+select nvl2(c4,c4,c2/c1) from t1;
+select nvl2(c1,(c2)mod(pid),(c2)mod(c1)) from t1;
+select nvl2(c4,(c2)mod(pid),(c2)mod(c1)) from t1;
+
+#含有函数运算
+select nvl2(pid,max(c1),min(c2)) from t1;
+select nvl2(c4,max(c1),min(c2)) from t1;
+select nvl2(c4,sum(c1),avg(c2)) from t1;
+select nvl2(pid,sum(c1),avg(c2)) from t1;
+select nvl2(max(c1),sum(c1),avg(c2)) from t1;
+select nvl2(pid,count(c1),count(c2)) from t1;
+
+#含有比较运算
+select nvl2(null,3=3,4=4) from t1 where pid=1;
+select nvl2(pid,c1>c2,c1<c2) from t1 where pid=1;
+select nvl2(c1>c2,c1>c2,c1<c2) from t1 where pid=1;
+select nvl2(c1<c2,c1>c2,c1<c2) from t1 where pid=1;
+select nvl2(null,c1||c2,pid||c1) from t1 where pid=1;
+
+#函数位置不同
+update t1 set name='xiaozhou' where pid=nvl2(null,5,6);
+update t1 set salary=nvl2(pid,nvl2(1,cast(15463.98 as float),2),2) where pid=1;
+select name from t1 having nvl2(null,1,1)>0;
+select name from t1 where pid=2 or pid=(2,nvl2(null,3,4),5) order by pid;
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(7,nvl2(null,'xiaoliu','xiaoding'),13156.21,'1999-04-24',17,1007,'ding');
+delete from t1 where pid=nvl2(nvl2(pid,4,1),7,6);
+
+#集合操作
+(select name from t1 where pid=nvl2(null,2,3)) union (select name from t1 where pid=4);
+(select name from t1 where pid= nvl2(null,2,1)) intersect (select name from t1 where pid=2);
+(select name from t1 where pid= nvl2(null,1,2)) except (select name from t1 where pid=3);
+
+#含有系统函数
+select pid from t1 where name = nvl2(c1,substr('xxxiaowanggg',3,8),c2);
+select name from t1 where pid = nvl2(null,c1,nvl(3,4));
+
+#多表测试
+select t1.pid,nvl2(t1.pid, t2.name, t2.pdate) from t1,t2;
+select t1.c1,nvl2(t1.c4, t1.name, t2.salary) from t1,t2;
+select distinct t1.pid from t1,t2 where nvl2(t1.c1, t2.name, t1.name);
+
+#栈为空
+--error 5054
+select nvl2() from t1 where pid=1;
+
+#参数个数异常
+--error 5054
+select nvl2(c1) from t1 where pid=1;
+--error 5054
+select nvl2(c1,pid,c2,c3) from t1 where pid=1;
+
+#数值溢出
+--error 165
+select nvl2(null,c1+c2,c1+c2) from t3;
+--error 165
+select nvl2(c1,c1+c2,c1-c2) from t3;
+
+#其它
+select nvl2(99,98,97);
+select NVL2(99,98,97);
+select nvl2(99,98,97) AS test;
+select nvl2(nvl2(null,1,2),98,97);
+drop table t1,t2,t3;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,97 @@
+##############################################################################################
+###1.测试功能点：in条件查询
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-27
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+select 1 in (1,2,3);
+select 10 in (1,2,3);
+select NULL in (1,2,3);
+select 1 in(1,NULL,3);
+select 3 in(1,NULL,3);
+select 10 in(1,NULL,3);
+select 1.5 in(1.5,2.5,3.5);
+select 10.5 in(1.5,2.5,3.5);
+select NULL in(1.5,2.5,3.5);
+select 1.5 in(1.5,NULL,3.5);
+select 3.5 in(1.5,NULL,3.5);
+select 10.5 in(1.5,NULL,3.5);
+
+create table t1(pk int primary key,a int,b int,c int);
+insert into t1 values (1,1,2,3),(2,1,NULL,3);
+select 1 in (a,b,c) from t1;
+select 3 in (a,b,c) from t1;
+select 10 in (a,b,c) from t1;
+select NULL in (a,b,c) from t1;
+drop table t1;
+
+create table t1(pk int primary key,a float,b float,c float);
+insert into t1 values (1,1.5,2.5,3.5),(2,1.5,NULL,3.5);
+select 1.5 in (a,b,c) from t1;
+select 3.5 in (a,b,c) from t1;
+select 10.5 in (a,b,c) from t1;
+drop table t1;
+
+
+create table t1(pk int primary key,a varchar(10),b varchar(10),c varchar(10));
+insert into t1 values (1,'A','BC','EFD'),(2,'A',NULL,'EFD');
+select 'A' in (a,b,c) from t1;
+select 'EFD' in (a,b,c) from t1;
+select 'XSFGGHF' in (a,b,c) from t1;
+drop table t1;
+
+create table t1(pk int primary key,field char(1));
+--real_sleep 5
+insert into t1 values (1,'A'),(2,NULL);
+select * from t1 where field in (NULL);
+select * from t1 where field = field;
+select * from t1;
+drop table t1;
+
+create table t1(id int primary key,b int);
+insert into t1 values (1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(7,0),(8,0),(9,0);
+select * from t1 where id in (2,5,9);
+drop table t1;
+
+create table t1(id int,b int default 0,primary key(id));
+insert into t1(id) values (1),(2),(3);
+select count(*) from t1 where id not in (1);
+select count(*) from t1 where id not in (1,2);
+drop table t1;
+
+create table t1(some_id int,b int default 0,primary key(some_id));
+insert into t1(some_id) values (1),(2);
+select some_id from t1 where some_id not in (2,-1);
+select some_id from t1 where some_id not in (-4,-1,-4);
+select some_id from t1 where some_id not in (-4,-1,3423534,2342342);
+select some_id from t1 where some_id not in ('-1','0');
+drop table t1;
+
+create table t1(id int,b int default 0,primary key(id));
+insert into t1(id) values (1),(2),(3);
+select count(*) from t1 where id in (1,1,2,2,3);
+select count(*) from t1 where id in (1,2,1);
+select count(*) from t1 where id not in (1,1,2);
+select count(*) from t1 where id not in (1,2,1,3);
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

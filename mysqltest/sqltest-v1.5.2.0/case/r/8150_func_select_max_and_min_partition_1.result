@@ -1,0 +1,46 @@
+set names utf8mb4;
+drop table if exists t1,t2,t3;
+create table t1 (id int,val char(10), primary key (id)) partition by range(id) (partition a1 values less than(3),partition a2 values less than (6),partition a3 values less than maxvalue);
+insert into t1 values(1,'one'),(2,'two'),(3,'three'),(4,'one'),(5,'two');
+select val,count(*) from t1 group by val;
+val	count(*)
+one	2
+three	1
+two	2
+drop table t1;
+create table t1(a int primary key,b createtime)partition by list(a) (partition b1 values in(1,3),partition b2 values in (2,4));
+insert into t1(a) values(1),(2);
+select max(b) from t1 group by a;
+max(b)
+max
+max
+drop table t1;
+create hash partition function h1(x)'x+3';
+create table t1(id int primary key,a int,b int)partition by(ta1,h1,id);
+insert into t1 values(1,1,4),(2,2,1),(3,1,3),(4,2,1),(5,1,1);
+select max(id) from t1 where id < 3 and a=2 and b=6;
+max(id)
+NULL
+drop table t1;
+drop partition function h1;
+create enum partition function e1(x)'[(1)],[(2)]';
+create table t1(id int primary key,b char(3)) partition by(ta2,e1,id);
+insert into t1 values(1,'xx'),(2,'aa');
+select * from t1;
+id	b
+1	xx
+2	aa
+select max(b) from t1 where b<'ppppp';
+max(b)
+aa
+select max(b) from t1 where b<'pp';
+max(b)
+aa
+drop table t1;
+drop partition function e1;
+create table t1(id int primary key,b char(16))partition by list(id) (partition c1 values in(1,3),partition c2 values in (2,4));
+insert into t1 values(1,'xxxxbbbb'),(2,'xxxxaaaa');
+select max(b) from t1;
+max(b)
+xxxxbbbb
+drop table t1;

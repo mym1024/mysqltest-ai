@@ -1,0 +1,82 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+case 1:all data in memory
+create table t1(c1 int primary key,c2 int,c3 int) consistent_mode=static;
+prepare stmt_c1 from select * from t1 where c1=?;
+prepare stmt from select * from t1;
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+select * from t1;
+c1	c2	c3
+select * from t1 where c1=1;
+c1	c2	c3
+select * from t1 where c2=1;
+c1	c2	c3
+select * from t1 where c2=1 and c1=1;
+c1	c2	c3
+set @a=1;
+execute stmt_c1 using @a;
+c1	c2	c3
+execute stmt;
+c1	c2	c3
+select * from t1;
+c1	c2	c3
+select * from t1 where c1=1;
+c1	c2	c3
+select * from t1 where c2=1;
+c1	c2	c3
+select * from t1 where c2=1 and c1=1;
+c1	c2	c3
+set @a=1;
+execute stmt_c1 using @a;
+c1	c2	c3
+execute stmt;
+c1	c2	c3
+select * from t1;
+c1	c2	c3
+select * from t1 where c1=1;
+c1	c2	c3
+select * from t1 where c2=1;
+c1	c2	c3
+select * from t1 where c2=1 and c1=1;
+c1	c2	c3
+set @a=1;
+execute stmt_c1 using @a;
+c1	c2	c3
+execute stmt;
+c1	c2	c3
+major_freeze happens
+major_freeze...
+select * from t1;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+select * from t1 where c1=1;
+c1	c2	c3
+1	1	1
+select * from t1 where c2=1;
+c1	c2	c3
+1	1	1
+select * from t1 where c2=1 and c1=1;
+c1	c2	c3
+1	1	1
+set @a=1;
+execute stmt_c1 using @a;
+c1	c2	c3
+1	1	1
+execute stmt;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3
+drop table t1;

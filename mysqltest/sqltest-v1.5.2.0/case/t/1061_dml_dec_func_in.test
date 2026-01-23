@@ -1,0 +1,67 @@
+####################################必填######################################################
+###1.测试功能点：in查询
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+# decimal in test [数据库中读出的数据]
+drop table if exists inbug_test4;
+
+create table inbug_test4(c1 int primary key,c2 bigint,c3 timestamp,c4 varchar(30),c5 bool,c6 decimal(20,5),c7 date,c8 time);
+insert into inbug_test4 values
+(5,5,'1905-01-01 20:20:20.999999','20:05:20',0,5.0,'1905-01-01','20:05:20'),
+(6,6,'1906-01-01 20:20:20.999999','20:06:20',0,5.0,'1906-01-01','20:06:20'),
+(7,7,'1907-01-01 20:20:20.999999','20:07:20',0,5.0,'1907-01-01','20:07:20'),
+(8,8,'1908-01-01 20:20:20.999999','20:08:20',0,5.0,'1908-01-01','20:08:20'),
+(9,9,'1909-01-01 20:20:20.999999','20:09:20',0,5.0,'1909-01-01','20:09:20'),
+(10,10,'1910-01-01 20:20:20.999999','20:10:20',0,5.0,'1910-01-01','20:10:20');
+select * from inbug_test4;
+
+# decimal列与int列比较
+select count(*) from inbug_test4 where inbug_test4.c6 in (select c1 from inbug_test4);
+
+###2-1：decimal列与数据库中读出的decimal列比较，出现过vs导致的'0'bug，修改push_right_hash函数，重新计算p,s,vs。
+###     对于decimal的in查询，目前发现是利用HASH进行判断的
+select count(*) from inbug_test4 where inbug_test4.c6 in (select c6 from inbug_test4);
+
+
+# [自己传入的数据]
+###2-2：其他数据类型与decimal比较
+drop table if exists tt;
+
+create table tt(i1 int,s1 varchar(100),f1 float,d1 datetime,i2 int,s2 varchar(100),f2 float,d2 datetime,primary key(i1,s1,f1,d1));
+insert into tt values(1,'1_abcd',1.5,'2012-02-01 20:00:00',1,'1_abcd',1.5,'2012-02-01 20:00:00');
+insert into tt values(2,'2_abcd',2.5,'2012-02-02 20:00:00',2,'2_abcd',2.5,'2012-02-02 20:00:00');
+insert into tt values(3,'3_abcd',3.5,'2012-02-03 20:00:00',3,'3_abcd',3.5,'2012-02-03 20:00:00');
+insert into tt values(4,'4_abcd',4.5,'2012-02-04 20:00:00',4,'4_abcd',4.5,'2012-02-04 20:00:00');
+
+# int列与decimal列比较，自己传入的数据。
+# 对于自己传入的数据，在murmurhash64A函数中进行from_hash计算。重新计算p,s,vs
+select * from tt;
+select i1,s1,f1,d1,i2,s2,f2 from tt where i2 in (2.0,3.0,4.5,5.0);
+
+
+###2-3：decimal列与decimal比较
+drop table if exists test1;
+create table test1(c1 decimal(10,3) primary key,c2 decimal(10,3),c3 decimal(10,3),c4 decimal(10,3));
+replace into test1 values(1.23,1.23,1.23,1.23),(2.34,2.34,2.34,2.34),(3.45,3.45,3.45,3.45),(4.56,4.56,4.56,4.56);
+select * from test1;
+delete from test1 where c1 IN (1.23,2.34,3.45,4.56,5.67,6.78,7.89,8.90,9.11,10.22);
+select * from test1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

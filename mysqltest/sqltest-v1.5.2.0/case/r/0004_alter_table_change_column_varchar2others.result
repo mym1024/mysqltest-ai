@@ -1,0 +1,39 @@
+create database test_alter;
+using database test_alter;
+create table if not exists t1(c1 int primary key, c2 varchar(10));
+alter table t1 alter column c2 set data type int;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type bigint;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type float;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type double;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type datetime;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type timestamp;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type date;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type time;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type bool;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type decimal(20,2);
+ERROR HY000: YAO-5002: The datatype of column 'c2' is not supported to alter yet
+alter table t1 alter column c2 set data type tinyint;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type smallint;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type mediumint;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type real;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type char(20);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type binary(20);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table t1 alter column c2 set data type varbinary(20);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop table if exists t1;
+drop database test_alter;

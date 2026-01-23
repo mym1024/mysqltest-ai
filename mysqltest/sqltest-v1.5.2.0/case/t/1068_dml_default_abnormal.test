@@ -1,0 +1,118 @@
+####################################必填######################################################
+###1.测试功能点：default异常使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+using database test;
+sleep 5;
+
+
+###2-1：default异常使用
+#--error 5609
+create table t1 (c1 int primary key,c2 int default '11');
+--error 5609
+create table t7 (c1 int primary key,c2 int default 1111111111111111111111);
+#--error 5609
+#--error 5609
+create table t2 (c1 int primary key,c2 bigint default '11');
+#--error 5609
+create table t3 (c1 int primary key,c2 tinyint default '11');
+--error 5609
+create table t7 (c1 int primary key,c2 tinyint default 1111111111111111111111);
+#--error 5609
+create table t4 (c1 int primary key,c2 smallint default '11');
+--error 5609
+create table t7 (c1 int primary key,c2 smallint default 1111111111111111111111);
+#--error 5609
+create table t6 (c1 int primary key,c2 mediumint default '11');
+--error 5609
+create table t7 (c1 int primary key,c2 mediumint default 1111111111111111111111);
+
+--error 5609
+create table t7 (c1 int primary key,c2 float default 'aa');
+--error 5609
+create table t7 (c1 int primary key,c2 double default 'aa');
+--error 5609
+create table t7 (c1 int primary key,c2 real default 'aa');
+
+--error 5609
+create table t7 (c1 int primary key,c2 datetime default '2017-09-11 70:36:01');
+#--error 5609
+create table t7_test (c1 int primary key,c2 datetime default '2017-09-11');
+--error 5609
+create table t7 (c1 int primary key,c2 datetime default '20:36:01');
+--error 5609
+create table t7 (c1 int primary key,c2 date default '2017-09-11 70:36:01');
+--error 5609
+create table t7 (c1 int primary key,c2 date default '2017-09-40');
+--error 5609
+create table t7 (c1 int primary key,c2 date default '20:36:01');
+--error 5609
+create table t7 (c1 int primary key,c2 date default 1503799330000000);
+
+--error 5609
+create table t7 (c1 int primary key,c2 time default '2017-09-11 70:36:01');
+--error 5609
+create table t7 (c1 int primary key,c2 time default '2017-09-11');
+--error 5609
+create table t7 (c1 int primary key,c2 time default '70:36:01');
+--error 5609
+create table t7 (c1 int primary key,c2 time default 1503799330000000);
+
+--error 5609
+create table t7 (c1 int primary key,c2 varchar(3) default 'aaaa');
+--error 5609
+create table t7 (c1 int primary key,c2 char(3) default 'aaaa');
+--error 5609
+create table t7 (c1 int primary key,c2 binary(3) default '1111');
+--error 5609
+create table t7 (c1 int primary key,c2 varbinary(3) default '1111');
+
+--error 5609
+create table t7 (c1 int primary key,c2 bool default '1');
+--error 5609
+create table t7 (c1 int primary key,c2 decimal(5,2) default 'a1.11');
+--error 5609
+create table t7 (c1 int primary key,c2 decimal(5,2) default '1111.11');
+#--error 5609
+create table t7_test1 (c1 int primary key,c2 decimal(5,2) default '1.111');
+--error 5609
+create table t7 (c1 int primary key,c2 decimal(5,2) default '1111.1');
+
+
+create table t7(c1 int primary key, c2 int default 10, c3 bigint default 100,c4 float default 1.11, c5 double default 2.22,
+	c6 datetime default '2017-09-11 15:36:01', c7 timestamp default '2016-08-12 11:36:01',
+	c8 date default '2017-09-11', c9 time default '15:36:01',c10 timestamp default 1503799330000000,
+	c11 varchar(20) default 'aaa', c12 bool default true, c13 bool default 1, c14 decimal(20,2) default 3.33,
+	c15 tinyint default 2, c16 smallint default 134, c17 mediumint default 178,
+	c19 real default 5.55, c20 char(5) default 'bbb', c21 binary(4) default '1111',c22 varbinary(4) default '0000');
+
+desc t7;
+#--error 5609
+alter table t7 alter column c2 set default 3.333;
+--error 5609
+alter table t7 alter column c4 set default 'aaa';
+--error 5609
+alter table t7 alter column c7 set default 'aaa';
+--error 5609
+alter table t7 alter column c19 set default '1ads';
+--error 5609
+alter table t7 alter column c20 set default '1.1111111111';
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

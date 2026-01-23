@@ -1,0 +1,80 @@
+drop partition function h1,h2;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like 'h1';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like 'h%';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+h2	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like '_1';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions like '__';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+h2	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+show partition functions where rule_name='h1' or rule_name='h2';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+h2	1	x	x+1
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+select rule_name,rule_par_num,rule_par_list,rule_body,type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+0	1	x	 	5
+0	1	x	 	5
+0	1	x	x+1	0
+0	1	x	x+1	0
+show partition functions where rule_par_num=1;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+show partition functions where rule_par_list='x';
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+show partition functions where rule_body='x+1';
+rule_name	rule_par_num	rule_par_list	rule_body
+h1	1	x	x+1
+h2	1	x	x+1
+show partition functions like 'hf';
+rule_name	rule_par_num	rule_par_list	rule_body
+show partition functions like '_f';
+rule_name	rule_par_num	rule_par_list	rule_body
+show partition functions like '%f';
+rule_name	rule_par_num	rule_par_list	rule_body
+show partition functions like '_%f';
+rule_name	rule_par_num	rule_par_list	rule_body
+show partition functions where rule_name='hf';
+rule_name	rule_par_num	rule_par_list	rule_body
+show partition functions where rule_name=1;
+rule_name	rule_par_num	rule_par_list	rule_body

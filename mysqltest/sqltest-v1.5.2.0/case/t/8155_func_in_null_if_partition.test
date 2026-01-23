@@ -1,0 +1,48 @@
+##############################################################################################
+###1.测试功能点：在不同分区规则下，in条件中带null进行查询
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-31
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1：在不指定分区规则下，in条件中带null进行查询
+drop table if exists t2;
+create table t2(i int primary key,j int);
+insert into t2 values(1,1),(2,2),(null,null),(4,4),(3,3);
+select * from t2 where (i) in ((1),(null)) and i=2;
+select * from t2 where (i) in ((1),(null)) and i=1;
+select * from t2 where (i) in ((1),(null));
+select * from t2 where (i) in ((1),(null)) and i=1 and i=2;
+update t2 set j=j+1 where i=2;
+select * from t2;
+drop table t2;
+
+###2-2:指定hash分区规则，in条件中带null进行查询
+create hash partition function h1(x)'x+2';
+create table t2(i int primary key,j int) partition by(ta2,h1,i);
+--real_sleep 3
+insert into t2 values(1,1),(2,2),(5,null),(4,4),(3,3);
+select * from t2 where (i) in ((1),(null)) and i=2;
+select * from t2 where (i) in ((1),(null)) and i=1;
+select * from t2 where (i) in ((1),(null));
+select * from t2 where (i) in ((1),(null)) and i=1 and i=2;
+update t2 set j=j+1 where i=2;
+select * from t2;
+drop table t2;
+drop partition function h1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

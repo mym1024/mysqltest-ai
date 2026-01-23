@@ -1,0 +1,82 @@
+drop table if exists test27;
+create table test27(c1 int primary key,c2 int,c3 int,c4 int);
+insert into test27 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test27;
+c1	c2	c3	c4
+1	1	1	1
+2	2	2	2
+3	3	3	3
+4	4	4	4
+update test27 set c2=7 where c3 > 1;
+select * from test27;
+c1	c2	c3	c4
+1	1	1	1
+2	7	2	2
+3	7	3	3
+4	7	4	4
+insert into test27 values(5,5,5,5);
+select * from test27;
+c1	c2	c3	c4
+1	1	1	1
+2	7	2	2
+3	7	3	3
+4	7	4	4
+5	5	5	5
+update test27 set c2=8 where c3 = 5;
+drop table if exists test1;
+create table test1(c1 int primary key,c2 int,c3 int,c4 int);
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1
+2	2	2	2
+3	3	3	3
+4	4	4	4
+delete from test1 where c1 > 1;
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1
+insert into test1 values(2,2,2,2),(3,3,3,3),(4,4,4,4);
+delete from test1 where c1=1;
+select * from test1;
+c1	c2	c3	c4
+2	2	2	2
+3	3	3	3
+4	4	4	4
+delete from test1;
+select * from test1;
+c1	c2	c3	c4
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1
+2	2	2	2
+3	3	3	3
+4	4	4	4
+delete from test1 where c2=1;
+select * from test1;
+c1	c2	c3	c4
+2	2	2	2
+3	3	3	3
+4	4	4	4
+insert into test1 values(1,1,1,1);
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1
+2	2	2	2
+3	3	3	3
+4	4	4	4
+delete from test1 where c2 in (1,2,3,4);
+select * from test1;
+c1	c2	c3	c4
+insert into test1 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1
+2	2	2	2
+3	3	3	3
+4	4	4	4
+delete from test1 where c2>1;
+select * from test1;
+c1	c2	c3	c4
+1	1	1	1

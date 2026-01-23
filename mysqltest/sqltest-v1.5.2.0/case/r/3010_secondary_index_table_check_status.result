@@ -1,0 +1,72 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int,c3 int);
+create table t2 (c1 int primary key,c2 int);
+create index il0 on t1(c2) storing (c3);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c1,c2) storing (c3);
+create index il3 on t1(c2,c1) storing (c3);
+create index il4 on t1(c1) storing (c2,c3);
+create index il5 on t1(c2);
+create index il0 on t2(c1);
+create index il1 on t2(c2);
+create index il2 on t2(c1) storing (c2);
+create index il3 on t2(c2) storing (c1);
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+__3001__idx__il5	4	0
+show index on t2;
+index_name	status	index_type
+__3002__idx__il0	4	0
+__3002__idx__il1	4	0
+__3002__idx__il2	4	0
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+__3001__idx__il5	4	0
+show index on t2;
+index_name	status	index_type
+__3002__idx__il0	4	0
+__3002__idx__il1	4	0
+__3002__idx__il2	4	0
+show index on t1 like '%il_';
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+__3001__idx__il5	4	0
+show index on t1 like '%idx\\__i10';
+index_name	status	index_type
+show index on t1 like '%1';
+index_name	status	index_type
+__3001__idx__il1	4	0
+show index on t1 where  index_name='__3033__idx__il1' and status=4;
+index_name	status	index_type
+show index on t1 where  index_name like '%il_' and status=4;
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+__3001__idx__il5	4	0

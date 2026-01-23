@@ -1,0 +1,345 @@
+set names utf8mb4;
+set yao_decimal_add_zero=true;
+select cast(null as decimal(10,5));
+cast(null as decimal(10,5))
+NULL
+drop table if exists t1;
+create table t1(k int primary key,c1 decimal(10,5),c2 int,c3 double,c4 bool,c5 varchar(100),c6 datetime);
+insert into t1 values(1,1234.1234,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+insert into t1 values(2,1234.123401,1234,1.23123e2,true,'986.123a','2017-08-16 14:44:00');
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1234.12340	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1234.12340	1234	123.123	1	986.123a	2017-08-16 14:44:00.000000
+select cast(c1 as decimal(15,5)) from t1;
+cast(c1 as decimal(15,5))
+1234.12340
+1234.12340
+select cast(c2 as decimal(15,5)) from t1;
+cast(c2 as decimal(15,5))
+1234.00000
+1234.00000
+select cast(c3 as decimal(15,5)) from t1;
+cast(c3 as decimal(15,5))
+123.12300
+123.12300
+select cast(c4 as decimal(15,5)) from t1;
+cast(c4 as decimal(15,5))
+1.00000
+1.00000
+select cast(c5 as decimal(15,5)) from t1;
+cast(c5 as decimal(15,5))
+986.12300
+986.12300
+select cast(c6 as decimal(15,5)) from t1;
+ERROR HY000: YAO-58: Decimal overflow error
+select cast(c1 as decimal(20,10)) from t1;
+cast(c1 as decimal(20,10))
+1234.1234000000
+1234.1234000000
+select cast(c2 as decimal(20,10)) from t1;
+cast(c2 as decimal(20,10))
+1234.0000000000
+1234.0000000000
+select cast(c3 as decimal(20,10)) from t1;
+cast(c3 as decimal(20,10))
+123.1230000000
+123.1230000000
+select cast(c4 as decimal(20,10)) from t1;
+cast(c4 as decimal(20,10))
+1.0000000000
+1.0000000000
+select cast(c5 as decimal(20,10)) from t1;
+cast(c5 as decimal(20,10))
+986.1230000000
+986.1230000000
+select cast(c6 as decimal(20,10)) from t1;
+ERROR HY000: YAO-58: Decimal overflow error
+drop table if exists t1;
+create table t1(k int primary key,c1 decimal(10,5),c2 int,c3 double,c4 bool,c5 varchar(100),c6 datetime);
+insert into t1 values(1,1234,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+insert into t1 values(2,1.234567e2,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+insert into t1 values(3,'1234.1234',1234,123.123,true,'986.123','2017-08-16 14:44:00');
+insert into t1 values(4,true,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+insert into t1 values(5,'2017-08-16 14:44:00',1234,1.23123e2,true,'986.123a','2017-08-16 14:44:00');
+ERROR HY000: YAO-153: VARCHAR cast to DECIMAL error
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	123.45670	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1234.12340	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+replace into t1 values(1,1234,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+replace into t1 values(2,1.234567e2,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+replace into t1 values(3,'1234.1234',1234,123.123,true,'986.123','2017-08-16 14:44:00');
+replace into t1 values(4,true,1234,123.123,true,'986.123','2017-08-16 14:44:00');
+replace into t1 values(5,'2017-08-16 14:44:00',1234,1.23123e2,true,'986.123a','2017-08-16 14:44:00');
+ERROR HY000: YAO-153: VARCHAR cast to DECIMAL error
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	123.45670	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1234.12340	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+delete from t1 where k=5;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	123.45670	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1234.12340	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c2;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1234.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c3;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	123.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	123.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	123.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	123.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c4;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c5;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c6;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(20,6) to decimal(10,5) for table[test.t1] column[c1]
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	986.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c2+100.123;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1334.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1334.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1334.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1334.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c3+100.123;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	223.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	223.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	223.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	223.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c4+100.123;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	101.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	101.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	101.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	101.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c5+100.123;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c6+100.123;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(17,3) to decimal(10,5) for table[test.t1] column[c1]
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1086.24600	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c2+100;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1334.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1334.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1334.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1334.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c3+100;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	223.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	223.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	223.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	223.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c4+100;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	101.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	101.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	101.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	101.00000	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c5+100;
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+update t1 set c1=c6+100;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(14,0) to decimal(10,5) for table[test.t1] column[c1]
+select * from t1;
+k	c1	c2	c3	c4	c5	c6
+1	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+2	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+3	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+4	1086.12300	1234	123.123	1	986.123	2017-08-16 14:44:00.000000
+create table t2(c_int int primary key not null,c_varchar varchar(20) not null,c_bool bool not null,c_datetime datetime not null,c_double double not null,c_float float not null);
+create table t3(c1 number(10)  not null primary key, c2 varchar(20) not null);
+create table t4(c1 number(10)  not null primary key, c2 varchar(20) not null);
+insert into t2 values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+insert into t3 values(1,'abcbcbc');
+insert into t4 values(1,'bc');
+select convert(null,float);
+convert(null,float)
+NULL
+select convert(3,null);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select convert(10,int);
+convert(10,int)
+10
+select convert(10,time);
+convert(10,time)
+00:00:10
+select convert(10,datetime);
+convert(10,datetime)
+NULL
+select convert('12.1234',datetime);
+convert('12.1234',datetime)
+NULL
+select convert(2.475,bool);
+convert(2.475,bool)
+1
+select convert(-2.47512345678923456,double);
+convert(-2.47512345678923456,double)
+-2.4751234567892344
+select convert('-0.2e4',double);
+convert('-0.2e4',double)
+-2000
+select convert('a',char);
+convert('a',char)
+a
+select convert(12,float(null));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select convert(null,varchar(10));
+convert(null,varchar(10))
+NULL
+select convert('124',float(5));
+convert('124',float(5))
+124
+select convert(null,decimal(10,2));
+convert(null,decimal(10,2))
+NULL
+select convert(true,decimal(8,2));
+convert(true,decimal(8,2))
+1.00
+select convert(10,datetime);
+convert(10,datetime)
+NULL
+select convert(20220526123456,datetime);
+convert(20220526123456,datetime)
+2022-05-26 12:34:56.000000
+select convert(10,timestamp);
+convert(10,timestamp)
+NULL
+select convert(20220526123456,timestamp);
+convert(20220526123456,timestamp)
+2022-05-26 12:34:56.000000
+select convert('20220812123456',date);
+convert('20220812123456',date)
+NULL
+select convert('20220812',date);
+convert('20220812',date)
+2022-08-12
+select convert('123456',time);
+convert('123456',time)
+NULL
+select convert('12:34:56',time);
+convert('12:34:56',time)
+12:34:56
+update t2 set c_int = 7,c_varchar='天气真好' where convert(c_int,double)=1;
+update t2 set c_float=convert(3>=2,float),c_varchar=convert(1.34,char) where c_int=7;
+insert into t2 values(3,1.34,0,'2021-04-21 00:00:00.000000',convert(true,char),7.55);
+select c_varchar from t2 group by c_int having c_int < (convert('3.22',float));
+c_varchar
+1.34
+select c_varchar from t2 where c_int=(convert('2',float)) union select c_varchar from t2 where c_int=3;
+c_varchar
+1.34
+select convert(concat(c_int,'23'),float) from t2;
+convert(concat(c_int,'23'),float)
+323
+723
+delete from t2 where c_double=convert(10324.83,char) and c_bool = convert(true,float);
+select * from t2;
+c_int	c_varchar	c_bool	c_datetime	c_double	c_float
+3	1.34	0	2021-04-21 00:00:00.000000	1	7.55
+select t3.c1,t4.c1 from t3,t4 where convert(t3.c1,char)=convert(t4.c1,char);
+c1	c1
+1	1
+select convert(2+3*2/2.5,float(10));
+convert(2+3*2/2.5,float(10))
+4.4
+select convert(2+3*2/2.5-10,double);
+convert(2+3*2/2.5-10,double)
+-5.6
+select convert('5mod2',decimal(8,2));
+convert('5mod2',decimal(8,2))
+5.00
+select convert('1=1',float);
+convert('1=1',float)
+1
+select convert('0>1',double);
+convert('0>1',double)
+0
+select convert('3<1',char);
+convert('3<1',char)
+3<1
+select convert('1+2*(0.5*2)/1)>=(10+2*1.5)',float);
+convert('1+2*(0.5*2)/1)>=(10+2*1.5)',float)
+1
+select convert(3!=2,char);
+convert(3!=2,char)
+1
+select convert(3<>2,double);
+convert(3<>2,double)
+1
+select convert(1||2,char);
+convert(1||2,char)
+1
+select convert(c_varchar,float) from t2;
+convert(c_varchar,float)
+1.34
+select convert(c_float,double) from t2;
+convert(c_float,double)
+7.550000190734863
+select convert(c_float*2,double) from t2;
+convert(c_float*2,double)
+15.100000381469727
+select * from t2 where c_int between convert('2',float) and 5;
+c_int	c_varchar	c_bool	c_datetime	c_double	c_float
+3	1.34	0	2021-04-21 00:00:00.000000	1	7.55
+create view v1 as select convert(2,char);
+create view v2 as select convert(2.123456789,decimal(5, 2));
+create view v3 as select convert('5.2345',decimal(5, 2));
+create view v4 as select convert(convert(3.1456783,char),decimal(5,2));
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3006	0	0	select convert(2 , varchar(65535)) as "convert(2,char)" from dual
+3007	0	0	select convert(2.123456789 , decimal(5, 2)) as "convert(2.123456789,decimal(5, 2))" from dual
+3008	0	0	select convert('5.2345' , decimal(5, 2)) as "convert('5.2345',decimal(5, 2))" from dual
+3009	0	0	select convert(convert(3.1456783 , varchar(65535)) , decimal(5, 2)) as "convert(convert(3.1456783,char),decimal(5,2))" from dual
+drop view v1,v2,v3,v4;
+drop table t1,t2,t3,t4;

@@ -1,0 +1,154 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+create table t1(c1 varchar(5),c2 int,c3 varchar(4) primary key);
+insert into t1 values('123456',1,'a');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c1], clength[6]
+insert into t1 values('12345      ',2,'b');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c1], clength[11]
+insert into t1 values('12345',2,'b');
+select length(c1) from t1;
+length(c1)
+5
+insert into t1 values('q'||' '||'v',2,'c');
+select length(c1) from t1;
+length(c1)
+5
+1
+insert into t1 values('q'||' '||'v',2,'d');
+select length(c1) from t1;
+length(c1)
+5
+1
+1
+replace into t1 values('q'||' '||'v',2,'d');
+select length(c1) from t1;
+length(c1)
+5
+1
+1
+replace into t1 values('q'||' '||'v      ',3,'e');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c1], clength[9]
+select length(c1) from t1;
+length(c1)
+5
+1
+1
+update t1 set c1='pt'||' '||'bn';
+select * from t1;
+c1	c2	c3
+0	2	b
+0	2	c
+0	2	d
+select length(c1) from t1;
+length(c1)
+1
+1
+1
+insert into t1(c1,c3) values('rf','f');
+insert into t1 values('a',1,'1234');
+select length(c3) from t1;
+length(c3)
+4
+1
+1
+1
+1
+insert into t1 values('a',1,'12       ');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c3], clength[9]
+select length(c3) from t1;
+length(c3)
+4
+1
+1
+1
+1
+insert into t1 values('a',1,'12345            ');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c3], clength[17]
+replace into t1 values('a',1,'12345            ');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t1], cname[c3], clength[17]
+update t1 set c3=c3||' '||'b ' where c2>1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2	c3
+a	1	1234
+0	2	b
+0	2	c
+0	2	d
+rf	NULL	f
+select length(c3) from t1;
+length(c3)
+4
+1
+1
+1
+1
+create table t2(c1 int,c2 varchar(5),c3 varchar(6),c4 varchar(6), primary key(c1));
+create index idx_1 on t2(c2) storing(c4);
+create index idx_2 on t2(c3) storing(c4);
+__3002__idx__idx_1
+__3002__idx__idx_2
+insert into t2 values(1,'df','fg','de');
+insert into t2 values(2,'df'||' '||'v','fg','de');
+insert into t2 values(2,'df'||' '||'v','fgdfsarrrrrr','de');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t2], cname[c3], clength[12]
+replace into t2 values(2,'df'||' '||'v','fgdfsarrrrrr','de');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t2], cname[c3], clength[12]
+merge
+major_freeze...
+insert into t2 values(3,'f     ','b'||' '||' b','vb');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t2], cname[c2], clength[6]
+select * from t2;
+c1	c2	c3	c4
+1	df	fg	de
+2	0	fg	de
+select length(c2) from t2;
+length(c2)
+2
+1
+select length(c3) from t2;
+length(c3)
+2
+2
+select length(c4) from t2;
+length(c4)
+2
+2
+select * from __3002__idx__idx_1;
+c1	c2	c4
+2	0	de
+1	df	de
+select * from __3002__idx__idx_2;
+c1	c3	c4
+1	fg	de
+2	fg	de
+replace into t2 values(3,'f     ','b'||' '||' b','vb');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test.t2], cname[c2], clength[6]
+select * from t2;
+c1	c2	c3	c4
+1	df	fg	de
+2	0	fg	de
+select length(c2) from t2;
+length(c2)
+2
+1
+select length(c3) from t2;
+length(c3)
+2
+2
+select length(c4) from t2;
+length(c4)
+2
+2
+select * from __3002__idx__idx_1;
+c1	c2	c4
+2	0	de
+1	df	de
+select * from __3002__idx__idx_2;
+c1	c3	c4
+1	fg	de
+2	fg	de

@@ -1,0 +1,108 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：update更新不同类型字段值
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：2796s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+
+
+create table t1 (id int primary key,c1 decimal(5,4),c2 int,c3 varchar(20), c4 datetime,c5 bool, c6 double);
+insert into t1 values (1,1.2345,3,'maos','2901-12-22 12:00:00',1,23.345),(2,2.3545,4,'dfdff','2301-02-13 12:00:00',0,3434),(3,1.3445,34,'fcf','1234-01-12 21:00:00',0,12.43);
+select * from t1;
+create index il0 on t1(c1,c3) storing(c5,c6);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end =__idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+eval select * from $table_name;
+
+###2-1:update decimal
+update t1 set c1=2.2412 where id=1;
+eval select * from $table_name;
+
+###2-2:update varchar
+update t1 set c3='dk123' where id=2;
+eval select * from $table_name;
+
+###2-3：update too long varchar
+update t1 set c3='efdaefmjmoetvdydfd' where id=3;
+eval select * from $table_name;
+drop index il0 on t1;
+show index on t1;
+create index il0 on t1(c2,c4) storing (c5,c6);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+eval select * from $table_name;
+
+###2-4:update更新datetime类型
+update t1 set c4='2103-08-09 12:09:09' where id=1;
+eval select * from $table_name;
+
+###2-5:update不合法更新datetime类型
+--error 5106
+update t1 set c4='9-90-90 28:90:90' where id=2;
+eval select * from $table_name;
+
+###2-6:update更新bool类型
+update t1 set c5=true where id =3;
+eval select * from $table_name;
+
+drop index il0 on t1;
+show index on t1;
+create index il0 on t1(c5,c6) storing(c1,c4);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+eval select * from $table_name;
+
+###2-7:update更新double类型
+update t1 set c6=2443.099929889 where id=1;
+eval select * from $table_name;
+
+###2-8:update更新tool long double类型
+update t1 set c6=0.00000000000000000000000000000000001 where id =2;
+eval select * from $table_name;
+
+###2-9:update不合法更新decimal类型
+update t1 set c1=2.909909 where id=3;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

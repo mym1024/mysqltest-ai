@@ -1,0 +1,212 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：在双paxos组下测试 show current paxos_idx: 显示当前事务执行所在的paxos组
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：414
+###5.预计运行时间：510 s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-03-09
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+--enable_warnings
+
+
+#建表
+create table t1 (c1 int primary key,c2 int) partition by (group_t1);
+--sleep 3
+create table t2 (c1 int primary key,c2 int) partition by (group_t2);
+--sleep 3
+create table t3 (c1 int primary key,c2 int) ;
+--sleep 3
+create table t4 (c1 int primary key,c2 int , c3 int, c4 int)partition by range(c1)(partition r0 values less than(20),partition r1 values less than (40),partition r2 values less than maxvalue);
+--sleep 3
+show table rules;
+show partition groups;
+
+#不在事务内，执行show current paxos_idx
+show current paxos_idx;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+insert into t3 values(1,1);
+insert into t4 values(1,2,3,4);
+show current paxos_idx;
+update t1 set c2 = 10 where c1 = 1;
+delete from t2 where c1 = 1;
+show current paxos_idx;
+replace into t1 values(1,100);
+show current paxos_idx;
+--sleep 3
+select * from t1;
+--sleep 3
+select * from t2;
+--sleep 3
+select * from t3;
+--sleep 3
+select * from t4;
+--sleep 3
+show current paxos_idx;
+
+#事务内，仅只有查询语句，执行show current paxos_idx
+start transaction;
+--sleep 3
+select * from t1;
+--sleep 10
+show current paxos_idx;
+commit;
+
+start transaction;
+select * from t2;
+--sleep 3
+show current paxos_idx;
+commit;
+
+start transaction;
+select * from t3;
+--sleep 3
+show current paxos_idx;
+commit;
+
+start transaction;
+select * from t4;
+--sleep 3
+show current paxos_idx;
+commit;
+
+start transaction;
+select * from t1;
+--sleep 3
+select * from t2;
+--sleep 3
+select * from t3;
+--sleep 3
+select * from t4;
+--sleep 3
+show current paxos_idx;
+commit;
+
+#事务内，仅只有一张表的更新，执行show current paxos_idx
+begin;
+replace into t1 values(2,2);
+show current paxos_idx;
+update t1 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+commit;
+
+begin;
+replace into t2 values(2,2);
+show current paxos_idx;
+update t2 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+commit;
+
+begin;
+replace into t3 values(2,2);
+show current paxos_idx;
+update t3 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+commit;
+
+begin;
+replace into t4 values(20,21,22,23);
+show current paxos_idx;
+update t2 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+commit;
+
+#事务内多张表更新，执行show current paxos_idx
+set autocommit = 0;
+insert into t1 values(3,3);
+show current paxos_idx;
+insert into t2 values(3,3); 
+show current paxos_idx;
+commit;
+
+insert into t1 values(4,4);
+show current paxos_idx;
+insert into t3 values(3,3); 
+show current paxos_idx;
+commit;
+
+delete from t2 where c1 = 3;
+show current paxos_idx;
+insert into t4 values(10,11,12,13); 
+show current paxos_idx;
+commit;
+
+replace into t1 values(5,5);
+show current paxos_idx;
+insert into t4 values(30,31,32,33); 
+show current paxos_idx;
+commit;
+
+
+replace into t1 values(4,40);
+show current paxos_idx;
+update t2 set c2 = 20 where c1 = 2;
+delete from t3 where c1 = 3;
+show current paxos_idx;
+insert into t4 values(40,41,42,43);
+insert into t4 values(100,101,102,103);  
+show current paxos_idx;
+commit;
+
+#事务内有查询有更新，执行show current paxos_idx
+--sleep 5
+select * from t1;
+--sleep 5
+show current paxos_idx;
+replace into t2 values(6,6);
+show current paxos_idx;
+commit;
+--sleep 5
+select * from t2;
+--sleep 5
+show current paxos_idx;
+replace into t1 values(6,6);
+show current paxos_idx;
+commit;
+
+replace into t4 values(1,2,3,4);
+replace into t4 values(21,2,3,4);
+replace into t4 values(41,2,3,4);
+show current paxos_idx;
+select * from t1;
+--sleep 5
+show current paxos_idx;
+select * from t2;
+--sleep 3
+show current paxos_idx;
+select * from t4;
+--sleep 3
+show current paxos_idx;
+commit;
+set autocommit = 1;
+
+#事务提交后，执行show语句；事务回滚后，执行show语句
+
+begin;
+replace into t1 values(100,100);
+replace into t2 values(100,100);
+show current paxos_idx;
+commit;
+show current paxos_idx;
+
+start transaction;
+replace into t1 values(10,10);
+replace into t2 values(10,10);
+show current paxos_idx;
+rollback;
+show current paxos_idx;

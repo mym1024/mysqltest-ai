@@ -1,0 +1,1115 @@
+####################################必填######################################################
+###1.测试功能点：触发器功能
+###1.1-before delete 触发器
+###1.2-after delete 触发器
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间： 49.344060 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-01-23
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1.1执行体中为case语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  
+for each row  
+begin 
+	case when @a<old.c1 then 
+	set @a=@a+1;
+	end case;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.2执行体中为leave语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	zhf_loop:loop if(@a<3) then 
+	set @a=@a+1; 
+	else leave zhf_loop;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.3执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	set @a=8;
+	end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#1.4执行体中为if语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row
+begin 
+	if(old.c1=2) then 
+	set @a=2;
+	end if;
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#1.5执行体中为loop语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	loop_zhf:loop set @a=@a+1; 
+	if(@a>old.c1) then 
+	leave loop_zhf;
+	end if;
+end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.6执行体中为repeat语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	repeat set @a=@a+1;
+	until @a>old.c1 end repeat;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.7执行体中为while语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	while @a<old.c1 do 
+	set @a=@a+1;
+	end while;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.8执行体中为iterate语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	loop_zhf:loop set @a=@a+1; 
+	if(@a<old.c1) then iterate loop_zhf;
+	end if;
+	set @b=@b+1;
+	if(@a=old.c1) then leave loop_zhf;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @b;
+
+#1.9执行体中为select语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	set @a=1+(select 1); 
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#1.10执行体为空	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row begin end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+
+#1.11上述语句任意组合	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	loop_zhf:loop 
+	set @a=@a+1;
+	if(@a<old.c1) then 
+	case when @b=1 then 
+	set @b=@b+1;
+	end case; 
+	else leave loop_zhf;
+	end if;
+	end loop;
+end|
+delimiter ;|
+delete from zhf_table where c1=3;
+select @a, @b;
+
+
+#1.12执行体中为prepare语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	prepare zhf_pre from select * from zhf_table where old.c1=1;
+end|
+delimiter ;|
+
+#1.13执行体中为update语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	update zhf_table set zhf_table.c2=old.c1 where old.c1=3;
+end|
+delimiter ;|
+--error 7022
+delete from zhf_table where c1=3;
+
+#1.14执行体中为insert语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	insert into zhf_table values(old.c1+5,old.c2);
+end|
+delimiter ;|
+--error 7022
+delete from zhf_table where c1=3;
+
+#1.15执行体中为delete语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	delete from zhf_table where old.c1=3;
+end|
+delimiter ;|
+--error 7022
+delete from zhf_table where c1=3;
+
+#1.16执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7009
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	set old.c1=2;
+end|
+delimiter ;|
+
+#1.17上述语句任意结合
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	prepare zhf_pre from insert into zhf_table values(4,4);
+	update zhf_table set c2=5 where c1=4;
+	delete from zhf_table where c1=4;
+end|
+delimiter ;|
+
+#1.18执行体中为case语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	case @a when 1 then set @a=7;
+	when 2 then set @a=9;
+	end case;
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#1.19执行体中为leave语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+	zhf_loop:loop set @a=@a+1; 
+	if (@a>3) then leave zhf_loop;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#1.20执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  begin set @a=0;end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#1.21执行体中为if语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);		
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+	if(@a=1) then set @a=10; 
+	elseif(@a=2) then set @a=20; 
+	end if;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.22执行体中为loop语句
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);		
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a>5) then leave zhf_loop;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#1.23执行体中为repeat语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+	repeat set @a=@a+1; 
+	until(@a>5) end repeat;
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#1.24执行体中为while语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+	while(@a<5) do 
+	set @a=@a+1;
+	end while;	
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.25执行体中为iterate语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a<5) then iterate zhf_loop;
+	end if;
+	set @b=@b+1;
+	if(@a=5) then leave zhf_loop;
+	end if;
+	end loop; 
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a, @b;
+
+#1.26执行体中为select语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+	set @a=1+(select 1);
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#1.27执行体为空	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row  begin end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_table;
+
+#1.28执行体中为prepare语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+	prepare zhf_pre from select * from zhf_table;
+end|
+delimiter ;|	
+
+#1.29执行体中为update语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+	update zhf_table set c2=5 where c1=1;
+end|
+delimiter ;|	
+--error 7022
+delete from zhf_table where c1=3;
+select * from zhf_table;
+
+#1.30执行体中为insert语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+	insert into zhf_table values(4,4);
+end|
+delimiter ;|
+--error 7022
+delete from zhf_table where c1=3;
+select * from zhf_table;
+
+#1.31执行体中为delete语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+	delete from zhf_table where c1=1;
+end|
+delimiter ;|	
+select * from zhf_table;
+
+
+
+#2.1执行体中为case语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row 
+begin 
+	case  when @a<old.c1 then
+	set @a=5;
+	end case;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.2执行体中为leave语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+	zhf_loop:loop set @a=@a+1; 
+	if (@a>old.c1) then leave zhf_loop;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.3执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+	set @a=7;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.4执行体中为if语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row 
+begin 
+	if(old.c1=2) then set @a=5;
+	elseif(old.c1=1) then set @a=0;
+	end if;
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#2.5执行体中为loop语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a>old.c1) then leave zhf_loop;
+	end if;
+	end loop;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.6执行体中为repeat语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+	repeat  set @a=@a+1;
+	until(@a>old.c1)  
+	end repeat;
+end|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#2.7执行体中为while语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+	while(@a<old.c1) do 
+	set @a=@a+1;
+	end while;
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.8执行体中为iterate语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a<5) then iterate zhf_loop;
+	end if;
+	set @b=@b+1;
+	if(@a=5) then leave zhf_loop;
+	end if;
+	end loop; 
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a, @b;
+
+#2.9执行体中为select语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+	set @a=1+(select 1);
+end|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.10执行体中为update语句	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin
+	update zhf_tabl2 set c2=old.c2+5 where c1=3;
+end|
+delimiter ;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.11执行体中为insert语句	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+	insert into zhf_tabl2 values(old.c1+10,old.c1+20);
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.12执行体中为delete语句	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+	delete from zhf_tabl2 where c1=old.c2+2;
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.13执行体为空	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_table;
+
+#2.14上述语句任意结合	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+	repeat set @a=@a+1; 
+	until(@a>5) end repeat;
+	case @a when 6 then set @b=66;
+	end case;
+end|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a, @b;
+
+#2.15执行体中为prepare语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger after delete on zhf_table   for each row 
+begin 
+	prepare zhf_pre from  select * from zhf_table where c1=old.c1+5;
+end;|
+delimiter ;|	
+
+#2.16执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger after delete on zhf_table   for each row 
+begin 
+	set old.c2=5;
+end;|	
+delimiter ;|
+
+#2.17执行体中为空
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+end;|	
+delimiter ;|
+
+#2.18执行体中为case语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	case @a when 1 then set @a=7;
+	when 2 then set @a=8;
+	end case;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#2.19执行体中为leave语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a>4) then leave zhf_loop;
+	end if;
+	end loop;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#2.20执行体中为variable_set语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	set @a=2;
+end;|
+delimiter ;|
+delete from zhf_table where c1=3;
+select @a;
+
+#2.21执行体中为if语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	if(@a=1) then set @a=2;
+	end if;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#2.22执行体中为loop语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a>5) then leave zhf_loop;
+	end if;
+	end loop;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a;
+
+#2.23执行体中为repeat语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	repeat set @a=@a+1;
+	until(@a>6) end repeat;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.24执行体中为while语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	while(@a<5) do 
+		set @a=@a+1;
+	end while;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select @a;
+
+#2.25执行体中为iterate语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	zhf_loop:loop set @a=@a+1;
+	if(@a<5) then iterate zhf_loop;
+	end if;
+	set @b=@b+1;
+	leave zhf_loop;
+	end loop;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=2;
+select @a, @b;
+
+#2.26执行体中为select语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	set @a=1+(select 1);
+end;|
+delimiter ;|	
+delete from zhf_table where c1=3;
+select @a;
+
+#2.27执行体中为upadte语句	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	update zhf_tabl2 set c2=c2+5;
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.28执行体中为insert语句	
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row 
+begin 
+	insert into zhf_tabl2 values(4,4);
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.29执行体中为delete语句	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	delete from zhf_tabl2 where c1=3;
+end;|
+delimiter ;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.30执行体为空	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.31上述语句任意结合	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	update zhf_tabl2 set c2=c2+5 where c1=2;
+	insert into zhf_tabl2 values(4,4);
+end;|
+delimiter ;|	
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+
+#2.32执行体中为prepare	
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);	
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+	prepare zhf_pre from select * from zhf_table;
+end|
+delimiter ;|	
+
+

@@ -1,0 +1,93 @@
+####################################必填######################################################
+###1.测试功能点：explain功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间： s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2024-02-27
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+	
+
+#####################################Do sql###################################################
+--source merge.sql
+###有主键的表explain
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+create table test1(c1 int primary key,c2 int,id int);
+create table test2(c1 int primary key,c2 int,id int,c4 int);
+insert into t1 values(1,1),(2,2),(3,3),(4,4);
+insert into t2 values(1,1),(2,2),(3,3),(4,4);
+insert into test1 values(1,1,1),(2,2,2),(3,3,3),(4,4,4);
+insert into test2 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+explain basic select c1 from t1 group by c1+c2;
+explain basic insert into t2 select t1.c1,t1.c2 from t1;
+explain basic select /*+JOIN(SI,BLOOMFILTER_JOIN)*/ t1.c1,test1.c2,test2.c2 from t1 join test1 on t1.c1=test1.c1 join test2 on test1.c2=test2.c2;
+explain basic delete from test1 where id =2;
+explain basic select CURRENT_TIME();
+explain basic insert into test2 values(1,1000,2,4);
+###更新主键不支持用sequence
+CREATE OR REPLACE SEQUENCE seq1 AS integer START WITH 1 INCREMENT BY 1 MINVALUE -1 MAXVALUE 1 CYCLE;
+--error 163
+explain basic update test1 set c1 = nextval for seq1 where c2 =1;
+explain basic update test1 set c2 = nextval for seq1 where c1 =1;
+explain basic select c1, count(*) from test1 group by c1 having count(*)=3;
+#explain basic select /*+ join(hash_join_sinele)*/ t1.c1, test1.c2,test2.c2 from t1 join test1 on t1.c1=test1.c1  join test2 on test1.c2=test2.c2;
+explain basic insert into test2 values(1,1000,2,4);
+explain basic replace  into test2 values(1,1000,2,4);
+drop table t1,t2,test1,test2;
+--sleep 5
+
+###无主键表的explain
+create table t1(c1 int,c2 int);
+create table t2(c1 int,c2 int);
+create table test1(c1 int,c2 int,id int);
+create table test2(c1 int,c2 int,id int,c4 int);
+insert into t1 values(1,1),(2,2),(3,3),(4,4);
+insert into t2 values(1,1),(2,2),(3,3),(4,4);
+insert into test1 values(1,1,1),(2,2,2),(3,3,3),(4,4,4);
+insert into test2 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+explain basic select c1 from t1 group by c1+c2;
+explain basic insert into t2 select t1.c1,t1.c2 from t1;
+explain basic select /*+ JOIN(SI,BLOOMFILTER_JOIN) */ t1.c1,test1.c2,test2.c2 from t1 join test1 on t1.c1=test1.c1 join test2 on test1.c2=test2.c2;
+explain basic delete from test1 where id =2;
+explain basic select CURRENT_TIME();
+explain basic insert into test2 values(1,1000,2,4);
+CREATE OR REPLACE SEQUENCE seq1 AS integer START WITH 1 INCREMENT BY 1 MINVALUE -1 MAXVALUE 1 CYCLE;
+explain basic update test1 set c1 = nextval for seq1 where c2 =1;
+explain basic select c1, count(*) from test1 group by c1 having count(*)=3;
+#explain basic select /*+ join(hash_join_sinele) */ t1.c1, test1.c2,test2.c2 from t1 join test1 on t1.c1=test1.c1  join test2 on test1.c2=test2.c2;
+explain basic insert into test2 values(1,1000,2,4);
+explain basic replace  into test2 values(1,1000,2,4);
+drop table t1,t2,test1,test2;
+--sleep 5
+
+###自增列表的explain
+create table t1(c1 int auto_increment primary key,c2 int);
+create table t2(c1 int auto_increment primary key,c2 int);
+create table test1(c1 int auto_increment primary key,c2 int,id int);
+create table test2(c1 int auto_increment primary key,c2 int,id int,c4 int);
+insert into t1 values(1,1),(2,2),(3,3),(4,4);
+insert into t2 values(1,1),(2,2),(3,3),(4,4);
+insert into test1 values(1,1,1),(2,2,2),(3,3,3),(4,4,4);
+insert into test2 values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
+explain basic select c1 from t1 group by c1+c2;
+explain basic insert into t2 select t1.c1,t1.c2 from t1;
+explain basic select /*+JOIN(SI,BLOOMFILTER_JOIN)*/ t1.c1,test1.c2,test2.c2 from t1 join test1 on t1.c1=test1.c1 join test2 on test1.c2=test2.c2;
+explain basic delete from test1 where id =2;
+explain basic select CURRENT_TIME();
+explain basic insert into test2 values(1,1000,2,4);
+###更新自增列主键表不支持用sequence
+CREATE OR REPLACE SEQUENCE seq1 AS integer START WITH 1 INCREMENT BY 1 MINVALUE -1 MAXVALUE 1 CYCLE;
+--error 163
+explain basic update test1 set c1 = nextval for seq1 where c2 =1;
+explain basic update test1 set c2 = nextval for seq1 where c1 =1;
+explain basic select c1, count(*) from test1 group by c1 having count(*)=3;
+#explain basic select /*+ join(hash_join_sinele) */ t1.c1, test1.c2,test2.c2 from t1 join test1 on t1.c1 = test1.c1  join test2 on test1.c2=test2.c2;
+explain basic insert into test2 values(1,1000,2,4);
+explain basic replace  into test2 values(1,1000,2,4);
+drop table t1,t2,test1,test2;

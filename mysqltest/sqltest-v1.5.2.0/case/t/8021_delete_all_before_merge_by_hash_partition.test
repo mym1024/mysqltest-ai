@@ -1,0 +1,55 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：合并后进行delete以及insert操作
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：1216.678716 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+###2-1重复操作插入数据，合并，删除数据，合并
+--echo case 1: int + 1 row
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+--real_sleep 10
+
+--echo case 3: varchar
+drop table if exists t1;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table  t1(c0 int primary key,c1 varchar(30)) EXPIRE_INFO='c1 = ''d''' partition by(hs,h,c0);
+
+--real_sleep 5
+insert into t1 values(1,'i'),(2,'s'),(3,'D');
+
+--echo merge happens
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+delete from t1 where c0=1;
+delete from t1 where c0=2;
+delete from t1 where c0=3;
+
+--echo merge happens
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+insert into t1 values(1,'i'),(2,'s'),(3,'D');
+
+--echo merge happens
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+delete from t1 where c0=1;
+delete from t1 where c0=2;
+delete from t1 where c0=3;
+
+--echo merge happens
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+
+insert into t1 values(1,'i'),(2,'s'),(3,'D');

@@ -1,0 +1,140 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210201
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:视图名称长度超限
+--error 2
+create view vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv as select 1+1;
+
+###2-2:视图名称含有非法字符，如以数字开头
+#--error 5001
+create view 1v as select 1+1;
+--error 5001
+create view #__ as select 1+1;
+
+###2-3:视图名称带有数据库名，数据库名超限
+--error 5602
+create view dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.v1 as select 1+1;
+
+###2-4:视图名称带有数据库名，数据库名含有非法字符
+--error 5001
+create view %.v1 as select 1+1;
+###2-5:没有create权限创建视图
+create user 'user' identified by 'Abc@12345';
+create view v1 as select 1+1;
+drop view if exists v1;
+drop user 'user';
+
+###2-6:没有select某个表的权限创建视图
+create user 'user' identified by 'Abc@12345';
+grant create on *.* to 'user';
+create database db;
+sleep 5;
+using database db;
+--error 5019
+create view v1 as select c1 from t1;
+drop database db;
+drop user 'user';
+
+
+###2-7:没有某个表的权限创建视图,赋予权限后重新创建视图
+using database "yao";
+drop table if exists t1;
+drop view if exists v1;
+create user 'user' identified by 'Abc@12345';
+grant create on *.* to 'user';
+sleep 5;
+--error 5019
+create view v1 as select c1 from t1;
+drop view if exists v1;
+drop user 'user';
+
+###2-8:视图名和当前数据库中基本表或视图名称相同
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+--error 5025
+create view v1 as select c2 from t2;
+drop view if exists v1;
+drop table if exists t1;
+
+###2-9:视图带有一个不存在的数据库名
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+--error 5602
+create view db.v1 as select c1 from t1;
+drop view if exists v1;
+drop table if exists t1;
+
+###2-10:视图名使用了某个关键字
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+--error 5001
+create view int as select c1 from t1;
+drop view if exists v1;
+drop table if exists t1;
+
+###2-11:视图名以双下划线开头
+--error 5036
+create view __all as select now();
+
+###2-12:列名称长度超限
+--error 5085
+create view v1 (cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc) as select 1+1;
+###2-13:列名称重复
+--error 5008
+create view v1(c1,c1) as select 1,2;
+
+###2-14:列名称含有非法字符
+--error 5001
+create view v1(c$1,c%2) as select 1,2;
+
+###2-15:列名称带有视图名称
+--error 5007
+create view v1(v1) as select 1,2;
+###2-16:列数量和select语句列数量不一致
+--error 5007
+create view v1(c1) as select 1,2;
+
+###2-17:with check option 输入错误
+--error 5001
+create view v1(c1) as select 1 with none check option;
+
+###2-18:show create view 表名不存在
+drop view if exists v1;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+--error 5019
+show create view v1;
+
+###2-18:show create view 指定table表名
+--error 5854
+show create view t1;
+
+###2-19:show create view 视图名称含有非法字符，如以数字开头
+#--error 5001 1.3.0.0已允许
+create view 1v as select c1 from t1;
+show create view 1v;
+drop table if exists t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

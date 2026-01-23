@@ -1,0 +1,57 @@
+####################################必填######################################################
+###1.测试功能点：||与IN的优先级顺序修改
+##
+#
+###2.测试项：查询中包含“||”和“IN”的情况
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/480
+###4.问题号：480
+###5.预计运行时间：7s
+###6.编写/修改人：hejieming
+###7.编写/修改日期：2020-8-19
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+#创建具有6列的数据表
+create table if not exists t1(c1 int primary key,c2 decimal(5,2), c3 decimal(10,3), c4 varchar(10), c5 double, c6 float);
+desc t1;
+--real_sleep 5
+
+#插入数据
+create table if not exists t1(c1 int primary key,c2 decimal(5,2), c3 decimal(10,3), c4 varchar(10), c5 double, c6 float);
+insert into t1 values (1, 1.23, 1.23, '1.325o', 1.234, 1.234);
+insert into t1 values (2, 1.23, 1.23, '1.32f5', 1.234, 1.234);
+insert into t1 values (3, 1.23, 1.23, '0x1.3f', 1.234, 1.234);
+insert into t1 values (4,1.23, 1.23, 'a.asd', 12321.234, 1.234);
+insert into t1 values (5,1., 1, '1.32', 1.234, 1.234);
+insert into t1 values (6,1.2, 1234578.90, '1234567.32', 1.234, 1.234);
+insert into t1 values (7,123.456, 0.1, '1.12345678', 1.234, 1.234);
+insert into t1 values (8,1.2, 1234578.90, '1234567.32', 1.23, 1.234);
+
+#select语句中使用“||”与“IN”进行连接查询
+
+select * from t1 where c1||c2 in ('11.23','21.23','31.23');
+select * from t1 where c1 = 1 and c2||c3 in ('1.231.230');
+select * from t1 where c2 = 1.23 and c3||c4 in ('1.2300x1.3f');
+select * from t1 where c2 = 1.23 or c3||c4 in ('1234578.9001234567.32');
+select * from t1 where c4||c5 in ('a.asd12321.234000');
+select * from t1 where c2 = 1.23 and c5||c6 in ('1.2340001.234000');
+select * from t1 where c2||c3||c5 in ('1.231.2301.234000');
+select * from t1 where c1 between 1 and 2 or c3||c6 in ('1.230.1.234000');
+
+select * from t1 where c1 = 10 or c3||c6 in ('1.230.1.234');
+select * from t1 where c4 = 'a.asd' or c2||c5 in ('1.1.234000');
+select * from t1 where c1 between 1 and 3 and c1||c5 in ('11.234');
+
+
+
+drop table t1;
+
+

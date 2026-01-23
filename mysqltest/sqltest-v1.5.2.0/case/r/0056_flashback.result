@@ -1,0 +1,426 @@
+set yao_read_consistency=4;
+drop table if exists t1,t2,t3,t4 purge;
+-- open trash
+set global trash_bin_switch = true;
+use drop_name flashback table
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+show tables;
+table_name_in_test
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3001	t1	2
+flashback table t1_3001 to before drop;
+show tables;
+table_name_in_test
+t1
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1 purge;
+purge recyclebin;
+use drop_name flashback table has index
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+create index t1_idx on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3002__idx__t1_idx	4	0
+drop table t1;
+show tables;
+table_name_in_test
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3002	t1	2
+__3002__idx__t1_idx_3003	__3002__idx__t1_idx	3
+flashback table t1_3002 to before drop;
+show tables;
+table_name_in_test
+t1
+show index on t1;
+index_name	status	index_type
+__3002__idx__t1_idx	4	0
+select drop_name, object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1 purge;
+purge recyclebin;
+use drop_name flashback table rename
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+show tables;
+table_name_in_test
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3004	t1	2
+flashback table t1_3004 to before drop rename to t2;
+show tables;
+table_name_in_test
+t2
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1,t2 purge;
+purge recyclebin;
+use drop_name flashback table has index rename
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3005__idx__t1_idx	4	0
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3005	t1	2
+__3005__idx__t1_idx_3006	__3005__idx__t1_idx	3
+flashback table t1_3005 to before drop rename to t2;
+show tables;
+table_name_in_test
+t2
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1,t2 purge;
+purge recyclebin;
+use table_name flashback table
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3007	t1	2
+flashback t1 to before drop;
+show tables;
+table_name_in_test
+t1
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1 purge;
+purge recyclebin;
+use table_name flashback table has index
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3008__idx__t1_idx	4	0
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3008	t1	2
+__3008__idx__t1_idx_3009	__3008__idx__t1_idx	3
+flashback t1 to before drop;
+show tables;
+table_name_in_test
+t1
+show index on t1;
+index_name	status	index_type
+__3008__idx__t1_idx	4	0
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1 purge;
+purge recyclebin;
+use table_name flashback table rename
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3010	t1	2
+flashback t1 to before drop rename to t2;
+show tables;
+table_name_in_test
+t2
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1,t2 purge;
+purge recyclebin;
+use table_name flashback table has index rename
+drop table if exists t1,t2 purge;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3011__idx__t1_idx	4	0
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3011	t1	2
+__3011__idx__t1_idx_3012	__3011__idx__t1_idx	3
+flashback t1 to before drop rename to t2;
+show tables;
+table_name_in_test
+t2
+show index on t2;
+index_name	status	index_type
+__3011__idx__t1_idx	4	0
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop table if exists t1,t2 purge;
+purge recyclebin;
+use drop_name flashback no table database
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_3	test1	1
+flashback database __trash_test1_3 to before drop;
+show databases;
+Database
+test
+test1
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop database test1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+purge recyclebin;
+use drop_name flashback no table database rename
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_4	test1	1
+flashback database __trash_test1_4 to before drop rename to test2;
+show databases;
+Database
+test
+test2
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+drop database test2 purge;
+purge recyclebin;
+use drop_name flashback has table database
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_5	test1	1
+flashback database __trash_test1_5 to before drop;
+show databases;
+Database
+test
+test1
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+using database test1;
+show tables;
+table_name_in_test1
+t1
+drop table if exists t1 purge;
+drop database test1 purge;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+purge recyclebin;
+use drop_name flashback has table database rename
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_6	test1	1
+flashback database __trash_test1_6 to before drop rename to test2;
+show databases;
+Database
+test
+test2
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+using database test2;
+show tables;
+table_name_in_test2
+t1
+drop table if exists t1 purge;
+drop database test2 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+purge recyclebin;
+use drop_name flashback has table and index database
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_7	test1	1
+flashback database __trash_test1_7 to before drop;
+show databases;
+Database
+test
+test1
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+using database test1;
+show tables;
+table_name_in_test1
+t1
+show index on t1;
+index_name	status	index_type
+__3015__idx__t1_idx	4	0
+drop table if exists t1 purge;
+drop database test1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+purge recyclebin;
+use drop_name flashback has table and index database rename
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+create index t1_idx on t1(c1);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_8	test1	1
+flashback database __trash_test1_8 to before drop rename to test2;
+show databases;
+Database
+test
+test2
+trash
+yao
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+using database test2;
+show tables;
+table_name_in_test2
+t1
+show index on t1;
+index_name	status	index_type
+__3017__idx__t1_idx	4	0
+drop table if exists t1 purge;
+drop database test2 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+purge recyclebin;
+drop table if exists a_3921 purge;
+flashback table a_3921 to before drop;
+ERROR HY000: YAO-5093: Drop name in trash 'a_3921' doesn't exist
+using database test;
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table t1;
+create table t1(c1 int primary key,c2 int);
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3019	t1	2
+flashback table t1_3019 to before drop;
+ERROR HY000: YAO-5107: flashback table name is existed
+drop table if exists t1 purge;
+purge recyclebin;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3021	t1	2
+show tables;
+table_name_in_test
+t2
+flashback table t1_3021 to before drop rename to t2;
+ERROR HY000: YAO-5091: flashback rename name is existed
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3021	t1	2
+show tables;
+table_name_in_test
+t2
+drop table if exists t1,t2;
+purge recyclebin;
+drop table if exists a_3921 purge;
+flashback a_3921 to before drop;
+ERROR HY000: YAO-5093: flashback name in trash is not existed
+drop table if exists t1 purge;
+create table t1(c1 int primary key,c2 int);
+drop table t1;
+create table t1(c1 int primary key,c2 int);
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3023	t1	2
+flashback t1 to before drop;
+ERROR HY000: YAO-5107: flashback table name is existed
+drop table if exists t1 purge;
+purge recyclebin;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3025	t1	2
+show tables;
+table_name_in_test
+t2
+flashback t1 to before drop rename to t2;
+ERROR HY000: YAO-5091: flashback rename name is existed
+drop table if exists t1,t2;
+purge recyclebin;
+flashback database kkk to before drop;
+ERROR HY000: YAO-5093: flashback name in trash is not existed
+create database test1;
+drop database test1;
+create database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_9	test1	1
+show databases;
+Database
+test
+test1
+trash
+yao
+flashback database __trash_test1_9 to before drop;
+ERROR HY000: YAO-5096: flashback database name is existed
+purge recyclebin;
+drop database test1 purge;
+create database test1;
+drop database test1;
+create database test2;
+flashback database __trash_test1_11 to before drop rename to test2;
+ERROR HY000: YAO-5096: flashback database name is existed
+purge recyclebin;
+drop database test2 purge;
+create database test1;
+create database test2;
+drop database test1;
+drop database test2;
+create user 'u1' identified by 'pass-12345';
+grant flashback on * to 'u1';
+flashback database __trash_test1_13 to before drop;
+revoke flashback on * from 'u1';
+flashback database __trash_test2_14 to before drop;
+ERROR HY000: YAO-5036: no privilege
+purge recyclebin;
+drop database test1 purge;
+drop user 'u1';
+create table tew1(c1 int, c2 int, primary key(c1));
+create table tew2(c1 int, c2 int, primary key(c1));
+drop table tew1;
+set autocommit = 0;
+insert into tew2 values(1,1);
+flashback tew1 to before drop;
+ERROR HY000: YAO-5060: Transaction already started

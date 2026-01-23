@@ -1,0 +1,89 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：分区后合并（range分区）
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+
+--disable_warnings
+drop table if exists sbtest;
+drop table if exists t1;
+--enable_warnings
+#修改合并间隙
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+#创建range分区
+create table t1(pk int primary key,a int) partition by range(pk)(partition r0 values less than(5),partition r1 values less than(100), partition r2 values less than maxvalue);
+--echo "refresh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema |tail -1;
+--real_sleep 5
+#2-1数据插入不同分区
+insert into t1 values (1,0), (2,0), (4,0), (3,0);
+insert into t1 values (0,0);
+insert into t1 values (5,0), (6,0), (8,0), (7,0);
+select * from t1;
+#2-2数据更新
+Update  t1 set a=1 where pk = 0;
+Update  t1 set a=1 where pk = 1;
+select * from t1; 
+replace into t1(pk,a) values(0,2);
+replace into t1(pk,a) values(2,2);
+select * from t1;
+#2-3根据主键删除不同分区数据
+delete from t1 where pk = 2;
+delete from t1 where pk = 1;
+delete from t1 where pk = 5;
+select * from t1;
+
+#2-4向不同分区插入数据
+insert into t1 values (100,0), (200,0), (101,0);
+insert into t1 values (102,0);
+insert into t1 values (104,0), (103,0);
+insert into t1 values (2,0);
+select * from t1;
+#2-5更新数据
+update  t1 set a=1 where pk = 7;
+update  t1 set a=1 where pk = 3;
+select * from t1;
+#2-6删除数据
+delete from t1 where pk=0;
+delete from t1 where pk=7;
+delete from t1 where pk=103;
+select * from t1;
+
+#2-7 向不同分区插入数据
+insert into t1 values (0,0), (7,0);
+insert into t1 values (307,0),(103,0);
+insert into t1 values (300,0), (305,0),(301,0);
+insert into t1 values (302,0);
+insert into t1 values (304,0),(303,0);
+#2-8  更新数据
+update  t1 set a=1 where pk = 7;
+update  t1 set a=1 where pk = 3;
+update  t1 set a=1 where pk = 102;
+update  t1 set a=1 where pk = 101;
+select * from t1;
+#2-9 删除数据
+delete from t1 where pk=4;
+delete from t1 where pk=200;
+delete from t1 where pk=300;
+select * from t1;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

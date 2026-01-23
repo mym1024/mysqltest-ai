@@ -1,0 +1,137 @@
+####################################必填######################################################
+###1.测试功能点：delete测试
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：35s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+
+###2-1 一般的从表中删除数据
+#
+#Check for problems with delete
+#
+
+--disable_warnings
+drop table if exists t1,t2,t3,t11,t12;
+--real_sleep 3
+--enable_warnings
+CREATE TABLE t1 (a int, b int, c int, primary key(a,b));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+INSERT INTO t1 VALUES(1,1,0);
+
+INSERT INTO t1 VALUES(1,2,0);
+INSERT INTO t1 VALUES(1,3,0);
+
+DELETE from t1 where a=1 and b=1;
+
+INSERT INTO t1 VALUES(1,1,0);
+DELETE from t1 where a=1 and b=1;
+DELETE from t1 where a=1 and b=2;
+DELETE from t1 where a=1 and b=3;
+
+INSERT INTO t1 VALUES(1,2,0);
+DELETE from t1 where a=1 and b=2;
+
+INSERT INTO t1 VALUES(1,2,0);
+
+DELETE from t1 where a=1 and b=2;
+
+drop table t1;
+--real_sleep 3
+
+###2-2 从表中删除除主键外全为默认值的数据
+#
+#Test of delete when the delete will cause a node to disappear and reappear
+# (This assumes a block size of 1024)
+#
+
+create table t1 (
+	a bigint not null,
+	b bigint not null default 0,
+	c bigint not null default 0,
+	d bigint not null default 0,
+	e bigint not null default 0,
+	f bigint not null default 0,
+	g bigint not null default 0,
+	h bigint not null default 0,
+	i bigint not null default 0,
+	j bigint not null default 0,
+	primary key (a));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+
+insert into t1 (a) values (2),(4),(6),(8),(10),(12),(14),(16),(18),(20),(22),(24),(26),(23);
+delete from t1 where a=26;
+drop table if exists t1;
+--real_sleep 3
+create table t1 (
+	a bigint not null,
+	b bigint not null default 0,
+	c bigint not null default 0,
+	d bigint not null default 0,
+        	e bigint not null default 0,
+	f bigint not null default 0,
+	g bigint not null default 0,
+	h bigint not null default 0,
+	i bigint not null default 0,
+	j bigint not null default 0,
+	primary key (a));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+insert into t1 (a) values (2),(4),(6),(8),(10),(12),(14),(16),(18),(20),(22),(24),(26),(23),(27);
+delete from t1 where a=27;
+drop table t1;
+--real_sleep 3
+###2-3 以NULL值为过滤条件删除
+#
+#CHAR(0) bug - not actually DELETE bug, but anyway...
+#
+
+CREATE TABLE t1 (
+  bool1 char(0) default NULL,
+  not_null varchar(20) NOT NULL default '',
+  misc integer not null,
+  PRIMARY KEY (not_null)
+) ;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+INSERT INTO t1 VALUES (NULL, 'a',4), (NULL, 'b',5), (NULL, 'c',6), (NULL, 'd',7);
+
+select * from t1 where misc > 5 and bool1 is null;
+delete   from t1 where not_null='c';
+delete   from t1 where not_null='d';
+select * from t1 where misc > 5 and bool1 is null;
+
+select count(*) from t1;
+select count(*) from t1;
+select count(*) from t1;
+
+drop table if exists t1;
+--real_sleep 3
+###2-4 以NULL值为条件删除数据
+create table t1 (a datetime not null primary key, b int);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+insert into t1 values (0,1);
+select * from t1 where a is null;
+delete from t1 where a = null;
+delete from t1 where a = 0;
+select count(*) from t1;
+drop table if exists t1;
+--real_sleep 3
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

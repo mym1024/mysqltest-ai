@@ -1,0 +1,314 @@
+create database d1;
+using database d1;
+drop table if exists t1,t2;
+create table
+create table t1 (pid int primary key, name varchar(30), salary float, c1 bool, c2 bool, c3 int);
+create table t2 (pid int primary key, name varchar(30));
+insert data
+insert into t1 (pid, name, salary, c1, c2) values(1, 'xiaowang', 15498.26, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(2, 'xiaozeng', 16666.54, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(3, 'xiaoming', 16267.86, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(4, 'xiaochen', 17566.78, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(5, 'xiaoli', 9751.85, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(6, 'xiaozhao', 14958.64, true, false);
+insert into t2 (pid, name) values(1, 'xiaosun');
+insert into t2 (pid, name) values(2, 'xiaoqian');
+insert into t2 (pid, name) values(3, 'xiaohua');
+insert into t2 (pid, name) values(4, 'xiaowu');
+insert into t2 (pid, name) values(5, 'xiaopang');
+insert into t2 (pid, name) values(6, 'xiaogao');
+start if
+select if(c1,pid,name) from t1 where pid = 2;
+if(c1,pid,name)
+2
+select if(true,pid,name) from t1 where pid = 2;
+if(true,pid,name)
+2
+select if(1,pid,name) from t1 where pid = 2;
+if(1,pid,name)
+2
+select if(c2,pid,name) from t1 where pid = 2;
+if(c2,pid,name)
+xiaozeng
+select if(false,pid,name) from t1 where pid = 2;
+if(false,pid,name)
+xiaozeng
+select if(0,pid,name) from t1 where pid = 2;
+if(0,pid,name)
+xiaozeng
+select if(5>3,pid,name) from t1 where pid = 3;
+if(5>3,pid,name)
+3
+select if(3>5,pid,name) from t1 where pid = 3;
+if(3>5,pid,name)
+xiaoming
+select if(5=3,pid,name) from t1 where pid = 3;
+if(5=3,pid,name)
+xiaoming
+select if(5=5,pid,name) from t1 where pid = 3;
+if(5=5,pid,name)
+3
+select if(-1>1,pid,name) from t1 where pid = 3;
+if(-1>1,pid,name)
+xiaoming
+select if(-1<1,pid,name) from t1 where pid = 3;
+if(-1<1,pid,name)
+3
+select if(-0.25>-0.11,pid,name) from t1 where pid = 3;
+if(-0.25>-0.11,pid,name)
+xiaoming
+select if(-0.25<-0.11,pid,name) from t1 where pid = 3;
+if(-0.25<-0.11,pid,name)
+3
+select if(c3,pid,name) from t1 where pid = 2;
+if(c3,pid,name)
+xiaozeng
+select if(c3,c3,name) from t1 where pid = 2;
+if(c3,c3,name)
+xiaozeng
+select if(c3,c3,c3) from t1 where pid = 2;
+if(c3,c3,c3)
+NULL
+select if(c3,pid,c3) from t1 where pid = 2;
+if(c3,pid,c3)
+NULL
+select if(c1,c3,c3) from t1 where pid = 2;
+if(c1,c3,c3)
+NULL
+select if(c2,c3,c3) from t1 where pid = 2;
+if(c2,c3,c3)
+NULL
+select if(pid,6,9) from t1 where pid = 3;
+if(pid,6,9)
+6
+select if(name,'abc','def') from t1 where pid = 3;
+if(name,'abc','def')
+def
+select if(salary,cast(3.141 as float),cast(23.4687 as float)) from t1 where pid = 3;
+if(salary,cast(3.141 as float),cast(23.4687 as float))
+3.141000
+select if(2.25,3.15,4.45) from t1 where pid=3;
+if(2.25,3.15,4.45)
+3.15
+select if(pid,name,salary) from t1;
+if(pid,name,salary)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if(name,c2,pid) from t1;
+if(name,c2,pid)
+1
+2
+3
+4
+5
+6
+select if(name,salary,c1) from t1;
+if(name,salary,c1)
+1
+1
+1
+1
+1
+1
+select if(salary,name,pid) from t1;
+if(salary,name,pid)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if(pid+10,name,salary) from t1;
+if(pid+10,name,salary)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if(pid-1,name,salary) from t1;
+if(pid-1,name,salary)
+15498.259766
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if(pid/10,name,salary) from t1;
+if(pid/10,name,salary)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if(pid*10,name,salary) from t1;
+if(pid*10,name,salary)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select if((10)mod(pid),name,salary) from t1;
+if((10)mod(pid),name,salary)
+15498.259766
+16666.539062
+xiaoming
+xiaochen
+9751.849609
+xiaozhao
+select if(1,max(pid),min(pid)) from t1;
+if(1,max(pid),min(pid))
+6
+select if(0,max(pid),min(pid)) from t1;
+if(0,max(pid),min(pid))
+1
+select if(1,sum(pid),avg(pid)) from t1;
+if(1,sum(pid),avg(pid))
+21
+select if(0,sum(pid),avg(pid)) from t1;
+if(0,sum(pid),avg(pid))
+3.5000
+select if(max(pid),sum(pid),avg(pid)) from t1;
+if(max(pid),sum(pid),avg(pid))
+21
+update t1 set name='xiaozhou' where pid=if(false,5,6);
+update t1 set salary=if(pid,if(1,cast(15463.98 as float),2),2) where pid=1;
+select name from t1 having if(0,1,1)>0;
+name
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhou
+select name from t1 where pid=2 or pid=if(2,if(1>5,3,4),5) order by pid;
+name
+xiaozeng
+xiaochen
+insert into t1 (pid, name, salary, c1, c2) values(7,if(0,'xiaoliu','xiaoding'),13156.21,true,false);
+delete from t1 where pid=if(if(pid,4,1),7,6);
+(select name from t1 where pid= if(0,2,3)) union (select name from t1 where pid=4);
+name
+xiaochen
+xiaoming
+(select name from t1 where pid= if(1,2,1)) intersect (select name from t1 where pid=2);
+name
+xiaozeng
+(select name from t1 where pid= if(1,1,2)) except (select name from t1 where pid=3);
+name
+xiaowang
+select pid from t1 where name = if(c1,substr('xxxiaowanggg',3,8),c2);
+pid
+1
+select name from t1 where pid = if(c2,c1,nvl(3,4));
+name
+xiaoming
+select t1.pid,if(t1.pid, t2.name, t1.salary) from t1,t2;
+pid	if(t1.pid, t2.name, t1.salary)
+1	xiaosun
+1	xiaoqian
+1	xiaohua
+1	xiaowu
+1	xiaopang
+1	xiaogao
+2	xiaosun
+2	xiaoqian
+2	xiaohua
+2	xiaowu
+2	xiaopang
+2	xiaogao
+3	xiaosun
+3	xiaoqian
+3	xiaohua
+3	xiaowu
+3	xiaopang
+3	xiaogao
+4	xiaosun
+4	xiaoqian
+4	xiaohua
+4	xiaowu
+4	xiaopang
+4	xiaogao
+5	xiaosun
+5	xiaoqian
+5	xiaohua
+5	xiaowu
+5	xiaopang
+5	xiaogao
+6	xiaosun
+6	xiaoqian
+6	xiaohua
+6	xiaowu
+6	xiaopang
+6	xiaogao
+select t1.name,if(t1.c2, t1.name, t2.name) from t1,t2;
+name	if(t1.c2, t1.name, t2.name)
+xiaowang	xiaosun
+xiaowang	xiaoqian
+xiaowang	xiaohua
+xiaowang	xiaowu
+xiaowang	xiaopang
+xiaowang	xiaogao
+xiaozeng	xiaosun
+xiaozeng	xiaoqian
+xiaozeng	xiaohua
+xiaozeng	xiaowu
+xiaozeng	xiaopang
+xiaozeng	xiaogao
+xiaoming	xiaosun
+xiaoming	xiaoqian
+xiaoming	xiaohua
+xiaoming	xiaowu
+xiaoming	xiaopang
+xiaoming	xiaogao
+xiaochen	xiaosun
+xiaochen	xiaoqian
+xiaochen	xiaohua
+xiaochen	xiaowu
+xiaochen	xiaopang
+xiaochen	xiaogao
+xiaoli	xiaosun
+xiaoli	xiaoqian
+xiaoli	xiaohua
+xiaoli	xiaowu
+xiaoli	xiaopang
+xiaoli	xiaogao
+xiaozhou	xiaosun
+xiaozhou	xiaoqian
+xiaozhou	xiaohua
+xiaozhou	xiaowu
+xiaozhou	xiaopang
+xiaozhou	xiaogao
+select distinct t1.pid from t1,t2 where if(t1.c1, t2.name, t1.name);
+pid
+1
+2
+3
+4
+5
+6
+select if() from t1 where pid=1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select if(pid) from t1 where pid=1;
+ERROR HY000: YAO-5054: Param num of function 'if' must be 3, ret=-5054
+select if(c1,pid,c2,name) from t1 where pid=1;
+ERROR HY000: YAO-5054: Param num of function 'if' must be 3, ret=-5054
+select if(abc+def,pid,name) from t1 where pid=1;
+ERROR 42S22: YAO-5009: Unkown column name abc
+select IF(1<2,1,0);
+IF(1<2,1,0)
+1
+select if(1<2,1,0) AS c1;
+c1
+1
+select if(if(1>5,1,0)>1,1,0) AS c1;
+c1
+0
+drop table t1,t2;
+drop database d1;

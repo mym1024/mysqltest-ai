@@ -1,0 +1,1415 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	0
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaosqlsvr	slow_query_threshold	0ms
+yaodatasvr	slow_query_warn_time	500ms
+create table test1(id int primary key, name varchar(30), phone varchar(20));
+insert into test1 values(1,'yangf','15299996766');
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:26, receive_ts:1766585294426928	固定值
+do_com_query	stmt:"insert into test1 values(1,'yangf','15299996766')", stmt_len:49	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   ts_executor_op_begin		固定值
+    values_op_begin		固定值
+     table_rpc_scan_op_begin		固定值
+      rpc_scan_op_begin		固定值
+       send_ds_get_begin	table_id:3001	固定值
+       send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+      rpc_scan_op_end		固定值
+     table_rpc_scan_op_end	read_method:"GET", table_id:3001, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+    values_op_end		固定值
+    expr_values_op_begin		固定值
+    expr_values_op_end		固定值
+    send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+    send_ts_plan_end		固定值
+   ts_executor_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	0
+set yao_enable_trace_log=true;
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+select * from test1;
+id	name	phone
+1	yangf	15299996766
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:19, receive_ts:1766585294444858	固定值
+do_com_query	stmt:"select * from test1", stmt_len:19	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+ parse_begin		固定值
+  resolve_begin		固定值
+  resolve_end		固定值
+ parse_end		固定值
+ transform_begin		固定值
+ transform_end		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:19, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:19,[int:3001,extend:min,extend:min,extend:min; int:3001,extend:max,extend:max,extend:max]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+sql_result_set_end		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3001, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3001,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=false;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaosqlsvr	slow_query_threshold	100ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	0
+create table test2(id int primary key, name varchar(30), phone varchar(20));
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:16, receive_ts:1766585299508514	固定值
+do_com_query	stmt:"create table test2(id int primary key, name varchar(30), phone varchar(20))", stmt_len:75	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   create_table_begin		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:6	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:6, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:15	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:15, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        send_ts_end_trans_begin	trans_id:180254, ts_ip:"192.168.16.102:18700@0"	固定值
+        send_ts_end_trans_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         sort_op_begin		固定值
+          table_rpc_scan_op_begin		固定值
+           rpc_scan_op_begin		固定值
+           rpc_scan_op_end		固定值
+          table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+          send_ds_scan_begin	scan_range:"table_id:73,(MIN; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          project_op_begin		固定值
+           group_by_op_begin		固定值
+            filter_op_begin		固定值
+             table_rpc_scan_op_begin		固定值
+              rpc_scan_op_begin		固定值
+              rpc_scan_op_end		固定值
+             table_rpc_scan_op_end	read_method:"SCAN", table_id:65532, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+            filter_op_end		固定值
+           group_by_op_end		固定值
+          project_op_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(MIN; varchar:yaodatasvr,extend:max,extend:max,extend:max]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(varchar:yaodatasvr,extend:max,extend:max,extend:max; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:7, sub_request_count:2, ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_end		固定值
+         sort_op_end		固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+     sql_result_set_end		固定值
+     parse_begin		固定值
+      resolve_begin		固定值
+      resolve_end		固定值
+     parse_end		固定值
+     transform_begin		固定值
+     transform_end		固定值
+     result_set_begin		固定值
+      main_query_begin		固定值
+       project_op_begin		固定值
+        table_rpc_scan_op_begin		固定值
+         limit_op_begin		固定值
+          rpc_scan_op_begin		固定值
+          rpc_scan_op_end		固定值
+         limit_op_end		固定值
+        table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+       project_op_end		固定值
+      main_query_end		固定值
+     result_set_end		固定值
+     send_ds_scan_begin	scan_range:"table_id:6,(MIN; MAX]"	固定值
+     send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+process_execute_stmt_end		固定值
+insert into test2 values(1,'yangf','15299996766');
+select * from test2;
+id	name	phone
+1	yangf	15299996766
+show trace;
+title	key_value	time
+drop table test2;
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaosqlsvr	slow_query_threshold	100ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+create table test2(id int primary key, name varchar(30), phone varchar(20));
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:12, receive_ts:1766585304917558	固定值
+do_com_query	stmt:"create table test2(id int primary key, name varchar(30), phone varchar(20))", stmt_len:75	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   create_table_begin		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:6	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:6, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:15	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:15, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        send_ts_end_trans_begin	trans_id:180278, ts_ip:"192.168.16.102:18700@0"	固定值
+        send_ts_end_trans_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         sort_op_begin		固定值
+          table_rpc_scan_op_begin		固定值
+           rpc_scan_op_begin		固定值
+           rpc_scan_op_end		固定值
+          table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+          send_ds_scan_begin	scan_range:"table_id:73,(MIN; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          project_op_begin		固定值
+           group_by_op_begin		固定值
+            filter_op_begin		固定值
+             table_rpc_scan_op_begin		固定值
+              rpc_scan_op_begin		固定值
+              rpc_scan_op_end		固定值
+             table_rpc_scan_op_end	read_method:"SCAN", table_id:65532, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+            filter_op_end		固定值
+           group_by_op_end		固定值
+          project_op_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(MIN; varchar:yaodatasvr,extend:max,extend:max,extend:max]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(varchar:yaodatasvr,extend:max,extend:max,extend:max; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:7, sub_request_count:2, ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_end		固定值
+         sort_op_end		固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+     sql_result_set_end		固定值
+     parse_begin		固定值
+      resolve_begin		固定值
+      resolve_end		固定值
+     parse_end		固定值
+     transform_begin		固定值
+     transform_end		固定值
+     result_set_begin		固定值
+      main_query_begin		固定值
+       project_op_begin		固定值
+        table_rpc_scan_op_begin		固定值
+         limit_op_begin		固定值
+          rpc_scan_op_begin		固定值
+          rpc_scan_op_end		固定值
+         limit_op_end		固定值
+        table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+       project_op_end		固定值
+      main_query_end		固定值
+     result_set_end		固定值
+     send_ds_scan_begin	scan_range:"table_id:6,(MIN; MAX]"	固定值
+     send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+process_execute_stmt_end		固定值
+insert into test2 values(1,'yangf','15299996766');
+select * from test2;
+id	name	phone
+1	yangf	15299996766
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:12, receive_ts:1766585305078543	固定值
+do_com_query	stmt:"select * from test2", stmt_len:19	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+ parse_begin		固定值
+  resolve_begin		固定值
+  resolve_end		固定值
+ parse_end		固定值
+ transform_begin		固定值
+ transform_end		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:19, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:19,[int:3003,extend:min,extend:min,extend:min; int:3003,extend:max,extend:max,extend:max]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+sql_result_set_end		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3003, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3003,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaosqlsvr	slow_query_threshold	100ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+select /*+TRACE_LOG*/ * from test2;
+id	name	phone
+1	yangf	15299996766
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:16, receive_ts:1766585310142778	固定值
+do_com_query	stmt:"select /*+TRACE_LOG*/ * from test2", stmt_len:34	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3003, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3003,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+explain select /*+TRACE_LOG*/ * from test2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.test2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"id","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"name","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"phone","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:15, receive_ts:1766585310146351	固定值
+do_com_query	stmt:"explain select /*+TRACE_LOG*/ * from test2", stmt_len:42	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   explain_stmt_begin		固定值
+   explain_stmt_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaotxnsvr	enable_cache_trace_log	False
+yaosqlsvr	slow_query_threshold	0ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+CREATE TABLE complex_table (
+id INT  PRIMARY KEY,
+name VARCHAR(50),
+age INT,
+height DECIMAL(5,2),
+birthdate DATE,
+profile_text VARCHAR(255),
+creation_timestamp TIMESTAMP ,
+is_employed BOOLEAN,
+bit_data BIT(1),
+json_data JSON
+);
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:11, receive_ts:1766585315205428	固定值
+do_com_query	stmt:"CREATE TABLE complex_table (
+id INT  PRIMARY KEY,
+name VARCHAR(50),
+age INT,
+height DECIMAL(5,2),
+birthdate DATE,
+profile_text VARCHAR(255),
+creation_timestamp TIMESTAMP ,
+is_employed BOOLEAN,
+bit_data BIT(1),
+json_data JSON
+)", stmt_len:226	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   create_table_begin		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:6	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:6, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         table_rpc_scan_op_begin		固定值
+          filter_op_begin		固定值
+           empty_row_filter_op_begin		固定值
+            rpc_scan_op_begin		固定值
+             send_ds_get_begin	table_id:15	固定值
+             send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+             add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+            rpc_scan_op_end		固定值
+           empty_row_filter_op_end		固定值
+          filter_op_end		固定值
+         table_rpc_scan_op_end	read_method:"GET", table_id:15, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        send_ts_end_trans_begin	trans_id:180296, ts_ip:"192.168.16.102:18700@0"	固定值
+        send_ts_end_trans_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        ts_executor_op_begin		固定值
+         expr_values_op_begin		固定值
+         expr_values_op_end		固定值
+         send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+          expr_values_op_begin		固定值
+          expr_values_op_end		固定值
+         send_ts_plan_end		固定值
+        ts_executor_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+      parse_begin		固定值
+       resolve_begin		固定值
+       resolve_end		固定值
+      parse_end		固定值
+      transform_begin		固定值
+      transform_end		固定值
+      result_set_begin		固定值
+       main_query_begin		固定值
+        project_op_begin		固定值
+         sort_op_begin		固定值
+          table_rpc_scan_op_begin		固定值
+           rpc_scan_op_begin		固定值
+           rpc_scan_op_end		固定值
+          table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+          send_ds_scan_begin	scan_range:"table_id:73,(MIN; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          project_op_begin		固定值
+           group_by_op_begin		固定值
+            filter_op_begin		固定值
+             table_rpc_scan_op_begin		固定值
+              rpc_scan_op_begin		固定值
+              rpc_scan_op_end		固定值
+             table_rpc_scan_op_end	read_method:"SCAN", table_id:65532, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+            filter_op_end		固定值
+           group_by_op_end		固定值
+          project_op_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(MIN; varchar:yaodatasvr,extend:max,extend:max,extend:max]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+          process_rpc_event_end		固定值
+          send_ds_scan_begin	scan_range:"table_id:607,(varchar:yaodatasvr,extend:max,extend:max,extend:max; MAX]"	固定值
+          send_ds_scan_end	ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_begin		固定值
+           add_ds_result	row_count:7, sub_request_count:2, ds_ip:"192.168.16.102:18800@-1"	固定值
+          process_rpc_event_end		固定值
+         sort_op_end		固定值
+        project_op_end		固定值
+       main_query_end		固定值
+      result_set_end		固定值
+     sql_result_set_end		固定值
+     parse_begin		固定值
+      resolve_begin		固定值
+      resolve_end		固定值
+     parse_end		固定值
+     transform_begin		固定值
+     transform_end		固定值
+     result_set_begin		固定值
+      main_query_begin		固定值
+       project_op_begin		固定值
+        table_rpc_scan_op_begin		固定值
+         limit_op_begin		固定值
+          rpc_scan_op_begin		固定值
+          rpc_scan_op_end		固定值
+         limit_op_end		固定值
+        table_rpc_scan_op_end	read_method:"SCAN", table_id:65533, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+       project_op_end		固定值
+      main_query_end		固定值
+     result_set_end		固定值
+     send_ds_scan_begin	scan_range:"table_id:6,(MIN; MAX]"	固定值
+     send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+process_execute_stmt_end		固定值
+INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-22 12:00:00', TRUE, b'1', '{"key": "value"}'),
+(2,'Bob', 25, 180.30, '1997-10-22', 'Consectetur adipiscing elit', '2024-03-22 12:00:00', FALSE, b'0', '{"name": "Bob", "age": 25}');
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:17, receive_ts:1766585315497812	固定值
+do_com_query	stmt:"INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-22 12:00:00', TRUE, b'1', '{"key": "value"}'),
+(2,'Bob', 25, 180.30, '1997-10-22', 'Consectetur adipiscing elit', '2024-03-22 12:00:00', FALSE, b'0', '{"name": "Bob", "age": 25}')", stmt_len:393	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   ts_executor_op_begin		固定值
+    values_op_begin		固定值
+     table_rpc_scan_op_begin		固定值
+      rpc_scan_op_begin		固定值
+       send_ds_get_begin	table_id:3004	固定值
+       send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       add_ds_result	row_count:2, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+      rpc_scan_op_end		固定值
+     table_rpc_scan_op_end	read_method:"GET", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+    values_op_end		固定值
+    expr_values_op_begin		固定值
+    expr_values_op_end		固定值
+    send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+    send_ts_plan_end		固定值
+   ts_executor_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice';
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:11, receive_ts:1766585315510567	固定值
+do_com_query	stmt:"UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice'", stmt_len:146	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   loop_control_op_begin		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+     main_query_end		固定值
+    result_set_end		固定值
+    ts_executor_op_begin		固定值
+     fill_values_op_begin		固定值
+      project_op_begin		固定值
+       table_rpc_scan_op_begin		固定值
+        limit_op_begin		固定值
+         rpc_scan_op_begin		固定值
+         rpc_scan_op_end		固定值
+        limit_op_end		固定值
+       table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+      project_op_end		固定值
+      expr_values_op_begin		固定值
+      expr_values_op_end		固定值
+      calcuter_begin		固定值
+       send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+       send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_begin		固定值
+        add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_end		固定值
+      calcuter_end		固定值
+     fill_values_op_end		固定值
+     send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+     send_ts_plan_end		固定值
+    ts_executor_op_end		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+      send_ts_end_trans_begin	trans_id:30294, ts_ip:"192.168.16.102:18700@0"	固定值
+      send_ts_end_trans_end		固定值
+     main_query_end		固定值
+    result_set_end		固定值
+   loop_control_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+DELETE FROM complex_table WHERE name = 'Bob';
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:13, receive_ts:1766585315524755	固定值
+do_com_query	stmt:"DELETE FROM complex_table WHERE name = 'Bob'", stmt_len:44	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   loop_control_op_begin		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+     main_query_end		固定值
+    result_set_end		固定值
+    ts_executor_op_begin		固定值
+     fill_values_op_begin		固定值
+      project_op_begin		固定值
+       table_rpc_scan_op_begin		固定值
+        limit_op_begin		固定值
+         rpc_scan_op_begin		固定值
+         rpc_scan_op_end		固定值
+        limit_op_end		固定值
+       table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+      project_op_end		固定值
+      expr_values_op_begin		固定值
+      expr_values_op_end		固定值
+      calcuter_begin		固定值
+       send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+       send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_begin		固定值
+        add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_end		固定值
+      calcuter_end		固定值
+     fill_values_op_end		固定值
+     send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+     send_ts_plan_end		固定值
+    ts_executor_op_end		固定值
+    parse_begin		固定值
+     resolve_begin		固定值
+     resolve_end		固定值
+    parse_end		固定值
+    transform_begin		固定值
+    transform_end		固定值
+    result_set_begin		固定值
+     main_query_begin		固定值
+      send_ts_end_trans_begin	trans_id:15294, ts_ip:"192.168.16.102:18700@0"	固定值
+      send_ts_end_trans_end		固定值
+     main_query_end		固定值
+    result_set_end		固定值
+   loop_control_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+SELECT * FROM complex_table;
+id	name	age	height	birthdate	profile_text	creation_timestamp	is_employed	bit_data	json_data
+1	Alice	30	175.25	1992-05-15	New profile text	2024-03-22 12:00:00.000000	1	 	{"updated": true}
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:19, receive_ts:1766585315535930	固定值
+do_com_query	stmt:"SELECT * FROM complex_table", stmt_len:27	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+ parse_begin		固定值
+  resolve_begin		固定值
+  resolve_end		固定值
+ parse_end		固定值
+ transform_begin		固定值
+ transform_end		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:19, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:19,[int:3004,extend:min,extend:min,extend:min; int:3004,extend:max,extend:max,extend:max]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+sql_result_set_end		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+truncate table complex_table;
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:17, receive_ts:1766585315541556	固定值
+do_com_query	stmt:"truncate table complex_table", stmt_len:28	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+begin;
+INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-30 12:00:00', TRUE, b'1', '{"key": "value"}');
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:18, receive_ts:1766585315557853	固定值
+do_com_query	stmt:"INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-30 12:00:00', TRUE, b'1', '{"key": "value"}')", stmt_len:259	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   ts_executor_op_begin		固定值
+    values_op_begin		固定值
+     table_rpc_scan_op_begin		固定值
+      rpc_scan_op_begin		固定值
+       send_ds_get_begin	table_id:3004	固定值
+       send_ds_get_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       add_ds_result	row_count:1, sub_request_count:0, ds_ip:"192.168.16.102:18600@-1"	固定值
+      rpc_scan_op_end		固定值
+     table_rpc_scan_op_end	read_method:"GET", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+    values_op_end		固定值
+    expr_values_op_begin		固定值
+    expr_values_op_end		固定值
+    send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+    send_ts_plan_end		固定值
+   ts_executor_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice';
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:16, receive_ts:1766585315562311	固定值
+do_com_query	stmt:"UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice'", stmt_len:146	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   loop_control_op_begin		固定值
+    ts_executor_op_begin		固定值
+     fill_values_op_begin		固定值
+      project_op_begin		固定值
+       table_rpc_scan_op_begin		固定值
+        limit_op_begin		固定值
+         rpc_scan_op_begin		固定值
+         rpc_scan_op_end		固定值
+        limit_op_end		固定值
+       table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+      project_op_end		固定值
+      expr_values_op_begin		固定值
+      expr_values_op_end		固定值
+      calcuter_begin		固定值
+       send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+       send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_begin		固定值
+        add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_end		固定值
+      calcuter_end		固定值
+     fill_values_op_end		固定值
+     send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+     send_ts_plan_end		固定值
+    ts_executor_op_end		固定值
+   loop_control_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+DELETE FROM complex_table WHERE name = 'Alice';
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:17, receive_ts:1766585315568268	固定值
+do_com_query	stmt:"DELETE FROM complex_table WHERE name = 'Alice'", stmt_len:46	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   loop_control_op_begin		固定值
+    ts_executor_op_begin		固定值
+     fill_values_op_begin		固定值
+      project_op_begin		固定值
+       table_rpc_scan_op_begin		固定值
+        limit_op_begin		固定值
+         rpc_scan_op_begin		固定值
+         rpc_scan_op_end		固定值
+        limit_op_end		固定值
+       table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+      project_op_end		固定值
+      expr_values_op_begin		固定值
+      expr_values_op_end		固定值
+      calcuter_begin		固定值
+       send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+       send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_begin		固定值
+        add_ds_result	row_count:1, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+       process_rpc_event_end		固定值
+      calcuter_end		固定值
+     fill_values_op_end		固定值
+     send_ts_plan_begin	ts_ip:"192.168.16.102:18700@0"	固定值
+     send_ts_plan_end		固定值
+    ts_executor_op_end		固定值
+   loop_control_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+COMMIT;
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:16, receive_ts:1766585315573681	固定值
+do_com_query	stmt:"COMMIT", stmt_len:6	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   send_ts_end_trans_begin	trans_id:295, ts_ip:"192.168.16.102:18700@0"	固定值
+   send_ts_end_trans_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+process_execute_stmt_end		固定值
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+ALTER SYSTEM SET enable_cache_trace_log=false server_type=yaodatasvr;
+ALTER SYSTEM SET enable_cache_trace_log=false server_type=yaotxnsvr;
+set yao_enable_trace_log=true;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	false
+yaotxnsvr	enable_cache_trace_log	false
+yaotxnsvr	enable_cache_trace_log	false
+yaosqlsvr	slow_query_threshold	0ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+select /*+TRACE_LOG*/ * from complex_table;
+id	name	age	height	birthdate	profile_text	creation_timestamp	is_employed	bit_data	json_data
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:22, receive_ts:1766585320686531	固定值
+do_com_query	stmt:"select /*+TRACE_LOG*/ * from complex_table", stmt_len:42	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+ALTER SYSTEM SET enable_cache_trace_log=true server_type=yaodatasvr;
+ALTER SYSTEM SET enable_cache_trace_log=true server_type=yaotxnsvr;
+set yao_enable_trace_log=true;
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+svr_type	name	value
+yaodatasvr	enable_cache_trace_log	true
+yaotxnsvr	enable_cache_trace_log	true
+yaotxnsvr	enable_cache_trace_log	true
+yaosqlsvr	slow_query_threshold	0ms
+yaodatasvr	slow_query_warn_time	500ms
+show variables like '%yao_enable_trace_log%';
+variable_name	value
+yao_enable_trace_log	1
+select /*+TRACE_LOG*/ * from complex_table;
+id	name	age	height	birthdate	profile_text	creation_timestamp	is_employed	bit_data	json_data
+show trace;
+title	key_value	time
+in_queue_time	queue_wait_us:13, receive_ts:1766585325795153	固定值
+do_com_query	stmt:"select /*+TRACE_LOG*/ * from complex_table", stmt_len:42	固定值
+parse_begin		固定值
+ resolve_begin		固定值
+ resolve_end		固定值
+parse_end		固定值
+transform_begin		固定值
+transform_end		固定值
+process_execute_stmt_begin		固定值
+ result_set_begin		固定值
+  main_query_begin		固定值
+   project_op_begin		固定值
+    table_rpc_scan_op_begin		固定值
+     limit_op_begin		固定值
+      rpc_scan_op_begin		固定值
+      rpc_scan_op_end		固定值
+     limit_op_end		固定值
+    table_rpc_scan_op_end	read_method:"SCAN", table_id:3004, is_use_index:"FALSE", index_table_id:18446744073709551615	固定值
+   project_op_end		固定值
+  main_query_end		固定值
+ result_set_end		固定值
+ send_ds_scan_begin	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+ send_ds_scan_end	ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_begin		固定值
+  add_ds_result	row_count:0, sub_request_count:1, ds_ip:"192.168.16.102:18600@-1"	固定值
+ process_rpc_event_end		固定值
+process_execute_stmt_end		固定值
+ds_process_request_begin		固定值
+ ds_sql_scan_begin		固定值
+  deserialize_param_begin		固定值
+  deserialize_param_end	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+  sql_query_service_begin		固定值
+   tablet_read_op_begin		固定值
+    limit_op_begin		固定值
+     tablet_scan_fuse_op_begin		固定值
+      multi_ts_scan_begin		固定值
+       ts_scan_op_begin		固定值
+        send_ts_scan_begin	scan_range:"table_id:3004,(MIN; MAX]", ts_ip:"192.168.16.102:18700@0"	固定值
+        send_ts_scan_end		固定值
+       ts_scan_op_end		固定值
+      multi_ts_scan_end		固定值
+     tablet_scan_fuse_op_end		固定值
+    limit_op_end		固定值
+   tablet_read_op_end		固定值
+  sql_query_service_end		固定值
+  fill_data_begin		固定值
+  fill_data_end		固定值
+  send_response	session_id:0	固定值
+ ds_sql_scan_end		固定值
+ds_process_request_end		固定值
+thandle_scan_trans_begin		固定值
+ handle_scan_trans_begin		固定值
+  deserialize_param_begin		固定值
+  deserialize_param_end	scan_range:"table_id:3004,(MIN; MAX]"	固定值
+  scan_from_table_mgr_begin		固定值
+  scan_from_table_mgr_end		固定值
+ handle_scan_trans_end		固定值
+thandle_scan_trans_end		固定值

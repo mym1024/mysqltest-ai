@@ -1,0 +1,75 @@
+###########################################################################################
+###1.测试功能点：指定不同分区规则表使用semi_join多表关联查询
+##
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：xxx
+###5.编写/修改人：zhuyiying
+###6.编写/修改日期：2020-01-03
+###7.其它（选填）：case格式规范化修改
+###
+##
+#
+###########################################################################################
+
+##########################################################################################
+
+sleep 5;
+--disable_warnings
+drop table if exists persons,orders,t2;
+--error 5077
+drop partition function h1;
+--enable_warnings
+
+
+create table persons (id_p int primary key, lastname varchar(20), firstname varchar(20), address varchar(20), city varchar(20)) partition by list(id_p)(partition per1 values in (1,3),partition per2 values in(2,4));
+
+--real_sleep 5
+insert into persons values(1,'a','a1','a2', 'a3');
+insert into persons values(2,'b','b1','b2', 'b3');
+insert into persons values(3,'c','c1','c2', 'c3');
+
+
+create table orders(id_o int primary key, orderno int, id_p int) partition by range(id_o) (partition a1 values less than(3),partition a2 values less than(7),partition a3 values less than maxvalue);
+--real_sleep 5
+insert into orders values (1,1111,3);
+insert into orders values (2,2222,3);
+insert into orders values (3,3333,1);
+insert into orders values (4,4444,1);
+insert into orders values (5,5555,65);
+
+create hash partition function h1(x)'x+4';
+create table t2 (
+  id int,
+  category int,
+  county int,
+  state int,
+  phones int,
+  nophones int,
+  primary key (id)
+) partition by(ta2,h1,id);
+--real_sleep 5
+insert into t2 values (3,2,11,12,5400,7800);
+insert into t2 values (4,2,25,12,6500,11200);
+insert into t2 values (5,1,37,6,10000,12000);
+select /*+ join(merge_join)*/ * from persons,orders where  persons.id_p=orders.id_p;
+select /*+ join(merge_join)*/ * from persons,orders,t2 where  persons.id_p=orders.id_p and persons.id_p=t2.id;
+select /*+ join(merge_join)*/ * from persons left join orders on persons.id_p=orders.id_p where persons.id_p=orders.id_o;
+select /*+ join(merge_join,merge_join)*/ * from persons left join orders on persons.id_p=orders.id_p right join t2 on t2.id=persons.id_p where persons.id_p=t2.id;
+select /*+ join(merge_join,merge_join)*/ * from persons full join orders on persons.id_p=orders.id_p left join t2 on t2.id=persons.id_p where persons.id_p=t2.id;
+
+select /*+ join(si)*/ * from persons,orders where  persons.id_p=orders.id_p;
+select /*+ join(si)*/ * from persons,orders,t2 where  persons.id_p=orders.id_p and persons.id_p=t2.id;
+select /*+ join(si)*/ * from persons left join orders on persons.id_p=orders.id_p where persons.id_p=orders.id_o;
+--error 5205
+select /*+ join(si,si)*/ * from persons left join orders on persons.id_p=orders.id_p right join t2 on t2.id=persons.id_p where persons.id_p=t2.id;
+select /*+ join(si,si)*/ * from persons full join orders on persons.id_p=orders.id_p left join t2 on t2.id=persons.id_p where persons.id_p=t2.id;
+
+drop table orders,persons,t2;
+drop partition function h1;
+###///新添测试项///###
+###2-x:*(新添测试项说明)
+#do sql
+##########################################################################################

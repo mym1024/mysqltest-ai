@@ -1,0 +1,112 @@
+####################################必填######################################################
+###1.测试功能点：指定分区规则，验证错误信息
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+--disable_warnings
+drop table if exists t1; 
+--enable_warnings
+
+
+###2-1:指定hash分区
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+--echo test connection close
+--echo #########################
+connection conn1;
+--real_sleep 3
+disconnect conn1;
+connection conn2;
+--real_sleep 3
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(a int primary key,b int)partition by(hs,h,a);
+--real_sleep 3
+select * from t1;
+drop table t1;
+--echo #########################
+
+
+###2-2:不指定分区
+--echo test table exists
+--echo #########################
+connection conn2;
+create table t1(a int primary key,b int);
+--real_sleep 5
+--error 5025
+create table t1(a int primary key,b int);
+--real_sleep 5
+drop table t1;
+--echo #########################
+
+--echo test table does not exists
+--echo #########################
+select * from t1;
+drop table t1;
+--echo #########################
+
+--echo test use keyword
+--echo #########################
+create table t1(int int);
+--echo #########################
+
+--real_sleep 5
+
+--echo test no primary key
+--echo #########################
+create table t1(a int);
+--real_sleep 5
+insert into t1(a) values(NULL);
+--real_sleep 5
+insert into t1(b) values(1);
+--real_sleep 5
+drop table t1;
+--echo #########################
+--real_sleep 5
+
+--echo test primary key null
+--echo #########################
+create table t1(a int primary key,b int);
+--real_sleep 5
+insert into t1(a) values(NULL);
+--real_sleep 5
+insert into t1 values(NULL,1);
+--real_sleep 5
+insert into t1(b) values(1);
+--real_sleep 5
+drop table t1;
+
+--real_sleep 5
+
+create table t1(a int,b int,primary key(a,b),c int);
+--real_sleep 5
+insert into t1(a,b) values(NULL,1);
+--real_sleep 5
+insert into t1(a,b) values(1,NULL);
+--real_sleep 5
+drop table t1;
+--echo #########################
+
+--echo test syntax err
+--echo #########################
+create ;
+--echo #########################
+disconnect conn2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

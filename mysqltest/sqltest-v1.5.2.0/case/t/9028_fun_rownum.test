@@ -1,0 +1,407 @@
+####################################必填######################################################
+###1.测试功能点：rownum、cume_dist、dense_rank、ntile、percent_rank、rank窗口函数
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+###2-1：rownum窗口函数
+#do sql
+drop table if exists t;
+create table if not exists t(c1 int primary key, c2 varchar2(30));
+--real_sleep 5
+insert into t values(11,'张一');
+insert into t values(22,'李二');
+insert into t values(33,'王三');
+insert into t values(44,'赵四');
+insert into t values(55,'孙五');
+insert into t values(66,'老刘');
+insert into t values(77,'老七');
+--real_sleep 5
+select * from t;
+select rownum,c1,c2 from t;
+--real_sleep 3
+select rownum,c1,c2 from (select * from t order by c2);
+--error 2
+select * from (select A.*, rownum rn from (select c1,c2 from t order by c2 desc) A where rn<=5) where rn>=2;
+select * from(select A.*,ROWNUM RN from(select c1,c2 from t)A where ROWNUM<5) where RN>1;
+select *,rownum from t where rownum>1;
+--error 2
+select *,rownum RN from t where RN>1;
+#查看表中的第一条记录
+select * from t where rownum=1;
+#查看表中前2条记录
+select * from t where rownum<=2;
+#查看表中第二条记录
+select * from ( select rownum as rn, tmp.* from t tmp where rownum<=2 ) where rn=2 ;
+drop table if exists t;
+
+
+#hash分区
+
+create hash partition function h(x) 'x+1';
+drop table if exists t;
+create table if not exists t(c1 int primary key, c2 varchar2(30)) partition by(hs,h,c1);
+--real_sleep 5
+insert into t values(11,'张一');
+insert into t values(22,'李二');
+insert into t values(33,'王三');
+insert into t values(44,'赵四');
+insert into t values(55,'孙五');
+insert into t values(66,'老刘');
+insert into t values(77,'老七');
+--real_sleep 5
+select * from t;
+show partition groups;
+select rownum,c1,c2 from t;
+--real_sleep 3
+select rownum,c1,c2 from (select * from t order by c2);
+--error 2
+select * from (select A.*, rownum rn from (select c1,c2 from t order by c2 desc) A where rn<=5) where rn>=2;
+select * from(select A.*,ROWNUM RN from(select c1,c2 from t)A where ROWNUM<5) where RN>1;
+select *,rownum from t where rownum>1;
+--error 2
+select *,rownum RN from t where RN>1;
+#查看表中的第一条记录
+select * from t where rownum=1;
+#查看表中前2条记录
+select * from t where rownum<=2;
+#查看表中第二条记录
+select * from ( select rownum as rn, tmp.* from t tmp where rownum<=2 ) where rn=2 ;
+drop table if exists t;
+
+
+
+###enum分区
+
+create enum partition function e1(x) '[(1),(2),(3),(4),(5)]';
+drop table if exists t;
+create table if not exists t(c1 int primary key, c2 varchar2(30)) partition by(em,e1,c1);
+--real_sleep 5
+insert into t values(1,'张一');
+insert into t values(2,'李二');
+insert into t values(3,'王三');
+insert into t values(4,'赵四');
+insert into t values(5,'孙五');
+--error 5702
+insert into t values(6,'老刘');
+--error 5702
+insert into t values(7,'老七');
+--real_sleep 5
+select * from t;
+show partition groups;
+select rownum,c1,c2 from t;
+--real_sleep 3
+select rownum,c1,c2 from (select * from t order by c2);
+--error 2
+select * from (select A.*, rownum rn from (select c1,c2 from t order by c2 desc) A where rn<=5) where rn>=2;
+select * from(select A.*,ROWNUM RN from(select c1,c2 from t)A where ROWNUM<5) where RN>1;
+select *,rownum from t where rownum>1;
+--error 2
+select *,rownum RN from t where RN>1;
+#查看表中的第一条记录
+select * from t where rownum=1;
+#查看表中前2条记录
+select * from t where rownum<=2;
+#查看表中第二条记录
+select * from ( select rownum as rn, tmp.* from t tmp where rownum<=2 ) where rn=2 ;
+drop table if exists t;
+
+
+
+###list分区
+
+drop table if exists t;
+create table if not exists t(c1 int primary key, c2 varchar2(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+--real_sleep 5
+insert into t values(1,'张一');
+insert into t values(2,'李二');
+insert into t values(3,'王三');
+insert into t values(4,'赵四');
+insert into t values(5,'孙五');
+--error 5702
+insert into t values(6,'老刘');
+--error 5702
+insert into t values(7,'老七');
+--real_sleep 5
+select * from t;
+show partition groups;
+select rownum,c1,c2 from t;
+--real_sleep 3
+select rownum,c1,c2 from (select * from t order by c2);
+--error 2
+select * from (select A.*, rownum rn from (select c1,c2 from t order by c2 desc) A where rn<=5) where rn>=2;
+select * from(select A.*,ROWNUM RN from(select c1,c2 from t)A where ROWNUM<5) where RN>1;
+select *,rownum from t where rownum>1;
+--error 2
+select *,rownum RN from t where RN>1;
+#查看表中的第一条记录
+select * from t where rownum=1;
+#查看表中前2条记录
+select * from t where rownum<=2;
+#查看表中第二条记录
+select * from ( select rownum as rn, tmp.* from t tmp where rownum<=2 ) where rn=2 ;
+drop table if exists t;
+
+
+###range分区
+
+drop table if exists t;
+create table if not exists t(c1 int primary key, c2 varchar2(30)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+--real_sleep 5
+insert into t values(11,'张一');
+insert into t values(22,'李二');
+insert into t values(33,'王三');
+insert into t values(44,'赵四');
+insert into t values(55,'孙五');
+insert into t values(66,'老刘');
+insert into t values(77,'老七');
+--real_sleep 5
+select * from t;
+show partition groups;
+select rownum,c1,c2 from t;
+--real_sleep 3
+select rownum,c1,c2 from (select * from t order by c2);
+--error 2
+select * from (select A.*, rownum rn from (select c1,c2 from t order by c2 desc) A where rn<=5) where rn>=2;
+select * from(select A.*,ROWNUM RN from(select c1,c2 from t)A where ROWNUM<5) where RN>1;
+select *,rownum from t where rownum>1;
+--error 2
+select *,rownum RN from t where RN>1;
+#查看表中的第一条记录
+select * from t where rownum=1;
+#查看表中前2条记录
+select * from t where rownum<=2;
+#查看表中第二条记录
+select * from ( select rownum as rn, tmp.* from t tmp where rownum<=2 ) where rn=2 ;
+#函数名大写
+select ROWNUM,c1,c2 from t;
+drop table if exists t;
+
+###2-2：cume_dist窗口函数
+--disable_warnings
+drop table if exists t1,t2;
+create table t1(c1 int,c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp);
+create table t2(c1 int primary key,c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp);
+--real_sleep 1
+
+insert into t1 values(1,10,1,'aaa','2007-10-01 12:00:00'),(1,11,2,'bbb','2008-10-01 12:00:00'),(1,12,3,'ccc','2009-10-01 12:00:00'),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,10,1,'bbb','2007-10-01 12:00:00'),(4,10,2,'ccc','2007-10-01 12:00:00'),(5,12,4.5,'aaa','2007-10-01 12:00:00'),(6,12,6,'bbb','2007-10-01 12:00:00'),(7,14,6,'ccc','2008-10-01 12:00:00'),
+(8,12,4.5,'fff','2007-10-01 12:00:00'),(9,12,6,'eee','2007-10-01 12:00:00'),(10,14,21,'kkk','2007-10-01 12:00:00');
+--real_sleep 3
+insert into t2 values(1,10,1,'aaa',NULL),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,12,1,'aaa','2007-10-01 12:00:00'),(4,12,1,'ddd','2000-10-01 12:00:00'),(5,10,0,'ddd','2003-10-01 12:00:00'),(6,15,0,'aaa',NULL),(7,16,0,'bbb','2011-10-01 12:00:00'),(8,9,2,'fff','2023-10-01 12:00:00'),(9,1001,2,'hhh',NULL),(10,0,4,NULL,'2023-10-01 12:00:00');
+
+#基础分组排序使用
+select *,cume_dist() over() from t1;
+select *,cume_dist() over(order by c1)  from t1;
+select *,cume_dist() over(partition by c1 )  from t1;
+select *,cume_dist() over(partition by c1,c4 order by c2)  from t1;
+select *,cume_dist() over(partition by c5 order by c1,c2)  from t1;
+#降序
+select *,cume_dist() over(partition by c1 order by c5 desc)  from t1;
+#null值
+select *,cume_dist() over(partition by c5 order by c1,c2)  from t2;
+select *,cume_dist() over(partition by c2 order by c5)  from t2;
+
+#组合sql查询
+select *,cume_dist() over(partition by c5 order by c1,c2 desc) as rk from t1 order by rk limit 5;
+select c2+c1,c5,cume_dist() over(partition by c2+c1 order by c5) from t1;
+select c4,c1,substring(c5,2,4),cume_dist() over(partition by c4 order by substring(c5,2,4)) from t1;
+select *,rank() over(partition by c5 order by c1,c2 desc) as rk ,cume_dist() over(partition by c5 order by c1,c2 desc) as cd from t1;
+#使用prepare
+prepare stmt from select *,cume_dist() over(order by ?) from t1;
+set @a='c1';
+execute stmt using @a;
+
+###2-3：dense_rank窗口函数
+#基础分组排序使用
+select *,dense_rank() over() from t1;
+select *,dense_rank() over(order by c2)  from t1;
+select *,dense_rank() over(partition by c2)  from t1;
+select *,dense_rank() over(partition by c1,c4 order by c2)  from t1;
+select *,dense_rank() over(partition by c5 order by c1,c2)  from t1;
+#降序排列
+select *,dense_rank() over(partition by c1 order by c5 desc)  from t1;
+#null值
+select *,dense_rank() over(partition by c5 order by c1,c2)  from t2;
+select *,dense_rank() over(partition by c2 order by c5)  from t2;
+
+##组合查询
+select *,dense_rank() over(partition by c5 order by c1,c2 desc) as rk from t1 order by rk limit 5;
+select c2*2+1,dense_rank() over(partition by c2*2+1) from t1;
+select substring(c5,1,3),dense_rank() over(partition by substring(c5,1,3) order by c2) from t1;
+select *,dense_rank() over( order by c1,c2 desc) as drk ,percent_rank() over(partition by c5 order by c1,c2 desc) as cd from t1;
+#使用prepare
+prepare stmt from select *,dense_rank() over(order by ?) from t1;
+set @a='c1';
+execute stmt using @a;
+
+###2-4：ntile窗口函数
+#基础分组排序使用
+select *,ntile(4) over() from t1;
+select *,ntile(4) over(order by c3)  from t1;
+select *,ntile(4) over(partition by c3 )  from t1;
+select *,ntile(4) over(partition by c4 order by c1,c5)  from t1;
+select *,ntile(4) over(partition by c1,c4 order by c2)  from t1;
+#降序
+select *,ntile(4) over(partition by c1 order by c5 desc)  from t1;
+#null值
+select *,ntile(4) over(partition by c5 order by c1,c2)  from t2;
+select *,ntile(4) over(partition by c2 order by c5)  from t2;
+
+##组合sql查询
+select *,ntile(4) over(partition by c5 order by c1,c2 desc) as rk from t1 order by rk;
+select c2+c1,c5,ntile(4) over(partition by c2+c1 order by c5) from t1;
+select c4,c1,substring(c5,1,3),ntile(4) over(partition by c4 order by substring(c5,1,3)) from t1;
+select *,ntile(4) over() as drk ,dense_rank() over(partition by c5 order by c1) as cd from t1;
+
+##参数为不同类型参数为小数
+select *,ntile(1+1) over(partition by c5 order by c1,c2 desc)  from t1;
+--error 4003
+select *,ntile(0) over(partition by c5 order by c1,c2 desc)  from t1;
+#参数是临时变量
+set @a=3;
+select *,ntile(@a) over()from t1;
+set @a=0;
+--error 4003
+select *,ntile(@a+1.5) over()from t1;
+#参数为占位符
+prepare stmt from select *,ntile(?) over()from t1;
+set @a = 3;
+execute stmt using @a;
+prepare stmt from select *,ntile(?) over()from t1;
+set @a = 'aaa';
+--error 4003
+execute stmt using @a;
+prepare stmt from select *,ntile(3) over(order by ?) from t1; 
+execute stmt using @a;
+
+###2-5：percent_rank窗口函数
+#基础分组排序使用
+select *,percent_rank() over() from t1;
+select *,percent_rank() over(order by c4)  from t1;
+select *,percent_rank() over(partition by c4 )  from t1;
+select *,percent_rank() over(partition by c4 order by c1,c5)  from t1;
+select *,percent_rank() over(partition by c1,c4 order by c2)  from t1;
+#降序
+select *,percent_rank() over(partition by c1 order by c5 desc)  from t1;
+#null值
+select *,percent_rank() over(partition by c5 order by c1,c2)  from t2;
+select *,percent_rank() over(partition by c2 order by c5)  from t2;
+
+##组合查询
+select *,percent_rank() over(partition by c4 order by c1,c2 desc) as rk from t1 order by rk;
+select c2+c1,c5,percent_rank() over(partition by c2+c1 order by c5) from t1;
+select c4,c1,substring(c5,1,3),percent_rank() over(partition by c4 order by substring(c5,1,3)) from t1;
+select *,percent_rank() over(partition by c4 ) as prk ,ntile(4) over(partition by c5 order by c1) as nt from t1;
+#使用prepare
+prepare stmt from select *,percent_rank() over(order by ?) from t1;
+set @a='c1';
+execute stmt using @a;
+
+###2-6：rank窗口函数
+#基础分组排序使用
+select *,rank() over() from t1;
+select *,rank() over(order by c5)  from t1;
+select *,rank() over(partition by c5 )  from t1;
+select *,rank() over(partition by c1,c4 order by c2)  from t1;
+select *,rank() over(partition by c4 order by c2,c1)  from t1;
+#降序排列
+select *,rank() over(partition by c1 order by c5 desc)  from t1;
+#null值
+select *,rank() over(partition by c5 order by c1,c2)  from t2;
+select *,rank() over(partition by c2 order by c5)  from t2;
+
+##组合查询
+select *,rank() over(partition by c5 order by c1,c2 desc) as rk from t1 order by rk limit 5;
+select *,rank() over(partition by c2*2+1) from t1;
+select substring(c5,1,3),rank() over(partition by substring(c5,1,3) order by c2) from t1;
+select *,rank() over(partition by c1 order by c2 desc) as rk ,percent_rank() over(partition by c5 order by c1) as prk from t1;
+#使用prepare
+prepare stmt from select *,rank() over(order by ?) from t1;
+set @a='c1';
+execute stmt using @a;
+
+###2-7综合多种窗口查询
+create table t3(c1 int, c2 int);
+insert into t3 VALUES (10, NULL),(10, 100000),(10, 60000),(10, 60000),(10, 70000),(20, 80000),(20, 65000),(20, 65000),(30, 300000),(30, 70000),(NULL, 75000);
+--echo with partitions
+select c1, c2,rank() over(partition by c1 order by c2 desc) as rnk,dense_rank() over(partition by c1 order by c2 desc) as dense,ntile(4) over(partition by c1 order by c2 desc) as ntil,cume_dist() over(partition by c1 order by c2 desc) as cume,percent_rank() over(partition by c1 order by c2 desc) as percent from t3 order by c1, c2 desc, ntil;
+--echo just default partition
+select c1, c2,rank() over (order by c2 desc) as rnk,dense_rank() over (order by c2 desc) as dense,ntile(4) over (order by c2 desc) as ntil,cume_dist() over (order by c2 desc) as cume,percent_rank() over (order by c2 desc) as percent from t3 order by c2 desc, c1, ntil;
+
+drop table t1,t2,t3;
+
+###2-8不同分区下窗口函数
+drop table if exists t3,t4,t5,t6;
+drop partition function h,e1;
+
+#hash分区
+--sleep 2 
+create hash partition function h(x) 'x+1';
+create table t3(c1 int primary key, c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp) partition by(hs,h,c1);
+--sleep 2
+insert into t3 values(1,10,1,'aaa','2003-10-01 12:00:00'),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,12,1,'aaa','2007-10-01 12:00:00'),(4,12,1,'ddd','2000-10-01 12:00:00'),(5,10,0,'ddd','2003-10-01 12:00:00');
+show partition groups;
+--sleep 2
+select *,dense_rank() over(partition by c1,c4 order by c2)  from t3;
+select *,cume_dist() over(partition by c1 order by c5)  from t3;
+select *,ntile(4) over(partition by c4 order by c1,c5)  from t3;
+select *,rank() over(partition by c1,c4 order by c2)  from t3;
+select *,percent_rank() over(partition by c4 order by c1,c5)  from t3;
+drop table t3;
+
+#enum分区
+create enum partition function e1(x) '[(1),(2),(3),(4),(5)]';
+create table t4(c1 int primary key, c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp) partition by(em,e1,c1);
+--sleep 2
+insert into t4 values(1,10,1,'aaa',NULL),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,12,1,'aaa','2007-10-01 12:00:00'),(4,12,1,'ddd','2000-10-01 12:00:00'),(5,10,0,'ddd','2003-10-01 12:00:00');
+show partition groups;
+--sleep 2
+select *,dense_rank() over(partition by c5 order by c2)  from t4;
+select *,cume_dist() over(partition by c1 order by c5)  from t4;
+select *,ntile(4) over(partition by c4 order by c1,c5)  from t4;
+select *,rank() over(partition by c1,c4 order by c2)  from t4;
+select *,percent_rank() over(partition by c4 order by c1,c5)  from t4;
+drop table t4;
+
+#list分区
+create table t5(c1 int primary key, c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+--sleep 2
+insert into t5 values(1,10,1,'aaa',NULL),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,12,1,'aaa','2007-10-01 12:00:00'),(4,12,1,'ddd','2000-10-01 12:00:00'),(5,10,0,'ddd','2003-10-01 12:00:00');
+show partition groups;
+--sleep 2
+select *,dense_rank() over(partition by c5 order by c2)  from t5;
+select *,cume_dist() over(partition by c1 order by c5)  from t5;
+select *,ntile(4) over(partition by c4 order by c1,c5)  from t5;
+select *,rank() over(partition by c1,c4 order by c2)  from t5;
+select *,percent_rank() over(partition by c4 order by c1,c5)  from t5;
+drop table t5;
+
+#range分区
+create table t6(c1 int primary key, c2 decimal(10,5),c3 float,c4 varchar(32),c5 timestamp) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+--sleep 2
+insert into t6 values(1,10,1,'aaa',NULL),(2,10,1,'aaa','2007-10-01 12:00:00'),(3,12,1,'aaa','2007-10-01 12:00:00'),(4,12,1,'ddd','2000-10-01 12:00:00'),(5,10,0,'ddd','2003-10-01 12:00:00');
+show partition groups;
+--sleep 2
+select *,dense_rank() over(partition by c1,c4 order by c2)  from t6;
+select *,cume_dist() over(partition by c1 order by c5)  from t6;
+select *,ntile(4) over(partition by c4 order by c1,c5)  from t6;
+select *,rank() over(partition by c1,c4 order by c2)  from t6;
+select *,percent_rank() over(partition by c4 order by c1,c5)  from t6;
+drop table t6;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

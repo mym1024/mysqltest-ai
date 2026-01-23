@@ -1,0 +1,126 @@
+show system tables;
+table_name
+__first_tablet_entry
+__all_all_column
+__all_join_info
+__all_sys_param
+__all_sys_stat
+__all_user
+__all_table_privilege
+__all_cluster
+__all_server
+__all_trigger_event
+__all_sys_config
+__all_sys_config_stat
+__all_client
+__all_ddl_operation
+__all_database
+__all_database_privilege
+__all_sequence
+__all_truncate_op
+__all_statistic_info
+__all_udi_monitor_list
+__all_view
+__all_procedure
+__all_trash
+__db_table_trash
+__all_white_ip
+__all_function
+__all_package
+__all_foreign_key
+__all_foreign_key_column
+__all_audit_rules
+__all_check_constraint
+__all_check_constraint_column
+__all_synonyms
+__all_load_data
+__all_spatial_reference_systems
+__all_trigger
+__all_mock_fk_parent_table
+__all_mock_fk_parent_table_column
+__all_tenant_config
+__all_partition_rules
+__all_table_rules
+__all_all_group
+__ts_session_info
+__all_cluster_stat_info
+__all_change_cluster_paxos
+__all_table_sub_rules
+__all_dblink
+__all_server_stat
+__all_server_session
+__all_statement
+__all_virtual_trace_log
+__all_virtual_tenant_status
+__all_cchecksum_info
+__index_process_info
+show databases;
+Database
+test
+trash
+yao
+create database cbase123;
+show databases;
+Database
+cbase123
+test
+trash
+yao
+using database cbase123;
+create database wangqinyuuuuuu;
+show databases;
+Database
+cbase123
+test
+trash
+wangqinyuuuuuu
+yao
+using database wangqinyuuuuuu;
+create database namenamenamenam;
+show databases;
+Database
+cbase123
+namenamenamenam
+test
+trash
+wangqinyuuuuuu
+yao
+using database namenamenamenam;
+create database cbasedb01234567890123456789012345678901234567890123456789012345;
+create database cbasedb012345678901234567890123456789012345678901234567890123456;
+ERROR HY000: YAO-2: database name length cannot be greater than 63
+show databases;
+Database
+cbase123
+cbasedb01234567890123456789012345678901234567890123456789012345
+namenamenamenam
+test
+trash
+wangqinyuuuuuu
+yao
+create database "WANGDB";
+show databases;
+Database
+cbase123
+cbasedb01234567890123456789012345678901234567890123456789012345
+namenamenamenam
+test
+trash
+WANGDB
+wangqinyuuuuuu
+yao
+using database "WANGDB";
+show databases;
+Database
+cbase123
+cbasedb01234567890123456789012345678901234567890123456789012345
+namenamenamenam
+test
+trash
+WANGDB
+wangqinyuuuuuu
+yao
+drop database cbase123;
+drop database wangqinyuuuuuu;
+drop database namenamenamenam;
+drop database "WANGDB";

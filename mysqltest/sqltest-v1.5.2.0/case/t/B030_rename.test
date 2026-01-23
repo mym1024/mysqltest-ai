@@ -1,0 +1,127 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：表名、列名重命名功能
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：790s
+###6.编写/修改人： qinjunjie
+###7.编写/修改日期：2019-11-12
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,m1,m2,n1,n2;
+--enable_warnings
+
+--disable_query_log
+--enable_query_log
+
+###2-1:
+#alter table t1 rename to t2 和rename table t1 to t2都能起到重命名作用
+create table t1(c1 int primary key,c2 int);
+alter table t1 rename to t2;
+--error 5019
+select * from t1;
+select * from t2;
+
+create table m1(c1 int primary key,c2 int);
+desc m1;
+rename table m1 to m2;
+--error 5019
+desc m1;
+desc m2;
+
+drop table if exists t1,t2,m1,m2;
+create table t1(c1 int primary key,c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+rename table t1 to t2;
+--error 5019
+desc t1;
+desc t2;
+insert into t2 values(4,4);
+
+rename table t2 to t1;
+select * from t1;
+--error 5019
+select * from t2;
+insert into t1 values(5,5);
+select * from t1;
+--error 5019
+select * from t2;
+drop table if exists t1,t2;
+
+create table n1(c1 int primary key,c2 int);
+create table n2(c1 int primary key,c2 int);
+insert into n1 values(1,1);
+insert into n2 values(1,1),(2,2);
+rename table n1 to n1_temp;
+rename table n2 to n1;
+rename table n1_temp to n2;
+select * from n1;
+select * from n2;
+drop table if exists n1,n2;
+
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+--error 5019
+rename table t1 to t2;
+--error 5019
+rename table t100 to t200;
+drop table if exists t1;
+
+create table t1(c1 int primary key,c2 int);
+--error 5002
+alter table t1 rename c1 to c3;
+desc t1;
+drop table if exists t1;
+
+create table t1(c1 int primary key,c2 int);
+desc t1;
+
+#主键的列名不能重命名，所以报5002错误
+--error 5002
+alter table t1 rename column c1 to c3;
+desc t1;
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+alter table t1 rename  c2 to c3;
+select * from t1;
+insert into t1 values(4,4);
+alter table t1 rename  c3 to c2;
+select * from t1;
+
+--error 5002
+#rename语句执行失败，后面的add语句不会执行
+alter table t1 rename c1 to c3,add c4 int;
+select * from t1;
+alter table t1 rename  c2 to c3;
+select * from t1;
+--error 5009
+alter table t1 rename  c200 to c300;
+drop table t1;
+
+create table t1(c1 int primary key,c2 int,c3 int);
+desc t1;
+--error 5002
+alter table t1 drop c2,rename c1 to c3;
+desc t1;
+drop table t1;
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

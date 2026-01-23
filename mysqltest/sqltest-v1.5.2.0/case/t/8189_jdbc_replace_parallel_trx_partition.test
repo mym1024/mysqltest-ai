@@ -1,0 +1,188 @@
+##############################################################################################
+###1.测试功能点：指定分区规则，通过prepare预执行replace语句
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-02
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+
+###2-1：指定分区规则，通过prepare预执行replace语句
+--echo case 1:two trx commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+drop table if exists t1;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(c0 int primary key ,c1 int)partition by(hs,h,c0);
+prepare stmt_r_1 from replace into t1 values(?,?),(?,?);
+prepare stmt_u_1 from update t1 set c1=? where c0=?;
+prepare stmt_d_1 from delete from t1 where c0=?;
+prepare stmt_s_1 from select c0,c1 from t1 where c0=? for update;
+prepare stmt_select_1 from select * from t1;
+set autocommit=0;
+set @a1=1;
+set @a2=2;
+set @b1=1;
+set @b2=2;
+execute stmt_r_1 using @a1,@b1,@a2,@b2;
+execute stmt_u_1 using @b2,@a1;
+execute stmt_d_1 using @a2;
+execute stmt_s_1 using @a1;
+execute stmt_s_1 using @a2;
+
+connection conn2;
+prepare stmt_r_2 from replace into t1 values(?,?),(?,?);
+prepare stmt_u_2 from update t1 set c1=? where c0=?;
+prepare stmt_d_2 from delete from t1 where c0=?;
+prepare stmt_s_2 from select c0,c1 from t1 where c0=? for update;
+prepare stmt_select_2 from select * from t1;
+set autocommit=0;
+set @a1=1;
+set @a2=3;
+set @b1=2;
+set @b2=3;
+--error 5048
+execute stmt_r_2 using @a1,@b1,@a2,@b2;
+--error 5049
+execute stmt_u_2 using @b2,@a1;
+execute stmt_d_2 using @a2;
+--error 5049
+execute stmt_s_2 using @a1;
+execute stmt_s_2 using @a2;
+
+connection conn1;
+commit;
+set autocommit=1;
+execute stmt_select_1;
+
+connection conn2;
+commit;
+--real_sleep 2
+set autocommit=1;
+--real_sleep 2
+execute stmt_select_2;
+
+disconnect conn1;
+disconnect conn2;
+
+--echo case2:1 rollback 2 commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+drop table if exists t1;
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(1)],[(3)],[(2)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)]';
+create table t2(c0 int primary key ,c1 int)partition by(em,e,c0);
+--real_sleep 5
+prepare stmt_r_1 from replace into t2 values(?,?),(?,?);
+prepare stmt_u_1 from update t2 set c1=? where c0=?;
+prepare stmt_d_1 from delete from t2 where c0=?;
+prepare stmt_s_1 from select c0,c1 from t2 where c0=? for update;
+prepare stmt_select_1 from select * from t2;
+set autocommit=0;
+set @a1=1;
+set @a2=2;
+set @b1=1;
+set @b2=2;
+execute stmt_r_1 using @a1,@b1,@a2,@b2;
+execute stmt_u_1 using @b2,@a1;
+execute stmt_d_1 using @a2;
+execute stmt_s_1 using @a1;
+execute stmt_s_1 using @a2;
+connection conn2;
+prepare stmt_r_2 from replace into t2 values(?,?),(?,?);
+prepare stmt_u_2 from update t2 set c1=? where c0=?;
+prepare stmt_d_2 from delete from t2 where c0=?;
+prepare stmt_s_2 from select c0,c1 from t2 where c0=? for update;
+prepare stmt_select_2 from select * from t2;
+set autocommit=0;
+set @a1=4;
+set @a2=3;
+set @b1=4;
+set @b2=3;
+execute stmt_r_2 using @a1,@b1,@a2,@b2;
+execute stmt_u_2 using @b2,@a1;
+execute stmt_d_2 using @a2;
+execute stmt_s_2 using @a1;
+execute stmt_s_2 using @a2;
+connection conn1;
+rollback;
+set autocommit=1;
+execute stmt_select_1;
+
+connection conn2;
+commit;
+set autocommit=1;
+execute stmt_select_2;
+
+disconnect conn1;
+disconnect conn2;
+
+--echo case2:1 rollback 2 rollback
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+drop table if exists t2;
+create table t3(c0 int primary key ,c1 int) partition by range(c0) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+--real_sleep 5
+prepare stmt_r_1 from replace into t3 values(?,?),(?,?);
+prepare stmt_u_1 from update t3 set c1=? where c0=?;
+prepare stmt_d_1 from delete from t3 where c0=?;
+prepare stmt_s_1 from select c0,c1 from t3 where c0=? for update;
+prepare stmt_select_1 from select * from t3;
+set autocommit=0;
+set @a1=1;
+set @a2=2;
+set @b1=1;
+set @b2=2;
+execute stmt_r_1 using @a1,@b1,@a2,@b2;
+execute stmt_u_1 using @b2,@a1;
+execute stmt_d_1 using @a2;
+execute stmt_s_1 using @a1;
+execute stmt_s_1 using @a2;
+connection conn2;
+prepare stmt_r_2 from replace into t3 values(?,?),(?,?);
+prepare stmt_u_2 from update t3 set c1=? where c0=?;
+prepare stmt_d_2 from delete from t3 where c0=?;
+prepare stmt_s_2 from select c0,c1 from t3 where c0=? for update;
+prepare stmt_select_2 from select * from t3;
+set autocommit=0;
+set @a1=4;
+set @a2=3;
+set @b1=4;
+set @b2=3;
+execute stmt_r_2 using @a1,@b1,@a2,@b2;
+execute stmt_u_2 using @b2,@a1;
+execute stmt_d_2 using @a2;
+execute stmt_s_2 using @a1;
+execute stmt_s_2 using @a2;
+connection conn1;
+rollback;
+set autocommit=1;
+execute stmt_select_1;
+
+connection conn2;
+rollback;
+set autocommit=1;
+execute stmt_select_2;
+
+disconnect conn1;
+disconnect conn2;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

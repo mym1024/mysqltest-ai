@@ -1,0 +1,357 @@
+drop table if exists seq_select,seq_no_cycle,seq_cycle,seq_quick;
+drop sequence seq_select;
+drop sequence seq_no_cycle;
+drop sequence seq_cycle;
+drop sequence seq_quick;
+create enum partition function e1(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)],[(11)],[(12)],[(13)],[(14)],[(15)],[(16)],[(17)],[(18)],[(19)],[(20)]';
+create table seq_select (id int primary key, c1 int, c2 int) partition by(e1s,e1,id);
+create enum partition function e2(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)],[(11)],[(12)],[(13)],[(14)],[(15)],[(16)],[(17)],[(18)],[(19)],[(20)],[(21)],[(22)],[(23)],[(24)],[(25)],[(26)],[(27)],[(28)],[(29)],[(30)],[(31)],[(32)],[(33)],[(34)],[(35)],[(36)],[(37)],[(38)],[(39)],[(40)],[(41)],[(42)],[(43)],[(44)],[(45)],[(46)],[(47)],[(48)],[(49)],[(50)],[(51)],[(52)],[(53)],[(54)],[(55)],[(56)],[(57)],[(58)],[(59)],[(60)],[(61)],[(62)],[(63)],[(64)],[(65)],[(66)],[(67)],[(68)],[(69)],[(70)],[(71)],[(72)],[(73)],[(74)],[(75)],[(76)],[(77)],[(78)],[(79)],[(80)],[(81)],[(82)],[(83)],[(84)],[(85)],[(86)],[(87)],[(88)],[(89)],[(90)],[(91)],[(92)],[(93)],[(94)],[(95)],[(96)],[(97)],[(98)],[(99)],[(100)],[(101)],[(102)],[(103)],[(104)],[(105)],[(106)],[(107)],[(108)],[(109)],[(110)],[(111)],[(112)],[(113)],[(114)],[(115)],[(116)],[(117)],[(118)],[(119)],[(120)],[(121)],[(122)],[(123)],[(124)],[(125)],[(126)],[(127)],[(200)],[(201)],[(202)],[(203)]';
+create table seq_no_cycle (id int primary key,c1 int, c2 int) partition by(e2s,e2,id);
+create enum partition function e3(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)],[(11)],[(12)],[(13)],[(14)],[(15)],[(16)],[(17)],[(18)],[(19)],[(20)],[(21)],[(22)],[(23)],[(24)],[(25)],[(26)],[(27)],[(28)],[(29)],[(30)],[(31)],[(32)],[(33)],[(34)],[(35)],[(36)],[(37)],[(38)],[(39)],[(40)],[(41)],[(42)],[(43)],[(44)],[(45)],[(46)],[(47)],[(48)],[(49)],[(50)],[(51)],[(52)],[(53)],[(54)],[(55)],[(56)],[(57)],[(58)],[(59)],[(60)],[(61)],[(62)],[(63)],[(64)],[(65)],[(66)],[(67)],[(68)],[(69)],[(70)],[(71)],[(72)],[(73)],[(74)],[(75)],[(76)],[(77)],[(78)],[(79)],[(80)],[(81)],[(82)],[(83)],[(84)],[(85)],[(86)],[(87)],[(88)],[(89)],[(90)],[(91)],[(92)],[(93)],[(94)],[(95)],[(96)],[(97)],[(98)]';
+create table seq_quick (id int primary key,c1 int, c2 int) partition by(e3s,e3,id);
+create enum partition function e4(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)],[(11)],[(12)],[(13)],[(14)],[(15)],[(16)],[(17)],[(18)],[(19)],[(20)],[(21)],[(22)],[(23)],[(24)],[(25)],[(26)],[(27)],[(28)],[(29)],[(30)],[(31)],[(32)],[(33)],[(34)],[(35)],[(36)],[(37)],[(38)],[(39)],[(40)],[(41)],[(42)],[(43)],[(44)],[(45)],[(46)],[(47)],[(48)],[(49)],[(50)],[(51)],[(52)],[(53)],[(54)],[(55)],[(56)],[(57)],[(58)],[(59)],[(60)],[(61)],[(62)],[(63)],[(64)],[(65)],[(66)],[(67)],[(68)],[(69)],[(70)],[(71)],[(72)],[(73)],[(74)],[(75)],[(76)],[(77)],[(78)],[(79)],[(80)],[(81)],[(82)],[(83)],[(84)],[(85)],[(86)],[(87)],[(88)],[(89)],[(90)],[(91)],[(92)],[(93)],[(94)],[(95)],[(96)],[(97)],[(98)],[(99)],[(100)],[(101)],[(102)],[(103)],[(104)],[(105)],[(106)],[(107)],[(108)],[(109)],[(110)],[(111)],[(112)],[(113)],[(114)],[(115)],[(116)],[(117)],[(118)],[(119)],[(120)],[(121)],[(122)],[(123)],[(124)],[(125)],[(126)],[(127)],[(128)],[(129)],[(130)],[(131)],[(132)],[(133)],[(134)],[(135)],[(136)],[(137)],[(138)],[(139)],[(140)],[(141)],[(142)],[(143)],[(144)],[(145)],[(146)],[(147)],[(148)],[(149)],[(150)],[(151)],[(152)],[(153)],[(154)],[(155)],[(156)],[(157)],[(158)],[(159)],[(160)],[(161)],[(162)],[(163)],[(164)],[(165)],[(166)],[(167)],[(168)],[(169)],[(170)],[(171)],[(172)],[(173)],[(174)],[(175)],[(176)],[(177)],[(178)],[(179)],[(180)],[(181)],[(182)],[(183)],[(184)],[(185)],[(186)],[(187)],[(188)],[(189)],[(190)],[(191)],[(192)],[(193)],[(194)],[(195)],[(196)],[(197)],[(198)]';
+create table seq_cycle(id int primary key, c1 int, c2 int) partition by(e4s,e4,id);
+create or replace sequence seq_select;
+create or replace sequence seq_no_cycle NO cycle;
+create or replace sequence seq_cycle cycle minvalue 1 maxvalue 20;
+create or replace sequence seq_quick quick;
+insert into seq_no_cycle values(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123),(nextval for seq_no_cycle,nextval for seq_no_cycle,123);
+select * from seq_no_cycle;
+id	c1	c2
+1	1	123
+2	2	123
+3	3	123
+4	4	123
+5	5	123
+6	6	123
+7	7	123
+8	8	123
+9	9	123
+10	10	123
+11	11	123
+12	12	123
+13	13	123
+14	14	123
+15	15	123
+16	16	123
+17	17	123
+18	18	123
+19	19	123
+20	20	123
+21	21	123
+22	22	123
+23	23	123
+24	24	123
+25	25	123
+26	26	123
+27	27	123
+28	28	123
+29	29	123
+30	30	123
+31	31	123
+32	32	123
+33	33	123
+34	34	123
+35	35	123
+36	36	123
+37	37	123
+38	38	123
+39	39	123
+40	40	123
+41	41	123
+42	42	123
+43	43	123
+44	44	123
+45	45	123
+46	46	123
+47	47	123
+48	48	123
+49	49	123
+50	50	123
+51	51	123
+52	52	123
+53	53	123
+54	54	123
+55	55	123
+56	56	123
+57	57	123
+58	58	123
+59	59	123
+60	60	123
+61	61	123
+62	62	123
+63	63	123
+64	64	123
+65	65	123
+66	66	123
+67	67	123
+68	68	123
+69	69	123
+70	70	123
+71	71	123
+insert into seq_quick values(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123),(nextval for seq_quick,nextval for seq_quick,123);
+select * from seq_quick;
+id	c1	c2
+1	1	123
+2	2	123
+3	3	123
+4	4	123
+5	5	123
+6	6	123
+7	7	123
+8	8	123
+9	9	123
+10	10	123
+11	11	123
+12	12	123
+13	13	123
+14	14	123
+15	15	123
+16	16	123
+17	17	123
+18	18	123
+19	19	123
+20	20	123
+21	21	123
+22	22	123
+23	23	123
+24	24	123
+25	25	123
+26	26	123
+27	27	123
+28	28	123
+29	29	123
+30	30	123
+31	31	123
+32	32	123
+33	33	123
+34	34	123
+35	35	123
+36	36	123
+37	37	123
+38	38	123
+39	39	123
+40	40	123
+41	41	123
+42	42	123
+43	43	123
+44	44	123
+45	45	123
+46	46	123
+47	47	123
+48	48	123
+49	49	123
+50	50	123
+51	51	123
+52	52	123
+53	53	123
+54	54	123
+55	55	123
+56	56	123
+57	57	123
+58	58	123
+59	59	123
+60	60	123
+61	61	123
+62	62	123
+63	63	123
+64	64	123
+65	65	123
+66	66	123
+67	67	123
+68	68	123
+69	69	123
+70	70	123
+insert into seq_cycle values(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123),(nextval for seq_no_cycle,nextval for seq_cycle,123);
+select * from seq_cycle;
+id	c1	c2
+72	1	123
+73	2	123
+74	3	123
+75	4	123
+76	5	123
+77	6	123
+78	7	123
+79	8	123
+80	9	123
+81	10	123
+82	11	123
+83	12	123
+84	13	123
+85	14	123
+86	15	123
+87	16	123
+88	17	123
+insert into seq_select values(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333),(nextval for seq_select,222,333);
+select nextval for seq_select,prevval for seq_select,id from seq_select where id <= prevval for seq_select;
+nextval for seq_select	prevval for seq_select	id
+14	13	1
+15	13	2
+16	13	3
+17	13	4
+18	13	5
+19	13	6
+20	13	7
+21	13	8
+22	13	9
+23	13	10
+24	13	11
+25	13	12
+26	13	13
+insert into seq_no_cycle values(nextval for seq_no_cycle,nextval for seq_no_cycle,123);
+select * from seq_no_cycle;
+id	c1	c2
+1	1	123
+2	2	123
+3	3	123
+4	4	123
+5	5	123
+6	6	123
+7	7	123
+8	8	123
+9	9	123
+10	10	123
+11	11	123
+12	12	123
+13	13	123
+14	14	123
+15	15	123
+16	16	123
+17	17	123
+18	18	123
+19	19	123
+20	20	123
+21	21	123
+22	22	123
+23	23	123
+24	24	123
+25	25	123
+26	26	123
+27	27	123
+28	28	123
+29	29	123
+30	30	123
+31	31	123
+32	32	123
+33	33	123
+34	34	123
+35	35	123
+36	36	123
+37	37	123
+38	38	123
+39	39	123
+40	40	123
+41	41	123
+42	42	123
+43	43	123
+44	44	123
+45	45	123
+46	46	123
+47	47	123
+48	48	123
+49	49	123
+50	50	123
+51	51	123
+52	52	123
+53	53	123
+54	54	123
+55	55	123
+56	56	123
+57	57	123
+58	58	123
+59	59	123
+60	60	123
+61	61	123
+62	62	123
+63	63	123
+64	64	123
+65	65	123
+66	66	123
+67	67	123
+68	68	123
+69	69	123
+70	70	123
+71	71	123
+89	89	123
+DELETE from seq_no_cycle where id = prevval for seq_no_cycle;
+select * from seq_no_cycle;
+id	c1	c2
+1	1	123
+2	2	123
+3	3	123
+4	4	123
+5	5	123
+6	6	123
+7	7	123
+8	8	123
+9	9	123
+10	10	123
+11	11	123
+12	12	123
+13	13	123
+14	14	123
+15	15	123
+16	16	123
+17	17	123
+18	18	123
+19	19	123
+20	20	123
+21	21	123
+22	22	123
+23	23	123
+24	24	123
+25	25	123
+26	26	123
+27	27	123
+28	28	123
+29	29	123
+30	30	123
+31	31	123
+32	32	123
+33	33	123
+34	34	123
+35	35	123
+36	36	123
+37	37	123
+38	38	123
+39	39	123
+40	40	123
+41	41	123
+42	42	123
+43	43	123
+44	44	123
+45	45	123
+46	46	123
+47	47	123
+48	48	123
+49	49	123
+50	50	123
+51	51	123
+52	52	123
+53	53	123
+54	54	123
+55	55	123
+56	56	123
+57	57	123
+58	58	123
+59	59	123
+60	60	123
+61	61	123
+62	62	123
+63	63	123
+64	64	123
+65	65	123
+66	66	123
+67	67	123
+68	68	123
+69	69	123
+70	70	123
+71	71	123
+create or replace sequence alter_sequence;
+select * from __all_sequence where sequence_name = 'alter_sequence';
+sequence_name	data_type	current_value	increment_by	min_value	max_value	is_cycle	cache_num	is_order	is_valid	const_start_with	can_use_prevval	use_quick_path
+alter_sequence	0	1	1	1	999999999999999999999999999999	0	20	0	1	1	0	0
+alter sequence alter_sequence cycle quick minvalue 100 maxvalue 1000000000;
+select * from __all_sequence where sequence_name = 'alter_sequence';
+sequence_name	data_type	current_value	increment_by	min_value	max_value	is_cycle	cache_num	is_order	is_valid	const_start_with	can_use_prevval	use_quick_path
+alter_sequence	0	1	1	100	1000000000	1	20	0	1	1	0	1

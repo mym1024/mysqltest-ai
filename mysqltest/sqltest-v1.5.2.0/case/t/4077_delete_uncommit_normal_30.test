@@ -1,0 +1,16 @@
+#######################################################
+###1.���Թ��ܵ㣺�ڲ�ָ������������У�updateδ�ύ������;
+#######################################################
+
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8));
+set autocommit=0;
+insert into c values(1,1);
+update c set c2='2' where c1=1;
+update c set c2='3' where c1=2;
+update c set c2='4' where c1=3;
+update c set c2='5' where c1=4;
+update c set c2='6' where c1=5;
+commit;
+
+

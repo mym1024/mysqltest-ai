@@ -1,0 +1,55 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+create table if not exists t1(c1 int primary key, c2 decimal(5,2));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t1 values(1,1);
+insert into t1 values(2,1.2);
+insert into t1 values(3,1.23);
+insert into t1 values(4,123.234);
+select * from t1;
+c1	c2
+1	1
+2	1.2
+3	1.23
+4	123.23
+select * from t1 where c1 = 3 for update;
+c1	c2
+3	1.23
+insert into t1 values(5,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test.t1] column[c2] at row[1]
+create index testindex on t1(c2);
+alter table t1 alter column c2 set data type decimal(8,2);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(8,2)	YES	MUL	NULL	
+insert into t1 values(6,1234.12);
+insert into t1 values(7,12345.123);
+insert into t1 values(8,123456.123);
+select * from t1;
+c1	c2
+1	1
+2	1.2
+3	1.23
+4	123.23
+6	1234.12
+7	12345.12
+8	123456.12
+select *, c1+c2 from t1 where c1 = 7 for update;
+c1	c2	c1+c2
+7	12345.12	12352.12
+insert into t1 values(9,1234567.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(9,2) to decimal(8,2) for table[test.t1] column[c2] at row[1]
+alter table t1 alter column c2 set data type decimal(9,1);
+ERROR HY000: YAO-5014: The decimal part is less than the previous length, operation is not allowed! previous decimal part length is:2
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(8,2)	YES	MUL	NULL	
+drop table if exists t1;

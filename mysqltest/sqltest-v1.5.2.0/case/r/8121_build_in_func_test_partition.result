@@ -1,0 +1,1225 @@
+drop table if exists build_in_func_test_table;
+drop table if exists t;
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop partition function e1;
+ERROR HY000: YAO-5077: partition function 'e1' doesn't exist
+create enum partition function e1(x)'[(hello)],[(ocean)]';
+create table build_in_func_test_table(varchar_c varchar(255) primary key,date_c datetime,v varchar(255)) partition by(build1,e1,varchar_c);
+create hash partition function h1(x)'x/2+5';
+create table t(c1 int primary key,c2 int)partition by (h1t,h1,c1);
+create table t1(c1 int primary key,c2 int,c3 varchar(30)) partition by range(c1)(partition b1 values less than(10),partition b2 values less than(20),partition b3 values less than maxvalue);
+create table t2(c1 int primary key,c2 int,c3 varchar(30)) partition by range(c1)(partition c1 values less than(5),partition c2 values less than(12),partition c3 values less than maxvalue);
+create enum partition function e2(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t3(c1 int primary key,c2 int,c3 int) partition by(et3,e2,c1);
+insert into build_in_func_test_table values ('hello','2012-11-01 19:14:32',null);
+insert into t values(1,2),(3,5),(4,2),(5,8);
+insert into t1 values(5,4,'wq');
+insert into t1 values(4,8,'sw');
+insert into t2 values(4,8,'sw');
+insert into t2 values(2,4,'y');
+insert into t2 values(10,4,'pwd');
+insert into t3 values(1,2,3);
+insert into t3 values(3,4,5);
+select substr(varchar_c,1,1) from build_in_func_test_table;
+substr(varchar_c,1,1)
+h
+select substr(varchar_c,0,1) from build_in_func_test_table;
+substr(varchar_c,0,1)
+
+select substr(varchar_c,-1,1) from build_in_func_test_table;
+substr(varchar_c,-1,1)
+o
+select substr(varchar_c,-5,1) from build_in_func_test_table;
+substr(varchar_c,-5,1)
+h
+select substr(varchar_c,-6,1) from build_in_func_test_table;
+substr(varchar_c,-6,1)
+
+select substr(varchar_c,-100,1) from build_in_func_test_table;
+substr(varchar_c,-100,1)
+
+select substr(varchar_c,3,1) from build_in_func_test_table;
+substr(varchar_c,3,1)
+l
+select substr(varchar_c,5,1) from build_in_func_test_table;
+substr(varchar_c,5,1)
+o
+select substr(varchar_c,6,1) from build_in_func_test_table;
+substr(varchar_c,6,1)
+
+select substr(varchar_c,6,-1) from build_in_func_test_table;
+substr(varchar_c,6,-1)
+
+select substr(varchar_c,5,-1) from build_in_func_test_table;
+substr(varchar_c,5,-1)
+
+select substr(varchar_c,4,-1) from build_in_func_test_table;
+substr(varchar_c,4,-1)
+
+select substr(varchar_c,-1,-1) from build_in_func_test_table;
+substr(varchar_c,-1,-1)
+
+select substr(varchar_c,0,5) from build_in_func_test_table;
+substr(varchar_c,0,5)
+
+select substr(varchar_c,0,6) from build_in_func_test_table;
+substr(varchar_c,0,6)
+
+select substr(varchar_c,0,100) from build_in_func_test_table;
+substr(varchar_c,0,100)
+
+select substr(varchar_c,-6,10) from build_in_func_test_table;
+substr(varchar_c,-6,10)
+
+select substr(varchar_c,-5,10) from build_in_func_test_table;
+substr(varchar_c,-5,10)
+hello
+select substr(varchar_c,-5,3) from build_in_func_test_table;
+substr(varchar_c,-5,3)
+hel
+select substr(v,5,10) from build_in_func_test_table;
+substr(v,5,10)
+NULL
+select substr(varchar_c,null,10) from build_in_func_test_table;
+substr(varchar_c,null,10)
+NULL
+select substr(varchar_c,2,null) from build_in_func_test_table;
+substr(varchar_c,2,null)
+NULL
+select substr(varchar_c,-6) from build_in_func_test_table;
+substr(varchar_c,-6)
+
+select substr(varchar_c,-5) from build_in_func_test_table;
+substr(varchar_c,-5)
+hello
+select substr(varchar_c,-4) from build_in_func_test_table;
+substr(varchar_c,-4)
+ello
+select substr(varchar_c,-0) from build_in_func_test_table;
+substr(varchar_c,-0)
+
+select substr(varchar_c,1) from build_in_func_test_table;
+substr(varchar_c,1)
+hello
+select substr(varchar_c,2) from build_in_func_test_table;
+substr(varchar_c,2)
+ello
+select substr(varchar_c,5) from build_in_func_test_table;
+substr(varchar_c,5)
+o
+select substr(varchar_c,6) from build_in_func_test_table;
+substr(varchar_c,6)
+
+select substr(varchar_c,null) from build_in_func_test_table;
+substr(varchar_c,null)
+NULL
+select substr(v,1) from build_in_func_test_table;
+substr(v,1)
+NULL
+select substr(date_c,0) from build_in_func_test_table;
+substr(date_c,0)
+
+select substr(date_c,10) from build_in_func_test_table;
+substr(date_c,10)
+1 19:14:32.000000
+select substr(1024,1,2) from build_in_func_test_table;
+substr(1024,1,2)
+10
+select cast(12 as int);
+cast(12 as int)
+12
+select cast(12 as float);
+cast(12 as float)
+12
+select cast(12 as double);
+cast(12 as double)
+12
+select cast(12 as decimal);
+cast(12 as decimal)
+12
+select cast(12 as date);
+cast(12 as date)
+NULL
+select cast(12 as time);
+cast(12 as time)
+00:00:12
+select cast(12 as datetime);
+cast(12 as datetime)
+NULL
+select cast(12 as varchar);
+cast(12 as varchar)
+12
+select cast(12 as null);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select cast(cast(1.2 as float) as int);
+cast(cast(1.2 as float) as int)
+1
+select cast(cast(1.2 as float) as float);
+cast(cast(1.2 as float) as float)
+1.2
+select cast(cast(1.2 as float) as double);
+cast(cast(1.2 as float) as double)
+1.2000000476837158
+select cast(cast(1.2 as float) as decimal);
+cast(cast(1.2 as float) as decimal)
+1
+select cast(cast(1.2 as float) as varchar);
+cast(cast(1.2 as float) as varchar)
+1.200000
+select cast(cast(1.2 as float) as date);
+cast(cast(1.2 as float) as date)
+NULL
+select cast(cast(1.2 as float) as time);
+cast(cast(1.2 as float) as time)
+00:00:01
+select cast(cast(1.2 as float) as datetime);
+cast(cast(1.2 as float) as datetime)
+NULL
+select cast(cast(1.2 as float) as null);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select cast(0 as varchar);
+cast(0 as varchar)
+0
+select cast(1 as varchar);
+cast(1 as varchar)
+1
+select cast(-1 as varchar);
+cast(-1 as varchar)
+-1
+select cast(1+1 as bool);
+cast(1+1 as bool)
+1
+select cast(1+1 as int);
+cast(1+1 as int)
+2
+select cast(1+1 as varchar);
+cast(1+1 as varchar)
+2
+select cast(1+1 as float);
+cast(1+1 as float)
+2
+select cast(5-2 as bool);
+cast(5-2 as bool)
+1
+select cast(5-2 as float);
+cast(5-2 as float)
+3
+select cast(5-2 as varchar);
+cast(5-2 as varchar)
+3
+select cast(5-2 as int);
+cast(5-2 as int)
+3
+select cast(5*2 as int);
+cast(5*2 as int)
+10
+select cast(5*2 as varchar);
+cast(5*2 as varchar)
+10
+select cast(4/2 as int);
+cast(4/2 as int)
+2
+select cast(4/2 as varchar);
+cast(4/2 as varchar)
+2.0000
+select cast(3+2-4 as float);
+cast(3+2-4 as float)
+1
+select cast(3+2-4 as varchar);
+cast(3+2-4 as varchar)
+1
+select cast(6/3*4 as varchar);
+cast(6/3*4 as varchar)
+8.0000
+select cast(6/3*4 as float);
+cast(6/3*4 as float)
+8
+select cast(concat(1,1) as int);
+cast(concat(1,1) as int)
+11
+select cast(concat(1,1) as varchar);
+cast(concat(1,1) as varchar)
+11
+select cast(length('wangy') as varchar);
+cast(length('wangy') as varchar)
+5
+select cast(length('wangy') as bool);
+cast(length('wangy') as bool)
+1
+select cast(hex('c') as int);
+cast(hex('c') as int)
+63
+select cast(hex('cbase') as float);
+cast(hex('cbase') as float)
+6362620000
+select cast('ab%' like 'abc%' as varchar);
+cast('ab%' like 'abc%' as varchar)
+0
+select cast(lower('CBASE') as float);
+cast(lower('CBASE') as float)
+0
+select cast(nvl(null,23) as varchar);
+cast(nvl(null,23) as varchar)
+23
+select cast(nvl(null,23) as float);
+cast(nvl(null,23) as float)
+23
+select cast(substr('anbsf',2,3) as float);
+cast(substr('anbsf',2,3) as float)
+0
+select cast(substr('anbsf',2,3) as varchar);
+cast(substr('anbsf',2,3) as varchar)
+nbs
+select cast(unhex('6362617365') as float);
+cast(unhex('6362617365') as float)
+0
+select cast(unhex('6362617365') as bool);
+cast(unhex('6362617365') as bool)
+0
+select cast(upper('cbase') as varchar);
+cast(upper('cbase') as varchar)
+CBASE
+select cast(upper('cbase') as float);
+cast(upper('cbase') as float)
+0
+select cast(count(c1) as varchar) from t;
+cast(count(c1) as varchar)
+4
+select cast(avg(c1) as varchar) from t;
+cast(avg(c1) as varchar)
+3.2500
+select cast(max(c1) as varchar) from t;
+cast(max(c1) as varchar)
+5
+select cast(sum(c1) as varchar) from t;
+cast(sum(c1) as varchar)
+13
+select c2 from t1 where c1=cast(4 as int) and c3=cast('sw' as varchar);
+c2
+8
+select c2 from t1 where c1 between cast(3 as int) and cast(5 as varchar);
+c2
+8
+4
+select c3 from t1 where c3=cast('sw' as varchar) intersect select c3 from t2 where c3=cast('sw' as varchar);
+c3
+sw
+select c3 from t1 where c3=cast('yuanw' as varchar) union select c3 from t2 where c3=cast('y' as varchar);
+c3
+y
+select c3 from t1 where c3=cast('yuanw' as varchar) except select c3 from t2 where c3=cast('y' as varchar);
+c3
+select c1 from t1 having c1<cast(10 as int);
+c1
+4
+5
+select c3 from t1 group by c1=cast(5 as int);
+c3
+sw
+wq
+select length(2);
+length(2)
+1
+select length(cast(1.2 as double));
+length(cast(1.2 as double))
+3
+select length('ocean');
+length('ocean')
+5
+select length('2017/01/01');
+length('2017/01/01')
+10
+select length('2017/01/01 00:00:00');
+length('2017/01/01 00:00:00')
+19
+select length('00:00:00');
+length('00:00:00')
+8
+select length(2+3-1);
+length(2+3-1)
+1
+select length(2*6-3);
+length(2*6-3)
+1
+select length(0);
+length(0)
+1
+select length(1);
+length(1)
+1
+select length(-1);
+length(-1)
+2
+select length(cast('cbase' as varchar));
+length(cast('cbase' as varchar))
+5
+select length(current_timestamp());
+length(current_timestamp())
+26
+select length(concat(1,'wangy'));
+length(concat(1,'wangy'))
+6
+select length(hex('cbase'));
+length(hex('cbase'))
+10
+select length('ab%' like 'abc%');
+length('ab%' like 'abc%')
+1
+select length(int2ip(126666666));
+length(int2ip(126666666))
+13
+select length(lower('CBASE'));
+length(lower('CBASE'))
+5
+select length(substr('anbsf',2,3));
+length(substr('anbsf',2,3))
+3
+select length(nvl(null,23));
+length(nvl(null,23))
+2
+select length(unhex('6362617365'));
+length(unhex('6362617365'))
+5
+select length(upper('cbase'));
+length(upper('cbase'))
+5
+select length(count(c1)) from t;
+length(count(c1))
+1
+select length(max(c1)) from t;
+length(max(c1))
+1
+update t set c2=10 where c1=length('wq');
+select c2 from t where c1 between length('ew') and length('wqrr');
+c2
+5
+2
+select * from t1 where c1=length('wang') intersect select * from t2;
+c1	c2	c3
+4	8	sw
+select * from t1 where c1=length('wang') union select * from t2;
+c1	c2	c3
+2	4	y
+4	8	sw
+10	4	pwd
+select * from t1 where c1=length('wang') except select * from t2;
+c1	c2	c3
+select c1 from t2 having c1<length('love');
+c1
+2
+select c1 from t group by c1=length('wangy');
+c1
+1
+5
+select concat(13,12);
+concat(13,12)
+1312
+select concat(10,cast(2.1 as float));
+concat(10,cast(2.1 as float))
+102.100000
+select concat(10,cast(2.1 as double));
+concat(10,cast(2.1 as double))
+102.100000
+select concat(13,3.2);
+concat(13,3.2)
+133.2
+select concat(16,'2017/03/17 17:00:00');
+concat(16,'2017/03/17 17:00:00')
+162017/03/17 17:00:00
+select concat(9,'wangy');
+concat(9,'wangy')
+9wangy
+select concat(cast(2.0 as double),cast(4.1 as float));
+concat(cast(2.0 as double),cast(4.1 as float))
+24.100000
+select concat(cast(2.0 as double),'2017/01/01 02:01:00');
+concat(cast(2.0 as double),'2017/01/01 02:01:00')
+22017/01/01 02:01:00
+select concat(cast(2.0 as double),2.11154);
+concat(cast(2.0 as double),2.11154)
+22.11154
+select concat(1.3,'2014/01/02 00:00:08');
+concat(1.3,'2014/01/02 00:00:08')
+1.32014/01/02 00:00:08
+select concat(1.3,null);
+concat(1.3,null)
+NULL
+select concat('2017/01/01',cast(6.4 as double));
+concat('2017/01/01',cast(6.4 as double))
+2017/01/016.400000
+select concat('2017/01/01','wangy');
+concat('2017/01/01','wangy')
+2017/01/01wangy
+select concat('00:00:00','wangy');
+concat('00:00:00','wangy')
+00:00:00wangy
+select concat('00:00:00',cast(3.2 as double));
+concat('00:00:00',cast(3.2 as double))
+00:00:003.200000
+select concat('2014/01/01 00:00:00',cast(3.5 as double));
+concat('2014/01/01 00:00:00',cast(3.5 as double))
+2014/01/01 00:00:003.500000
+select concat('2014/01/01 00:00:00',null);
+concat('2014/01/01 00:00:00',null)
+NULL
+select concat(null,cast(5.43 as double));
+concat(null,cast(5.43 as double))
+NULL
+select concat(null,'wangy');
+concat(null,'wangy')
+NULL
+select concat(1+4-2,2-1+3);
+concat(1+4-2,2-1+3)
+34
+select concat(1+4-2,2/1*3);
+concat(1+4-2,2/1*3)
+36.0000
+select concat(1*4/2,2/1*3);
+concat(1*4/2,2/1*3)
+2.00006.0000
+select concat(cast(123 as bool),'wangy');
+concat(cast(123 as bool),'wangy')
+1wangy
+select concat(length('wangy'),'wangy');
+concat(length('wangy'),'wangy')
+5wangy
+select concat('ab%' like 'abc%','wangy');
+concat('ab%' like 'abc%','wangy')
+0wangy
+select concat(int2ip(126666666),'wangy');
+concat(int2ip(126666666),'wangy')
+7.140.199.170wangy
+select concat(lower('CBASE'),'wangy');
+concat(lower('CBASE'),'wangy')
+cbasewangy
+select concat(nvl(null,23),'wangy');
+concat(nvl(null,23),'wangy')
+23wangy
+select concat(substr('anbsf',2,3),'wangy');
+concat(substr('anbsf',2,3),'wangy')
+nbswangy
+select concat(unhex('6362617365'),'wangy');
+concat(unhex('6362617365'),'wangy')
+cbasewangy
+select concat(count(c1),'wangy') from t;
+concat(count(c1),'wangy')
+4wangy
+select concat(max(c1),'wangy') from t;
+concat(max(c1),'wangy')
+5wangy
+select concat(avg(c1),'wangy') from t;
+concat(avg(c1),'wangy')
+3.2500wangy
+update t1 set c3=concat('yuan','w') where c1=4;
+select c2 from t1 where c3=('ybase') and c1=concat(2,1);
+c2
+select c3 from t1 where c1 between 10 and concat(1,5);
+c3
+select c2 from t1 where c3=concat('w','q') intersect select c2 from t2;
+c2
+4
+select c2 from t1 where c3=concat('s','w') union select c2 from t2 where c3=concat('pw','d');
+c2
+4
+select c2 from t1 where c3=concat('w','q') except select c2 from t2 where c3=concat('s','w');
+c2
+4
+select c1 from t1 having c1<concat(20,'');
+c1
+4
+5
+select c2 from t1 group by c3=concat('o','base');
+c2
+8
+select coalesce(cast(null as int),null) from build_in_func_test_table;
+coalesce(cast(null as int),null)
+NULL
+select coalesce(null,'monkey59',123) from build_in_func_test_table;
+coalesce(null,'monkey59',123)
+monkey59
+select coalesce(date_c,null,'monkey59',123) from build_in_func_test_table;
+coalesce(date_c,null,'monkey59',123)
+2012-11-01 19:14:32.000000
+select coalesce('jasimin',null,'a,a',123) from build_in_func_test_table;
+coalesce('jasimin',null,'a,a',123)
+jasimin
+select coalesce(cast(null as int),null,32.23) from build_in_func_test_table;
+coalesce(cast(null as int),null,32.23)
+32.23
+select lower('ABC&*03_+abc') from build_in_func_test_table;
+lower('ABC&*03_+abc')
+abc&*03_+abc
+select lower(varchar_c) from build_in_func_test_table;
+lower(varchar_c)
+hello
+select lower(null) from build_in_func_test_table;
+lower(null)
+NULL
+select upper('ABC&*03_+abc') from build_in_func_test_table;
+upper('ABC&*03_+abc')
+ABC&*03_+ABC
+select upper(varchar_c) from build_in_func_test_table;
+upper(varchar_c)
+HELLO
+select upper(null) from build_in_func_test_table;
+upper(null)
+NULL
+select lower(2);
+lower(2)
+2
+select lower('2014/01/01');
+lower('2014/01/01')
+2014/01/01
+select lower('2014/01/01 00:00:00');
+lower('2014/01/01 00:00:00')
+2014/01/01 00:00:00
+select lower('00:00:00');
+lower('00:00:00')
+00:00:00
+select lower(0);
+lower(0)
+0
+select lower(1);
+lower(1)
+1
+select lower(2+3-4);
+lower(2+3-4)
+1
+select lower(2*6/3);
+lower(2*6/3)
+4.0000
+select lower(cast('cbase' as varchar));
+lower(cast('cbase' as varchar))
+cbase
+select lower(length('wangy'));
+lower(length('wangy'))
+5
+select lower(concat('cbase',''));
+lower(concat('cbase',''))
+cbase
+select lower('ab%' like 'abc%');
+lower('ab%' like 'abc%')
+0
+select lower(int2ip(126666666));
+lower(int2ip(126666666))
+7.140.199.170
+select lower(hex('CBASE'));
+lower(hex('CBASE'))
+4342415345
+select lower(substr('anbsf',2,3));
+lower(substr('anbsf',2,3))
+nbs
+select lower(unhex('6362617365'));
+lower(unhex('6362617365'))
+cbase
+select lower(upper('cbase'));
+lower(upper('cbase'))
+cbase
+select lower(count(c1)) from t;
+lower(count(c1))
+4
+select lower(max(c1)) from t;
+lower(max(c1))
+5
+select upper(2);
+upper(2)
+2
+select upper(cast(1.2 as double));
+upper(cast(1.2 as double))
+1.200000
+select upper('cbase');
+upper('cbase')
+CBASE
+select upper(1.2);
+upper(1.2)
+1.2
+select upper('2014/01/01 00:00:00');
+upper('2014/01/01 00:00:00')
+2014/01/01 00:00:00
+select upper('00:00:00');
+upper('00:00:00')
+00:00:00
+select upper('2014/01/01');
+upper('2014/01/01')
+2014/01/01
+select upper(null);
+upper(null)
+NULL
+select upper(0);
+upper(0)
+0
+select upper(1);
+upper(1)
+1
+select upper(-1);
+upper(-1)
+-1
+select upper(2+3-4);
+upper(2+3-4)
+1
+select upper(2*6/3);
+upper(2*6/3)
+4.0000
+select upper(cast('cbase' as varchar));
+upper(cast('cbase' as varchar))
+CBASE
+select upper(length('wangy'));
+upper(length('wangy'))
+5
+select upper(concat('cbase',''));
+upper(concat('cbase',''))
+CBASE
+select upper('ab%' like 'abc%');
+upper('ab%' like 'abc%')
+0
+select upper(int2ip(126666666));
+upper(int2ip(126666666))
+7.140.199.170
+select upper(lower('CBASE'));
+upper(lower('CBASE'))
+CBASE
+select upper(nvl(null,23));
+upper(nvl(null,23))
+23
+select upper(substr('anbsf',2,3));
+upper(substr('anbsf',2,3))
+NBS
+select upper(count(c1)) from t;
+upper(count(c1))
+4
+select upper(avg(c1)) from t;
+upper(avg(c1))
+3.2500
+select upper(max(c1)) from t;
+upper(max(c1))
+5
+select upper(sum(c1)) from t;
+upper(sum(c1))
+13
+insert into t1 values (11,2,upper('wy'));
+delete from t1 where c3=upper('wy');
+update t1 set c3=upper('wq') where c1=2;
+select * from t1 where c3=upper('sw');
+c1	c2	c3
+replace into t1 values(21,upper('21'),'ybase');
+select c3 from t1 where c1=upper(5) and c2=upper(4);
+c3
+wq
+select c3 from t1 where c1 between upper(4) and upper(5);
+c3
+yuanw
+wq
+select c3 from t1 where c1=upper(4) intersect select c3 from t2 where c1=upper(4);
+c3
+select c3 from t1 where c1=upper(4) union select c3 from t2 where c1=upper(2);
+c3
+y
+yuanw
+select c3 from t1 where c1=upper(4) except select c3 from t2 where c1=upper(2);
+c3
+yuanw
+select * from t1 having c1=upper(4);
+c1	c2	c3
+4	8	yuanw
+select c3 from t1 group by c1=upper(1);
+c3
+yuanw
+select cast(12 as datetime) from build_in_func_test_table;
+cast(12 as datetime)
+NULL
+select cast('12' as datetime) from build_in_func_test_table;
+cast('12' as datetime)
+NULL
+select cast(cast('1970-01-01 08:00:12' as datetime) as int) from build_in_func_test_table;
+cast(cast('1970-01-01 08:00:12' as datetime) as int)
+NULL
+select cast('1970-01-01 08:00:12' as int) from build_in_func_test_table;
+cast('1970-01-01 08:00:12' as int)
+1970
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+cast(cast('12' as decimal) as datetime)
+NULL
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+cast(cast('12' as decimal) as datetime)
+NULL
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+cast(cast('12' as decimal) as datetime)
+NULL
+select cast(v as int) from build_in_func_test_table;
+cast(v as int)
+NULL
+select trim('aba' from 'ababa') from build_in_func_test_table;
+trim('aba' from 'ababa')
+ba
+select length(trim('aba' from 'aba')) from build_in_func_test_table;
+length(trim('aba' from 'aba'))
+0
+select trim('aba' from 'aba') from build_in_func_test_table;
+trim('aba' from 'aba')
+
+select trim('hello') from build_in_func_test_table;
+trim('hello')
+hello
+select trim('h' from 'hhhhello') from build_in_func_test_table;
+trim('h' from 'hhhhello')
+ello
+select trim('o!' from 'hhhhello') from build_in_func_test_table;
+trim('o!' from 'hhhhello')
+hhhhello
+select trim('h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+trim('h' from 'hhhhaaaahhhh')
+aaaa
+select trim(LEADING 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+trim(LEADING 'h' from 'hhhhaaaahhhh')
+aaaahhhh
+select trim(TRAILING 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+trim(TRAILING 'h' from 'hhhhaaaahhhh')
+hhhhaaaa
+select trim(BOTH 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+trim(BOTH 'h' from 'hhhhaaaahhhh')
+aaaa
+select trim(BOTH from 'hhhhaaaa') from build_in_func_test_table;
+trim(BOTH from 'hhhhaaaa')
+hhhhaaaa
+select trim(123 from 123542) from build_in_func_test_table;
+trim(123 from 123542)
+542
+select trim(2 from cast(12312312 as datetime)) from build_in_func_test_table;
+trim(2 from cast(12312312 as datetime))
+NULL
+select length(trim( 'hi' || 'dir' )) from build_in_func_test_table;
+length(trim( 'hi' || 'dir' ))
+1
+select trim(1) from build_in_func_test_table;
+trim(1)
+1
+select trim(cast(111 as varchar)) from build_in_func_test_table;
+trim(cast(111 as varchar))
+111
+select trim(LEADING 1 from cast(111 as varchar)) from build_in_func_test_table;
+trim(LEADING 1 from cast(111 as varchar))
+
+select trim(TRAILING 1 from cast(111 as varchar)) from build_in_func_test_table;
+trim(TRAILING 1 from cast(111 as varchar))
+
+select trim(v) from build_in_func_test_table;
+trim(v)
+NULL
+select trim(leading v from 'v'),trim(leading varchar_c from 'he') from build_in_func_test_table;
+trim(leading v from 'v')	trim(leading varchar_c from 'he')
+NULL	he
+select hex(2);
+hex(2)
+2
+select hex(cast(1.2 as double));
+hex(cast(1.2 as double))
+1
+select hex('cbase');
+hex('cbase')
+6362617365
+select hex('2014/01/01 00:00:00');
+hex('2014/01/01 00:00:00')
+323031342f30312f30312030303a30303a3030
+select hex(2+3-4);
+hex(2+3-4)
+1
+select hex(2*6/3);
+hex(2*6/3)
+4
+select hex(cast('cbase' as varchar));
+hex(cast('cbase' as varchar))
+6362617365
+select hex(current_timestamp());
+hex(current_timestamp())
+60b12e9dbaf88
+select hex(length('wangy'));
+hex(length('wangy'))
+5
+select hex(concat('cbase',''));
+hex(concat('cbase',''))
+6362617365
+select hex('ab%' like 'abc%');
+hex('ab%' like 'abc%')
+0
+select hex(int2ip(126666666));
+hex(int2ip(126666666))
+372e3134302e3139392e313730
+select hex(lower('CBASE'));
+hex(lower('CBASE'))
+6362617365
+select hex(nvl(null,23));
+hex(nvl(null,23))
+3233
+select hex(substr('anbsf',2,3));
+hex(substr('anbsf',2,3))
+6e6273
+select hex(upper('cbase'));
+hex(upper('cbase'))
+4342415345
+select hex(unhex('6362617365'));
+hex(unhex('6362617365'))
+6362617365
+select hex(avg(c1)) from t;
+hex(avg(c1))
+3
+select hex(count(c1)) from t;
+hex(count(c1))
+4
+select c3 from t1 where c1 between hex(4) and hex(5);
+c3
+yuanw
+wq
+select c3 from t1 where c1=hex(4) intersect select c3 from t2 where c1=hex(4);
+c3
+select c3 from t1 where c1=hex(4) union select c3 from t2 where c1=hex(2);
+c3
+y
+yuanw
+select c3 from t1 where c1=hex(4) except select c3 from t2 where c1=hex(2);
+c3
+yuanw
+select * from t1 having c1=hex(4);
+c1	c2	c3
+4	8	yuanw
+select c3 from t1 group by c1=hex(1);
+c3
+yuanw
+select '12%' like '123%';
+'12%' like '123%'
+0
+select cast('1.2%' as float) like cast('1.23%' as float);
+ERROR HY000: YAO-2: Invalid argument
+select cast('1.2%' as double) like cast('1.23%' as double);
+ERROR HY000: YAO-2: Invalid argument
+select '1.2%' like '1.34%';
+'1.2%' like '1.34%'
+0
+select '00:00:%' like '00:01:0%';
+'00:00:%' like '00:01:0%'
+0
+select '2014/01/01 00:0%' like '2016/02/02 00:00:%';
+'2014/01/01 00:0%' like '2016/02/02 00:00:%'
+0
+select 'wy%' like 'wangy%';
+'wy%' like 'wangy%'
+0
+select '4+2%' like '5+2%';
+'4+2%' like '5+2%'
+0
+select '4+2%' like '5-2%';
+'4+2%' like '5-2%'
+0
+select '4+2%' like '5*2%';
+'4+2%' like '5*2%'
+0
+select '4+2%' like '6/2%';
+'4+2%' like '6/2%'
+0
+select '4+2-1%' like '6-4+8%';
+'4+2-1%' like '6-4+8%'
+0
+select '4+2-1%' like '5*2/2%';
+'4+2-1%' like '5*2/2%'
+0
+select concat('an','wan') like 'wangh%';
+concat('an','wan') like 'wangh%'
+0
+select current_timestamp() like 'wang%';
+ERROR HY000: YAO-2: Invalid argument
+select length('wangy') like '123%';
+ERROR HY000: YAO-2: Invalid argument
+select hex('wangy') like 'wangy%';
+hex('wangy') like 'wangy%'
+0
+select cast('wang' as varchar) like 'wangy%';
+cast('wang' as varchar) like 'wangy%'
+0
+select lower('WANG') like 'wangy%';
+lower('WANG') like 'wangy%'
+0
+select nvl(null,31) like '321%';
+ERROR HY000: YAO-2: Invalid argument
+select substr('anbsf',2,3) like 'wang%';
+substr('anbsf',2,3) like 'wang%'
+0
+select unhex('6362617365') like 'cbase%';
+unhex('6362617365') like 'cbase%'
+1
+select count(c1) like '123%' from t;
+ERROR HY000: YAO-2: Invalid argument
+select max(c1) like '123%' from t;
+ERROR HY000: YAO-2: Invalid argument
+select sum(c1) like '123%' from t;
+ERROR HY000: YAO-2: Invalid argument
+select avg(c1) like '123%' from t;
+ERROR HY000: YAO-2: Invalid argument
+select coalesce(lower(null),length(lower(upper('yssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxddsd'))),'dir') from build_in_func_test_table;
+coalesce(lower(null),length(lower(upper('yssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxddsd'))),'dir')
+466
+select 'NAME:'||varchar_c,'ADDR:'||v from build_in_func_test_table;
+'NAME:'||varchar_c	'ADDR:'||v
+0	NULL
+drop table build_in_func_test_table;
+drop table t;
+drop table t1;
+drop table t2;
+drop table t3;
+drop table if exists t1,t2;
+create table
+create table t1 (pid int primary key, name varchar(30), salary float, pdate date, c1 int, c2 int, c3 varchar(30), c4 int);
+create table t2 (pid int primary key, name varchar(30));
+insert data
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(1, 'xiaowang', 15498.26, '1998-01-01', 10, 1001, 'wang');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(2, 'xiaozeng', 16666.54, '1998-08-20', 12, 1002, 'zeng');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(3, 'xiaoming', 16267.86, '1997-03-12', 13, 1003, 'ming');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(4, 'xiaochen', 17566.78, '1998-09-03', 14, 1004, 'chen');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(5, 'xiaoli', 9751.85, '1999-11-11', 15, 1005, 'li');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(6, 'xiaozhao', 14958.64, '2000-12-27', 16, 1006, 'zhao');
+insert into t2 (pid, name) values(1, 'xiaosun');
+insert into t2 (pid, name) values(2, 'xiaoqian');
+insert into t2 (pid, name) values(3, 'xiaohua');
+insert into t2 (pid, name) values(4, 'xiaowu');
+insert into t2 (pid, name) values(5, 'xiaopang');
+insert into t2 (pid, name) values(6, 'xiaogao');
+start concat
+select concat(c4,c2) from t1 where pid=1;
+concat(c4,c2)
+NULL
+select concat(c3,c4) from t1 where pid=1;
+concat(c3,c4)
+NULL
+select concat(c4,c4,c2) from t1 where pid=1;
+concat(c4,c4,c2)
+NULL
+select concat(c4,c4,c4) from t1 where pid=1;
+concat(c4,c4,c4)
+NULL
+select concat(c3,c4,name) from t1 where pid=1;
+concat(c3,c4,name)
+NULL
+select concat(c3,c2,c4) from t1 where pid=1;
+concat(c3,c2,c4)
+NULL
+select concat(c4,c1,name,pid) from t1 where pid=1;
+concat(c4,c1,name,pid)
+NULL
+select concat(name,c4,c4,pid,c2,c3) from t1 where pid=1;
+concat(name,c4,c4,pid,c2,c3)
+NULL
+select concat(c4,name,c4,pid,c2,c3,c4) from t1 where pid=1;
+concat(c4,name,c4,pid,c2,c3,c4)
+NULL
+select concat(true,true,true) from t1 where pid=1;
+concat(true,true,true)
+111
+select concat(2.25,3.15,4.45) from t1 where pid=1;
+concat(2.25,3.15,4.45)
+2.253.154.45
+select concat(pid,c1,c2,123,456) from t1 where pid=1;
+concat(pid,c1,c2,123,456)
+1101001123456
+select concat(name,c3,name,'abc') from t1 where pid=1;
+concat(name,c3,name,'abc')
+xiaowangwangxiaowangabc
+select concat('1998-09-03','1998-08-20',pdate) from t1 where pid=1;
+concat('1998-09-03','1998-08-20',pdate)
+1998-09-031998-08-201998-01-01
+select concat(cast(3.141 as float),cast(23.4687 as float),salary) from t1 where pid=1;
+concat(cast(3.141 as float),cast(23.4687 as float),salary)
+3.14100023.46870015498.259766
+select concat(pid,name,salary,pdate,c1,c2,c3,c4,true,false) from t1 where pid=2;
+concat(pid,name,salary,pdate,c1,c2,c3,c4,true,false)
+NULL
+select concat(pid,name,pdate) from t1 where pid=1;
+concat(pid,name,pdate)
+1xiaowang1998-01-01
+select concat(c4,name,salary) from t1 where pid=1;
+concat(c4,name,salary)
+NULL
+select concat(pid,name,pdate) from t1;
+concat(pid,name,pdate)
+1xiaowang1998-01-01
+2xiaozeng1998-08-20
+3xiaoming1997-03-12
+4xiaochen1998-09-03
+5xiaoli1999-11-11
+6xiaozhao2000-12-27
+select concat(name,pdate) from t1;
+concat(name,pdate)
+xiaowang1998-01-01
+xiaozeng1998-08-20
+xiaoming1997-03-12
+xiaochen1998-09-03
+xiaoli1999-11-11
+xiaozhao2000-12-27
+select concat(c1+c2,c2-c1) from t1;
+concat(c1+c2,c2-c1)
+1011991
+1014990
+1016990
+1018990
+1020990
+1022990
+select concat(c3,c1+c2,c2-c1) from t1;
+concat(c3,c1+c2,c2-c1)
+wang1011991
+zeng1014990
+ming1016990
+chen1018990
+li1020990
+zhao1022990
+select concat(c1*c2,pid,c2/c1) from t1;
+concat(c1*c2,pid,c2/c1)
+100101100.1000
+12024283.5000
+13039377.1538
+14056471.7143
+15075567.0000
+16096662.8750
+select concat(c4,c1*c2,c2/c1,name) from t1;
+concat(c4,c1*c2,c2/c1,name)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select concat(c2/c1,pid,name,c2,c1+c2) from t1;
+concat(c2/c1,pid,name,c2,c1+c2)
+100.10001xiaowang10011011
+83.50002xiaozeng10021014
+77.15383xiaoming10031016
+71.71434xiaochen10041018
+67.00005xiaoli10051020
+62.87506xiaozhao10061022
+select concat((c2)mod(pid),(c2)mod(c1),name) from t1;
+concat((c2)mod(pid),(c2)mod(c1),name)
+01xiaowang
+06xiaozeng
+12xiaoming
+010xiaochen
+00xiaoli
+414xiaozhao
+select concat(c4,(c2)mod(pid),(c2)mod(c1),c4) from t1;
+concat(c4,(c2)mod(pid),(c2)mod(c1),c4)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select concat(max(c1),min(c2),count(c1),count(c2)) from t1;
+concat(max(c1),min(c2),count(c1),count(c2))
+16100166
+select concat(max(c1),min(c2),sum(c1),avg(c2)) from t1;
+concat(max(c1),min(c2),sum(c1),avg(c2))
+161001801003.5000
+select concat(pid,sum(c1),avg(c2)) from t1;
+concat(pid,sum(c1),avg(c2))
+1801003.5000
+select concat(max(c1),sum(c1),avg(c2)) from t1;
+concat(max(c1),sum(c1),avg(c2))
+16801003.5000
+select concat(3=3,4=4,pid,c1>c2,c1<c2) from t1 where pid=1;
+concat(3=3,4=4,pid,c1>c2,c1<c2)
+11101
+select concat(c1>c2,c1>c2,c1<c2) from t1 where pid=1;
+concat(c1>c2,c1>c2,c1<c2)
+001
+select concat(c1<c2,c1<c2) from t1 where pid=1;
+concat(c1<c2,c1<c2)
+11
+update t1 set name='xiaozhou' where c2=concat(10,0,5);
+update t1 set salary=concat(pid,concat(1,cast(15463.98 as float),2),2) where pid=1;
+select name from t1 having concat(null,0,1,2)>0;
+name
+select name from t1 where pid=2 or pid=concat(null,3,null) order by pid;
+name
+xiaozeng
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(7,concat('xiao',null,'di','ng'),13156.21,'1999-04-24',17,1007,'ding');
+delete from t1 where pid=concat(7,null);
+(select c3 from t1 where name=concat('x','i','a','o','m','i','n','g')) union (select c3 from t1 where pid=4);
+c3
+chen
+ming
+(select name from t1 where pid= concat(null,1)) intersect (select name from t1 where pid=2);
+name
+(select name from t1 where pid= concat(null,null,2)) except (select name from t1 where pid=3);
+name
+select pid from t1 where name = concat(substr('xxxiaow',3,4),'wa','n','g');
+pid
+1
+select name from t1 where pid = nvl2(null,c1,concat(3,null));
+name
+select t1.pid,concat(t1.pid, t2.name) from t1,t2;
+pid	concat(t1.pid, t2.name)
+1	1xiaosun
+1	1xiaoqian
+1	1xiaohua
+1	1xiaowu
+1	1xiaopang
+1	1xiaogao
+2	2xiaosun
+2	2xiaoqian
+2	2xiaohua
+2	2xiaowu
+2	2xiaopang
+2	2xiaogao
+3	3xiaosun
+3	3xiaoqian
+3	3xiaohua
+3	3xiaowu
+3	3xiaopang
+3	3xiaogao
+4	4xiaosun
+4	4xiaoqian
+4	4xiaohua
+4	4xiaowu
+4	4xiaopang
+4	4xiaogao
+5	5xiaosun
+5	5xiaoqian
+5	5xiaohua
+5	5xiaowu
+5	5xiaopang
+5	5xiaogao
+6	6xiaosun
+6	6xiaoqian
+6	6xiaohua
+6	6xiaowu
+6	6xiaopang
+6	6xiaogao
+7	7xiaosun
+7	7xiaoqian
+7	7xiaohua
+7	7xiaowu
+7	7xiaopang
+7	7xiaogao
+select distinct t1.pid from t1,t2 where concat(t1.c1, t2.name, t1.name);
+pid
+1
+2
+3
+4
+5
+6
+select concat() from t1 where pid=1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select concat(pid) from t1 where pid=1;
+concat(pid)
+1
+select concat(23,',','test');
+concat(23,',','test')
+23,test
+select concat(23,',',concat('te','st'));
+concat(23,',',concat('te','st'))
+23,test
+select concat(23,',','test') AS name;
+name
+23,test
+select CONCAT(23,',','test');
+CONCAT(23,',','test')
+23,test
+drop table t1,t2;

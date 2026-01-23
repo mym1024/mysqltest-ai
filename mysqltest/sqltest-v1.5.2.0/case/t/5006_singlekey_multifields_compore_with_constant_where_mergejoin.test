@@ -1,0 +1,120 @@
+#######################################################
+####1.测试功能点：两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，其中一表的主键有和常量的等值或不等值的比较，筛选条件在where后
+#######################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+create table t1(c1 int primary key, c2 int, c3 varchar(30));
+insert into t1 values(1,1,'aaa');
+insert into t1 values(2,2,'bbb');
+insert into t1 values(3,3,'ccc');
+insert into t1 values(4,4,'ddd');
+insert into t1 values(5,5,'eee');
+insert into t1 values(6,6,'fff');
+insert into t1 values(7,7,'ggg');
+insert into t1 values(8,8,'hhh');
+insert into t1 values(9,9,'iii');
+insert into t1 values(10,10,'jjj');
+
+create table t2(c1 int primary key, c2 int, c3 varchar(30));
+insert into t2 values(1,1,'aaa');
+insert into t2 values(2,2,'bbb');
+insert into t2 values(3,3,'ccc');
+insert into t2 values(4,4,'ddd');
+insert into t2 values(5,5,'eee');
+insert into t2 values(6,6,'fff');
+insert into t2 values(7,7,'ggg');
+insert into t2 values(8,8,'hhh');
+insert into t2 values(9,9,'iii');
+insert into t2 values(10,10,'jjj');
+
+
+###2-1:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，其中一表的主键有和常量的等值比较，该等值比较条件在where后
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=0;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=0;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=0;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=0;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=0;
+
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=1;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=1;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=1;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=1;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=1;
+
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=10;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=10;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=10;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=10;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=10;
+
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=11;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1=11;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1=11;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1=11;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1=11;
+
+###2-2:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，其中一表的主键有和常量不等值比较，该不等值比较条件在where后
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 0;
+
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 > 10;
+
+###2-3:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，两表的主键有和常量的不等值比较，不等值比较条件在where后
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 < 6 and t2.c1 <10;
+
+###2-4:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，其中一表的非主键有和常量的等值比较，该等值比较条件在where后
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa';
+
+###2-5:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，两表的非主键有和常量的等值比较，该等值比较条件在where后
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6;
+
+###2-6:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，测试or操作
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and t1.c2=6 or t1.c2=9;
+
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c3='aaa' and (t1.c2=6 or t1.c2=9);
+
+###2-7:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，测试between操作
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 between 1 and 6;
+
+###2-8:两张表mgrge_join,表的主键为单主键;多个连接条件，两表的主键和主键连接，测试in操作
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+select /*+ join(merge_join) */* from t1 left join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+select /*+ join(merge_join) */* from t1 right join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+select /*+ join(merge_join) */* from t1 full join t2 on t1.c1=t2.c1 where t1.c1 in (1,2,3,4);
+
+drop table t1,t2;
+#############################################################################

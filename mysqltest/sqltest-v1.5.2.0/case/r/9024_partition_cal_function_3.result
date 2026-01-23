@@ -1,0 +1,88 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+set names utf8mb4;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4),(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4),(5),(6),(7),(8)]';
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create index i1 on t1(c2) storing(c5);
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+select partition_calc(t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, MAX)		__user_default_group	0
+select partition_calc(t1,(1),1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t1,(1),-1);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+select partition_calc(t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, MAX)		__user_default_group	0
+select partition_calc(t1,(1),2);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,(1),-2);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,(1),-100);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,(1),-100);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,0);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,0,());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t1,0,(1),1);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(0,(1));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc( ,0,(1));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select partition_calc(t2,(1,2),0);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=2,param_list_num=1
+select partition_calc(t2,(1,2,3),0);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=3,param_list_num=1
+select partition_calc(t4,(1),0);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=1,param_list_num=3
+select partition_calc(t4,(1,2),0);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=2,param_list_num=3
+select partition_calc(t4,(1,2,3,4,5),0);
+ERROR HY000: YAO--1: partition_key num is not equal to function param num,partition_key_num=5,param_list_num=3
+select partition_calc(t4,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test.t4	2	[2, MAX)	c2,c1,c3	ee#0	1
+select partition_calc(t4,('e',1,1),0);
+ERROR HY000: YAO-5083: Table has no partition for given value.
+select partition_calc(t4,('e','as',1),0);
+ERROR 0A000: YAO-7: The data type of partition_value[1] is not compatible,the input type:6,expected type:16
+select partition_calc(t2,('as'),0);
+ERROR 0A000: YAO-7: The data type of partition_value[0] is not compatible,the input type:6,expected type:16
+select partition_calc(t6,(100,100),0);
+ERROR 42S02: YAO-5019: table 'test.t6' does not exist
+select partition_calc(t7,(11,10),0);
+ERROR 42S02: YAO-5019: table 'test.t7' does not exist
+select partition_calc(__first_tablet_entry,(100),-1);
+ERROR 0A000: YAO-7: table is index table or system table
+select partition_calc(__3001__idx__i1,(100),-1);
+ERROR 0A000: YAO-7: table is index table or system table
+select partition_calc(t1,(1),0),* from t1;
+ERROR 42000: YAO-5001: Parse error
+select *,partition_calc(t1,(1),0) from t1;
+ERROR 42000: YAO-5001: Parse error
+select partition_calc(t1,(1),0) from t1 where c1 = 1;
+ERROR 42000: YAO-5001: Parse error
+select partition_calc(t1,(1),0) limit 1;
+ERROR 42000: YAO-5001: Parse error

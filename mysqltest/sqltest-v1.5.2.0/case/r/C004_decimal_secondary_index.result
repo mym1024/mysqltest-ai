@@ -1,0 +1,185 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+set @@yao_enable_query_optimizer=true;
+set global yao_query_timeout=2147483647;
+set global yao_tx_timeout=2147483647;
+set global yao_tx_idle_timeout=2147483647;
+create table t1(c1 decimal(15,5) primary key, c2 decimal(15,5), c3 decimal(15,5) ) ;
+insert into t1 values(1.1, 2.2, 3.3);
+insert into t1 values(11.11, 22.22, 33.33);
+insert into t1 values(111.111, 222.222, 333.333);
+insert into t1 values(1111.1111, 2222.2222, 3333.3333);
+insert into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+11.11	22.22	33.33
+111.111	222.222	333.333
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+create index i1 on t1(c2);
+create index i2 on t1(c3);
+merge
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__i1	1	0
+__3001__idx__i2	1	0
+__3001__idx__i1
+__3001__idx__i2
+delete from t1 where c2 > 222.222;
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+11.11	22.22	33.33
+111.111	222.222	333.333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+11.11	22.22	NULL
+111.111	222.222	NULL
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+11.11	22.22	33.33
+111.111	222.222	333.333
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+11.11	22.22	NULL
+111.111	222.222	NULL
+1111.1111	2222.2222	NULL
+11111.11111	22222.22222	NULL
+delete from t1 where c2 >= 222.222;
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+11.11	22.22	33.33
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+11.11	22.22	NULL
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+11.11	22.22	33.33
+111.111	222.222	333.333
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+11.11	22.22	NULL
+111.111	222.222	NULL
+1111.1111	2222.2222	NULL
+11111.11111	22222.22222	NULL
+delete from t1 where c2 between 22.22 and 222.222;
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+1111.1111	2222.2222	NULL
+11111.11111	22222.22222	NULL
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+111.111	222.222	333.333
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+111.111	222.222	NULL
+1111.1111	2222.2222	NULL
+11111.11111	22222.22222	NULL
+delete from t1 where c2 in(22.22, 222.222);
+select * from t1;
+c1	c2	c3
+1.1	2.2	3.3
+1111.1111	2222.2222	3333.3333
+11111.11111	22222.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	2.2	NULL
+1111.1111	2222.2222	NULL
+11111.11111	22222.22222	NULL
+update t1 set c2 = c2 + 100;
+select * from t1;
+c1	c2	c3
+1.1	102.2	3.3
+1111.1111	2322.2222	3333.3333
+11111.11111	22322.22222	33333.33333
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	102.2	NULL
+1111.1111	2322.2222	NULL
+11111.11111	22322.22222	NULL
+update t1 set c3 = c3 + 100.123;
+select * from t1;
+c1	c2	c3
+1.1	102.2	103.423
+1111.1111	2322.2222	3433.4563
+11111.11111	22322.22222	33433.45633
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+1.1	102.2	NULL
+1111.1111	2322.2222	NULL
+11111.11111	22322.22222	NULL
+insert into t1 values(4.4, 5.5, 6.6);
+insert into t1 values(44.44, 55.55, 66.66);
+insert into t1 values(444.444, 555.555, 666.666);
+insert into t1 values(4444.4444, 5555.5555, 6666.6666);
+insert into t1 values(44444.44444, 55555.55555, 66666.66666);
+__3001__idx__i1
+__3001__idx__i2
+select * from t1;
+c1	c2	c3
+1.1	102.2	103.423
+4.4	5.5	6.6
+44.44	55.55	66.66
+444.444	555.555	666.666
+1111.1111	2322.2222	3433.4563
+4444.4444	5555.5555	6666.6666
+11111.11111	22322.22222	33433.45633
+44444.44444	55555.55555	66666.66666
+select * from __3001__idx__i1;
+c1	c2	yao_virtual_col
+4.4	5.5	NULL
+44.44	55.55	NULL
+1.1	102.2	NULL
+444.444	555.555	NULL
+1111.1111	2322.2222	NULL
+4444.4444	5555.5555	NULL
+11111.11111	22322.22222	NULL
+44444.44444	55555.55555	NULL
+select * from __3001__idx__i2;
+c1	c3	yao_virtual_col
+4.4	6.6	NULL
+44.44	66.66	NULL
+1.1	103.423	NULL
+444.444	666.666	NULL
+1111.1111	3433.4563	NULL
+4444.4444	6666.6666	NULL
+11111.11111	33433.45633	NULL
+44444.44444	66666.66666	NULL
+drop table t1;

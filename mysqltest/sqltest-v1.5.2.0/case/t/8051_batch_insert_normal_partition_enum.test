@@ -1,0 +1,215 @@
+###########################################################################################
+###1.测试功能点：partition_enum：批量正常插入
+## 预期：用枚举函数作为分区函数时，插入的数据不符合函数体内任意一组枚举值时，会报错。
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：663.766943.s
+###5.编写/修改人：lyy
+###6.编写/修改日期：2019-11-01
+###7.其它（选填）：case格式规范化修改
+###
+##
+#
+###########################################################################################
+
+####################################Do sql######################################################
+
+###2-1：单主键：插入c1=5（不符合函数体内单个枚举值）
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function h;
+--enable_warnings
+create enum partition function h(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+insert into t1 select * from t2;
+select * from t1;
+select * from t2;
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+--error 5702
+insert into t2 values(5,55.55,'2017-03-31 16:08:13',5.555,5,'linf');
+insert into t1 select * from t2 where c6='maosuy';
+select * from t1;
+select * from t2;
+
+
+###2-2：组合主键：插入c1=5（不符合函数体内单个枚举值）
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function f;
+--enable_warnings
+create enum partition function f(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,f,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,f,c1);
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,8.356,0);
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2;
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+--error 5702
+insert into t2 (c1,c4,c5) values(5,7.365,1);
+select * from t1;
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2;
+select * from t1;
+
+###2-3:组合主键+单主键：插入c1=4（不符合函数体内单个枚举值）
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function g;
+--enable_warnings
+create enum partition function g(x)'[(1)],[(2)],[(3)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g,c1);
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(em,g,c1);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+# --error 16 -linfang
+insert into t1 (c1,c4,c2) select * from t2;
+insert into t2 values(3,8.35,7.899);
+--error 5702
+insert into t2 values(4,8.35,7.899);
+select * from t1;
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c2) select * from t2 where c1>2;
+select * from t1;
+
+###2-4:单主键、不保证事务一致性：插入c1=5(不符合函数体内单个枚举值)
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function g2;
+create enum partition function g2(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,g2,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,g2,c1);
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+insert into t1 select * from t2 multi_batch;
+select * from t1;
+select * from t2;
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+--error 5702
+insert into t2 values(5,55.55,'2017-03-31 17:20:27',5.555,1,'linf');
+select * from t2;
+--error 5001
+insert into t1 select * from t2 where c6='maosuy' multi_batch ;
+select * from t1;
+
+###2-5:组合主键、不保证事务一致性：插入c1=7（不符合函数体内单个枚举值）
+drop table if exists t1,t2;
+--error 5077
+drop partition function g3;
+create enum partition function g3(x)'[(1)],[(2)],[(3)],[(4)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g3,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g3,c1);
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 MULTI_BATCH;
+select * from t1;
+select * from t2;
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+--error 5702
+insert into t2 (c1,c4,c5) values(7,7.777,7);
+select * from t2;
+--error 5001
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2 MULTI_BATCH;
+select * from t1;
+
+####2-6:组合主键+单主键、不保证事务一致性：插入c1=4（不符合函数体内单个枚举值）
+drop table if exists t1,t2;
+--error 5077
+drop partition function g4;
+create enum partition function g4(x)'[(1)],[(2)],[(3)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g4,c1);
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(em,g,c1);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+# --error 16 -linfang
+insert into t1 (c1,c4,c2) select * from t2 MULTI_BATCH;
+select * from t1;
+insert into t2 values(3,8.35,7.899);
+--error 5702
+insert into t2 values(4,4.44,7.777);
+select * from t2;
+--error 5001
+insert into t1 (c1,c4,c2) select * from t2 where c1>2 MULTI_BATCH;
+select * from t1;
+
+###2-7:组合主键、不保证事务一致性：插入c1=4（不符合函数体内单个枚举值）
+drop table if exists t1,t2;
+--error 5077
+drop partition function g5;
+create enum partition function g5(x)'[(1)],[(3)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g5,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g5,c1);
+insert into t1 select * from t2;
+insert into t1 select * from t2;
+insert into t2 values(1,NULL,NULL,NULL,NULL,NULL);
+--error 5702
+insert into t2 values(2,NULL,NULL,NULL,NULL,NULL);
+insert into t1 select * from t2 where c1 is not null ;
+select * from t1;
+select * from t2;
+
+###2-8:组合主键+单主键：插入c1=3（不符合函数体内单个枚举值）
+drop table if exists t1,t2;
+--error 5077
+drop partition function g6;
+create enum partition function g6(x)'[(1)],[(2)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g6,c1);
+insert into t1 select * from t1;
+select * from t1;
+create table t2 (c1 int primary key ,c2 decimal(3,2) ,c3 real) partition by(em,g6,c1);
+insert into t2 values(1,1.25,4.562);
+insert into t1(c1 ,c4,c2) select * from t2;
+insert into t1(c1 ,c4,c2) values(2,2.35,2.564);
+--error 5702
+insert into t1(c1 ,c4,c2) values(3,3.33,3.333);
+insert into t2 select c1 ,c4,c2 from t1 where c1=2;
+select * from t1;
+select * from t2;
+
+
+###///新添测试项///###
+###2-9：组合主键：插入c1=2,c4=NULL;c1=1,c4=3（不符合函数体内单个枚举值）（主键为空，任意组合）
+#do sql
+###############################################################################################
+drop table if exists t1,t2;
+--error 5077
+drop partition function g7;
+create enum partition function g7(x,y)'[(1,2)],[(3,5)]';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 int,c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g7,c1,c4);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 int,c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g7,c1,c4);
+insert into t1 select * from t2;
+insert into t1 select * from t2;
+insert into t2 values(1,NULL,NULL,2,NULL,NULL);
+insert into t2 values(2,NULL,NULL,NULL,NULL,NULL);
+--error 5702
+insert into t2 values(1,NULL,NULL,3,NULL,NULL);
+insert into t1 select * from t2 where c1 is not null ;
+select * from t1;
+select * from t2;
+
+
+####2-10:组合主键+单主键：插入c1=3（不符合函数体内单个枚举值）
+drop table if exists t1,t2;
+--error 5077
+drop partition function g8;
+create enum partition function g8(x)'[(1)],[(2)]';
+create table t1 (c1 int ,c2 int ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(em,g8,c1);
+insert into t1 select * from t1;
+select * from t1;
+create table t2 (c1 int primary key ,c2 int ,c3 real) partition by(em,g8,c1);
+insert into t2 values(1,1.25,4.562);
+insert into t1(c1 ,c4,c2) select * from t2;
+insert into t1(c1 ,c4,c2) values(NULL,2.35,2.564);
+--error 5702
+insert into t1(c1 ,c4,c2) values(3,3.33,3.333);
+insert into t2 select c1 ,c4,c2 from t1 where c1=2;
+select * from t1;
+select * from t2;

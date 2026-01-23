@@ -1,0 +1,12 @@
+drop table if exists t1;
+create table t1(pk int primary key,b modifytime)partition by range(pk) (partition r0 values less than (5),partition r1 values less than (10),partition r2 values less than maxvalue);
+insert into t1(pk) values(1);
+insert into t1(pk) values(2);
+select pk,b from t1;
+pk	b
+1	searched
+2	searched
+replace into t1(pk) values(1);
+replace into t1(pk) values(2);
+pk	b
+1	searched

@@ -1,0 +1,80 @@
+drop table if exists t1,t2,t3,t4;
+create table if not exists t1(c1 int primary key,c2 decimal(5,1));
+insert into t1 values (1,12345.5);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,1) to decimal(5,1) for table[test.t1] column[c2] at row[1]
+insert into t1 values (1,23),(3,34),(2,1435455.0);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(8,1) to decimal(5,1) for table[test.t1] column[c2] at row[3]
+replace into t1 values (1,12345.5);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,1) to decimal(5,1) for table[test.t1] column[c2] at row[1]
+replace into t1 values (1,23),(3,34),(2,1435455.0);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(8,1) to decimal(5,1) for table[test.t1] column[c2] at row[3]
+select * from t1;
+c1	c2
+drop table if exists t1;
+create table if not exists t1(c1 int primary key,c2 decimal(5,1));
+insert into t1 values (1,12.5);
+update t1 set c2=123456;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(6,0) to decimal(5,1) for table[test.t1] column[c2]
+insert into t1 values (2,2345),(3,123);
+update t1 set c2=123456;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(6,0) to decimal(5,1) for table[test.t1] column[c2]
+select * from t1;
+c1	c2
+1	12.5
+2	2345
+3	123
+drop table if exists t1;
+create table if not exists t1(c1 int primary key,c2 decimal(3,1));
+create table if not exists t2(c1 int primary key,c2 decimal(5,1));
+insert into t2 values (1,1234.2);
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(5,1) to decimal(3,1) for table[test.t1] column[c2] at row[1]
+delete from t2 where c1=1;
+insert into t2 values (1,123),(2,1234.5);
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(5,1) to decimal(3,1) for table[test.t1] column[c2] at row[1]
+select * from t1;
+c1	c2
+drop table if exists t1;
+select * from t2;
+c1	c2
+1	123
+2	1234.5
+drop table if exists t2;
+create table if not exists t1(c1 int,c2 decimal(5,1) primary key);
+insert into t1 values (1,123456);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(0,0) to decimal(5,1) for table[test.t1] column[c2] at row[1]
+insert into t1 values (1,23),(1,12),(3,123456);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(0,0) to decimal(5,1) for table[test.t1] column[c2] at row[3]
+replace into t1 values (1,123456);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(0,0) to decimal(5,1) for table[test.t1] column[c2] at row[1]
+replace into t1 values (1,23),(1,12),(3,123456);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(0,0) to decimal(5,1) for table[test.t1] column[c2] at row[3]
+select * from t1;
+c1	c2
+drop table if exists t1;
+create table if not exists t1(c1 int,c2 decimal(5,1) primary key);
+insert into t1 values (1,12.2);
+update t1 set c2=123456.7;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(7,1) to decimal(5,1) for table[test.t1] column[c2] at row[1]
+select * from t1;
+c1	c2
+1	12.2
+drop table if exists t1;
+create table if not exists t1(c1 int,c2 decimal(3,1) primary key);
+create table if not exists t2(c1 int,c2 decimal(5,1)primary key);
+insert into t2 values (1,1234.2);
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(5,1) to decimal(3,1) for table[test.t1] column[c2] at row[1]
+delete from t2 where c1=1;
+insert into t2 values (1,123),(2,1234.5);
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Overflow occurred during convert decimal(5,1) to decimal(3,1) for table[test.t1] column[c2] at row[1]
+select * from t1;
+c1	c2
+drop table if exists t1;
+select * from t2;
+c1	c2
+1	123
+2	1234.5
+drop table if exists t2;

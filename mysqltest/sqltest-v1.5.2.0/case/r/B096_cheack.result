@@ -1,0 +1,1004 @@
+CREATE TABLE t1(f1 int CHECK());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CONSTRAINT CHECK());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CONSTRAINT t1_ck CHECK());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CONSTRAINT t1_ck CHECK( f1 < 10) NOT);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int t1_ck CHECK());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CHECK(f1));
+ERROR HY000: YAO-5687: An expression of non-boolean type specified to a check constraint 't1_yaochk_1764081016896846'
+CREATE TABLE t1(f1 int CHECK(f2 < 10));
+ERROR HY000: YAO-5690: Column check constraint 't1_yaochk_1764081016897511' references other column.
+CREATE TABLE t1 (f1 int CHECK(f1 < 10),f2 int CONSTRAINT t1_f2_ck CHECK (f2 < 10));
+drop table t1;
+CREATE TABLE t1(f1 int CHECK(f1 < 10), f2 int CHECK);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CHECK(f1 < 10), f2 int t1_f2_ck CHECK(f2 < 10));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CHECK(f1 < 10), f2 int CHECK(f2 < 10) NOT);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int CHECK(f1 < 10), f2 int CHECK(f2 + 10));
+ERROR HY000: YAO-5687: An expression of non-boolean type specified to a check constraint 't1_yaochk_1764081017367081'
+CREATE TABLE t1 (f1 int CHECK(f1 < 10), f2 int CHECK(f2 < 10),f3 int CONSTRAINT t1_f3_ck CHECK (f3  < 10));
+drop table t1;
+CREATE TABLE t1(f1 int CHECK(f1 + 10));
+ERROR HY000: YAO-5687: An expression of non-boolean type specified to a check constraint 't1_yaochk_1764081017844195'
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK();
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f1));
+ERROR HY000: YAO-5687: An expression of non-boolean type specified to a check constraint 't1_ck'
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f1 + 10));
+ERROR HY000: YAO-5687: An expression of non-boolean type specified to a check constraint 't1_ck'
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f2 < 10));
+ERROR HY000: YAO-5685: refers to non-existing column 'f2' in Check Constraint expression
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f1 < 10));
+drop table t1;
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f1<10), CONSTRAINT t2_ck CHECK(f2 > 0) NOT);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t1(f1 int, CONSTRAINT t1_ck CHECK(f1<10), CONSTRAINT t2_ck CHECK(f2 > 1));
+ERROR HY000: YAO-5685: refers to non-existing column 'f2' in Check Constraint expression
+CREATE TABLE t1(f1 int, CHECK(f1<10), CONSTRAINT t2_ck CHECK(f1 > 1));
+drop table t1;
+CREATE TABLE t1(c1 INT, c2 INT, CONSTRAINT `ck_1$` CHECK (c2 < 10));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT `ck_1$` CHECK (c2 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t2(c1 INT, c2 INT, CONSTRAINT ` ck_2$ ` CHECK (c2 < 10));
+SHOW CREATE TABLE t2;
+Table	Create Table
+test.t2	CREATE TABLE `t2` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT ` ck_2$ ` CHECK (c2 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t3(c1 INT, c2 INT,CONSTRAINT ckkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk1 CHECK (c2 < 10));
+ERROR HY000: YAO-5179: Identifier name 'ckkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk1' is too long
+CREATE TABLE t4(c1 INT, c2 INT, CONSTRAINT FLOAT CHECK (c2 < 10));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE t5(c1 INT, c2 INT, CONSTRAINT `FLOAT` CHECK (c2 < 10));
+SHOW CREATE TABLE t5;
+Table	Create Table
+test.t5	CREATE TABLE `t5` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT `FLOAT` CHECK (c2 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t6 (f1 INT CHECK (f1 < 10));
+RENAME TABLE t6 TO t123456789012345678901234567890123456789012345678901234567890;
+SHOW CREATE TABLE t123456789012345678901234567890123456789012345678901234567890;
+Table	Create Table
+test.t123456789012345678901234567890123456789012345678901234567890	CREATE TABLE `t123456789012345678901234567890123456789012345678901234567890` (
+`f1` INT(10),
+ CONSTRAINT `t6_yaochk_1764081019147760` CHECK (f1 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t1,t2,t5;
+CREATE TABLE t(c1 INT CONSTRAINT t2_chk_1 CHECK (c1 > 10));
+CREATE TABLE t1(c1 INT CHECK (c1 > 10), CONSTRAINT ck CHECK(c1 > 10));
+CREATE TABLE t2(c1 INT, CONSTRAINT ck CHECK(c1 > 10));
+ERROR HY000: YAO-5678: Duplicate check constraint name 'ck' 
+ALTER TABLE t1 ADD CONSTRAINT ck CHECK(c1 > 10);
+ERROR HY000: YAO-5678: Duplicate check constraint name 'ck' 
+ALTER TABLE t1 RENAME TO t2;
+CREATE DATABASE db1;
+CREATE TABLE db1.t(c1 INT CONSTRAINT t2_chk_1 CHECK (c1 > 10));
+ALTER TABLE db1.t ADD c2 INT;
+ALTER TABLE db1.t RENAME TO db1.t2;
+CREATE TABLE t1 (f1 INT,CONSTRAINT cafe CHECK (f1 < 10),CONSTRAINT CAFE CHECK (f1 < 10));
+ERROR HY000: YAO-5678: Duplicate check constraint name 'CAFE' 
+create table t1 (f1 int,CONSTRAINT cafe CHECK (f1 < 10),CONSTRAINT café CHECK (f1 < 10));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+ CONSTRAINT `cafe` CHECK (f1 < 10) ENFORCED,
+CONSTRAINT `café` CHECK (f1 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t2;
+CREATE TABLE t2(CHECK((f1 + f3) > 10), f1 int CHECK (f1 < 10), f2 int);
+ERROR HY000: YAO-5685: refers to non-existing column 'f3' in Check Constraint expression
+CREATE TABLE t3(CHECK((f1 + f2) > 10), f1 int CHECK (f1 < 10), f2 int);
+SHOW CREATE TABLE t3;
+Table	Create Table
+test.t3	CREATE TABLE `t3` (
+`f1` INT(10),
+`f2` INT(10),
+ CONSTRAINT `t3_yaochk_1764081021557581` CHECK (f1 < 10) ENFORCED,
+CONSTRAINT `t3_yaochk_1764081021557662` CHECK ((f1 + f2) > 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1,t3;
+CREATE TABLE t1(c1 INT, c2 INT, c3 INT, c4 INT);
+ALTER TABLE t1 
+ADD CONSTRAINT ck11 CHECK(c1 > 1),
+ADD CONSTRAINT ck12 CHECK(c1 < 1),
+ADD CONSTRAINT ck21 CHECK(c2 > 1),
+ADD CONSTRAINT ck22 CHECK(c2 < 1),
+ADD CONSTRAINT ck31 CHECK(c3 > 1),
+ADD CONSTRAINT ck32 CHECK(c3 < 1),
+ADD CONSTRAINT ck41 CHECK(c4 > 1),
+ADD CONSTRAINT ck42 CHECK(c4 < 1);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+`c3` INT(10),
+`c4` INT(10),
+ CONSTRAINT `ck11` CHECK (c1 > 1) ENFORCED,
+CONSTRAINT `ck12` CHECK (c1 < 1) ENFORCED,
+CONSTRAINT `ck21` CHECK (c2 > 1) ENFORCED,
+CONSTRAINT `ck22` CHECK (c2 < 1) ENFORCED,
+CONSTRAINT `ck31` CHECK (c3 > 1) ENFORCED,
+CONSTRAINT `ck32` CHECK (c3 < 1) ENFORCED,
+CONSTRAINT `ck41` CHECK (c4 > 1) ENFORCED,
+CONSTRAINT `ck42` CHECK (c4 < 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t1
+DROP CHECK ck21, ADD CONSTRAINT ck21 CHECK (c1 > 10),
+DROP CHECK ck22, ADD CONSTRAINT ck22 CHECK (c1 < 10),
+DROP CHECK ck31, ADD CONSTRAINT ck31 CHECK (c1 > 10),
+DROP CHECK ck32, ADD CONSTRAINT ck32 CHECK (c1 < 10),
+DROP CHECK ck41, ADD CONSTRAINT ck41 CHECK (c1 > 10),
+DROP CHECK ck42, ADD CONSTRAINT ck42 CHECK (c1 < 10);
+ERROR HY000: YAO-5678: Duplicate check constraint name 'ck21' 
+DROP TABLE t1;
+CREATE TABLE t1(c1 INT DEFAULT 100 CHECK(c1 > 10));
+INSERT INTO t1 VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081025904752' is violated
+CREATE TABLE t2(c1 int DEFAULT 1, CONSTRAINT CHECK(c1 IS NOT NULL));
+INSERT INTO t2 VALUES(NULL);
+ERROR HY000: YAO-5689: Check constraint 't2_yaochk_1764081026077979' is violated
+CREATE TABLE t3(c1 VARCHAR(1) CHARSET gbk CHECK(c1 = 'a'),c2 VARCHAR(1) CHARSET gbk);
+show create table t3;
+Table	Create Table
+test.t3	CREATE TABLE `t3` (
+`c1` VARCHAR (1) COLLATE 'gbk_chinese_ci',
+`c2` VARCHAR (1) COLLATE 'gbk_chinese_ci',
+ CONSTRAINT `t3_yaochk_1764081026246708` CHECK (c1 = 'a') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t4 (c1 varchar(255) character set 'gbk' collate 'gbk_bin' check(c1 = 'a'));
+insert into t4 values('b');
+ERROR HY000: YAO-5689: Check constraint 't4_yaochk_1764081026410392' is violated
+insert into t4 values('a');
+select * from t4;
+c1
+a
+show create table t4;
+Table	Create Table
+test.t4	CREATE TABLE `t4` (
+`c1` VARCHAR (255) COLLATE 'gbk_bin',
+ CONSTRAINT `t4_yaochk_1764081026410392` CHECK (c1 = 'a') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t5 (CHECK (1 < 1), f1 int);
+SHOW CREATE TABLE t5;
+Table	Create Table
+test.t5	CREATE TABLE `t5` (
+`f1` INT(10),
+ CONSTRAINT `t5_yaochk_1764081026619535` CHECK (1 < 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t5 VALUES(1);
+INSERT INTO t5 VALUES(10);
+create table t6(c1 int check(c1 > 1));
+select * from __all_check_constraint;
+gmt_create	gmt_modified	check_constraint_id	table_id	check_constraint_name	check_constraint_expr	enforced
+2025-11-25 22:30:25.950867	2025-11-25 22:30:25.950867	29	3015	t1_yaochk_1764081025904752	c1 > 10	1
+2025-11-25 22:30:26.119307	2025-11-25 22:30:26.119307	30	3016	t2_yaochk_1764081026077979	c1 IS NOT NULL	1
+2025-11-25 22:30:26.288968	2025-11-25 22:30:26.288968	31	3017	t3_yaochk_1764081026246708	c1 = 'a'	1
+2025-11-25 22:30:26.452405	2025-11-25 22:30:26.452405	32	3018	t4_yaochk_1764081026410392	c1 = 'a'	1
+2025-11-25 22:30:26.661085	2025-11-25 22:30:26.661085	33	3019	t5_yaochk_1764081026619535	1 < 1	1
+2025-11-25 22:30:26.876128	2025-11-25 22:30:26.876128	34	3020	t6_yaochk_1764081026833929	c1 > 1	1
+select * from __all_check_constraint_column;
+gmt_create	gmt_modified	table_id	check_constraint_id	column_id	column_name	table_name
+2025-11-25 22:30:25.950867	2025-11-25 22:30:25.950867	3015	29	16	c1	t1
+2025-11-25 22:30:26.119307	2025-11-25 22:30:26.119307	3016	30	16	c1	t2
+2025-11-25 22:30:26.288968	2025-11-25 22:30:26.288968	3017	31	16	c1	t3
+2025-11-25 22:30:26.452405	2025-11-25 22:30:26.452405	3018	32	16	c1	t4
+2025-11-25 22:30:26.876128	2025-11-25 22:30:26.876128	3020	34	16	c1	t6
+CREATE TABLE t7(f1 INT CHECK (f1 < 10), f2 INT, CHECK (f2 < 10),CONSTRAINT min CHECK (f1 + f2 > 10),CONSTRAINT max CHECK (f1 + f2 < 929));
+SHOW CREATE TABLE t7;
+Table	Create Table
+test.t7	CREATE TABLE `t7` (
+`f1` INT(10),
+`f2` INT(10),
+ CONSTRAINT `t7_yaochk_1764081027002077` CHECK (f1 < 10) ENFORCED,
+CONSTRAINT `t7_yaochk_1764081027002185` CHECK (f2 < 10) ENFORCED,
+CONSTRAINT `min` CHECK (f1 + f2 > 10) ENFORCED,
+CONSTRAINT `max` CHECK (f1 + f2 < 929) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1,t2,t3,t4,t5,t6,t7;
+CREATE TABLE t1(f1 INT PRIMARY KEY, f2 INT CHECK (f2 < 10));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+`f2` INT(10),
+ PRIMARY KEY(`f1`),
+ CONSTRAINT `t1_yaochk_1764081028827300` CHECK (f2 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t2(f1 INT, f2 INT);
+INSERT INTO t2 VALUES(101, 1),(102, NULL),(103, 1000);
+INSERT INTO t1 VALUES(1, 1),(2, NULL);
+INSERT INTO t1 VALUES(3, 1000);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081028827300' is violated
+INSERT IGNORE INTO t1 VALUES (3, 1000);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+INSERT INTO t1 SELECT * FROM t2;
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081028827300' is violated
+drop table t1,t2;
+create table t1 (c1 double check(cast(c1 as int) > 2));
+insert into t1 values(2.1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081029571865' is violated
+insert into t1 values(2.9);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081029571865' is violated
+insert into t1 values(3.9);
+select * from t1;
+c1
+3.9
+create table t2 (c1 timestamp check (cast(c1 as datetime)> '2025-12-01 12:21:21'));
+insert into t2 values(current_date);
+ERROR HY000: YAO-5689: Check constraint 't2_yaochk_1764081029776978' is violated
+drop table t1,t2;
+create table t1 (c1 double, c2 int, c3 int check(c3 between c1 and c2));
+ERROR HY000: YAO-5690: Column check constraint 't1_yaochk_1764081030377970' references other column.
+create table t1 (c1 double, c2 int, c3 int default 10 ,check(c3 between c1 and c2));
+insert into t1 values(1,2,3);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081030378663' is violated
+insert into t1 values(1,3,3),(1,4,3),(3,5,3);
+update t1 set c3 = 11 where c2 = 3;
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081030378663' is violated
+update t1 set c3 = 2 where c2 = 3;
+drop table t1;
+create table t1 (c1 varchar(10) check(c1 = 'abc'));
+insert into t1 values(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081035840613' is violated
+insert into t1 values('ab');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081035840613' is violated
+insert into t1 values('abc');
+select * from t1;
+c1
+abc
+insert into t1 values('尧');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081035840613' is violated
+drop table t1;
+create table t1 (c1 varchar(10) check(c1 +1 is not null));
+insert into t1 values(1);
+select * from t1;
+c1
+1
+insert into t1 values(NULL);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081038292484' is violated
+drop table t1;
+create table t1 (c1 datetime check( year(cast(c1 as datetime)) > 2024));
+insert into t1 values('2024-11-12');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081038729893' is violated
+insert into t1 values('2025-11-12');
+drop table t1;
+CREATE TABLE t1(f1 INT PRIMARY KEY, f2 INT CHECK (f2 < 10));
+INSERT INTO t1 VALUES(2, NULL);
+select null < 10;
+null < 10
+NULL
+INSERT INTO t1 VALUES(3, 1000);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081039157865' is violated
+insert into t1 values(1,2);
+UPDATE t1 SET f2 = NULL;
+select * from t1;
+f1	f2
+1	NULL
+2	NULL
+drop table t1;
+create  table t1 (c1 int primary key, c2 bit(3) check(c2 =b'001'));
+insert into t1 values(1, 2);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081047586151' is violated
+insert into t1 values(1, b'110');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081047586151' is violated
+insert into t1 values(1, b'1110');
+ERROR HY000: YAO-5611: data is too long
+insert into t1 values(1, '1');
+ERROR HY000: YAO-5611: Varchar is too long
+insert into t1 values(2, 0001),(3, 0001),(1, b'001');
+select * from t1;
+c1	c2
+1	
+2	
+3	
+drop table t1;
+create table t1 (c1 int check(c1 > 1), c2 int check(c2 >2),check(c2 > c1 || c1 > c2));
+replace into t1 values(2,3);
+insert into t1 values(1,2);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081049968641' is violated
+insert into t1 values(2,1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081049968735' is violated
+insert into t1 values(2,2);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081049968735' is violated
+drop table t1;
+create table t1 (c1 varchar(20) check(c1 like '%abc%'));
+insert into t1 values(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081052467382' is violated
+insert into t1 values('ab');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081052467382' is violated
+insert into t1 values('abv');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081052467382' is violated
+insert into t1 values('abc');
+insert into t1 values('尧abc尧');
+select * from t1;
+c1
+abc
+尧abc尧
+drop table t1;
+create table t1 (c1 varchar(10) check(c1 regexp '[0-9]' ));
+insert into t1 values ('a');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081055917508' is violated
+insert into t1 values (1),(10),(11),(9);
+insert into t1 values ('bab');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081055917508' is violated
+select * from t1;
+c1
+1
+10
+11
+9
+replace into t1 values(10);
+replace into t1 values('a');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081055917508' is violated
+drop table t1;
+create table t1 (c1 int check(c1 !=1 ));
+insert into t1 values(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081056349951' is violated
+insert into t1 values(1.01);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081056349951' is violated
+drop table t1;
+CREATE TABLE t1 (f1 INT CHECK(f1 < 10));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081056759842` CHECK (f1 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+RENAME TABLE t1 TO t2;
+SHOW CREATE TABLE t2;
+Table	Create Table
+test.t2	CREATE TABLE `t2` (
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081056759842` CHECK (f1 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t2;
+CREATE DATABASE test1;
+CREATE DATABASE test2;
+USE test1;
+CREATE TABLE t1(c1 INT, c2 INT CHECK (c2 < 10));
+INSERT INTO t1 VALUES(1,1);
+ALTER TABLE test1.t1 rename test2.t1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+USE test2;
+SELECT * FROM t1;
+ERROR 42S02: YAO-5019: table 'test2.t1' does not exist
+CREATE TABLE parent(pid INT NOT NULL PRIMARY KEY CHECK(pid > 1));
+CREATE TABLE child(cid INT CHECK(cid > 1),CONSTRAINT fk FOREIGN KEY (cid) REFERENCES parent(pid));
+SHOW CREATE TABLE parent;
+Table	Create Table
+test2.parent	CREATE TABLE `parent` (
+`pid` INT(10) NOT NULL,
+ PRIMARY KEY(`pid`),
+ CONSTRAINT `parent_yaochk_1764081057605047` CHECK (pid > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+SHOW CREATE TABLE child;
+Table	Create Table
+test2.child	CREATE TABLE `child` (
+`cid` INT(10),
+ CONSTRAINT `fk` FOREIGN KEY (`cid`) REFERENCES test2.parent(`pid`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ CONSTRAINT `child_yaochk_1764081057757943` CHECK (cid > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO parent VALUES(2);
+INSERT INTO child VALUES(3);
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+INSERT INTO child VALUES(2);
+SELECT * FROM parent;
+pid
+2
+SELECT * FROM child;
+cid
+2
+DROP TABLE child;
+DROP TABLE parent;
+create table t1(c1 int,c2 int, check(c2>c1));
+select * from __all_check_constraint;
+gmt_create	gmt_modified	check_constraint_id	table_id	check_constraint_name	check_constraint_expr	enforced
+2025-11-25 22:30:58.504864	2025-11-25 22:30:58.504864	58	3040	t1_yaochk_1764081058459653	c2>c1	1
+select * from __all_check_constraint_column;
+gmt_create	gmt_modified	table_id	check_constraint_id	column_id	column_name	table_name
+2025-11-25 22:30:58.504864	2025-11-25 22:30:58.504864	3040	58	16	c1	t1
+2025-11-25 22:30:58.504864	2025-11-25 22:30:58.504864	3040	58	17	c2	t1
+drop table t1;
+select * from __all_check_constraint;
+gmt_create	gmt_modified	check_constraint_id	table_id	check_constraint_name	check_constraint_expr	enforced
+select * from __all_check_constraint_column;
+gmt_create	gmt_modified	table_id	check_constraint_id	column_id	column_name	table_name
+create table t1(c1 int, c2 int,f1 INT CHECK (f1 < 10), constraint cmp_ck check(c2 > c1));
+ALTER TABLE t1 DROP CHECK cmp_ck;
+show create table t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081058860222` CHECK (f1 < 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t1 ADD CONSTRAINT CHECK (f1 > 1), ADD CONSTRAINT `t1_p_ck` CHECK (f1 > 1);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081058860222` CHECK (f1 < 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081059120154` CHECK (f1 > 1) ENFORCED,
+CONSTRAINT `t1_p_ck` CHECK (f1 > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t1 DROP CHECK t1_p_ck, ADD CONSTRAINT t1_p_ck CHECK (c1 > 38);
+ERROR HY000: YAO-5678: Duplicate check constraint name 't1_p_ck' 
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081058860222` CHECK (f1 < 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081059120154` CHECK (f1 > 1) ENFORCED,
+CONSTRAINT `t1_p_ck` CHECK (f1 > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1;
+CREATE TABLE t1 (c1 INT, CONSTRAINT ck1 CHECK (c1 > 10));
+ALTER TABLE t1 ADD COLUMN c2 INT,ADD CONSTRAINT ck2 CHECK (c2 > 10);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT `ck1` CHECK (c1 > 10) ENFORCED,
+CONSTRAINT `ck2` CHECK (c2 > 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t1 DROP COLUMN c2;
+ERROR HY000: YAO-5691: Check constraint 'ck2' uses column 'c2', hence column cannot be dropped or renamed.
+ALTER TABLE t1 DROP CHECK ck2,DROP COLUMN c2;
+ERROR HY000: YAO-5691: Check constraint 'ck2' uses column 'c2', hence column cannot be dropped or renamed.
+ALTER TABLE t1 DROP CHECK ck2;
+ALTER TABLE t1 DROP COLUMN c2;
+ALTER TABLE t1 ADD COLUMN c4 INT, ADD CONSTRAINT ck4 CHECK( c4 > 10);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c4` INT(10),
+ CONSTRAINT `ck1` CHECK (c1 > 10) ENFORCED,
+CONSTRAINT `ck4` CHECK (c4 > 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t1;
+CREATE TABLE t1(f1 INT,f2 INT CHECK (f2 < 10),f3 INT CHECK (f3 < 10) NOT ENFORCED,CONSTRAINT ck CHECK (f1 > 10),CONSTRAINT CHECK (f1 > 10) NOT ENFORCED);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+`f2` INT(10),
+`f3` INT(10),
+ CONSTRAINT `t1_yaochk_1764081060248960` CHECK (f2 < 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081060248989` CHECK (f3 < 10) NOT ENFORCED,
+CONSTRAINT `ck` CHECK (f1 > 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081060249014` CHECK (f1 > 10) NOT ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t2(c1 INT, c2 INT, c3 INT, c4 INT);
+ALTER TABLE t2 DROP CHECK ck13;
+ERROR HY000: YAO-5688: Check constraint 'ck13' is not found in the table.
+CREATE TABLE t3(c1 CHAR(1), CHECK (c1 > 'A'));
+SHOW CREATE TABLE t3;
+Table	Create Table
+test2.t3	CREATE TABLE `t3` (
+`c1` VARCHAR (1) COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `t3_yaochk_1764081060605621` CHECK (c1 > 'A') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t3 VALUES('A');
+ERROR HY000: YAO-5689: Check constraint 't3_yaochk_1764081060605621' is violated
+INSERT INTO t3 VALUES('B');
+DELETE FROM t3;
+SHOW CREATE TABLE t3;
+Table	Create Table
+test2.t3	CREATE TABLE `t3` (
+`c1` VARCHAR (1) COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `t3_yaochk_1764081060605621` CHECK (c1 > 'A') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t3 MODIFY COLUMN c1 FLOAT, DROP CHECK t1_chk_1, ADD CONSTRAINT CHECK(C1 > 10.1) ENFORCED;
+ERROR HY000: YAO-5688: Check constraint 't1_chk_1' is not found in the table.
+DROP TABLE t1,t2,t3;
+CREATE TABLE t1(f1 int CHECK (f1 IN (10, 20, 30)), f2 int, CHECK(f2 IN (100, 120, 450)));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+`f2` INT(10),
+ CONSTRAINT `t1_yaochk_1764081061480766` CHECK (f1 IN (10, 20, 30)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081061480844` CHECK (f2 IN (100, 120, 450)) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(10, 100);
+INSERT INTO t1 VALUES(15, 100);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081061480766' is violated
+INSERT INTO t1 VALUES(10, 105);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081061480844' is violated
+DROP TABLE t1;
+CREATE TABLE t1(f1 int CHECK(f1 BETWEEN 10 AND 30),f2 int, CHECK(f2 BETWEEN 100 AND 450));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+`f2` INT(10),
+ CONSTRAINT `t1_yaochk_1764081061937648` CHECK (f1 BETWEEN 10 AND 30) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081061937739` CHECK (f2 BETWEEN 100 AND 450) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(20, 200);
+INSERT INTO t1 VALUES(2, 200);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081061937648' is violated
+INSERT INTO t1 VALUES(20, 2000);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081061937739' is violated
+DROP TABLE t1;
+CREATE TABLE t1 (f1 int CHECK(f1 IS NOT NULL));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081062396658` CHECK (f1 IS NOT NULL) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(10);
+INSERT INTO t1 VALUES(NULL);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081062396658' is violated
+DROP TABLE t1;
+CREATE TABLE t1 (f1 int CHECK(f1 IS NULL));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`f1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081062822776` CHECK (f1 IS NULL) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(NULL);
+INSERT INTO t1 VALUES(10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081062822776' is violated
+DROP TABLE t1;
+CREATE TABLE t1(c1 INT, c2 INT);
+ALTER TABLE t1 ADD CONSTRAINT CHECK( (CASE WHEN c1 > 10 THEN c2 = 20 END) = 1);
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT `t1_yaochk_1764081063395099` CHECK ((CASE WHEN c1 > 10 THEN c2 = 20 END) = 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(1,1);
+INSERT INTO t1 VALUES(15,1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081063395099' is violated
+INSERT INTO t1 VALUES(15,20);
+SELECT * FROM t1;
+c1	c2
+1	1
+15	20
+DROP TABLE t1;
+CREATE TABLE t1(c1 INT, CHECK ( c1 IN ( SELECT COALESCE(NULL, 1, 1))));
+ERROR HY000: YAO-5682: An expression of a check constraint 't1_yaochk_1764081063768888' contains disallowed function.
+CREATE TABLE t1(c1 INT, CHECK ( c1 < ( SELECT COALESCE(NULL, 1, 1))));
+ERROR HY000: YAO-5682: An expression of a check constraint 't1_yaochk_1764081063769730' contains disallowed function.
+CREATE TABLE t1(c1 INT , CHECK ( c1 <=> NULL ));
+INSERT INTO t1 VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081063770468' is violated
+INSERT INTO t1 VALUES(NULL);
+SELECT * FROM t1;
+c1
+NULL
+ALTER TABLE t1 ADD COLUMN c2 INT, ADD CONSTRAINT CHECK( c2 >= 10 );
+INSERT INTO t1(c2) VALUES(9);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081063975761' is violated
+INSERT INTO t1(c2) VALUES(10);
+ALTER TABLE t1 ADD COLUMN c3 INT, ADD CONSTRAINT CHECK( c3 < 10 );
+INSERT INTO t1(c3) VALUES(10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064084683' is violated
+INSERT INTO t1(c3) VALUES(9);
+ALTER TABLE t1 ADD COLUMN c4 INT, ADD CONSTRAINT CHECK( c4 != 10 );
+INSERT INTO t1(c4) VALUES(10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064197551' is violated
+INSERT INTO t1(c4) VALUES(20);
+ALTER TABLE t1 ADD COLUMN c7 INT, ADD CONSTRAINT CHECK( c7 <> 10 );
+INSERT INTO t1(c7) VALUES(10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064313991' is violated
+INSERT INTO t1(c7) VALUES(20);
+ALTER TABLE t1 ADD COLUMN c8 INT, ADD CONSTRAINT CHECK( c8 = GREATEST(1,2,3) );
+INSERT INTO t1(c8) VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064433027' is violated
+INSERT INTO t1(c8) VALUES(3);
+ALTER TABLE t1 ADD COLUMN c9 INT, ADD CONSTRAINT CHECK( c9 = LEAST(1,2,3) );
+INSERT INTO t1(c9) VALUES(3);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064558215' is violated
+INSERT INTO t1(c9) VALUES(1);
+ALTER TABLE t1 ADD COLUMN c10 INT, ADD CONSTRAINT CHECK( c10 NOT IN (1,2,3) );
+INSERT INTO t1(c10) VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064687422' is violated
+INSERT INTO t1(c10) VALUES(3);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064687422' is violated
+INSERT INTO t1(c10) VALUES(10);
+ALTER TABLE t1 ADD COLUMN c11 date, ADD CONSTRAINT CHECK ( c11 > '2007-01-01');
+INSERT INTO t1(c11) VALUES('2009-01-01');
+ALTER TABLE t1 ADD COLUMN c12 INT, ADD CONSTRAINT CHECK ( c12 NOT BETWEEN 10 AND 20);
+INSERT INTO t1(c12) VALUES(15);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081064958755' is violated
+INSERT INTO t1(c12) VALUES(25);
+ALTER TABLE t1 ADD COLUMN c13 INT, ADD CONSTRAINT CHECK ( c13 NOT IN (1, 2, 3));
+INSERT INTO t1(c13) VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065101436' is violated
+INSERT INTO t1(c13) VALUES(15);
+ALTER TABLE t1 ADD COLUMN c14 CHAR(10), ADD CONSTRAINT CHECK ( c14 LIKE 'A%');
+INSERT INTO t1(c14) VALUES('Good');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065249115' is violated
+INSERT INTO t1(c14) VALUES('All');
+ALTER TABLE t1 ADD COLUMN c15 INT, ADD CONSTRAINT CHECK ( c15 = STRCMP('A','A'));
+ERROR HY000: YAO-5679: An expression of a check constraint 't1_yaochk_1764081065408602' contains disallowed function.
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+`c3` INT(10),
+`c4` INT(10),
+`c7` INT(10),
+`c8` INT(10),
+`c9` INT(10),
+`c10` INT(10),
+`c11` date,
+`c12` INT(10),
+`c13` INT(10),
+`c14` VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `t1_yaochk_1764081063770468` CHECK (c1 <=> NULL) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081063975761` CHECK (c2 >= 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064084683` CHECK (c3 < 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064197551` CHECK (c4 != 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064313991` CHECK (c7 <> 10) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064433027` CHECK (c8 = GREATEST(1,2,3)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064558215` CHECK (c9 = LEAST(1,2,3)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064687422` CHECK (c10 NOT IN (1,2,3)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064824303` CHECK (c11 > '2007-01-01') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081064958755` CHECK (c12 NOT BETWEEN 10 AND 20) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081065101436` CHECK (c13 NOT IN (1, 2, 3)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081065249115` CHECK (c14 LIKE 'A%') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t1;
+CREATE TABLE t1(c1 INT, c2 INT);
+ALTER TABLE t1 ADD CONSTRAINT CHECK( (c1 > 10) AND (c2 < 20) );
+INSERT INTO t1 VALUES(1,10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065972246' is violated
+ALTER TABLE t1 ADD CONSTRAINT CHECK( (c1 > 10) && (c2 < 20) );
+INSERT INTO t1 VALUES(15,25);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065972246' is violated
+ALTER TABLE t1 DROP CHECK `t1_chk_1`;
+ERROR HY000: YAO-5688: Check constraint 't1_chk_1' is not found in the table.
+ALTER TABLE t1 DROP CHECK `t1_chk_2`;
+ERROR HY000: YAO-5688: Check constraint 't1_chk_2' is not found in the table.
+ALTER TABLE t1 ADD CONSTRAINT CHECK( (c1 > 10) || (c2 < 20) );
+ALTER TABLE t1 ADD CONSTRAINT CHECK( (c1 > 10) OR (c2 < 20) );
+INSERT INTO t1 VALUES(15,25);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065972246' is violated
+INSERT INTO t1 VALUES(5,10);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081065972246' is violated
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` INT(10),
+ CONSTRAINT `t1_yaochk_1764081065972246` CHECK ((c1 > 10) AND (c2 < 20)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081066075334` CHECK ((c1 > 10) && (c2 < 20)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081066183457` CHECK ((c1 > 10) || (c2 < 20)) ENFORCED,
+CONSTRAINT `t1_yaochk_1764081066281210` CHECK ((c1 > 10) OR (c2 < 20)) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t1;
+CREATE TABLE t1(c1 INT DEFAULT 2 PRIMARY KEY CHECK(c1 > 1 OR c1 IS NOT NULL));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10) DEFAULT 2,
+ PRIMARY KEY(`c1`),
+ CONSTRAINT `t1_yaochk_1764081066677485` CHECK (c1 > 1 OR c1 IS NOT NULL) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1 VALUES(NULL);
+INSERT INTO t1 VALUES(1);
+SELECT * FROM t1;
+c1
+1
+NULL
+CREATE TABLE t2(c1 INT DEFAULT 2 PRIMARY KEY CHECK(c1 > 1 OR c1 > 2));
+INSERT INTO t2 VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't2_yaochk_1764081066874344' is violated
+INSERT INTO t2 VALUES(2);
+SELECT * FROM t2;
+c1
+2
+CREATE TABLE t3(c1 INT DEFAULT 2 PRIMARY KEY,c2 varchar(10) CHECK(c2 > 1 OR c2 IS NOT NULL));
+INSERT INTO t3 VALUES(1,NULL);
+CREATE TABLE t4(c1 INT DEFAULT 2 PRIMARY KEY CHECK(c1 > 1 AND c1 IS NOT NULL));
+INSERT INTO t4 VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't4_yaochk_1764081067224259' is violated
+INSERT INTO t4 VALUES(NULL);
+ERROR HY000: YAO-5689: Check constraint 't4_yaochk_1764081067224259' is violated
+DROP TABLE t1,t2,t3,t4;
+CREATE TABLE t1(c1 INT, c2 VARCHAR(20));
+ALTER TABLE t1 ADD CONSTRAINT ck1 CHECK ( c1 > c2 );
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+`c2` VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `ck1` CHECK (c1 > c2) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t1;
+CREATE TABLE t1 (f1 int primary key auto_increment, f2 int, CHECK (f1 != f2));
+ERROR HY000: YAO-5686: Check constraint 't1_yaochk_1764081068626757' cannot refer to an auto-increment column.
+CREATE TABLE t1 (f1 int primary key auto_increment CHECK (f1 < 10), f2 int, CHECK (f1 != f2));
+ERROR HY000: YAO-5686: Check constraint 't1_yaochk_1764081068627642' cannot refer to an auto-increment column.
+CREATE TABLE t1 (f1 TIMESTAMP CHECK (f1 + NOW() > '2011-11-21'));
+ERROR HY000: YAO-5684: An expression of a check constraint 't1_yaochk_1764081068628601' has disallowed function: now or current_timestamp.
+CREATE TABLE t1 (f1 TIMESTAMP CHECK (f1 + CURRENT_TIMESTAMP() > '2011-11-21 01:02:03'));
+ERROR HY000: YAO-5684: An expression of a check constraint 't1_yaochk_1764081068629153' has disallowed function: now or current_timestamp.
+CREATE TABLE t1 (f1 DATETIME CHECK (f1 + CURDATE() > '2011-11-21'));
+ERROR HY000: YAO-5684: An expression of a check constraint 't1_yaochk_1764081068629713' has disallowed function: current_date.
+CREATE TABLE t1 (f1 TIMESTAMP CHECK (f1 + CURRENT_DATE > '2011-11-21'));
+ERROR HY000: YAO-5684: An expression of a check constraint 't1_yaochk_1764081068630244' has disallowed function: current_date.
+SET @v = 10;
+CREATE TABLE t1 (id INT CHECK (id != @v));
+ERROR HY000: YAO-5693: An expression of a check constraint 't1_yaochk_1764081068631103' cannot refer to a user or system variable.
+create table t1 (c1 int check (c1 > @@minor_num_limit));
+ERROR HY000: YAO-5693: An expression of a check constraint 't1_yaochk_1764081068631588' cannot refer to a user or system variable.
+CREATE TABLE t1 (id INT CHECK (id != (SELECT 1)));
+ERROR HY000: YAO-5682: An expression of a check constraint 't1_yaochk_1764081068632039' contains disallowed function.
+CREATE PROCEDURE proc() SELECT 1;//
+CREATE TABLE t1 (id INT CHECK(id = proc()));
+ERROR HY000: YAO-5679: An expression of a check constraint 't1_yaochk_1764081068642723' contains disallowed function.
+DROP PROCEDURE proc;
+CREATE FUNCTION func() RETURNS INT DETERMINISTIC return 1;//
+CREATE TABLE t1 (id INT CHECK(id = func()));
+ERROR HY000: YAO-5679: An expression of a check constraint 't1_yaochk_1764081068662930' contains disallowed function.
+DROP FUNCTION func;
+CREATE TABLE t1 (
+c1 BIT(7) CHECK(c1 < b'1111100'),
+c2 BOOLEAN CHECK(c2 > 0),
+c3 TINYINT CHECK(c3 > 10),
+c4 SMALLINT CHECK(c4 > 10),
+c5 MEDIUMINT CHECK(c5 > 10),
+c6 INT CHECK(c6 > 10),
+c7 BIGINT CHECK(c7 > 10),
+c8 DECIMAL(6,2) CHECK(c8 > 10.1),
+c9 FLOAT CHECK(c9 > 10.1),
+c10 DOUBLE CHECK(c10 > 10.1));
+INSERT INTO t1(c1) VALUES(b'1111110');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081068672595' is violated
+INSERT INTO t1(c2) VALUES(0);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081068672640' is violated
+INSERT INTO t1(c10) VALUES(10.0);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081068672750' is violated
+INSERT INTO t1(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10)VALUES(B'1111000',1,11,11,11,11,11,10.2,10.2,10.2);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10
+x	1	11	11	11	11	11	10.2	10.2	10.2
+drop table t1;
+CREATE TABLE t1(c1 CHAR(1) CHECK(c1 > 'a'),
+c2 VARCHAR(1) CHECK(c2 > 'a'),
+c3 BINARY(1) CHECK(c3 > 'a'),
+c4 VARBINARY(1) CHECK(c4 > 'a'),
+c5 TINYBLOB CHECK(c5 > 'a'),
+c6 TINYTEXT CHECK(c6 > 'a'),
+c7 BLOB CHECK(c7 > 'a'),
+c8 TEXT CHECK(c8 > 'a'),
+c9 MEDIUMBLOB CHECK(c9 > 'a'),
+c10 MEDIUMTEXT CHECK(c10 > 'a'),
+c11 LONGBLOB CHECK(c11 > 'a'),
+c12 LONGTEXT CHECK(c12 > 'a'));
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` VARCHAR (1) COLLATE 'utf8mb4_general_ci',
+`c2` VARCHAR (1) COLLATE 'utf8mb4_general_ci',
+`c3` VARCHAR (1) COLLATE 'binary',
+`c4` VARCHAR (1) COLLATE 'binary',
+`c5` tinyblob,
+`c6` tinytext COLLATE 'utf8mb4_general_ci',
+`c7` blob,
+`c8` text COLLATE 'utf8mb4_general_ci',
+`c9` mediumblob,
+`c10` mediumtext COLLATE 'utf8mb4_general_ci',
+`c11` longblob,
+`c12` longtext COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `t1_yaochk_1764081069410865` CHECK (c1 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069410929` CHECK (c2 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069410941` CHECK (c3 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069410951` CHECK (c4 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069410961` CHECK (c5 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411007` CHECK (c6 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411016` CHECK (c7 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411024` CHECK (c8 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411033` CHECK (c9 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411055` CHECK (c10 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411065` CHECK (c11 > 'a') ENFORCED,
+CONSTRAINT `t1_yaochk_1764081069411074` CHECK (c12 > 'a') ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t1(c1) VALUES('a');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081069410865' is violated
+INSERT INTO t1(c12) VALUES('a');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081069411074' is violated
+INSERT INTO t1(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12)VALUES('b','b','b','b','b','b','b','b','b','b','b','b');
+DROP TABLE t1;
+CREATE TABLE t1 (c1 DATE CHECK(c1 > '2007-01-01'),
+c2 DATETIME CHECK(c2 > '2007-01-01 12:00:01'),
+c3 TIMESTAMP CHECK(c3 > '2007-01-01 00:00:01.000000'),
+c4 TIME CHECK(c4 > '12:00:01.000000'));
+INSERT INTO t1(c1) VALUES('2006-01-01');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081070511729' is violated
+INSERT INTO t1(c2) VALUES('2007-01-01 11:00:01');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081070511794' is violated
+INSERT INTO t1(c3) VALUES('2007-01-01 00:00:00.000000');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081070511804' is violated
+INSERT INTO t1(c4) VALUES('12:00:00.000000');
+ERROR HY000: YAO-5104: Format of TIME value is incorrect.
+DROP TABLE t1;
+CREATE TABLE t1(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255),browser JSON CHECK( browser->'$.name' = 'Chrome' ));
+INSERT INTO t1(name,browser)VALUES('pageview','{ "name": "Safari", "os": "Mac" }');
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081071036166' is violated
+INSERT INTO t1(name,browser)VALUES('pageview','{ "name": "Chrome", "os": "Mac" }');
+SELECT * FROM t1;
+id	name	browser
+2	pageview	{"os": "Mac", "name": "Chrome"}
+DROP TABLE t1;
+CREATE TABLE student (    
+id       INT,   
+stu_code  VARCHAR(10),  
+name     VARCHAR(14),    
+email    VARCHAR(20),    
+scholarship  INT,   
+country  VARCHAR(20),  
+CONSTRAINT ck1 CHECK (id != 0), 
+CONSTRAINT ck2 CHECK (stu_code like 'j%'),  
+CONSTRAINT ck3 CHECK (lower(name) != 'noname'),  
+CONSTRAINT ck4 CHECK ( email REGEXP('@')),  
+CONSTRAINT ck5 CHECK (scholarship BETWEEN 5000 AND 20000), 
+CONSTRAINT ck6 CHECK (country IN ('usa','uk')) );
+SHOW CREATE TABLE student;
+Table	Create Table
+test2.student	CREATE TABLE `student` (
+`id` INT(10),
+`stu_code` VARCHAR (10) COLLATE 'utf8mb4_general_ci',
+`name` VARCHAR (14) COLLATE 'utf8mb4_general_ci',
+`email` VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+`scholarship` INT(10),
+`country` VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT `ck1` CHECK (id != 0) ENFORCED,
+CONSTRAINT `ck2` CHECK (stu_code like 'j%') ENFORCED,
+CONSTRAINT `ck3` CHECK (lower(name) != 'noname') ENFORCED,
+CONSTRAINT `ck4` CHECK (email REGEXP('@')) ENFORCED,
+CONSTRAINT `ck5` CHECK (scholarship BETWEEN 5000 AND 20000) ENFORCED,
+CONSTRAINT `ck6` CHECK (country IN ('usa','uk')) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO student VALUES(0,'j001','name1','name1@oracle.com',6000,'usa');
+ERROR HY000: YAO-5689: Check constraint 'ck1' is violated
+INSERT INTO student VALUES(1,'s001','name1','name1@oracle.com',6000,'usa');
+ERROR HY000: YAO-5689: Check constraint 'ck2' is violated
+INSERT INTO student VALUES(1,'j001','NONAME','name1@oracle.com',6000,'usa');
+ERROR HY000: YAO-5689: Check constraint 'ck3' is violated
+INSERT INTO student VALUES(1,'j001','name1','name1@oracle.com',6000,'nocountry');
+ERROR HY000: YAO-5689: Check constraint 'ck6' is violated
+INSERT INTO student VALUES(1,'j001','name1','name1@oracle.com',6000,'usa');
+SELECT * FROM student;
+id	stu_code	name	email	scholarship	country
+1	j001	name1	name1@oracle.com	6000	usa
+DROP TABLE student;
+CREATE TABLE parent(pid INT NOT NULL PRIMARY KEY CHECK(pid > 1));
+CREATE TABLE child(cid INT CHECK(cid > 1),CONSTRAINT fk FOREIGN KEY (cid) REFERENCES parent(pid));
+SHOW CREATE TABLE parent;
+Table	Create Table
+test2.parent	CREATE TABLE `parent` (
+`pid` INT(10) NOT NULL,
+ PRIMARY KEY(`pid`),
+ CONSTRAINT `parent_yaochk_1764081072382553` CHECK (pid > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+SHOW CREATE TABLE child;
+Table	Create Table
+test2.child	CREATE TABLE `child` (
+`cid` INT(10),
+ CONSTRAINT `fk` FOREIGN KEY (`cid`) REFERENCES test2.parent(`pid`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ CONSTRAINT `child_yaochk_1764081072546327` CHECK (cid > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO parent VALUES(2);
+INSERT INTO child VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 'child_yaochk_1764081072546327' is violated
+INSERT INTO child VALUES(3);
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+INSERT INTO child VALUES(2);
+SELECT * FROM parent;
+pid
+2
+SELECT * FROM child;
+cid
+2
+DROP TABLE child;
+DROP TABLE parent;
+CREATE TABLE t1(c1 INT);
+CREATE TABLE t2(c1 INT CHECK(c1 > 10));
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+INSERT INTO t1 VALUES(1);
+INSERT INTO t2 VALUES(1);
+ERROR HY000: YAO-5689: Check constraint 't2_yaochk_1764081073411272' is violated
+ROLLBACK;
+SELECT * FROM t1;
+c1
+SELECT * FROM t2;
+c1
+ALTER TABLE t1 ADD CONSTRAINT CHECK (C1 > 10);
+COMMIT;
+SHOW CREATE TABLE t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081074610273` CHECK (C1 > 10) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+SET AUTOCOMMIT = 1;
+DROP TABLE t1,t2;
+CREATE TABLE t1(c1 INT, c2 INT CHECK (c2 < 10));
+CREATE VIEW v1 AS SELECT * FROM t1;
+INSERT INTO v1 VALUES(1,20);
+ERROR HY000: YAO-5689: Check constraint 't1_yaochk_1764081075140730' is violated
+INSERT INTO v1 VALUES(1,5);
+SELECT * FROM t1;
+c1	c2
+1	5
+SELECT * FROM v1;
+c1	c2
+1	5
+DROP VIEW v1;
+DROP TABLE t1;
+CREATE TABLE t1 (f1 CHAR(10) CHECK (f1 < 10));
+INSERT INTO t1 VALUES ("xy");
+ERROR HY000: YAO-5006: Unknown value xy
+SHOW WARNINGS;
+level	code	message
+Warning	99999	resolve insert values error, ret[-5006]
+Warning	99999	failed to generate logical plan, err=-5006 sql=INSERT INTO t1 VALUES ("xy") result_plan.err_stat_.err_msg_=[Unknown value xy]
+Warning	99999	generate logical plan failed, ret=-5006 sql=INSERT INTO t1 VALUES ("xy")
+Warning	99999	direct_execute failed, err=-5006 stmt="INSERT INTO t1 VALUES ("xy")" ret is -5006
+DROP TABLE t1;
+CREATE TABLE t1 (f1 INT, f2 INT, f3 INT, f4 FLOAT , f5 INT, CHECK (f1 < f2));
+ALTER TABLE t1 DROP COLUMN f1;
+ERROR HY000: YAO-5691: Check constraint 't1_yaochk_1764081076291595' uses column 'f1', hence column cannot be dropped or renamed.
+ALTER TABLE t1 RENAME COLUMN f1 TO f6;
+ERROR HY000: YAO-5691: Check constraint 't1_yaochk_1764081076291595' uses column 'f1', hence column cannot be dropped or renamed.
+drop table t1;
+create procedure p1 ()
+begin
+create table t1 (c1 int check(c1 > 1));
+end //
+call p1();
+show tables;
+table_name_in_test2
+t1
+show create table t1;
+Table	Create Table
+test2.t1	CREATE TABLE `t1` (
+`c1` INT(10),
+ CONSTRAINT `t1_yaochk_1764081079713433` CHECK (c1 > 1) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE FUNCTION fun() RETURNS INT DETERMINISTIC 
+begin 
+create table t_ck (c1 int ,c2 double ,check(c2 > c1));  
+return 1; 
+end //
+select fun()//
+ERROR HY004: YAO-1: Explicit or implicit commit is not allowed in function

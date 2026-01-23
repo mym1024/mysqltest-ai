@@ -1,0 +1,176 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：alter操作添加expire_info
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：8s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2020-01-14 / mod:2020-12-24:zyy
+###8.其他（选填）：according to the 608-expire_info_support_int_type, mod this case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+##################################### MODIFYTIME ###################################################
+#创建含有modifytime属性列的数据表Test1:
+create table test1(c1 int primary key, c2 int, c3 modifytime);
+
+###2-1: 在modifytime属性列上alter添加current current expire_info:
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-2: 在数据表Test1已有expire_info的情况下再次添加，会添加失败:
+--error 1046
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### CREATETIME ###################################################
+#创建含有createtime属性列的数据表test2:
+create table test2(c1 int primary key, c2 int, c3 createtime);
+
+###2-3: 在createtime属性列上alter添加expire_info:
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-4: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### VARCHAR ###################################################
+#创建含有varchar属性列的数据表test3:
+create table test3(c1 int primary key, c2 int, c3 varchar(30));
+
+###2-5: 在varchar属性列上alter添加expire_info:
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-6: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### CHAR ###################################################
+#创建含有char属性列的数据表test4:
+create table test4(c1 int primary key, c2 int, c3 char(30));
+
+###2-7: 在char属性列上alter添加expire_info:
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-8: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DATETIME ###################################################
+#创建含有datetime属性列的数据表test5:
+create table test5(c1 int primary key, c2 int, c3 datetime);
+
+###2-9: 在datetime属性列上alter添加expire_info:
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-10: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### TIMESTAMP ###################################################
+#创建含有timestamp属性列的数据表test6:
+create table test6(c1 int primary key, c2 int, c3 timestamp);
+
+###2-11: 在timestamp属性列上alter添加expire_info:
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-12: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### INT ###################################################
+#创建含有int属性列的数据表test7:
+create table test7(c1 int primary key, c2 int, c3 int);
+
+###2-13: 在int属性列上alter添加expire_info:(属性不符，失败)
+#--error 2
+alter table test7 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### FLOAT ###################################################
+#创建含有float属性列的数据表test8:
+create table test8(c1 int primary key, c2 int, c3 float);
+
+###2-14: 在float属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test8 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DOUBLE ###################################################
+#创建含有double属性列的数据表test9:
+create table test9(c1 int primary key, c2 int, c3 double);
+
+###2-15: 在double属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test9 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DECIMAL ###################################################
+#创建含有decimal属性列的数据表test10:
+create table test10(c1 int primary key, c2 int, c3 decimal(30,2));
+
+###2-16: 在decimal属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test10 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### 异常系 ###################################################
+###2-17: 条件中无列名或列名多于一个及SYS_DATE拼写错误
+alter table test1 drop current expire_info;
+
+--error 1046
+alter table test1 add current expire_info='$SYS_DATE>1*1*1*60*1000000';
+
+--error 2
+alter table test1 add current expire_info='$SYS_datE>c3+1*1*1*60*1000000';
+
+--error 2
+alter table test1 add current expire_info='$SYS_E>c3+1*1*1*60*1000000';
+
+--error 2
+alter table test1 add current expire_info;
+
+--error 5001
+alter table test1 add current expire_info=;
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_query_log
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

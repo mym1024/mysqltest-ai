@@ -1,0 +1,843 @@
+##############################################################################################
+###1.测试功能点：测试华安基金适配功能
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-07-18
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+
+###关键字测试
+DROP TABLE IF EXISTS test.BAK_BAL_FUND_FIRST;
+CREATE TABLE test.BAK_BAL_FUND_FIRST (
+  TAACCOUNTID VARCHAR2(12) ,
+  DISTRIBUTORCODE VARCHAR2(9) ,
+  TRANSACTIONACCOUNTID VARCHAR2(17) ,
+  BRANCHCODE VARCHAR2(9) ,
+  FUNDCODE VARCHAR2(6) ,
+  SHARETYPE CHAR(1) ,
+  FUNDVOL NUMBER ,
+  SETTLEDVOL NUMBER ,
+  BESETTLEVOL NUMBER ,
+  INCOMEFUNDVOL NUMBER ,
+  FROZEN NUMBER ,
+  ABNMFROZEN NUMBER ,
+  UNFOOTINCOME NUMBER ,
+  INCOMETAIL NUMBER ,
+  FOOTINCOME NUMBER ,
+  TOTALINCOME NUMBER ,
+  NOINCOMERETAINEDVOL NUMBER ,
+  INSERTDATE VARCHAR2(8) ,
+  LASTUPDATEDATE VARCHAR2(8)
+)
+;
+
+DROP TABLE IF EXISTS test.CFG_ACCTSEG;
+CREATE TABLE test.CFG_ACCTSEG (
+  DISTRIBUTORCODE VARCHAR2(9)  NOT NULL,
+  INVTP CHAR(1)  NOT NULL,
+  MINVALUE NUMBER(12,0)  DEFAULT 0.00,
+  MAXVALUE NUMBER(12,0)  DEFAULT 0.00,
+  LASTSNO NUMBER(12,0)  DEFAULT 0.00,
+  BAKLASTSNO NUMBER(12,0)  DEFAULT 0.00
+)
+;
+
+DROP TABLE IF EXISTS test.FEE_REW_PROJECT;
+CREATE TABLE test.FEE_REW_PROJECT (
+  PROCNO NUMBER  DEFAULT 0  NOT NULL,
+  REWFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  FUNDCODE VARCHAR2(6)  DEFAULT ' '  NOT NULL,
+  SHARETYPE CHAR(1)  DEFAULT ' '  NOT NULL,
+  CUSTGROUP VARCHAR2(2)  NOT NULL,
+  TAACCOUNTID VARCHAR2(12)  NOT NULL,
+  TRIGGERTYPE CHAR(1)  DEFAULT ' '  NOT NULL,
+  MANAGEACCOUNT VARCHAR2(12) ,
+  FEEATTRIBUTION CHAR(1)  DEFAULT ' '  NOT NULL,
+  INCOMERATEMODE VARCHAR2(2)  DEFAULT ' '  NOT NULL,
+  RATEPRECISION NUMBER  DEFAULT 0  NOT NULL,
+  FIXMODE VARCHAR2(2)  DEFAULT ' '  NOT NULL,
+  OUTNAVFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  INNAVFLAG1 CHAR(1)  DEFAULT ' '  NOT NULL,
+  INNAVFLAG2 CHAR(1)  DEFAULT ' '  NOT NULL,
+  CYCLETYPE CHAR(1)  DEFAULT ' '  NOT NULL,
+  DAYS NUMBER  DEFAULT 0  NOT NULL,
+  CYCLEPRECISION NUMBER  DEFAULT 0  NOT NULL,
+  EQUALFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  RATEMIN NUMBER(16,10)  DEFAULT 0.00  NOT NULL,
+  TIMESMAX NUMBER  DEFAULT 0  NOT NULL,
+  FIXRATE NUMBER(5,4)  DEFAULT 0.0000  NOT NULL,
+  FIXDATE VARCHAR2(8) ,
+  OVERPROFITRATE NUMBER(5,4)  DEFAULT 0.0000  NOT NULL
+);
+
+DROP TABLE IF EXISTS test.KDTA_FLOWRECORD;
+CREATE TABLE test.KDTA_FLOWRECORD (
+  STEPSNO NUMBER  DEFAULT 0  NOT NULL,
+  CHILDKEY VARCHAR2(64)  NOT NULL,
+  STEPNAME VARCHAR2(32) ,
+  OPERID VARCHAR2(16) ,
+  VALID CHAR(1) ,
+  BEGTIME VARCHAR2(14) ,
+  ENDTIME VARCHAR2(14) ,
+  EXECSEC NUMBER(16,2)  DEFAULT 0.00,
+  NETADDR VARCHAR2(64) ,
+  RETURNMSG VARCHAR2(128) ,
+  RUNDATE VARCHAR2(8) ,
+  STATUS CHAR(1) ,
+  STEPFLAG CHAR(1) ,
+  RUNTIME VARCHAR2(8) ,
+  CLEARDATE VARCHAR2(8)  NOT NULL,
+  RECORDNUMS NUMBER(16,0) ,
+  BUSIDATE VARCHAR2(8)  DEFAULT '*'  NOT NULL,
+  CHANNELGROUPNO VARCHAR2(32)  DEFAULT '*'  NOT NULL
+);
+
+DROP TABLE IF EXISTS test.SYS_LOGUSER;
+CREATE TABLE test.SYS_LOGUSER (
+  OPERDATE VARCHAR2(8)  DEFAULT to_char(sysdate,'yyyymmdd')  NOT NULL,
+  BUSIDATE VARCHAR2(8)  DEFAULT to_char(sysdate,'yyyymmdd')  NOT NULL,
+  SNO NUMBER  DEFAULT 0  NOT NULL,
+  OPERTIME VARCHAR2(8)  DEFAULT to_char(sysdate,'hh24:mi:ss')  NOT NULL,
+  SYSID NUMBER  DEFAULT 0  NOT NULL,
+  DIGESTID NUMBER  DEFAULT 0  NOT NULL,
+  ACTION CHAR(1)  DEFAULT ' '  NOT NULL,
+  CUSTNO VARCHAR2(12) ,
+  CUSTNAME VARCHAR2(16) ,
+  SINGLEFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  CLEARTYPE CHAR(1)  DEFAULT ' '  NOT NULL,
+  ORGID VARCHAR2(9) ,
+  CUSTKIND VARCHAR2(2)  DEFAULT ' '  NOT NULL,
+  CUSTGROUP VARCHAR2(2)  DEFAULT ' '  NOT NULL,
+  CUSTCLASS VARCHAR2(2)  DEFAULT ' '  NOT NULL,
+  CUSTDEF0 VARCHAR2(255)  DEFAULT ' '  NOT NULL,
+  CUSTDEF1 VARCHAR2(255)  DEFAULT ' '  NOT NULL,
+  CUSTDEF2 VARCHAR2(255)  DEFAULT ' '  NOT NULL,
+  USERID NUMBER  DEFAULT 0  NOT NULL,
+  USERORG VARCHAR2(9) ,
+  USERNAME VARCHAR2(16) ,
+  USERWAY CHAR(1)  DEFAULT ' '  NOT NULL,
+  NETADDR VARCHAR2(32) ,
+  CHKUSERID NUMBER  DEFAULT 0  NOT NULL,
+  CHKFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  REMARK VARCHAR2(1024)
+);
+
+DROP TABLE IF EXISTS test.FILE_PROC_NOTIFY;
+CREATE TABLE test.FILE_PROC_NOTIFY (
+  TAECNO VARCHAR2(16)  NOT NULL,
+  TYPE CHAR(1)  NOT NULL,
+  FILENAME VARCHAR2(128) ,
+  INTERFACE VARCHAR2(16)  NOT NULL,
+  FILETYPE VARCHAR2(2)  NOT NULL,
+  TRANSDATE VARCHAR2(8)  NOT NULL,
+  TOLTALNUMS NUMBER ,
+  TOTALAMT NUMBER(16,2) ,
+  PROC_STATUS CHAR(1) ,
+  PROC_MSG VARCHAR2(256) ,
+  PROC_UPDATEDATE VARCHAR2(8) ,
+  PROC_UPDATETIME VARCHAR2(8) ,
+  ACCT_DATE VARCHAR2(8) ,
+  ACCT_TIME VARCHAR2(8) ,
+  IS_END CHAR(1)  DEFAULT 0,
+  BATCHNO VARCHAR2(8)  NOT NULL,
+  ATTACH VARCHAR2(64)
+);
+
+###默认值处理
+DROP TABLE IF EXISTS test.T_BALCHECK;
+CREATE TABLE test.T_BALCHECK (
+  FUNDCODE VARCHAR2(6)  DEFAULT ' '  NOT NULL,
+  SHARETYPE CHAR(1)  DEFAULT ' '  NOT NULL,
+  TRANSACTIONCFMDATE VARCHAR2(8)  DEFAULT TO_CHAR(SYSDATE,'YYYYMMDD')  NOT NULL,
+  TAACCOUNTID VARCHAR2(12)  DEFAULT ' '  NOT NULL,
+  DISTRIBUTORCODE VARCHAR2(9)  DEFAULT ' '  NOT NULL,
+  BRANCHCODE VARCHAR2(9) ,
+  ECNO VARCHAR2(9) ,
+  DETAILFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  TASERIALNO VARCHAR2(32) ,
+  REGISTERDATE VARCHAR2(8) ,
+  TOTALVOLOFDISTRIBUTORINTA NUMBER(16,2)  DEFAULT 0.00  NOT NULL,
+  AVAILABLEVOL NUMBER(16,2)  DEFAULT 0.00  NOT NULL,
+  FROZENSHARES NUMBER(16,2)  DEFAULT 0.00  NOT NULL,
+  SOURCETYPE CHAR(1) ,
+  TRANSACTIONACCOUNTID VARCHAR2(17)  DEFAULT ' '  NOT NULL,
+  INCOME NUMBER(16,2)  DEFAULT 0.00  NOT NULL,
+  INCOMEFLAG CHAR(1) ,
+  FROZENINCOME NUMBER(16,2)  DEFAULT 0.0000  NOT NULL,
+  NEWINCOME NUMBER(16,2)  DEFAULT 0.00  NOT NULL,
+  NEWINCOMEFLAG CHAR(1) ,
+  WHOLEFLAG CHAR(1)
+);
+
+###列表注释
+DROP TABLE IF EXISTS test.ECPAY_SPLACCT_STRATEGY;
+CREATE TABLE test.ECPAY_SPLACCT_STRATEGY (
+  ECNO VARCHAR2(9)  NOT NULL,
+  FUNDCODE VARCHAR2(6)  NOT NULL,
+  STRATEGY VARCHAR2(64) ,
+  LOANINGMODE CHAR(1)
+);
+COMMENT ON COLUMN test.ECPAY_SPLACCT_STRATEGY.ECNO IS '电商号';
+COMMENT ON COLUMN test.ECPAY_SPLACCT_STRATEGY.FUNDCODE IS '基金代码';
+COMMENT ON COLUMN test.ECPAY_SPLACCT_STRATEGY.STRATEGY IS '垫资策略';
+COMMENT ON COLUMN test.ECPAY_SPLACCT_STRATEGY.LOANINGMODE IS '垫资方式';
+COMMENT ON TABLE test.ECPAY_SPLACCT_STRATEGY IS '垫资户策略表';
+
+###视图相关
+#查找视图
+#CREATE TABLE TEST.BAL_FUND (   TANO VARCHAR2(18) ,   TAACCOUNTID VARCHAR2(12)  NOT NULL,   DISTRIBUTORCODE VARCHAR2(9)  NOT NULL,   TRANSACTIONACCOUNTID VARCHAR2(17)  NOT NULL,   BRANCHCODHCODE VARCHAR2(9)  NOT NULL,   FUNDCODE VARCHAR2(6)  NOT NULL,   SHARETYPE CHAR(1)  NOT NULL,   LAST_FUNDVOL NUMBER(16,2)  DEFAULT 0.00,   FUNDVOL NUMBER(16,2)  DEFAULT 0.00,   LAST_SETTLEDVOLL NUMBER(16,2)  DEFAULT 0.00,   SETTLEDVOL NUMBER(16,2)  DEFAULT 0.00,   LAST_BESETTLEVOL NUMBER(16,2)  DEFAULT 0.00,   BESETTLEVOL NUMBER(16,2)  DEFAULT 0.00,   INCOMEFUNDVOL NUMBER(16,2)  DEEFAULT 0.00,   LAST_FROZEN NUMBER(16,2)  DEFAULT 0.00,   FROZEN NUMBER(16,2)  DEFAULT 0.00,   LAST_ABNMFROZEN NUMBER(16,2)  DEFAULT 0.00,   ABNMFROZEN NUMBER(16,2)  DEFAULT 0.00,   LAST_UNFOOTTINCOME NUMBER(16,2)  DEFAULT 0.00,   UNFOOTINCOME NUMBER(16,2)  DEFAULT 0.00,   INCOMETAIL NUMBER(9,8)  DEFAULT 0.00000000,   LAST_INCOMETAIL NUMBER(9,8)  DEFAULT 0.00000000,   FOOTINCOME NUMMBER(16,2)  DEFAULT 0.00,   LAST_DIVIDENDMETHOD CHAR(1) ,   DIVIDENDMETHOD CHAR(1) ,   INSERTDATE VARCHAR2(8) ,   LASTUPDATEDATE VARCHAR2(8) ,   TOTALINCOME NUMBER(16,2)  DEFAULT 0.00,   NOINCCOMERETAINEDVOL NUMBER(16,2)  DEFAULT 0.00,   REDEEMINCOMEFUNDVOL NUMBER(16,2)  DEFAULT 0.00 );
+#CREATE TABLE TEST.ACCT_TRANS (   TANO VARCHAR2(18) ,   TAACCOUNTID VARCHAR2(12)  NOT NULL,   DISTRIBUTORCODE VARCHAR2(9)  NOT NULL,   BRANCHCODE VARCHAR2(9)  NOT NULL,   TRANSACTIONACCOUNTOUNTID VARCHAR2(17)  NOT NULL,   REGIONCODE VARCHAR2(4) ,   NETNO VARCHAR2(9) ,   BUSINESSCODE VARCHAR2(2) ,   CVTTRANSACTIONACCOUNTID VARCHAR2(17) ,   STATUS CHAR(1) ,   OPENDATE VARCHAR2(8) ,   OPENACCEPTDATE VARCHAR2(8) ,   LASTUPDATEDATE VARCHAR2(8) ,   ECNO VARCHAR2(9) ,   ECFINANCENO VARCHAR2(64) ,   ECACCTFUND VARCHAR2(64) ,   ECACCTTRANS VARCHAR2(64) ,   BANKACCTNO VARCHARR2(40) ,   BANKNO VARCHAR2(20) ,   BANKNAME VARCHAR2(200) ,   BANKBUYERNAME VARCHAR2(60) ,   REALTIMEFLAG CHAR(1)  DEFAULT ' '  NOT NULL,   CHANNEL_STATUS VARCHAR2(1)  DEFAULT '0' );
+#CREATE OR REPLACE EDITIONABLE VIEW ACCOBAL (CUSTNO, FUNDID, ACCOUNTNO, FUNDTOTAL, AVAILBAL, FREEZTOTAL, ACCOUNTSTAT, FREEZME, LASTXDAT, ACCUMULATE, INVCOST, INVINCOME, LASTACCUDATE, FUNDACCOUNT, SEATNO, BACKTOTAL, BACKAVAIL, BACKFREEZ) AS
+--error 5019
+  select t1.taaccountid                                                                 custno,
+       fundcode                                                                       fundid,
+       t2.bankacctno                                                                  accountno,
+       last_fundvol + fundvol                                                         fundtotal,
+       last_fundvol + fundvol - (last_frozen + frozen + last_abnmfrozen + abnmfrozen) availbal,
+       last_frozen + frozen + last_abnmfrozen + abnmfrozen                            freeztotal,
+       t2.status                                                                      accountstat,
+       case when t2.status = '1' then 1 else 0 end                                    freezme,
+       t1.lastupdatedate                                                              lastxdat,
+       0                                                                              accumulate, 
+       0                                                                              invcost,
+       last_unfootincome + unfootincome                                               invincome,
+       t1.lastupdatedate                                                              lastaccudate,
+       t1.transactionaccountid                                                        fundaccount,
+       concat(2, t1.distributorcode)                                                  seatno,
+       0                                                                              backtotal,
+       0                                                                              backavail,
+       0                                                                              backfreez
+from bal_fund t1
+         left join acct_trans t2
+                   on t1.branchcode = t2.branchcode and t1.transactionaccountid = t2.transactionaccountid
+                       and t1.taaccountid = t2.taaccountid and t1.distributorcode = t2.distributorcode;
+#select * from ACCOBAL;
+
+#desc BONUSDETAIL;
+#desc INCOMEDETAIL;
+#desc S_CASH_BALANCE;
+#desc S_PUB_TRADE_FUNDASET;
+#desc S_TRADE_ACKFLOW_SUM;
+#desc TRANDETAIL;
+
+--error 5019
+CREATE OR REPLACE  EDITIONABLE VIEW test.CUST_FPPFLOW AS select t.busidate                  as batchdate,                -- 发生日期
+       t.cleardate                 as tradedate ,               -- 交易日期
+       t.taserialno                as seriousno,                -- 交易流水号
+       t.distributorcode           as distributorcode,          -- 销售商代码
+       t.appsheetserialno          as appsheetserialno,         -- 申请单编号
+       t.branchcode                as branchcode,               -- 网点代码
+       t.transactionaccountid      as transactionaccountid,     -- 交易账号
+       t.businesscode              as businesscode,             -- 业务代码
+       t.operdate                  as transactiondate,          -- 交易发生日期
+       t.opertime                  as transactiontime,          -- 交易发生时间
+       t.taaccountid               as taaccountid,              -- 基金账号
+       t.certificatetype           as certificatetype,          -- 证件类型
+       t.certificateno             as certificateno,            -- 证件号码
+       t.custname                  as investorname,             -- 投资者名称
+       t.invtp                     as individualorinstitution,  -- 投资者类型
+       t.applyst                   as retcode                   -- 处理结果（00-未处理01-确认成功02-确认失败03-交易撤消04-逐笔确认05-逐笔否决07-巨额赎回延续）
+  from h_app_acct@ta_link_his t;
+
+###索引序列相关
+CREATE SEQUENCE  GET_TRANS_SNO  MINVALUE 1 MAXVALUE 999999999 INCREMENT BY 1 START WITH 21 CACHE 20 NO ORDER  NO CYCLE  NOKEEP  NOSCALE  GLOBAL ;
+CREATE TABLE employees (
+    employee_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    last_name VARCHAR2(50)
+);
+INSERT INTO employees (employee_id, first_name, last_name) VALUES (GET_TRANS_SNO.NEXTVAL, 'John', 'Doe');
+INSERT INTO employees (employee_id, first_name, last_name) VALUES (GET_TRANS_SNO.NEXTVAL, 'Jane', 'Smith');
+SELECT GET_TRANS_SNO.CURRVAL FROM dual;
+
+DROP TABLE IF EXISTS FILE_PROC_CFG;
+CREATE TABLE FILE_PROC_CFG (
+  TAECNO VARCHAR2(16)  NOT NULL,
+  TYPE CHAR(1)  NOT NULL,
+  PROC_TRANS_TYPE VARCHAR2(12)  NOT NULL,
+  PROC_EXEC CHAR(1) ,
+  PROC_EXEC_TYPE VARCHAR2(12)  NOT NULL,
+  ZIP_UNZIP_PATH VARCHAR2(128) ,
+  SRC_PATH VARCHAR2(128) ,
+  FTP_IP VARCHAR2(32) ,
+  FTP_PORT NUMBER ,
+  FTP_REMOVEPATH VARCHAR2(128) ,
+  FTP_USER VARCHAR2(32) ,
+  FTP_PSD VARCHAR2(32) ,
+  THREEDES_ENCRYPTKEY VARCHAR2(256) ,
+  FTP_PRIVATEKEYPATH VARCHAR2(128)
+);
+CREATE UNIQUE INDEX PK_FILE_PROC_CFG ON FILE_PROC_CFG (TAECNO, TYPE, PROC_TRANS_TYPE, PROC_EXEC_TYPE);
+
+###ALTER TABLE相关
+DROP TABLE IF EXISTS SYS_CONFIRMDISPPARAM;
+CREATE TABLE SYS_CONFIRMDISPPARAM (
+  OPERDATE VARCHAR2(8)  DEFAULT to_char(sysdate,'yyyymmdd')  NOT NULL,
+  SNO NUMBER  DEFAULT 0  NOT NULL,
+  DISPSNO NUMBER  DEFAULT 0  NOT NULL,
+  DICTITEM VARCHAR2(32) ,
+  DICTLIST VARCHAR2(255) ,
+  PARAMID VARCHAR2(64) ,
+  PARAMNAME VARCHAR2(64) ,
+  INTYPE VARCHAR2(32) ,
+  PARAMVALUE VARCHAR2(1024) ,
+  PARAMVALUEOLD VARCHAR2(1024) ,
+  DISPFLAG CHAR(1)  DEFAULT ' '  NOT NULL,
+  DISPCOLOR CHAR(1)  DEFAULT ' '  NOT NULL
+)
+;
+ALTER TABLE SYS_CONFIRMDISPPARAM MODIFY (DISPCOLOR NOT NULL ENABLE);
+ALTER TABLE SYS_CONFIRMDISPPARAM ADD PRIMARY KEY (OPERDATE, SNO, DISPSNO) USING INDEX  ENABLE;
+DROP TABLE IF EXISTS CFG_FUNDNAV;
+CREATE TABLE CFG_FUNDNAV (
+  FUNDCODE VARCHAR2(6)  NOT NULL,
+  NAVDATE VARCHAR2(8)  NOT NULL,
+  BULLETINDATE VARCHAR2(8) ,
+  CLEARDATE VARCHAR2(8) ,
+  LASTFUNDSTATUS CHAR(1) ,
+  LASTCONVERTSTATUS CHAR(1) ,
+  LASTPERIODICSTATUS CHAR(1) ,
+  LASTTRANSFERSTATUS CHAR(1) ,
+  LASTNAV NUMBER(7,4)  DEFAULT 0.00,
+  STATUS CHAR(1));
+CREATE INDEX CFG_FUNDNAV_NAVDATEFUND ON CFG_FUNDNAV (NAVDATE, FUNDCODE);
+ALTER TABLE CFG_FUNDNAV ADD CONSTRAINT PK_CFG_FUNDNAV PRIMARY KEY (FUNDCODE, NAVDATE) USING INDEX CFG_FUNDNAV_NAVDATEFUND  ENABLE;
+
+
+###存储过程相关
+
+create table proc_test(id int  primary key, age int, name varchar(20));
+insert into proc_test values(2,2,'a'),(3,3,'a'),(9,9,'a');
+select * from proc_test;
+
+delimiter //;
+CREATE OR REPLACE EDITIONABLE PROCEDURE p1 (c1  in proc_test.age %type,c2  in proc_test.name %type) as c3 proc_test.id%type;  begin  select * from proc_test; end//
+call p1(1,'a')//
+
+
+#测试savepoint
+drop table employees//
+CREATE TABLE employees (
+    employee_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    last_name VARCHAR2(50)
+);//
+INSERT INTO employees (employee_id, first_name, last_name) VALUES (1, 'John', 'Doe');//
+INSERT INTO employees (employee_id, first_name, last_name) VALUES (2, 'Jane', 'Smith');//
+CREATE OR REPLACE PROCEDURE manage_employees() IS
+BEGIN
+    -- 事务的第一部分
+    INSERT INTO employees (employee_id, first_name, last_name) 
+    VALUES (3, 'Alice', 'Brown');
+    
+    -- 设置保存点A
+    SAVEPOINT savepoint_a;
+
+    -- 事务的第二部分
+    INSERT INTO employees (employee_id, first_name, last_name) 
+    VALUES (4, 'Bob', 'Green');
+    
+    -- 遇到某些情况，决定回滚到保存点A
+    ROLLBACK TO savepoint_a;
+
+    -- 事务的第三部分
+    INSERT INTO employees (employee_id, first_name, last_name) 
+    VALUES (5, 'Charlie', 'Black');
+
+    -- 提交事务
+    COMMIT;
+END;//
+call manage_employees()//
+select * from employees//
+
+drop table employees//
+CREATE TABLE employees (
+    employee_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    last_name VARCHAR2(50),
+    department_id NUMBER
+);//
+CREATE TABLE departments (
+    department_id NUMBER PRIMARY KEY,
+    department_name VARCHAR2(50)
+);//
+
+INSERT INTO employees VALUES (1, 'John', 'Doe', 10);//
+INSERT INTO employees VALUES (2, 'Jane', 'Smith', 20);//
+
+INSERT INTO departments VALUES (10, 'Sales');//
+INSERT INTO departments VALUES (20, 'HR');//
+
+CREATE OR REPLACE PROCEDURE process_employee_data() IS
+BEGIN
+    -- 设置保存点
+    SAVEPOINT before_insert;
+
+    -- 尝试插入一个新部门
+    INSERT INTO departments (department_id, department_name) 
+    VALUES (30, 'IT');
+
+    -- 尝试插入一个新员工
+    INSERT INTO employees (employee_id, first_name, last_name, department_id)
+    VALUES (3, 'Alice', 'Johnson', 30);
+
+    -- 另一个插入操作，故意产生错误（例如重复主键）
+    INSERT INTO employees (employee_id, first_name, last_name, department_id)
+    VALUES (1, 'Duplicate', 'Employee', 30);
+
+    -- 提交事务
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- 如果发生错误，回滚到保存点
+        ROLLBACK TO before_insert;
+        DBMS_OUTPUT.PUT_LINE('发生错误，已回滚至保存点');
+END;//
+
+#call process_employee_data()//
+SELECT * FROM employees;//
+SELECT * FROM departments;//
+
+drop table employees//
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    salary DECIMAL(10, 2)
+)//
+#drop procedure AddEmployee//
+CREATE PROCEDURE AddEmployee(
+    IN emp_name VARCHAR(10),
+    IN emp_salary DECIMAL(10, 2)    
+)
+BEGIN
+    -- 检查薪水是否低于最低薪水
+    IF emp_salary < 3000 THEN
+    	return;
+    ELSE
+        INSERT INTO employees (name, salary) VALUES (emp_name, emp_salary);
+    END IF;
+END //
+call AddEmployee('jack', 1000)//
+
+CREATE OR REPLACE EDITIONABLE PROCEDURE test.ANALYZE_AFTERCLEAR() as  begin execute immediate 'DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>''test_TRUNK'',tabname => ''ACK_TRANS'',no_inv_invalidate => FALSE,degree => 4,cascade => TRUE,estimate_percent=>dbms_stats.auto_sample_size)'; execute immediate 'DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>''test_TRUNK'',tabname => ''BAL_RREALTVOL'',no_invalidate => FALSE,degree => 4,cascade => TRUE,estimate_percent=>dbms_stats.auto_sample_size)'; end//
+
+delimiter ;//
+drop table employees;
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    salary DECIMAL(10, 2)
+);
+set @var_name='';
+DELIMITER //;
+drop PROCEDURE AddEmployee//
+CREATE PROCEDURE AddEmployee(PO_ORACLEMSG OUT VARCHAR2) is
+declare emp_salary int;
+BEGIN
+  BEGIN
+	emp_salary := 4000;
+	PO_ORACLEMSG := 'OK';
+    select name into PO_ORACLEMSG from employees;
+    Exception
+    	when no_data_found then
+        	PO_ORACLEMSG := substr('afgggg',1,100) || sqlerrm || ' sqlcode: ' || sqlcode || dbms_utility.format_error_backtrace;
+  END;
+END //
+#call AddEmployee(@var_name);//
+select @var_name;//
+
+
+###自定义函数相关
+CREATE OR REPLACE EDITIONABLE  FUNCTION F_GET_WORKDAYb (n int) returns int as declare a int default 1; begin return 1; end //
+
+CREATE OR REPLACE EDITIONABLE FUNCTION p1 (c1  in proc_test.age %type,c2  in proc_test.name %type) return varchar2 
+is 
+ begin 
+   if c1=2
+     then return c2;
+   end if;
+end //
+select p1(2,'a')//
+
+create or replace function f1(input_param in int, output_param out int) 
+returns int 
+as
+begin
+  set output_param = input_param * 2;
+  return 0;
+end;//
+
+create or replace function f2() returns int as
+  a int;
+  b int;
+begin
+  set a = 5;
+  select f1(a, b);
+  return b;
+end;//
+select f2()//
+
+CREATE OR REPLACE FUNCTION custom_function(p_in_param IN int ) RETURN int is a int; BEGIN  a := p_in_param * 2;     RETURN a; END;//
+SELECT custom_function(10)//
+set @a=22//
+SELECT custom_function(@a)//
+
+ CREATE OR REPLACE EDITIONABLE FUNCTION IS_DATE (parmin varchar2) return number is
+  val date;
+begin
+  val := to_date(nvl(parmin, 'a'), 'yyyymmdd');
+  return 1;
+exception
+  when others then
+    return 0;
+end;//
+select IS_DATE('a')//
+
+
+###同义词
+DELIMITER ;//
+create table t (c1 int,c2 int);
+insert into t values (1,1),(2,2);
+CREATE OR REPLACE EDITIONABLE SYNONYM test.SYN_SYS_MIXEDCONFIG FOR test.t;
+select * from test.SYN_SYS_MIXEDCONFIG;
+drop SYNONYM test.SYN_SYS_MIXEDCONFIG;
+
+CREATE OR REPLACE EDITIONABLE PUBLIC SYNONYM my_public_synonym FOR test.t;
+SELECT * FROM my_public_synonym;
+DROP PUBLIC SYNONYM my_public_synonym;
+
+###DB_LINK
+CREATE DATABASE LINK TA_LINK_COM
+   CONNECT TO KDTA_COM IDENTIFIED BY VALUES ':1'
+   USING '(DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.16.126)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = ORCLPDB1)
+    )
+  )';
+
+  CREATE DATABASE LINK TA_LINK_HIS
+   CONNECT TO KDTA_HIS IDENTIFIED BY VALUES ':1'
+   USING '(DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.16.126)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = ORCLPDB1)
+    )
+  )';
+
+  CREATE DATABASE LINK TA_LINK_KDTA
+   CONNECT TO test IDENTIFIED BY VALUES ':1'
+   USING '(DESCRIPTION =
+   (ADDRESS_LIST =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.16.126 )(PORT =1521))
+   )
+   (CONNECT_DATA =
+    (SERVICE_NAME = ORCLPDB1)
+   )
+  )';
+##################################### by zhangt ##################################################
+###自定义函数功能扩充
+##31 in/out模式
+delimiter //;
+create or replace function fun1(oparam Out INTEGER) return INTEGER as
+begin
+  oparam := -1;
+  select c1 into oparam from t1;
+  return oparam; 
+end fun1;//
+set yao_decimal_add_zero=true;//
+CREATE OR REPLACE FUNCTION fun2(num1 IN INT, price IN FLOAT, sales IN FLOAT)
+RETURN NUMBER IS
+    max_val NUMBER;
+BEGIN
+    if num1= 0 THEN
+      return 0;
+    ELSE 
+      return num1 * price * sales;
+    END IF;
+END;//
+select fun2(5,5.2,0.8)//
+
+CREATE TABLE t1 (c1 INT PRIMARY KEY, c2 VARCHAR(50), c3 DECIMAL(10, 2))//
+INSERT INTO t1 (c1, c2, c3) VALUES(1, 'Alice', 50000),(2, 'Bob', 60000),(3, 'Charlie', 70000)//
+
+CREATE OR REPLACE function fun3(aa IN INT, bb IN DECIMAL(5, 2), cc OUT DECIMAL(10, 2)) RETURN DECIMAL(10, 2)
+BEGIN
+    DECLARE aaa DECIMAL(10, 2);
+    SELECT c3 INTO aaa FROM t1 WHERE c1 = aa;
+    SET cc = aaa + (aaa * (bb / 100));
+	return cc;
+END;//
+
+create or replace function fun4()return int as
+	a int;
+	b int;
+	result1 int;
+begin
+	a := 1;
+	result1 := fun3(a, a ,a);
+	return result1;
+end fun4;//
+select fun4()//
+
+##27 udf赋值的语法差异 ##24 支持创建时带库名
+CREATE OR REPLACE EDITIONABLE FUNCTION test.IS_DATE1 (parmin varchar2) return number is val date;
+begin
+  val := to_date(parmin, 'yyyymmdd');
+  return val; 
+end ;//
+select test.IS_DATE1('20240830')//
+
+##30 异常处理逻辑
+delimiter ;//
+drop table employees;
+CREATE TABLE employees(id int PRIMARY KEY, name VARCHAR(100), salary DECIMAL(10, 2));
+#INSERT INTO employees VALUES(1,'Alice', 3000.00),(2,'Bob', 4500.50),(3,'Charlie', 5000.00),(4,'David', 3500.75);
+delimiter //;
+#WHEN OTHERS:此异常处理用于捕获所有类型的异常
+CREATE OR REPLACE FUNCTION calculate_annual_salary(emp_id INT,para_out out VARCHAR2) RETURNS DECIMAL  
+IS  emp_salary DECIMAL;
+BEGIN
+    SELECT salary INTO emp_salary FROM employees WHERE id = emp_id;
+    RETURN emp_salary * 12;
+EXCEPTION
+    WHEN OTHERS THEN
+		para_out  := '错误代码：' || SQLCODE || '；错误信息：' || SUBSTR(SQLERRM, 1, 100);
+        RETURN 0; 
+END;//
+
+#有效输入测试
+create or replace function fun5()return int as
+	a int;
+	b int;
+	result1 int;
+begin
+	a := 2;
+	result1 := calculate_annual_salary(a, a);
+	return result1;
+end fun5;//
+select fun5()//
+
+#无效输入测试
+create or replace function fun6()return int as
+	a int;
+	result1 int;
+begin
+	a := 9;
+	result1 := calculate_annual_salary(a, a);
+	return result1;
+end fun6;//
+#--error 26
+select fun6()//
+
+#WHEN NO_DATA_FOUND:当查询没有返回任何数据时触发该异常
+CREATE OR REPLACE FUNCTION get_employee_salary(emp_id INT,para_out out VARCHAR2)RETURNS DECIMAL 
+AS  DECLARE emp_salary DECIMAL;
+BEGIN
+    SELECT salary INTO emp_salary FROM employees WHERE id = emp_id;
+    RETURN emp_salary;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+		para_out  := '错误代码：' || SQLCODE || '；错误信息：' || SUBSTR(SQLERRM, 1, 100);
+        RETURN 0; 
+END;//
+
+##17支持部分语法关键词 #复合
+--error 5001
+CREATE OR REPLACE FUNCTION GetUserAge (IN inUsername VARCHAR(255)) RETURNS VARCHAR(255) IS
+    userAge INT;
+    resultMessage VARCHAR(255);
+    BEGIN
+        SET resultMessage = 'User not found';
+        DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+        BEGIN
+            SET resultMessage = 'Error occurred';
+        END;
+        SELECT age INTO userAge FROM users WHERE username = inUsername;
+        IF userAge IS NOT NULL THEN
+            SET resultMessage = CONCAT('The age of ', inUsername, ' is ', userAge);
+        END IF;
+        RETURN resultMessage;
+END;//
+
+#32支持 RETURNING(RETURNING 允许从 SQL 命令中获取影响的行，返回特定列的值，而不仅仅是提供操作的成功与否。它可以返回一行或多行数据。)
+#CREATE TABLE users (id int PRIMARY KEY, first_name TEXT, last_name TEXT, email TEXT)//
+#INSERT INTO users VALUES (1,'John', 'Doe','aaaaaaaa')//
+#CREATE OR REPLACE FUNCTION update_user_email(user_id INT, new_email TEXT) RETURNS TEXT 
+#IS
+#    updated_user TEXT;
+#BEGIN
+#    UPDATE users SET email = new_email WHERE id = user_id RETURNING CONCAT('Updated user ID: ', id, ', New Email: ', email) INTO updated_user;
+#    IF updated_user IS NULL THEN
+#        RETURN 'No user found with the given ID.';
+#    END IF;
+#    RETURN updated_user;
+#END update_user_email;//
+
+#(目前只支持update语句)
+delimiter ;//
+CREATE TABLE users (id int PRIMARY KEY, first_name varchar(50), last_name varchar(50));
+#INSERT INTO users VALUES (1,'John', 'Doe');
+delimiter //;
+--error 5001
+CREATE OR REPLACE FUNCTION manage_user(action varchar2, first_name varchar2 DEFAULT NULL, last_name varchar2 DEFAULT NULL, user_id INT DEFAULT NULL) RETURNS varchar2
+IS
+    result varchar2;
+BEGIN
+    IF action = 'insert' THEN
+        INSERT INTO users (first_name, last_name)
+        VALUES (first_name, last_name)
+        RETURNING CONCAT('Inserted user with ID: ', id) INTO result;
+        RETURN result;
+
+    ELSIF action = 'update' THEN
+        UPDATE users
+        SET first_name = first_name, last_name = last_name
+        WHERE id = user_id
+        RETURNING CONCAT('Updated user with ID: ', id) INTO result;
+        RETURN result;
+
+    ELSIF action = 'delete' THEN
+        DELETE FROM users
+        WHERE id = user_id
+        RETURNING CONCAT('Deleted user with ID: ', id) INTO result;
+        RETURN result;
+
+    ELSIF action = 'select' THEN
+        SELECT CONCAT('User ID: ', id, ', Name: ', first_name, ' ', last_name)
+        INTO result
+        FROM users
+        WHERE id = user_id;
+        RETURN result;
+
+    ELSE
+        RETURN 'Invalid action specified';
+    END IF;
+END manage_user;//
+
+#SELECT * FROM manage_user('insert', 'Alice', 'Smith')//
+#-- 预期返回: 新用户的 id, full_name 和 created_at
+
+#SELECT * FROM manage_user('update', 'Alice', 'Brown', 1)//
+#-- 预期返回: 更新后的用户的 id, full_name 和 created_at
+
+#SELECT * FROM manage_user('delete', user_id := 1)//
+#-- 预期返回: 被删除用户的 id, full_name 和 created_at
+
+#SELECT * FROM manage_user('select', user_id := 1)//
+#-- 预期返回: 用户的 id, full_name 和 created_at
+
+#34支持内部定义函数
+#DELIMITER //;
+CREATE OR REPLACE FUNCTION fun(num INT) RETURN varchar
+IS
+	square_result INT;
+    cube_result INT;
+    total_result INT; 
+    FUNCTION func(square INT, cube INT) RETURN INT
+        BEGIN
+            RETURN square + cube;
+        END;
+BEGIN	
+	square_result := num * num;   
+    cube_result := num * num * num;
+    total_result := func(square_result, cube_result);
+    RETURN CONCAT('Square: ', square_result, ', Cube: ', cube_result, ', Total Sum: ', total_result);
+END fun;//
+SELECT fun(3)//
+
+###存储过程语法适配
+##24 支持创建时带库名
+#DELIMITER //;
+CREATE PROCEDURE test.GetEmployeeDetail(emp_id IN INT)
+BEGIN
+    SELECT name, salary FROM my_database.employees WHERE id = emp_id;
+END;//
+#call GetEmployeeDetail(1)//
+
+##17支持部分语法关键词  ##29 return 语句
+CREATE OR REPLACE PROCEDURE calculate_discount (p_price IN NUMBER,p_discount_rate IN NUMBER,p_final_price OUT NUMBER) IS v_discount NUMBER; 
+BEGIN
+    v_discount := p_price * p_discount_rate / 100; 
+    p_final_price := p_price - v_discount; 
+END;//
+
+--error 5001
+CREATE OR REPLACE  PROCEDURE test.COUNT_INDXMARK is
+  VS_FUNDCODE VARCHAR2(6);
+begin
+  VS_FUNDCODE := 'aa';
+  return 1;
+end;// 
+
+--error 5001
+CREATE OR REPLACE PROCEDURE GetEmployeeCount AS 
+BEGIN
+    DECLARE @EmployeeCount INT;
+    SELECT @EmployeeCount = COUNT(*) FROM Employees;
+    RETURN @EmployeeCount;
+END;//
+
+##16 execute immediate
+--error 5001
+CREATE OR REPLACE EDITIONABLE PROCEDURE "test"."ANALYZE_AFTERCLEAR" 
+as
+begin
+   execute immediate 'begin DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>''test_TRUNK'',tabname => ''ACK_TRANS'',no_invalidate => FALSE,degree => 4,cascade => TRUE,estimate_percent=>dbms_stats.auto_sample_size);end;';
+   execute immediate 'begin DBMS_STATS.GATHER_TABLE_STATS(OWNNAME=>''test_TRUNK'',tabname => ''BAL_REALTVOL'',no_invalidate => FALSE,degree => 4,cascade => TRUE,estimate_percent=>dbms_stats.auto_sample_size);end;';
+end Analyze_AfterClear;//
+
+##22 DBMS_UTILITY.FORMAT_ERROR_BACKTRACE
+CREATE OR REPLACE PROCEDURE "test"."pro1" (IN inParam INT,OUT outParam INT, INOUT inoutParam INT) is tmp int;
+BEGIN
+	SET outParam = 0;
+	EXCEPTION WHEN NO_DATA_FOUND THEN
+	
+		PO_ORDERSFLAG := '0';
+		PO_RETURNCODE := '0877';
+		PO_RETURNMSG  := '未设置垫资账户信息';
+		PO_ORACLEMSG  := '错误代码：' || SQLCODE || '；错误信息：' ||
+					SUBSTR(SQLERRM, 1, 100) || '；错误位置：' ||
+					SUBSTR(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE, 1, 100);
+END;//
+
+#复合
+#DELIMITER //;
+--error 5001
+CREATE PROCEDURE AddUser (inUsername IN VARCHAR(255),inAge IN INT,outUserId OUT INT,inoutStatus OUT VARCHAR(10),sdesc OUT varchar(225)) 
+IS
+	desc := 'OK';
+BEGIN
+    SET outUserId = 0;
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+		SET inoutStatus = 'Error';
+		SET outUserId = -1; 
+    END;
+    INSERT INTO users (username, age) VALUES (inUsername, inAge);
+    SET outUserId = LAST_INSERT_ID();
+    SET inoutStatus = 'Success';
+EXCEPTION WHEN NO_DATA_FOUND THEN
+        SET inoutStatus = 'Error';
+        SET outUserId = -1; 
+		desc := SUBSTR(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE, 1, 100);
+END//
+
+ 

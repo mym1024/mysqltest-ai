@@ -1,0 +1,91 @@
+CREATE TABLE t_metadata_enum_set (
+id INT,
+status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'pending',
+tags SET('tag1', 'tag2', 'tag3', 'tag4') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+KEY idx_status (status),
+KEY idx_tags (tags)
+);
+DESC t_metadata_enum_set;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES		NULL	
+status	enum('active','inactive','pending')	NO	MUL	pending	
+tags	set('tag1','tag2','tag3','tag4')	YES	MUL	NULL	
+DESCRIBE t_metadata_enum_set;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES		NULL	
+status	enum('active','inactive','pending')	NO	MUL	pending	
+tags	set('tag1','tag2','tag3','tag4')	YES	MUL	NULL	
+SHOW COLUMNS FROM t_metadata_enum_set;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES		NULL	
+status	enum('active','inactive','pending')	NO	MUL	pending	
+tags	set('tag1','tag2','tag3','tag4')	YES	MUL	NULL	
+SHOW COLUMNS FROM t_metadata_enum_set LIKE 'status';
+Field	Type	Null	Key	Default	Extra
+status	enum('active','inactive','pending')	NO	MUL	pending	
+SHOW COLUMNS FROM t_metadata_enum_set LIKE 'tags';
+Field	Type	Null	Key	Default	Extra
+tags	set('tag1','tag2','tag3','tag4')	YES	MUL	NULL	
+SHOW FULL COLUMNS FROM t_metadata_enum_set;
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+id	int(10)	NULL	YES		NULL		select,insert,update,references	
+status	enum('active','inactive','pending')	utf8mb4_general_ci	NO	MUL	pending		select,insert,update,references	
+tags	set('tag1','tag2','tag3','tag4')	utf8mb4_bin	YES	MUL	NULL		select,insert,update,references	
+SHOW CREATE TABLE t_metadata_enum_set;
+Table	Create Table
+test.t_metadata_enum_set	CREATE TABLE t_metadata_enum_set (
+id INT(10),
+status enum ('active','inactive','pending') COLLATE 'utf8mb4_general_ci' DEFAULT 'pending' NOT NULL,
+tags set ('tag1','tag2','tag3','tag4') COLLATE 'utf8mb4_bin',
+ KEY idx_status(status),
+ KEY idx_tags(tags)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE IF EXISTS t_metadata_complex_enum_set;
+CREATE TABLE t_metadata_complex_enum_set (
+pk_enum ENUM('type_a', 'type_b') PRIMARY KEY,
+complex_set SET('opt_x', 'opt_y', 'opt_z') NOT NULL DEFAULT 'opt_x,opt_z',
+nullable_enum ENUM('val_1', 'val_2', 'val_3') NULL,
+indexed_enum ENUM('state_on', 'state_off'),
+unique_set SET('u_flag1', 'u_flag2') UNIQUE KEY,
+description VARCHAR(255),
+KEY idx_complex_enum (indexed_enum)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+DESC t_metadata_complex_enum_set;
+Field	Type	Null	Key	Default	Extra
+pk_enum	enum('type_a','type_b')	YES	PRI	NULL	
+complex_set	set('opt_x','opt_y','opt_z')	NO		opt_x,opt_z	
+nullable_enum	enum('val_1','val_2','val_3')	YES		NULL	
+indexed_enum	enum('state_on','state_off')	YES	MUL	NULL	
+unique_set	set('u_flag1','u_flag2')	YES	UNI	NULL	
+description	varchar(255)	YES		NULL	
+SHOW COLUMNS FROM t_metadata_complex_enum_set;
+Field	Type	Null	Key	Default	Extra
+pk_enum	enum('type_a','type_b')	YES	PRI	NULL	
+complex_set	set('opt_x','opt_y','opt_z')	NO		opt_x,opt_z	
+nullable_enum	enum('val_1','val_2','val_3')	YES		NULL	
+indexed_enum	enum('state_on','state_off')	YES	MUL	NULL	
+unique_set	set('u_flag1','u_flag2')	YES	UNI	NULL	
+description	varchar(255)	YES		NULL	
+SHOW FULL COLUMNS FROM t_metadata_complex_enum_set;
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+pk_enum	enum('type_a','type_b')	utf8mb4_general_ci	YES	PRI	NULL		select,insert,update,references	
+complex_set	set('opt_x','opt_y','opt_z')	utf8mb4_general_ci	NO		opt_x,opt_z		select,insert,update,references	
+nullable_enum	enum('val_1','val_2','val_3')	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+indexed_enum	enum('state_on','state_off')	utf8mb4_general_ci	YES	MUL	NULL		select,insert,update,references	
+unique_set	set('u_flag1','u_flag2')	utf8mb4_general_ci	YES	MUL	NULL		select,insert,update,references	
+description	varchar(255)	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+SHOW CREATE TABLE t_metadata_complex_enum_set;
+Table	Create Table
+test.t_metadata_complex_enum_set	CREATE TABLE t_metadata_complex_enum_set (
+pk_enum enum ('type_a','type_b') COLLATE 'utf8mb4_general_ci',
+complex_set set ('opt_x','opt_y','opt_z') COLLATE 'utf8mb4_general_ci' DEFAULT 'opt_x,opt_z' NOT NULL,
+nullable_enum enum ('val_1','val_2','val_3') COLLATE 'utf8mb4_general_ci',
+indexed_enum enum ('state_on','state_off') COLLATE 'utf8mb4_general_ci',
+unique_set set ('u_flag1','u_flag2') COLLATE 'utf8mb4_general_ci',
+description VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(pk_enum),
+ UNIQUE KEY unique_set(unique_set),
+ KEY idx_complex_enum(indexed_enum, pk_enum)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t_metadata_enum_set;
+DROP TABLE t_metadata_complex_enum_set;

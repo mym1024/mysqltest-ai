@@ -1,0 +1,66 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+create table test1(c1 int primary key, c2 int, c3 modifytime);
+create index t1 on test1(c2);
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-152: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-152
+drop index t1 on test1;
+create index  t1 on test1(c2) storing(c3);
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test1 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test2(c1 int primary key, c2 int, c3 createtime);
+create index t2_1 on test2(c2) storing(c3);
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test2 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test3(c1 int primary key, c2 int, c3 varchar(30));
+create index t3_1 on test3(c2) storing(c3);
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test3 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test4(c1 int primary key, c2 int, c3 char(30));
+create index t4_1 on test4(c2) storing(c3);
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test4 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test5(c1 int primary key, c2 int, c3 datetime);
+create index t5_1 on test5(c2) storing(c3);
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test5 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test6(c1 int primary key, c2 int, c3 timestamp);
+create index t6_1 on test6(c2) storing(c3);
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test6 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test7(c1 int primary key, c2 int, c3 int);
+create index t7_1 on test7(c2) storing(c3);
+alter table test7 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test7 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test8(c1 int primary key, c2 int, c3 float);
+create index t8_1 on test8(c2) storing(c3);
+alter table test8 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test8 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not alter expire info,because there doesn't have one,ret=-1046
+create table test9(c1 int primary key, c2 int, c3 double);
+create index t9_1 on test9(c2) storing(c3);
+alter table test9 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test9 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not alter expire info,because there doesn't have one,ret=-1046
+create table test10(c1 int primary key, c2 int, c3 decimal(30,2));
+create index t10_1 on test10(c2) storing(c3);
+alter table test10 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test10 alter current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not alter expire info,because there doesn't have one,ret=-1046

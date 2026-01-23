@@ -1,0 +1,66 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：读已提交隔离级别，并发读写join
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1002s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists c,d;
+--enable_warnings
+
+--disable_query_log
+--enable_query_log
+
+
+
+create table c (c1 int primary key,c2 varchar(8)) ;
+create table d (d1 int primary key,d2 varchar(8)) ;
+create index c_index on c(c2);
+create index d_index on d(d2);
+show index on c;
+show index on d;
+
+
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+begin;
+insert into c values(1,1);
+
+insert into d values(1,1);
+
+
+connection conn2;
+begin;
+select * from c,d where c.c1=d.d1;
+select * from c left join d on c.c1=d.d1;
+select * from c right join d on c.c1=d.d1;
+select * from c inner join d on c.c1=d.d1;
+select/*+join(si)*/ * from c left join d on c.c1=d.d1;
+select/*+join(bloomfilter_join)*/ * from c left join d on c.c1=d.d1;
+commit;
+
+connection conn1;
+commit;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,71 @@
+####################################必填######################################################
+###1.测试功能点：查看系统中的系统表和存在的数据库名
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangqinyu
+###7.编写/修改日期：2020-07-24
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+#查看系统中的系统表
+show system tables;
+
+#查看系统默认数据库yao
+show databases;
+
+#查看系统中存在的数据库
+create database cbase123;
+show databases;
+using database cbase123;
+sleep 5;
+
+#2-1 数据库名长度为14
+create database wangqinyuuuuuu;
+show databases;
+using database wangqinyuuuuuu;
+sleep 5;
+
+#2-2 数据库名长度为15
+create database namenamenamenam;
+show databases;
+using database namenamenamenam;
+sleep 5;
+
+#2-3 数据库名长度超过63位
+#长度为63
+create database cbasedb01234567890123456789012345678901234567890123456789012345;
+--error 2
+create database cbasedb012345678901234567890123456789012345678901234567890123456;
+show databases;
+#2-4 数据库名为大写字母
+create database "WANGDB";
+show databases;
+using database "WANGDB";
+sleep 5;
+
+
+#显示所有数据库
+show databases;
+
+
+drop database cbase123;
+
+drop database wangqinyuuuuuu;
+
+drop database namenamenamenam;
+
+drop database "WANGDB";
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

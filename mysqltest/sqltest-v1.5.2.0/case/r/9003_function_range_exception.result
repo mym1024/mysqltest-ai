@@ -1,0 +1,46 @@
+drop table if exists t1;
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1);
+ERROR HY000: YAO-5077: partition function 'r' doesn't exist
+create range partition function r(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r	1	x	(10),(20),(maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1)) partition by(rr,r,c2);
+ERROR HY000: YAO-5081: parameter[c2] is not rowkey
+drop partition function r;
+create range partition function r(x,y) '(10,50),(20,60),(maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r	2	x,y	(10,50),(20,60),(maxvalue,maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1);
+ERROR HY000: YAO-5054: Wrong number of parameters
+drop partition function r;
+create range partition function r(x,y) '(10,50),(20,60),(maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r	2	x,y	(10,50),(20,60),(maxvalue,maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1,c1);
+ERROR 42S01: YAO-5025: duplicate partition column 'c1' 
+drop partition function r;
+create range partition function r(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r	1	x	(10),(20),(maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c4);
+ERROR 42S22: YAO-5009: partition column 'c4' does not exist in table
+drop partition function r;
+drop partition function r;
+ERROR HY000: YAO-5077: partition function 'r' doesn't exist
+drop table if exists t1;

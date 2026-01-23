@@ -1,0 +1,54 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+set names utf8mb4;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4)],[(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4)],[(5),(6),(7),(8)]';
+create database test1;
+create database test2;
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create index i1 on t1(c2) storing(c5);
+using database test1;
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+using database test2;
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+select partition_calc(test.t1,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3001	test.t1	2	[2, MAX)		__user_default_group	0
+select partition_calc(t1,(1),0);
+ERROR 42S02: YAO-5019: table 'test2.t1' does not exist
+select partition_calc(test.t1,(1));
+paxos_id
+0
+select partition_calc(test1.t2,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3003	test1.t2	2	[2, MAX)	c1	rr#0	1
+select partition_calc(test1.t2,(1));
+paxos_id
+1
+select partition_calc(test1.t3,(1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3004	test1.t3	2	[2, MAX)	c3	hh#1	1
+select partition_calc(test1.t3,(1));
+paxos_id
+1
+select partition_calc(test2.t4,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test2.t4	2	[2, MAX)	c2,c1,c3	ee#0	1
+select partition_calc(t4,('a',1,1),0);
+table_id	table_name	cur_version	valid_version	partition_key	group_name	paxos_id
+3005	test2.t4	2	[2, MAX)	c2,c1,c3	ee#0	1
+select partition_calc(t4,('a',1,1));
+paxos_id
+1
+select partition_calc(test4.t4,(1));
+ERROR 42S02: YAO-5019: table 'test4.t4' does not exist
+select partition_calc(t5,(1));
+ERROR 42S02: YAO-5019: table 'test2.t5' does not exist

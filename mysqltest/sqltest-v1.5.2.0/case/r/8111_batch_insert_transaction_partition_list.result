@@ -1,0 +1,193 @@
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0,list1#q1	__list@3001	c1
+3002	2	list2	1	list2#q0,list2#q1	__list@3002	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+insert into list1 select * from list2;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+commit;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+set autocommit=1;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	list1	1	list1#q0,list1#q1	__list@3003	c1
+3004	2	list2	1	list2#q0,list2#q1	__list@3004	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+insert into list1 select * from list2 where c1<4;
+insert into list1 select * from list2 where c1=4;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+rollback;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+set autocommit=1;
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	2	list1	1	list1#q0,list1#q1	__list@3005	c1
+3006	2	list2	1	list2#q0,list2#q1	__list@3006	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+insert into list1 select * from list2 where c1<4;
+insert into list1 select * from list2 where c1=4;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+rollback;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+set autocommit=1;
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	2	list1	1	list1#q0,list1#q1	__list@3007	c1
+3008	2	list2	1	list2#q0,list2#q1	__list@3008	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+insert into list1 select * from list2 where c1<4 multi_batch;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+insert into list1 select * from list2 where c1=4 multi_batch;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from list1;
+c1	c2	c3	c4	c5	c6
+commit;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+set autocommit=1;
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+set autocommit=0;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3009	2	list1	1	list1#q0,list1#q1	__list@3009	c1
+3010	2	list2	1	list2#q0,list2#q1	__list@3010	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list1 select * from list2 multi_batch;
+insert into list2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list1 select * from list2 where c1=4 multi_batch;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+rollback;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+set autocommit=1;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+create table list2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by list(c1) (partition q0 values in (1,3),partition q1 values in (2,4));
+set autocommit=0;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	list1	1	list1#q0,list1#q1	__list@3011	c1
+3012	2	list2	1	list2#q0,list2#q1	__list@3012	c1
+insert into list2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list1 select * from list2;
+insert into list2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into list1 select * from list2 where c1=4 multi_batch;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from list1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+rollback;
+select * from list1;
+c1	c2	c3	c4	c5	c6
+set autocommit=1;
+select * from list2;
+c1	c2	c3	c4	c5	c6
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+list2#q0	2	0	NULL
+list2#q1	2	1	NULL

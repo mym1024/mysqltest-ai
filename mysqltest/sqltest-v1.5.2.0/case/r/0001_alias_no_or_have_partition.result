@@ -1,0 +1,90 @@
+drop table if exists t1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+select 1+2 c1;
+c1
+3
+select 1+2 as c1;
+c1
+3
+select 1 c1;
+c1
+1
+select 1 as c1;
+c1
+1
+select 1+2 c1 from dual where 1=1;
+c1
+3
+select 1+2 as c1 from dual where 1=1;
+c1
+3
+select 1 c1 from dual where 1=1;
+c1
+1
+select 1 as c1 from dual where NULL is NULL;
+c1
+1
+create hash partition function h1(x)'x*2-1';
+create table t1(c1 int primary key, c2 int) partition by (ta1, h1, c1);
+insert into t1 values(1,1),(2,1);
+select c2 +100 c3 from t1 where c1=1;
+c3
+101
+select c2 -100 c3 from t1 where c1 in (1,2);
+c3
+-99
+-99
+drop table t1;
+drop partition function h1;
+create enum partition function e1(x,y)'[(1,s)],[(2,w)]';
+create table t1(c1 int, c2 varchar(30), c3 float, c4 createtime, c5 int, c6 varchar(30), c7 float, primary key(c1, c2)) partition by (em, e1, c1, c2);
+insert into t1(c1,c2,c3,c5,c6,c7) values(1,'s',1.5,1,'t',2.5);
+select c5+1 c51, c6 c61,c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5;
+c51	c61	c71
+2	t	3.5
+select c5+1 c51, c6 c61,c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1,2,3);
+c51	c61	c71
+2	t	3.5
+drop table t1;
+drop partition function e1;
+create enum partition function e1(x)'[(1)],[(2)]';
+create table t1(c1 int primary key, c2 int) partition by(ta1, e1, c1);
+insert into t1 values(1,1),(2,1);
+select c2 +100 c3 from t1 where c1=1;
+c3
+101
+select c2 -100 c3 from t1 where c1 in (1,2);
+c3
+-99
+-99
+drop table t1;
+drop partition function e1;
+create table t1(c1 int, c2 varchar(30),c3 float, c4 createtime, c5 int, c6 varchar(30), c7 float, primary key (c1, c2)) partition by range columns(c1, c2)(partition b1 values less than(2,'s'), partition b2 values less than(3,'t'), partition b3 values less than (maxvalue, maxvalue));
+insert into t1(c1, c2, c3, c5, c6, c7) values(1,'s',1.5,1,'t',2.5);
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5;
+c51	c61	c71
+2	t	3.5
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1, 2, 3);
+c51	c61	c71
+2	t	3.5
+drop table t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values (1,1),(2,1);
+select c2+100 c3 from t1 where c1=1;
+c3
+101
+select c2-100 c3 from t1 where c1 in (1,2);
+c3
+-99
+-99
+drop table t1;
+create table t1(c1 int, c2 varchar(30), c3 float, c4 createtime, c5 int, c6 varchar (30), c7 float, primary key (c1, c2, c3));
+insert into t1(c1,c2,c3,c5,c6,c7) values(1, 's', 1.5,1, 't', 2.5);
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5;
+c51	c61	c71
+2	t	3.5
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1,2,3);
+c51	c61	c71
+2	t	3.5
+drop table t1;

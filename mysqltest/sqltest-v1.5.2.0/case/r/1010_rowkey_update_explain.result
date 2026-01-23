@@ -1,0 +1,228 @@
+create database rowkey_database;
+using database rowkey_database;
+create table if not exists t(id1 int primary key, col1 int);
+replace into t values(0, 0);
+replace into t values(1, 0);
+replace into t values(2, 0);
+explain update t set id1=id1+10, col1=1 where id1=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            "TableItemList":[
+                {"Num":0,"TableId":3001,"TableName":"rowkey_database.t","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+            ],
+            "ColumnItemList":[
+                {"Num":0,"ColumnId":16,"ColumnName":"id1","TableRef":3001},
+                {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3001}
+            ]
+
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+UpdateRowkey(phy_plan=
+uindex_need_execute_first_=0
+select row plan(===
+TsExecutor(ups_plan=PhysicalPlan(operators_num=8 query_num=3 trans_id=TransID(sd=0,ups=0.0.0.0@-1,start=0, paxos_id=-1, role=0) start_trans=N trans_req=TransReq(type=1,isolation=2,start_time=0,timeout=100000000,idletime=100000000))
+====MainQuery====
+Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])
+MuitipleGetMerge(children_num=2)
+Child0:
+MemSSTableScan(static_data_subquery=3, row_desc=rowkey_cell_count[0],, row_store=data_size=0 block_count=0, from_deserialize=N)
+Child1:
+IncScan(scan_type=MGET[1], hotspot=false, lock=1, subquery=8, get_param=NULL scan_param=NULL)
+====SubQuery1====
+Values(row_store=data_size=0 block_count=0)
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=false, read_method_=2, read_consistency=FROZEN>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|EQ<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|],expr<NULL,65520>=[COL<NULL,65520>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+====SubQuery2====
+ExprValues(values_num=2, values=<0:expr<3001,16>=[int:0|]> <1:expr<3001,17>=[null:|]> , row_desc=rowkey_cell_count[1],<3001,16>,<3001,17>,)
+)
+***pre_plan***
+TsExecutor(pre_plan=)
+***full_row_plan***
+TsExecutor(full_row_plan=)
+end select===)
+delete plan(===
+TsExecutor(ups_plan=PhysicalPlan(operators_num=9 query_num=3 trans_id=TransID(sd=0,ups=0.0.0.0@-1,start=0, paxos_id=-1, role=0) start_trans=N trans_req=TransReq(type=1,isolation=2,start_time=0,timeout=100000000,idletime=100000000))
+====MainQuery====
+TsModifyWithDmlType(dml_type=delete)
+Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,65520>=[int:8|]])(sequence_values_=[])
+MuitipleGetMerge(children_num=2)
+Child0:
+MemSSTableScan(static_data_subquery=4, row_desc=rowkey_cell_count[0],, row_store=data_size=0 block_count=0, from_deserialize=N)
+Child1:
+IncScan(scan_type=MGET[1], hotspot=false, lock=1, subquery=9, get_param=NULL scan_param=NULL)
+====SubQuery1====
+Values(row_store=data_size=0 block_count=0)
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=false, read_method_=2, read_consistency=FROZEN>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|EQ<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|],expr<NULL,65520>=[COL<NULL,65520>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+====SubQuery2====
+ExprValues(values_num=2, values=<0:expr<3001,16>=[int:0|]> <1:expr<3001,17>=[null:|]> , row_desc=rowkey_cell_count[1],<3001,16>,<3001,17>,)
+)
+***pre_plan***
+TsExecutor(pre_plan=)
+***full_row_plan***
+TsExecutor(full_row_plan=)
+end delete===)
+insert plan(===
+TsExecutor(ups_plan=PhysicalPlan(operators_num=9 query_num=3 trans_id=TransID(sd=0,ups=0.0.0.0@-1,start=0, paxos_id=-1, role=0) start_trans=N trans_req=TransReq(type=1,isolation=2,start_time=0,timeout=100000000,idletime=100000000))
+====MainQuery====
+TsModifyWithDmlType(dml_type=insert)
+InsertDBSemFilter(input_values_subquery=7 values=ExprValues(values_num=0, values=, row_desc=rowkey_cell_count[0],)
+)
+EmptyRowFilter()
+MuitipleGetMerge(children_num=2)
+Child0:
+MemSSTableScan(static_data_subquery=3, row_desc=rowkey_cell_count[0],, row_store=data_size=0 block_count=0, from_deserialize=N)
+Child1:
+IncScan(scan_type=MGET[1], hotspot=false, lock=1, subquery=7, get_param=NULL scan_param=NULL)
+====SubQuery1====
+Values(row_store=data_size=0 block_count=0)
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=false, read_method_=2, read_consistency=FROZEN>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, [Get RowNum:0]:
+>)
+====SubQuery2====
+ExprValues(values_num=0, values=, row_desc=rowkey_cell_count[1],<3001,16>,<3001,17>,)
+)
+***pre_plan***
+TsExecutor(pre_plan=)
+***full_row_plan***
+TsExecutor(full_row_plan=)
+end insert===)
+
+explain update t set id1=id1+1, col1=1 where id1>=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            "TableItemList":[
+                {"Num":0,"TableId":3001,"TableName":"rowkey_database.t","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+            ],
+            "ColumnItemList":[
+                {"Num":0,"ColumnId":16,"ColumnName":"id1","TableRef":3001},
+                {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3001}
+            ]
+
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+UpdateRowkey(phy_plan=
+uindex_need_execute_first_=0
+select row plan(===
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=STRONG>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GE<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+end select===)
+delete plan(===
+TsExecutor(ups_plan=PhysicalPlan(operators_num=9 query_num=2 trans_id=TransID(sd=0,ups=0.0.0.0@-1,start=0, paxos_id=-1, role=0) start_trans=N trans_req=TransReq(type=1,isolation=2,start_time=0,timeout=100000000,idletime=100000000))
+====MainQuery====
+TsModifyWithDmlType(dml_type=delete)
+Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,65520>=[int:8|]])(sequence_values_=[])
+MuitipleGetMerge(children_num=2)
+DataMarkParam(table_id=3001,need_modify_time_=1,need_major_version_=0,need_prevcommit_trans_verset_=0,need_data_store_type_=0,modify_time_cid_=18,major_version_cid_=19,minor_ver_start_cid_=20,minor_ver_end_cid_=21,data_store_type_cid_=22,)Child0:
+MemSSTableScan(static_data_subquery=4, row_desc=rowkey_cell_count[0],, row_store=data_size=0 block_count=0, from_deserialize=N)
+Child1:
+IncScan(scan_type=MGET[1], hotspot=false, lock=1, subquery=8, DataMarkParam(table_id=3001,need_modify_time_=1,need_major_version_=0,need_prevcommit_trans_verset_=0,need_data_store_type_=0,modify_time_cid_=18,major_version_cid_=19,minor_ver_start_cid_=20,minor_ver_end_cid_=21,data_store_type_cid_=22,)get_param=NULL scan_param=NULL)
+====SubQuery1====
+FillValues()
+====child_0====
+Values(row_store=data_size=0 block_count=0)
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=false, read_method_=2, read_consistency=STRONG>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+,====child_1====
+ExprValues(values_num=0, values=, row_desc=rowkey_cell_count[1],<3001,16>,<3001,17>,)
+,====child_2====
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=STRONG>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GE<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+)
+***pre_plan***
+TsExecutor(pre_plan=)
+***full_row_plan***
+TsExecutor(full_row_plan=)
+end delete===)
+insert plan(===
+TsExecutor(ups_plan=PhysicalPlan(operators_num=9 query_num=3 trans_id=TransID(sd=0,ups=0.0.0.0@-1,start=0, paxos_id=-1, role=0) start_trans=N trans_req=TransReq(type=1,isolation=2,start_time=0,timeout=100000000,idletime=100000000))
+====MainQuery====
+TsModifyWithDmlType(dml_type=insert)
+InsertDBSemFilter(input_values_subquery=7 values=ExprValues(values_num=0, values=, row_desc=rowkey_cell_count[0],)
+)
+EmptyRowFilter()
+MuitipleGetMerge(children_num=2)
+Child0:
+MemSSTableScan(static_data_subquery=3, row_desc=rowkey_cell_count[0],, row_store=data_size=0 block_count=0, from_deserialize=N)
+Child1:
+IncScan(scan_type=MGET[1], hotspot=false, lock=1, subquery=7, get_param=NULL scan_param=NULL)
+====SubQuery1====
+Values(row_store=data_size=0 block_count=0)
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=false, read_method_=2, read_consistency=FROZEN>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, [Get RowNum:0]:
+>)
+====SubQuery2====
+ExprValues(values_num=0, values=, row_desc=rowkey_cell_count[1],<3001,16>,<3001,17>,)
+)
+***pre_plan***
+TsExecutor(pre_plan=)
+***full_row_plan***
+TsExecutor(full_row_plan=)
+end insert===)
+
+delete from t where id1=2 when row_count(update t set id1=9 where id1=2);
+ERROR HY000: YAO-163: The function is NOT support for update rowkey
+delete from t where id1=2 when row_count(update t set id1=9 where id1>=1);
+ERROR HY000: YAO-163: The function is NOT support for update rowkey
+select * from t;
+id1	col1
+0	0
+1	0
+2	0
+drop table if exists t;

@@ -1,0 +1,155 @@
+##############################################################################################
+###1.测试功能点：在list分区规则下，批量插入不同类型的数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists list1,list2;
+--enable_warnings
+
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7,8,9,10,11,12,13,15));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7,8,9,10,11,12,13,15));
+show table rules;
+--real_sleep 3
+
+###2-1:插入不同形式数据
+insert into list2 values(1,1,'haha'),(2,1,'haha'),(3,1,'haha'),(4,1,'haha'),(5,1,'haha'),(6,1,'haha'),(7,1,'haha');
+--error 5702
+insert into list2 values(21,21,'haha');
+--error 119
+insert into list1 select distinct c2,c1,c3 from list2;
+insert into list2 values(8,4,'mkoe');
+insert into list1 select c1 as grimp,c2 as tendency,c2 from list2 where c1=8;
+insert into list2 values(9,4,'mkoe'),(10,4,'mkoe'),(11,4,'mkoe'),(12,4,'mkoe'),(13,4,'mkoe');
+insert into list1 select * from list2 where c1>8 limit 3;
+insert into list1 select * from list2 as tinsert where c1=13;
+--error 119
+insert into list1 select * from list2 where c1=15 for update;
+
+select * from list1;
+select * from list2;
+show partition groups;
+
+--disable_warnings
+drop table if exists list1,list2;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+--error 5702
+insert into list2 values(21,21,'haha');
+--error 119
+insert into list1 select c2,c1,c3 from list2 order by (c2);
+select * from list1;
+select * from list2;
+show partition groups;
+
+--disable_warnings
+drop table if exists list1,list2,list3;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list3(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list3 values(1,2,'mid'),(3,1,'rdetg');
+--error 5702
+insert into list2 values(21,21,'haha');
+insert into list1 select list2.c1,list2.c2,list3.c2 from list2 inner join list3 on list2.c2=list3.c2;
+select * from list1;
+select * from list2;
+select * from list3;
+show partition groups;
+
+--disable_warnings
+drop table if exists list1,list2;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+--error 5702
+insert into list2 values(21,21,'haha');
+insert into list1(c1,c2) select list2.c1,list2.c2 from list2 left join list1 on list2.c2=list1.c2;
+select * from list1;
+select * from list2;
+show partition groups;
+
+
+--disable_warnings
+drop table if exists list1,list2,list3;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list3(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+--real_sleep 6
+show table rules;
+--real_sleep 3
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list3 values(1,2,'mid'),(3,1,'rdetg');
+--error 5702
+insert into list2 values(21,21,'haha');
+insert into list1(c1,c2) select c1,c2 from list2 union select c1,c2 from list3;
+select * from list1;
+select * from list2;
+select * from list3;
+show partition groups;
+
+--disable_warnings
+--real_sleep 6
+drop table if exists list1;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list1(c1,c2) select c1,c2 from list2 except select c1,c2 from list3;
+--error 5702
+insert into list2 values(21,21,'haha');
+select * from list1;
+show partition groups;
+
+--disable_warnings
+drop table if exists list1;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list1(c1,c2) select c1,c2 from list2 intersect select c1,c2 from list3;
+--error 5702
+insert into list2 values(21,21,'haha');
+select * from list1;
+show partition groups;
+
+--disable_warnings
+drop table if exists list1;
+--enable_warnings
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+--real_sleep 3
+insert into list1(c1,c2) select c1,c2 from list2 where c1 in( select c1 from list3);
+insert into list1(c1,c2) select c1,c2 from list2 where c1 not in( select c1 from list1);
+select * from list1;
+show partition groups;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,239 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：count在delete和冻结后数据不正确
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：730s
+###6.编写/修改人： liuchangyuan
+###7.编写/修改日期：2019-10-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:ups迭代nop异常问题修复
+create table counttest(c1 varchar(20),c2 varchar(20),c3 varchar(20),primary key(c2));
+insert into counttest(c1,c2) values (11,12);
+insert into counttest(c2,c3) values (21,22);
+insert into counttest(c1,c2) values (31,32);
+select count(*) from counttest;
+select c1 from counttest;
+select c2 from counttest;
+select c3 from counttest;
+select c1,c2 from counttest;
+select * from counttest;
+delete from counttest;
+select count(*) from counttest;
+select c1 from counttest;
+select c2 from counttest;
+select c3 from counttest;
+select c1,c2 from counttest;
+select * from counttest;
+insert into counttest(c1,c2) values (11,12);
+insert into counttest(c2,c3) values (21,22);
+select count(*) from counttest;
+select c1 from counttest;
+select c2 from counttest;
+select c3 from counttest;
+select c1,c2 from counttest;
+select * from counttest;
+delete from counttest;
+select count(*) from counttest;
+select c1 from counttest;
+select c2 from counttest;
+select c3 from counttest;
+select c1,c2 from counttest;
+select * from counttest;
+insert into counttest(c1,c2) values (11,12);
+insert into counttest(c2,c3) values (21,22);
+select count(*) from counttest;
+select c1 from counttest;
+select c2 from counttest;
+select c3 from counttest;
+select c1,c2 from counttest;
+select * from counttest;
+
+###2-2:冻结后count查找缺少行
+create table o_hdfs_sgps_bep_pmsaccbok999
+(
+psdbrno varchar(6),
+logno varchar(14),
+buslog varchar(11),
+actdat varchar(8),
+bildat varchar(8),
+oidate varchar(8),
+txndat varchar(8),
+srtim varchar(6),
+rettim varchar(6),
+thddt varchar(6),
+txnamt varchar(15),
+nodno varchar(6),
+retnod varchar(6),
+ctlnod varchar(6),
+bilsts varchar(1),
+txncod varchar(6),
+cmtcod varchar(6),
+bussqn varchar(8),
+rbilcd varchar(2),
+rscode varchar(4),
+exctm varchar(4),
+vchno varchar(9),
+vchtyp varchar(3),
+vchcmt varchar(10),
+prtflg varchar(1),
+tprflg varchar(1),
+prtcnt varchar(1),
+bilno varchar(19),
+sub varchar(4),
+rpdflg varchar(1),
+feetyp varchar(1),
+remfee varchar(15),
+fee varchar(15),
+ccycod varchar(3),
+oiflag varchar(1),
+bchflg varchar(1),
+cdflg varchar(1),
+rbkno varchar(12),
+rbknam varchar(60),
+rcvact varchar(35),
+rcvnam varchar(60),
+rcvadr varchar(60),
+ropnbk varchar(12),
+sbkno varchar(12),
+sbknam varchar(60),
+sndact varchar(35),
+sndnam varchar(60),
+sndadr varchar(60),
+sopnbk varchar(12),
+opccod varchar(4),
+srtcbk varchar(6),
+srtbnm varchar(60),
+rpccod varchar(4),
+rpcnam varchar(30),
+rrtcbk varchar(6),
+rrtbnm varchar(60),
+ssetbk varchar(12),
+rsetbk varchar(12),
+actno varchar(21),
+canam varchar(60),
+cclno varchar(21),
+smr varchar(60),
+totnum varchar(6),
+totamt varchar(15),
+pmtpwd varchar(20),
+cntrno varchar(3),
+rsvfld varchar(20),
+obsqn varchar(11),
+oinsqn varchar(7),
+oppnam varchar(60),
+ogtrno varchar(20),
+rpyrac varchar(21),
+rpyrna varchar(60),
+rpyeac varchar(21),
+rpyena varchar(60),
+ornamt varchar(15),
+cgudty varchar(1),
+pdtms varchar(2),
+pdamt varchar(15),
+ovramt varchar(15),
+rfsamt varchar(15),
+dmgamt varchar(15),
+anlno varchar(3),
+loarat varchar(7),
+loalmt varchar(5),
+filnam varchar(60),
+pmbtyp varchar(2),
+psttyp varchar(1),
+pstsmr varchar(60),
+actsqn varchar(3),
+drnact varchar(21),
+drnnam varchar(60),
+tlrid1 varchar(7),
+tlrid2 varchar(7),
+tlrid3 varchar(7),
+tlrid4 varchar(7),
+proflg varchar(1),
+lstlog varchar(14),
+chkflg varchar(1),
+trspcd varchar(8),
+gtrno varchar(10),
+protim varchar(14),
+tckno varchar(11),
+sumamt varchar(15),
+subamt varchar(15),
+flag1 varchar(60),
+flag2 varchar(60),
+flag3 varchar(60),
+flag4 varchar(60),
+fill varchar(60),
+sndfee varchar(6),
+outnod varchar(6),
+brno varchar(6),
+hds_lupt varchar(10) not null,
+primary key (logno,actdat)
+)compress_method='snappy_1.0';
+
+insert into o_hdfs_sgps_bep_pmsaccbok999(psdbrno,actdat,logno,rpyeac,hds_lupt) values (12433,12423,12423,12423,12423);
+insert into o_hdfs_sgps_bep_pmsaccbok999(psdbrno,actdat,logno,rpyeac,hds_lupt) values (15433,15423,15423,15423,15423);
+insert into o_hdfs_sgps_bep_pmsaccbok999(actdat,logno,rpyeac,hds_lupt) values (2,3,4,5);
+insert into o_hdfs_sgps_bep_pmsaccbok999(actdat,logno,rpyeac,hds_lupt) values (20,30,40,50);
+insert into o_hdfs_sgps_bep_pmsaccbok999(psdbrno,actdat,logno,rpyeac,hds_lupt) values (100,200,300,400,500);
+
+select count(*) from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno,actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select * from o_hdfs_sgps_bep_pmsaccbok999;
+
+--real_sleep 2
+--real_sleep 2
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+--real_sleep 2
+--real_sleep 2
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+
+
+select count(*) from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno,actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select * from o_hdfs_sgps_bep_pmsaccbok999;
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 360
+
+
+select count(*) from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno,actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select * from o_hdfs_sgps_bep_pmsaccbok999;
+
+insert into o_hdfs_sgps_bep_pmsaccbok999(psdbrno,actdat,logno,rpyeac,hds_lupt) values (1000,2000,3000,4000,5000);
+insert into o_hdfs_sgps_bep_pmsaccbok999(actdat,logno,rpyeac,hds_lupt) values (2100,2200,2300,2400);
+
+select count(*) from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno from o_hdfs_sgps_bep_pmsaccbok999;
+select psdbrno,actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select actdat from o_hdfs_sgps_bep_pmsaccbok999;
+select * from o_hdfs_sgps_bep_pmsaccbok999;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

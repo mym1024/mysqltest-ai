@@ -1,0 +1,50 @@
+##############################################################################################
+###1.测试功能点：对分区表执行dml操作
+#                
+#                 
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：11s
+###6.编写/修改人： liuchangyuan
+###7.编写/修改日期：2019-10-22
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists yao_new_sql_test;
+--enable_warnings
+
+--error 5077
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+create table yao_new_sql_test(c0 varchar(20), c1 int primary key ,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int) partition by(h2,h2,c1);
+--real_sleep 10
+###2-1:hash分区表_insert
+insert into yao_new_sql_test(c0,c1) values('hello',0);
+select * from yao_new_sql_test where c1 < 1;
+select * from yao_new_sql_test where c1 = 0;
+
+
+###2-2:hash分区表_update
+update yao_new_sql_test set c0='world' where c1 < 1;
+select * from yao_new_sql_test where c1 < 1;
+select * from yao_new_sql_test where c1 = 0;
+
+###2-3:hash分区表_delete
+delete from yao_new_sql_test where c1 = 0;
+select * from yao_new_sql_test where c1 < 1;
+select * from yao_new_sql_test where c1 = 0;
+drop table yao_new_sql_test;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

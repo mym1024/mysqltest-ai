@@ -1,0 +1,63 @@
+create database b;
+using database b;
+drop table if exists t1,t2,t3,t4;
+create table t1 (id bigint, c1 bigint, c2 bigint, c3 int, c4 int, primary key(id,c1,c2)) partition by range columns(id,c1,c2)(partition rr0 values less than(1,2,3),partition rr1 values less than(3,5,7),partition rr2 values less than(5,6,8),partition rr3 values less than (maxvalue,maxvalue,maxvalue));
+insert into t1 values(1,2,3,4,5);
+insert into t1 values(2,5,6,2,1);
+insert into t1 values(3,4,8,2,3);
+insert into t1 values(4,1,2,6,8);
+create table t2 (id bigint primary key, c1 int, c2 int, c3 int, c4 int) partition by range(id)(partition r0 values less than(3),partition r1 values less than(5),partition r2 values less than(10),partition r3 values less than maxvalue);
+insert into t2 values(2,5,2,4,4);
+insert into t2 values(5,5,2,5,4);
+insert into t2 values(6,5,2,5,9);
+create table t3 (id bigint primary key, c1 int, c2 int, c3 int, c4 int, c5 int, c6 int) partition by range(id)(partition b1 values less than(2),partition b2 values less than (5),partition b3 values less than maxvalue) ;
+insert into t3 values(1,5,2,4,4,3,22);
+insert into t3 values(2,5,2,4,4,9,13);
+create table t4 (id bigint primary key, c1 int, c2 int) partition by range(id)(partition c1 values less than(5),partition c2 values less than (10),partition c3 values less than maxvalue);
+insert into t4 values(3,7,2);
+insert into t4 values(7,4,5);
+select /*+ join(bloomfilter_join) */ * from t1 left join t2 on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+1	2	3	4	5	NULL	NULL	NULL	NULL	NULL
+2	5	6	2	1	NULL	NULL	NULL	NULL	NULL
+3	4	8	2	3	NULL	NULL	NULL	NULL	NULL
+4	1	2	6	8	NULL	NULL	NULL	NULL	NULL
+select /*+ join(bloomfilter_join) */ * from t1 inner join t2 on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+select /*+ join(bloomfilter_join) */ * from t1 right join t2  on t1.id=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+2	5	6	2	1	2	5	2	4	4
+NULL	NULL	NULL	NULL	NULL	5	5	2	5	4
+NULL	NULL	NULL	NULL	NULL	6	5	2	5	9
+select /*+ join(bloomfilter_join) */ * from t1 full join t2  on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+1	2	3	4	5	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	2	5	2	4	4
+2	5	6	2	1	NULL	NULL	NULL	NULL	NULL
+3	4	8	2	3	NULL	NULL	NULL	NULL	NULL
+4	1	2	6	8	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	5	5	2	5	4
+NULL	NULL	NULL	NULL	NULL	6	5	2	5	9
+select /*+ join(merge_join) */ * from t1 left join t2 on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+1	2	3	4	5	NULL	NULL	NULL	NULL	NULL
+2	5	6	2	1	NULL	NULL	NULL	NULL	NULL
+3	4	8	2	3	NULL	NULL	NULL	NULL	NULL
+4	1	2	6	8	NULL	NULL	NULL	NULL	NULL
+select /*+ join(merge_join) */ * from t1 inner join t2 on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+select /*+ join(merge_join) */ * from t1 right join t2 on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+NULL	NULL	NULL	NULL	NULL	2	5	2	4	4
+NULL	NULL	NULL	NULL	NULL	5	5	2	5	4
+NULL	NULL	NULL	NULL	NULL	6	5	2	5	9
+select /*+ join(merge_join) */ * from t1 full join t2  on t1.id=t2.id and t1.c1=t2.id;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4
+1	2	3	4	5	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	2	5	2	4	4
+2	5	6	2	1	NULL	NULL	NULL	NULL	NULL
+3	4	8	2	3	NULL	NULL	NULL	NULL	NULL
+4	1	2	6	8	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	5	5	2	5	4
+NULL	NULL	NULL	NULL	NULL	6	5	2	5	9
+drop table t1,t2,t3,t4;

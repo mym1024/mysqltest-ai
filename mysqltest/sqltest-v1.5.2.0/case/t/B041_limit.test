@@ -1,0 +1,51 @@
+##############################################################################################
+###1.测试功能点：不指定分区规则表中，查询时limit的使用
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-9
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+create table t1(a int primary key,b int);
+insert into t1(a) values(1),(2),(3);
+select * from t1 limit 0;
+select * from t1 limit 1;
+select * from t1 limit 3;
+select * from t1 limit 4;
+select * from t1 limit -1;
+
+drop table t1;
+
+
+
+create table t1 (a int primary key,b int);
+
+insert into t1(a) values(1),(2),(3),(4),(5),(6),(7);
+select * from t1 order by a desc limit 3;
+select * from t1 order by a desc limit 0;
+select * from t1 order by a desc limit 8;
+select count(*) c from t1 where a > 0 order by c limit 3;
+select sum(a) c from t1 where a > 0 order by c limit 3;
+drop table t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

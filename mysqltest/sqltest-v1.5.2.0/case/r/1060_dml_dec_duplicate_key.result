@@ -1,0 +1,20 @@
+drop table if exists t1,t2;
+create table t1(k decimal(15,5) primary key,c1 decimal(15,5));
+insert into t1 values(12.12,13.13);
+insert into t1 values(12.12,13.13);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=decimal:12.12000' for key 'PRIMARY'
+select * from t1;
+k	c1
+12.12	13.13
+insert into t1 values(12.1200,13.1300);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=decimal:12.12000' for key 'PRIMARY'
+select * from t1;
+k	c1
+12.12	13.13
+insert into t1 values(1111111111.11111,13.13);
+insert into t1 values(1111111111.1111100,13.13);
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=decimal:1111111111.11111' for key 'PRIMARY'
+select * from t1;
+k	c1
+12.12	13.13
+1111111111.11111	13.13

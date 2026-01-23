@@ -1,0 +1,145 @@
+##############################################################################################
+###1.测试功能点：多session并发写入测试
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：120s
+###6.编写/修改人： gaohuanyu
+###7.编写/修改日期：2019-11-07
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-1:测试多个session同时对同一张表进行同样的操作
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+
+create table t1(i int primary key ,c1 char(1),c256 char(256),dt datetime,d datetime,ct createtime,mt modifytime);
+create table t2(i int primary key ,c1 char(1),c256 char(256),dt datetime,d datetime,ct createtime,mt modifytime);
+replace into t1(i,c1,c256,dt,d) values(0,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(1,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(2,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(3,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+replace into t1(i,c1,c256,dt,d) values(4,'1','xqy','2012-10-10 12:00:00','2012-10-10');
+
+--disable_query_log
+--disable_result_log
+--echo prepare same select clause repeatedly
+let $i=0;
+let $max_cnt=3;
+while($i<$max_cnt)
+{
+    connection conn1;
+    prepare stmt1 from select c1,dt from t1 where c256=?;
+    set @c256='xqy';
+    execute stmt1 using @c256;
+	connection conn2;
+    prepare stmt1 from select c1,dt from t1 where c256=?;
+    set @c256='xqy';
+    execute stmt1 using @c256;
+	connection conn3;
+    prepare stmt1 from select c1,dt from t1 where c256=?;
+    set @c256='xqy';
+    execute stmt1 using @c256;
+
+    inc $i;
+}
+
+
+let $i=0;
+while($i<$max_cnt)
+{
+    connection conn1;
+    prepare stmt1 from replace into t1(i,c1,c256,dt,d) values (5,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn2;
+    prepare stmt1 from replace into t1(i,c1,c256,dt,d) values (5,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn3;
+    prepare stmt1 from replace into t1(i,c1,c256,dt,d) values (5,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+
+    inc $i;
+}
+
+
+let $i=10;
+while($i<$max_cnt)
+{
+    connection conn1;
+    eval prepare stmt1 from insert into t1(i,c1,c256,dt,d) values ($i,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn2;
+	inc $i;
+    eval prepare stmt1 from insert into t1(i,c1,c256,dt,d) values ($i,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn3;
+	inc $i;
+    eval prepare stmt1 from insert into t1(i,c1,c256,dt,d) values ($i,'1',?,'2012-10-10 12:00:00','2012-10-10');
+    set @c256='xhl';
+    execute stmt1 using @c256;
+
+    inc $i;
+}
+
+let $i=0;
+while($i<$max_cnt)
+{
+    connection conn1;
+    prepare stmt1 from update t1 set c256=? where i=6;
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn2;
+    prepare stmt1 from update t1 set c256=? where i=6;
+    set @c256='xhl';
+    execute stmt1 using @c256;
+	connection conn3;
+	prepare stmt1 from update t1 set c256=? where i=6;
+    set @c256='xhl';
+    execute stmt1 using @c256;
+
+    inc $i;
+}
+
+
+let $i=0;
+while($i<$max_cnt)
+{
+    connection conn1;
+    prepare stmt1 from delete from t1 where i=?;
+    set @a=1;
+    execute stmt1 using @a;
+	connection conn2;
+    prepare stmt1 from delete from t1 where i=?;
+    set @a=2;
+    execute stmt1 using @a;
+	connection conn3;
+	prepare stmt1 from delete from t1 where i=?;
+    set @a=3;
+    execute stmt1 using @a;
+
+    inc $i;
+}
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

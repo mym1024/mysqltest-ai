@@ -1,0 +1,63 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：发起合并后查看索引状态
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1002s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+
+create table t1 (c1 int primary key,c2 int,c3 int);
+create table t2 (c1 int primary key,c2 int);
+
+###2-1:在数据表中，在不同列上创建索引表，查看索引状态是否可用
+create index il0 on t1(c2) storing (c3);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c1,c2) storing (c3);
+create index il3 on t1(c2,c1) storing (c3);
+create index il4 on t1(c1) storing (c2,c3);
+create index il5 on t1(c2);
+
+create index il0 on t2(c1);
+create index il1 on t2(c2);
+create index il2 on t2(c1) storing (c2);
+
+###2-2:数据表的主键列不能作为索引表的冗余列
+--error 5031
+create index il3 on t2(c2) storing (c1);
+
+show index on t1;
+show index on t2;
+
+show index on t1;
+show index on t2;
+show index on t1 like '%il_';
+show index on t1 like '%idx\\__i10';
+show index on t1 like '%1';
+show index on t1 where  index_name='__3033__idx__il1' and status=4;
+show index on t1 where  index_name like '%il_' and status=4;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

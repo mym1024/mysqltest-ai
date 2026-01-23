@@ -1,0 +1,130 @@
+####################################必填######################################################
+###1.测试功能点：semi join type join type
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:semi join merge join 
+drop table if exists tt1,t2,t3,t4,t5;
+create table tt1(id decimal(10,5),c1 decimal(10,5),c2 decimal(10,5),c3 decimal(10,5),c4 decimal(10,5), primary key(id,c1,c2));
+insert into tt1 values(1.00,2.123,3.123,4.123,5.123);
+insert into tt1 values(2.00,5.123,6.123,2.123,1.123);
+insert into tt1 values(3.00,4.123,8.123,2.123,3.123);
+insert into tt1 values(4.00,1.123,2.123,6.123,8.123);
+select * from tt1;
+
+create table t2(id decimal(10,5) primary key,c1 decimal(10,5),c2 decimal(10,5),c3 decimal(10,5),c4 int);
+insert into t2 values(2.00,5.123,2,4.123,4.123);
+insert into t2 values(5.00,5.123,2,5,4.123);
+insert into t2 values(6.00,5.123,2,5,9);
+select * from t2;
+
+create table t3(id decimal(10,5) primary key,c1 decimal(10,5),c2 decimal(10,5),c3 decimal(10,5),c4 decimal(10,5),c5 decimal(10,5),c6 decimal(10,5));
+insert into t3 values(1.000,5.123,2,4.123,4.123,3,22);
+insert into t3 values(2.000,5.123,2,4.123,4.123,9,13);
+select * from t3;
+
+create table t4(id decimal(10,5) primary key,c1 decimal(10,5),c2 decimal(10,5));
+insert into t4 values(3.000000,5.123,2);
+insert into t4 values(7.000000,4.123,5);
+select * from t4;
+
+create table t5(id decimal(10,5) primary key,c1 varchar(20),c2 decimal(10,5));
+insert into t5 values(3.0000,'5.123',2);
+insert into t5 values(7.0000,'4.123',5.123);
+insert into t5 values(8.0000,'6',5.123);
+select * from t5;
+
+create table t6(id decimal(10,5) primary key,c1 varchar(20),c2 decimal(10,5));
+insert into t6 values(3.0000,'5.123',2);
+insert into t6 values(7.0000,'4.123',5.123);
+insert into t6 values(8.0000,'6',5.123);
+select * from t6;
+
+
+select /*+ join(si,merge_join) */ * from tt1 left join t5 on tt1.c4=t5.c1 right join t4 on t5.c2=t4.c2 and t4.id>t5.id;
+
+select /*+ join(si,merge_join) */ * from tt1 left join t5 on tt1.c4=t5.c1 left join t4 on t5.c2=t4.c2 and t4.id<t5.id;
+
+select /*+ join(merge_join,merge_join) */ * from tt1 left join t5 on tt1.c4=t5.c1 inner join t4 on t5.c2=t4.c2 and t4.id<=t5.id;
+
+select /*+ join(si,si,merge_join) */ * from tt1 left join t2 on tt1.c3=t2.c3 left join t3 on t2.c4=t3.c3 right join t4 on t3.c6=t4.c2 and t3.id<t4.id;
+
+select /*+ join(si,si,si) */ * from tt1 inner join t2 on tt1.c3=t2.c3 left join t3 on t2.c4=t3.c3 inner join t4 on t3.c6=t4.c2 and t3.id>=t4.id;
+
+select /*+ join(merge_join,si,merge_join) */ * from tt1 full join t2 on tt1.c3=t2.c3 left join t3 on t2.c4=t3.c3 right join t4 on t3.c6=t4.c2 and t3.id<=t4.id;
+
+drop table tt1,t2,t3,t4,t5;
+
+
+###2-2:(semijoin decimal join varchar)
+drop table if exists t3,t5;
+create table t3(id decimal(10,5) primary key,c1 decimal(10,5));
+insert into t3 values(1.000,5.123);
+insert into t3 values(2.000,5.123);
+select * from t3;
+
+create table t5(id decimal(10,5) primary key,c1 varchar(20));
+insert into t5 values(3.0000,'5.123');
+insert into t5 values(7.0000,'4.123');
+insert into t5 values(8.0000,'6');
+select * from t5;
+
+#(semijoin decimal join varchar)
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1;
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1 and t5.c1 > 5;
+select * from t3 where t3.c1 in(select c1 from t5);
+
+
+###2-3:2(semijoin decimal join varchar)
+drop table if exists t3,t5;
+create table t3(id decimal(10,5) primary key,c1 int);
+insert into t3 values(1.000,5123);
+insert into t3 values(2.000,5123);
+select * from t3;
+
+create table t5(id decimal(10,5) primary key,c1 varchar(20));
+insert into t5 values(3.0000,'5123');
+insert into t5 values(7.0000,'4123');
+insert into t5 values(8.0000,'6');
+select * from t5;
+
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1;
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1 and t5.c1 > 5;
+select * from t3 where t3.c1 in(select c1 from t5);
+
+
+###2-4:3(semijoin decimal join varchar)
+drop table if exists t3,t5;
+create table t3(id decimal(10,5) primary key,c1 varchar(30));
+insert into t3 values(1.000,'5.123');
+insert into t3 values(2.000,'5.123');
+select * from t3;
+
+create table t5(id decimal(10,5) primary key,c1 varchar(20));
+insert into t5 values(3.0000,'5.123');
+insert into t5 values(7.0000,'4.123');
+insert into t5 values(8.0000,'6');
+select * from t5;
+
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1 order by t3.id;
+select /* + join(si) */ * from t3 join t5 on t3.c1 = t5.c1 and t5.c1 > 5 order by t3.id;
+select * from t3 where t3.c1 in(select c1 from t5);
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

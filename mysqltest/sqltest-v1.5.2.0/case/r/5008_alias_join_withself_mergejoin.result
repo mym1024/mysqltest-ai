@@ -1,0 +1,43 @@
+drop table if exists t1;
+create table t1(id int,count int, qty int, phone char(1), stamp datetime,  primary key(id));
+insert into t1 values(24,3,5400,'y','1999-12-23 17:29:12');
+insert into t1 values(25,4,6500,'y','1999-12-23 17:29:12');
+insert into t1 values(27,3,6200,'b','1999-12-27 09:44:24');
+insert into t1 values(28,3,5400,'y','1999-12-27 09:44:36');
+insert into t1 values(29,4,17700,'b','1999-12-27 09:44:05');
+select /*+ join(merge_join) */ a.id from t1 as a inner join t1 as b on a.id=b.id;
+id
+24
+25
+27
+28
+29
+select /*+ join(merge_join) */ a.id from t1 as a left join t1 as b on a.id=b.id;
+id
+24
+25
+27
+28
+29
+select /*+ join(merge_join) */ a.id from t1 as a right join t1 as b on a.id=b.id;
+id
+24
+25
+27
+28
+29
+select /*+ join(merge_join) */ a.id from t1 as a full join t1 as b on a.id=b.id;
+id
+24
+25
+27
+28
+29
+select /*+ join(merge_join) */ a.id from t1 as a, t1 as b where a.id=b.id;
+id
+24
+25
+27
+28
+29
+drop table t1;

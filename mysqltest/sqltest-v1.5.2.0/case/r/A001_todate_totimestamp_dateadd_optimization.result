@@ -1,0 +1,23 @@
+drop table if exists t1;
+create table t1 (c1 int primary key ,c2 date);
+insert into t1 values(1,'2013-12-22');
+select to_date(c2,'yyyy-mm-dd') from t1 limit 1;
+to_date(c2,'yyyy-mm-dd')
+2013-12-22
+select to_date('yyyymmdd',c2) from t1 limit 1;
+ERROR HY000: YAO-2: incorrect date type in second argument(to_date)
+select to_timestamp(c2,'yyyy-mm-dd hh:mm:ss') from t1 limit 1;
+ERROR HY000: YAO-5102: Format of TIMESTAMP value is incorrect.
+select to_timestamp('yyyy-mm-dd hh:mm:ss',c2) from t1 limit 1;
+ERROR HY000: YAO-2: fomart must be varchar type
+select date_add(c2, interval 1 days) from t1;
+date_add(c2, interval 1 days)
+2013-12-23
+select date_add(interval 1 days,c2) from t1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select date_add(date '2013-12-22', interval 1 days);
+date_add(date '2013-12-22', interval 1 days)
+2013-12-23
+select date_add(interval 1 days,date '2013-12-22');
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop table t1;

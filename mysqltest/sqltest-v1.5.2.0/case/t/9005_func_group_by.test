@@ -1,0 +1,118 @@
+##############################################################################################
+###1.测试功能点：在不指定分区规则下，group by的简单使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-27
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-1:不指定分区规则，group by的简单使用
+create table t1(pk int primary key,grp int,a int,c char(10) not null);
+
+insert into t1 values (1, 1,1,'a');
+insert into t1 values (2, 2,2,'b');
+insert into t1 values (3, 2,3,'c');
+insert into t1 values (4, 3,4,'E');
+insert into t1 values (5, 3,5,'C');
+insert into t1 values (6, 3,6,'D');
+
+select a,c,sum(a) from t1 group by a;
+select a,c,sum(a) from t1 where a > 10 group by a;
+select sum(a) from t1 where a > 10;
+select count(distinct a),count(distinct grp) from t1;
+insert into t1 values (7, null,null,'');
+select count(distinct a),count(distinct grp) from t1;
+
+create table t2(pk int primary key,grp int,a int,c char(10));
+select grp,max(a)+max(grp),max(c) from t1 group by grp;
+select * from t2;
+drop table t1,t2;
+
+
+create table t1 (pk int primary key, id int not null);
+create table t2 (pk int primary key, id int not null,rating int null);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t2 values(1,1,3),(2,2,null),(3,2,null),(4,3,2),(5,3,null);
+select t1.id, avg(rating) from t1 left join t2 on (t1.id = t2.id) group by t1.id;
+drop table t1,t2;
+
+create table t1(a int primary key,c char(10),b char(128));
+insert into t1 values(1,'1','1');
+insert into t1 values(2,'2','2');
+insert into t1 values(4,'4','4');
+select count(*) from t1;
+select count(*) from t1 where a = 1;
+select count(*) from t1 where a = 100;
+select count(*) from t1 where a >= 10;
+select count(a) from t1 where a = 1;
+select count(a) from t1 where a = 100;
+select count(a) from t1 where a >= 10;
+select count(b) from t1 where b >= 2;
+select count(b) from t1 where b >= 10;
+select count(c) from t1 where c = 10;
+drop table t1;
+
+
+create table t1(d createtime, i int primary key);
+insert into t1(i) values (1);
+select count(i),i,count(i)*i from t1 group by i;
+select count(i), (i+0), count(i)*(i+0) from t1 group by i;
+drop table t1;
+
+create table t1(pk int primary key,num float,my_user char(20));
+insert into t1 values (1,10.3,'nem'),(2,20.53,'monty'),(3,30.23,'sinisa');
+insert into t1 values (4,30.13,'nem'),(5,20.98,'monty'),(6,10.45,'sinisa');
+insert into t1 values (7,5.2,'nem'),(8,8.64,'monty'),(9,11.12,'sinisa');
+select sum(num) from t1;
+select sum(num) from t1 group by my_user;
+drop table t1;
+
+create table t1(pk int primary key,a1 int,a2 char(3));
+insert into t1 values(1,10,'aaa'),(2,10,null),(3,10,'bbb'),(4,20,'zzz');
+create table t2(pk int primary key,a1 char(3),a2 int,a3 float);
+select * from t1;
+select min(a2) from t1;
+insert into t2 values(1,'AAA',10,0.5);
+insert into t2 values(2,'BBB',20,1.0);
+drop table t1,t2;
+
+create table t1(pk int primary key,a int,b int);
+select count(b),sum(b),min(b),max(b) from t1;
+select a,count(b),sum(b),min(b),max(b) from t1 group by a;
+insert into t1 values (1,1,null);
+select a,count(b),sum(b),min(b),max(b) from t1 group by a;
+insert into t1 values (2,1,null);
+insert into t1 values (3,2,null);
+select a,count(b),sum(b),min(b),max(b) from t1 group by a;
+insert into t1 values (4,2,1);
+select a,count(b),sum(b),min(b),max(b) from t1 group by a;
+insert into t1 values (5,3,1);
+select a,count(b),sum(b),min(b),max(b) from t1 group by a;
+drop table t1;
+
+create table t1(col int primary key,col2 int);
+insert into t1(col) values (-1),(-2),(-3);
+drop table t1;
+
+create table t1(a int primary key,b int);
+select sum(2) from t1;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

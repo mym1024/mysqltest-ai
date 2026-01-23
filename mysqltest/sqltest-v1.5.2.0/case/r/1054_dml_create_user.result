@@ -1,0 +1,26 @@
+drop table if exists t1,t2,t3,t4;
+create user 'u1' identified by 'pass12/*','u2' identified by 'pass23/*','u3' identified by 'pass34/*','u4' identified by 'pass45/*';
+GRANT SELECT, GRANT OPTION ON test.* TO 'u1';
+no privilege
+create user 'u11' identified by 'pass12/*','u12' identified by 'pass23/*','u13' identified by 'pass34/*','u14' identified by 'pass45/*';
+ERROR HY000: YAO-5036: no privilege
+no privilege
+drop user 'u3','u4';
+ERROR HY000: YAO-5036: no privilege
+drop user 'u1';
+drop user failed
+drop user 'u1';
+ERROR 01007: YAO-5035: delete user failed
+no privilege
+drop user 'admin';
+ERROR HY000: YAO-5036: no privilege
+user exists
+create user 'u1' identified by 'pass12/*','u2' identified by 'pass23/*','u3' identified by 'pass34/*','u4' identified by 'pass45/*';
+ERROR HY000: YAO-5050: Create user failed, user exists!
+create user 'create' identified by 'pass12/*';
+create user 'password' identified by 'pass12/*';
+create user 'username' identified by 'pass12/*';
+create user 'status' identified by 'pass12/*';
+password must not be empty
+create user 'u21' identified by '';
+ERROR 01007: YAO-5038: password must not be empty

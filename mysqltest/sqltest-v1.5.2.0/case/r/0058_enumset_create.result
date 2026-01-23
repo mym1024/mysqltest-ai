@@ -1,0 +1,629 @@
+set yao_read_consistency=4;
+CREATE TABLE t_enum_set_basic (
+id INT,
+status ENUM('active', 'inactive', 'pending'),
+tags SET('tag1', 'tag2', 'tag3', 'tag4')
+);
+SHOW CREATE TABLE t_enum_set_basic;
+Table	Create Table
+test.t_enum_set_basic	CREATE TABLE t_enum_set_basic (
+id INT(10),
+status enum ('active','inactive','pending') COLLATE 'utf8mb4_general_ci',
+tags set ('tag1','tag2','tag3','tag4') COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_basic VALUES (1, 'active', 'tag1,tag3'), (2, 'inactive', 'tag2'), (3, NULL, '');
+SELECT * FROM t_enum_set_basic;
+id	status	tags
+1	active	tag1,tag3
+2	inactive	tag2
+3	NULL	
+DROP TABLE t_enum_set_basic;
+CREATE TABLE t_pk_normal_enum_set (
+id INT PRIMARY KEY,
+name VARCHAR(50),
+status ENUM('draft', 'published', 'archived'),
+categories SET('news', 'sports', 'tech', 'entertainment')
+);
+SHOW CREATE TABLE t_pk_normal_enum_set;
+Table	Create Table
+test.t_pk_normal_enum_set	CREATE TABLE t_pk_normal_enum_set (
+id INT(10),
+name VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+status enum ('draft','published','archived') COLLATE 'utf8mb4_general_ci',
+categories set ('news','sports','tech','entertainment') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_pk_normal_enum_set VALUES (1, 'Article1', 'published', 'news,tech'), (2, 'Article2', 'draft', 'sports');
+SELECT * FROM t_pk_normal_enum_set;
+id	name	status	categories
+1	Article1	published	news,tech
+2	Article2	draft	sports
+DROP TABLE t_pk_normal_enum_set;
+CREATE TABLE t_pk_enum (
+status ENUM('open', 'closed', 'in_progress') PRIMARY KEY,
+description TEXT
+);
+SHOW CREATE TABLE t_pk_enum;
+Table	Create Table
+test.t_pk_enum	CREATE TABLE t_pk_enum (
+status enum ('open','closed','in_progress') COLLATE 'utf8mb4_general_ci',
+description text COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(status)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_pk_enum VALUES ('open', 'Task is open'), ('closed', 'Task is finished');
+INSERT INTO t_pk_enum VALUES ('open', 'Another open task');
+ERROR 23000: YAO-5024: Duplicate entry ' <3003.16>=enum:1' for key 'PRIMARY'
+SELECT * FROM t_pk_enum;
+status	description
+open	Task is open
+closed	Task is finished
+DROP TABLE t_pk_enum;
+CREATE TABLE t_pk_set (
+permissions SET('read', 'write', 'execute') PRIMARY KEY,
+resource VARCHAR(100)
+);
+SHOW CREATE TABLE t_pk_set;
+Table	Create Table
+test.t_pk_set	CREATE TABLE t_pk_set (
+permissions set ('read','write','execute') COLLATE 'utf8mb4_general_ci',
+resource VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(permissions)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_pk_set VALUES ('read,write', 'file1.txt'), ('execute', 'script.sh');
+INSERT INTO t_pk_set VALUES ('read,write', 'file2.txt');
+ERROR 23000: YAO-5024: Duplicate entry ' <3004.16>=set:3' for key 'PRIMARY'
+SELECT * FROM t_pk_set;
+permissions	resource
+read,write	file1.txt
+execute	script.sh
+DROP TABLE t_pk_set;
+CREATE TABLE t_pk_enum_set_composite (
+type ENUM('user', 'admin', 'guest'),
+roles SET('viewer', 'editor', 'manager'),
+last_login TIMESTAMP,
+PRIMARY KEY (type, roles)
+);
+SHOW CREATE TABLE t_pk_enum_set_composite;
+Table	Create Table
+test.t_pk_enum_set_composite	CREATE TABLE t_pk_enum_set_composite (
+type enum ('user','admin','guest') COLLATE 'utf8mb4_general_ci',
+roles set ('viewer','editor','manager') COLLATE 'utf8mb4_general_ci',
+last_login DATETIME,
+ PRIMARY KEY(type, roles)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_pk_enum_set_composite (type, roles, last_login) VALUES ('user', 'viewer', NOW()), ('admin', 'editor,manager', NOW());
+INSERT INTO t_pk_enum_set_composite (type, roles, last_login) VALUES ('user', 'viewer', NOW() + INTERVAL 1 MINUTE);
+ERROR 23000: YAO-5024: Duplicate entry ' <3005.16>=enum:1 <3005.17>=set:1' for key 'PRIMARY'
+SELECT * FROM t_pk_enum_set_composite;
+type	roles	last_login
+user	viewer	固定值
+admin	editor,manager	固定值
+DROP TABLE t_pk_enum_set_composite;
+CREATE TABLE t_enum_set_not_null (
+id INT,
+required_status ENUM('yes', 'no') NOT NULL,
+required_flags SET('flag_a', 'flag_b') NOT NULL
+);
+SHOW CREATE TABLE t_enum_set_not_null;
+Table	Create Table
+test.t_enum_set_not_null	CREATE TABLE t_enum_set_not_null (
+id INT(10),
+required_status enum ('yes','no') COLLATE 'utf8mb4_general_ci' NOT NULL,
+required_flags set ('flag_a','flag_b') COLLATE 'utf8mb4_general_ci' NOT NULL
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_not_null VALUES (1, 'yes', 'flag_a');
+INSERT INTO t_enum_set_not_null (id, required_status) VALUES (2, 'no');
+ERROR HY000: YAO-5500: column:'required_flags' can not be null
+INSERT INTO t_enum_set_not_null (id, required_flags) VALUES (3, 'flag_b');
+SELECT * FROM t_enum_set_not_null;
+id	required_status	required_flags
+1	yes	flag_a
+3	yes	flag_b
+DROP TABLE t_enum_set_not_null;
+CREATE TABLE t_enum_set_default (
+id INT,
+default_status ENUM('unknown', 'known') DEFAULT 'unknown',
+default_tags SET('default_tag') DEFAULT 'default_tag',
+explicit_default_enum ENUM('A', 'B') DEFAULT 'A',
+explicit_default_set SET('X', 'Y', 'Z') DEFAULT 'X,Z'
+);
+SHOW CREATE TABLE t_enum_set_default;
+Table	Create Table
+test.t_enum_set_default	CREATE TABLE t_enum_set_default (
+id INT(10),
+default_status enum ('unknown','known') COLLATE 'utf8mb4_general_ci' DEFAULT 'unknown',
+default_tags set ('default_tag') COLLATE 'utf8mb4_general_ci' DEFAULT 'default_tag',
+explicit_default_enum enum ('A','B') COLLATE 'utf8mb4_general_ci' DEFAULT 'A',
+explicit_default_set set ('X','Y','Z') COLLATE 'utf8mb4_general_ci' DEFAULT 'X,Z'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_default (id) VALUES (1);
+INSERT INTO t_enum_set_default (id, default_status, default_tags) VALUES (2, 'known', '');
+SELECT * FROM t_enum_set_default;
+id	default_status	default_tags	explicit_default_enum	explicit_default_set
+1	unknown	default_tag	A	X,Z
+2	known		A	X,Z
+DROP TABLE t_enum_set_default;
+CREATE TABLE t_enum_set_charset (
+id INT,
+localized_enum ENUM('café', 'naïve', 'résumé') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+localized_set SET('français', 'español', '中文') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+);
+ERROR HY000: YAO-5143: UNKNOWN COLLATION
+CREATE TABLE t_idx_enum_plain (
+id INT,
+indexed_status ENUM('low', 'medium', 'high'),
+data VARCHAR(100),
+INDEX idx_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_plain;
+Table	Create Table
+test.t_idx_enum_plain	CREATE TABLE t_idx_enum_plain (
+id INT(10),
+indexed_status enum ('low','medium','high') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ KEY idx_status(indexed_status)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_plain VALUES (1, 'high', 'Data1'), (2, 'low', 'Data2'), (3, 'medium', 'Data3');
+SELECT * FROM t_idx_enum_plain WHERE indexed_status = 'high';
+id	indexed_status	data
+1	high	Data1
+DROP TABLE t_idx_enum_plain;
+CREATE TABLE t_idx_set_plain (
+id INT,
+data VARCHAR(100),
+indexed_tags SET('red', 'green', 'blue', 'yellow'),
+INDEX idx_tags (indexed_tags)
+);
+SHOW CREATE TABLE t_idx_set_plain;
+Table	Create Table
+test.t_idx_set_plain	CREATE TABLE t_idx_set_plain (
+id INT(10),
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+indexed_tags set ('red','green','blue','yellow') COLLATE 'utf8mb4_general_ci',
+ KEY idx_tags(indexed_tags)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_set_plain VALUES (1, 'Data1', 'red,blue'), (2, 'Data2', 'green'), (3, 'Data3', '');
+SELECT * FROM t_idx_set_plain WHERE indexed_tags = 'red,blue';
+id	data	indexed_tags
+1	Data1	red,blue
+DROP TABLE t_idx_set_plain;
+CREATE TABLE t_idx_enum_unique (
+id INT,
+unique_status ENUM('unique_a', 'unique_b', 'unique_c'),
+data VARCHAR(100),
+UNIQUE INDEX idx_unique_status (unique_status)
+);
+SHOW CREATE TABLE t_idx_enum_unique;
+Table	Create Table
+test.t_idx_enum_unique	CREATE TABLE t_idx_enum_unique (
+id INT(10),
+unique_status enum ('unique_a','unique_b','unique_c') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_status(unique_status)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_unique VALUES (1, 'unique_a', 'Data1'), (2, 'unique_b', 'Data2');
+INSERT INTO t_idx_enum_unique VALUES (3, 'unique_a', 'Data3');
+ERROR 23000: YAO-5024: Duplicate entry ' <3013.17>=enum:1 <3013.32786>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_enum_unique;
+id	unique_status	data
+1	unique_a	Data1
+2	unique_b	Data2
+DROP TABLE t_idx_enum_unique;
+CREATE TABLE t_idx_set_unique (
+id INT,
+unique_combination SET('opt1', 'opt2', 'opt3'),
+data VARCHAR(100),
+UNIQUE INDEX idx_unique_combination (unique_combination)
+);
+SHOW CREATE TABLE t_idx_set_unique;
+Table	Create Table
+test.t_idx_set_unique	CREATE TABLE t_idx_set_unique (
+id INT(10),
+unique_combination set ('opt1','opt2','opt3') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_combination(unique_combination)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_set_unique VALUES (1, 'opt1,opt3', 'Data1'), (2, 'opt2', 'Data2');
+INSERT INTO t_idx_set_unique VALUES (3, 'opt1,opt3', 'Data3');
+ERROR 23000: YAO-5024: Duplicate entry ' <3015.17>=set:5 <3015.32786>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_set_unique;
+id	unique_combination	data
+1	opt1,opt3	Data1
+2	opt2	Data2
+DROP TABLE t_idx_set_unique;
+CREATE TABLE t_idx_enum_both (
+id INT,
+indexed_status ENUM('level1', 'level2', 'level3'),
+data VARCHAR(100),
+UNIQUE INDEX idx_unique_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_both;
+Table	Create Table
+test.t_idx_enum_both	CREATE TABLE t_idx_enum_both (
+id INT(10),
+indexed_status enum ('level1','level2','level3') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_status(indexed_status)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_both VALUES (1, 'level1', 'Data1'), (2, 'level2', 'Data2');
+INSERT INTO t_idx_enum_both VALUES (3, 'level1', 'Data3');
+ERROR 23000: YAO-5024: Duplicate entry ' <3017.17>=enum:1 <3017.32786>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_enum_both;
+id	indexed_status	data
+1	level1	Data1
+2	level2	Data2
+DROP TABLE t_idx_enum_both;
+CREATE TABLE t_idx_set_both (
+id INT,
+indexed_combination SET('a', 'b', 'c'),
+data VARCHAR(100),
+UNIQUE INDEX idx_unique_combination (indexed_combination)
+);
+SHOW CREATE TABLE t_idx_set_both;
+Table	Create Table
+test.t_idx_set_both	CREATE TABLE t_idx_set_both (
+id INT(10),
+indexed_combination set ('a','b','c') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_combination(indexed_combination)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_set_both VALUES (1, 'a,c', 'Data1'), (2, 'b', 'Data2');
+INSERT INTO t_idx_set_both VALUES (3, 'a,c', 'Data3');
+ERROR 23000: YAO-5024: Duplicate entry ' <3019.17>=set:5 <3019.32786>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_set_both;
+id	indexed_combination	data
+1	a,c	Data1
+2	b	Data2
+DROP TABLE t_idx_set_both;
+CREATE TABLE t_idx_enum_other_cols (
+id INT,
+unique_name VARCHAR(50),
+indexed_status ENUM('state_x', 'state_y'),
+data VARCHAR(100),
+UNIQUE INDEX idx_unique_name (unique_name),
+INDEX idx_status (indexed_status)
+);
+SHOW CREATE TABLE t_idx_enum_other_cols;
+Table	Create Table
+test.t_idx_enum_other_cols	CREATE TABLE t_idx_enum_other_cols (
+id INT(10),
+unique_name VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+indexed_status enum ('state_x','state_y') COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_name(unique_name),
+ KEY idx_status(indexed_status)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_other_cols VALUES (1, 'Name1', 'state_x', 'Data1'), (2, 'Name2', 'state_y', 'Data2');
+INSERT INTO t_idx_enum_other_cols (id, unique_name, indexed_status) VALUES (3, 'Name1', 'state_x');
+ERROR 23000: YAO-5024: Duplicate entry ' <3021.17>=varchar:Name1 <3021.32787>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_enum_other_cols;
+id	unique_name	indexed_status	data
+1	Name1	state_x	Data1
+2	Name2	state_y	Data2
+DROP TABLE t_idx_enum_other_cols;
+CREATE TABLE t_idx_set_other_cols (
+id INT,
+indexed_tags SET('p', 'q', 'r'),
+unique_code VARCHAR(20),
+data VARCHAR(100),
+INDEX idx_tags (indexed_tags),
+UNIQUE INDEX idx_unique_code (unique_code)
+);
+SHOW CREATE TABLE t_idx_set_other_cols;
+Table	Create Table
+test.t_idx_set_other_cols	CREATE TABLE t_idx_set_other_cols (
+id INT(10),
+indexed_tags set ('p','q','r') COLLATE 'utf8mb4_general_ci',
+unique_code VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+data VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_code(unique_code),
+ KEY idx_tags(indexed_tags)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_set_other_cols VALUES (1, 'p,r', 'CODE001', 'Data1'), (2, 'q', 'CODE002', 'Data2');
+INSERT INTO t_idx_set_other_cols (id, indexed_tags, unique_code) VALUES (3, 'p', 'CODE001');
+ERROR 23000: YAO-5024: Duplicate entry ' <3025.18>=varchar:CODE001 <3025.32787>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_set_other_cols WHERE indexed_tags = 'q';
+id	indexed_tags	unique_code	data
+2	q	CODE002	Data2
+SELECT * FROM t_idx_set_other_cols WHERE unique_code = 'CODE002';
+id	indexed_tags	unique_code	data
+2	q	CODE002	Data2
+SELECT * FROM t_idx_set_other_cols;
+id	indexed_tags	unique_code	data
+1	p,r	CODE001	Data1
+2	q	CODE002	Data2
+DROP TABLE t_idx_set_other_cols;
+CREATE TABLE t_idx_enum_set_composite_plain (
+id INT,
+status ENUM('on', 'off'),
+flags SET('debug', 'trace', 'info'),
+description VARCHAR(100),
+INDEX idx_status_flags (status, flags)
+);
+SHOW CREATE TABLE t_idx_enum_set_composite_plain;
+Table	Create Table
+test.t_idx_enum_set_composite_plain	CREATE TABLE t_idx_enum_set_composite_plain (
+id INT(10),
+status enum ('on','off') COLLATE 'utf8mb4_general_ci',
+flags set ('debug','trace','info') COLLATE 'utf8mb4_general_ci',
+description VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ KEY idx_status_flags(status, flags)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_set_composite_plain VALUES (1, 'on', 'debug,info', 'Enabled with info'), (2, 'off', '', 'Disabled');
+SELECT * FROM t_idx_enum_set_composite_plain WHERE status = 'on' AND flags = 'debug,info';
+id	status	flags	description
+1	on	debug,info	Enabled with info
+SELECT * FROM t_idx_enum_set_composite_plain;
+id	status	flags	description
+1	on	debug,info	Enabled with info
+2	off		Disabled
+DROP TABLE t_idx_enum_set_composite_plain;
+CREATE TABLE t_idx_enum_set_composite_unique (
+id INT,
+state ENUM('start', 'stop'),
+modes SET('mode_a', 'mode_b'),
+description VARCHAR(100),
+UNIQUE INDEX idx_unique_state_modes (state, modes)
+);
+SHOW CREATE TABLE t_idx_enum_set_composite_unique;
+Table	Create Table
+test.t_idx_enum_set_composite_unique	CREATE TABLE t_idx_enum_set_composite_unique (
+id INT(10),
+state enum ('start','stop') COLLATE 'utf8mb4_general_ci',
+modes set ('mode_a','mode_b') COLLATE 'utf8mb4_general_ci',
+description VARCHAR (100) COLLATE 'utf8mb4_general_ci',
+ UNIQUE KEY idx_unique_state_modes(state, modes)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_idx_enum_set_composite_unique VALUES (1, 'start', 'mode_a,mode_b', 'Started in both modes'), (2, 'stop', 'mode_a', 'Stopped in mode_a');
+INSERT INTO t_idx_enum_set_composite_unique (id, state, modes) VALUES (3, 'start', 'mode_a,mode_b');
+ERROR 23000: YAO-5024: Duplicate entry ' <3029.17>=enum:1 <3029.18>=set:3 <3029.32787>=null:' for key 'PRIMARY'
+SELECT * FROM t_idx_enum_set_composite_unique WHERE state = 'stop' AND modes = 'mode_a';
+id	state	modes	description
+2	stop	mode_a	Stopped in mode_a
+SELECT * FROM t_idx_enum_set_composite_unique;
+id	state	modes	description
+1	start	mode_a,mode_b	Started in both modes
+2	stop	mode_a	Stopped in mode_a
+DROP TABLE t_idx_enum_set_composite_unique;
+CREATE TABLE t_enum_set_view (
+id INT,
+user_role ENUM('guest', 'user', 'moderator', 'admin'),
+user_status SET('verified', 'active', 'premium')
+);
+INSERT INTO t_enum_set_view VALUES (1, 'admin', 'verified,active,premium'), (2, 'user', 'verified,active'), (3, 'guest', '');
+CREATE VIEW v_enum_select AS SELECT id, user_role FROM t_enum_set_view WHERE user_role IN ('admin', 'moderator');
+SELECT * FROM v_enum_select;
+id	user_role
+1	admin
+DROP VIEW v_enum_select;
+DROP TABLE t_enum_set_view;
+CREATE TABLE t_enum_set_view (
+id INT,
+user_role ENUM('guest', 'user', 'moderator', 'admin'),
+user_status SET('verified', 'active', 'premium')
+);
+INSERT INTO t_enum_set_view VALUES (1, 'admin', 'verified,active,premium'), (2, 'user', 'verified,active'), (3, 'guest', '');
+CREATE VIEW v_set_select AS SELECT id, user_status FROM t_enum_set_view WHERE FIND_IN_SET('premium', user_status) > 0;
+SELECT * FROM v_set_select;
+id	user_status
+1	verified,active,premium
+DROP VIEW v_set_select;
+DROP TABLE t_enum_set_view;
+CREATE TEMPORARY TABLE t_enum_set_tmp (
+temp_id INT,
+temp_status ENUM('temp_a', 'temp_b')
+);
+INSERT INTO TEMPORARY t_enum_set_tmp VALUES (100, 'temp_a');
+SELECT * FROM TEMPORARY t_enum_set_tmp;
+temp_id	temp_status
+100	temp_a
+DROP TEMPORARY TABLE t_enum_set_tmp;
+CREATE TEMPORARY TABLE t_enum_set_tmp (
+temp_id INT,
+temp_flags SET('flag_x', 'flag_y', 'flag_z')
+);
+INSERT INTO TEMPORARY t_enum_set_tmp VALUES (200, 'flag_x,flag_z');
+SELECT * FROM TEMPORARY t_enum_set_tmp;
+temp_id	temp_flags
+200	flag_x,flag_z
+DROP TEMPORARY TABLE t_enum_set_tmp;
+CREATE TABLE t_enum_partitioned (
+id INT NOT NULL,
+p_status ENUM('p1', 'p2', 'p3') NOT NULL primary key
+) PARTITION BY LIST COLUMNS(p_status) (
+PARTITION p_part1 VALUES IN ('p1'),
+PARTITION p_part2 VALUES IN ('p2'),
+PARTITION p_part3 VALUES IN ('p3')
+);
+INSERT INTO t_enum_partitioned VALUES (1, 'p1'), (2, 'p2'), (3, 'p3');
+SELECT * FROM t_enum_partitioned;
+id	p_status
+1	p1
+2	p2
+3	p3
+DROP TABLE t_enum_partitioned;
+CREATE TABLE t_set_partitioned (
+id INT NOT NULL,
+p_modes SET('mode_p', 'mode_q', 'mode_r') NOT NULL primary key
+) PARTITION BY LIST COLUMNS(p_modes) (
+PARTITION p_mode_p VALUES IN ('mode_p'),
+PARTITION p_mode_q VALUES IN ('mode_q'),
+PARTITION p_mode_r VALUES IN ('mode_r')
+);
+INSERT INTO t_set_partitioned VALUES (1, 'mode_p'), (2, 'mode_q'), (3, 'mode_r');
+SELECT * FROM t_set_partitioned;
+id	p_modes
+1	mode_p
+2	mode_q
+3	mode_r
+DROP TABLE t_set_partitioned;
+CREATE TABLE t_enum_set_parent (
+parent_status ENUM('parent_a', 'parent_b') PRIMARY KEY
+);
+INSERT INTO t_enum_set_parent VALUES ('parent_a'), ('parent_b');
+CREATE TABLE t_enum_set_child (
+child_id INT PRIMARY KEY,
+child_status ENUM('parent_a', 'parent_b'),
+FOREIGN KEY (child_status) REFERENCES t_enum_set_parent(parent_status)
+);
+SHOW CREATE TABLE t_enum_set_child;
+Table	Create Table
+test.t_enum_set_child	CREATE TABLE t_enum_set_child (
+child_id INT(10),
+child_status enum ('parent_a','parent_b') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(child_id),
+ CONSTRAINT t_enum_set_child_ybfk_1768359690440590 FOREIGN KEY (child_status) REFERENCES test.t_enum_set_parent(parent_status) ON UPDATE RESTRICT ON DELETE RESTRICT
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_child VALUES (1, 'parent_a');
+INSERT INTO t_enum_set_child VALUES (2, 'nonexistent');
+ERROR HY000: YAO-2: Invalid argument
+SELECT * FROM t_enum_set_child;
+child_id	child_status
+1	parent_a
+DROP TABLE t_enum_set_child;
+DROP TABLE t_enum_set_parent;
+CREATE TABLE t_enum_set_parent (
+parent_id INT PRIMARY KEY,
+parent_tag VARCHAR(20) UNIQUE 
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'tag_ref_a'), (2, 'tag_ref_b');
+CREATE TABLE t_enum_set_child (
+child_id INT,
+child_ref_id INT,
+FOREIGN KEY (child_ref_id) REFERENCES t_enum_set_parent(parent_id)
+);
+SHOW CREATE TABLE t_enum_set_child;
+Table	Create Table
+test.t_enum_set_child	CREATE TABLE t_enum_set_child (
+child_id INT(10),
+child_ref_id INT(10),
+ CONSTRAINT t_enum_set_child_ybfk_1768359691341367 FOREIGN KEY (child_ref_id) REFERENCES test.t_enum_set_parent(parent_id) ON UPDATE RESTRICT ON DELETE RESTRICT
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_child VALUES (1, 1);
+INSERT INTO t_enum_set_child VALUES (2, 999);
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+SELECT * FROM t_enum_set_child;
+child_id	child_ref_id
+1	1
+DROP TABLE t_enum_set_child;
+DROP TABLE t_enum_set_parent;
+CREATE TABLE t_enum_set_check (
+id INT,
+checked_enum ENUM('val1', 'val2', 'val3'),
+CONSTRAINT chk_enum CHECK (checked_enum IN ('val1', 'val2')) 
+);
+SHOW CREATE TABLE t_enum_set_check;
+Table	Create Table
+test.t_enum_set_check	CREATE TABLE t_enum_set_check (
+id INT(10),
+checked_enum enum ('val1','val2','val3') COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT chk_enum CHECK (checked_enum IN ('val1', 'val2')) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_check VALUES (1, 'val1');
+INSERT INTO t_enum_set_check VALUES (2, 'val2');
+INSERT INTO t_enum_set_check VALUES (3, 'val3');
+ERROR HY000: YAO-5689: Check constraint 'chk_enum' is violated
+SELECT * FROM t_enum_set_check;
+id	checked_enum
+1	val1
+2	val2
+DROP TABLE t_enum_set_check;
+CREATE TABLE t_enum_set_check (
+id INT,
+checked_set SET('option_a', 'option_b', 'option_c'),
+CONSTRAINT chk_set CHECK (CHAR_LENGTH(checked_set) > 0)
+);
+SHOW CREATE TABLE t_enum_set_check;
+Table	Create Table
+test.t_enum_set_check	CREATE TABLE t_enum_set_check (
+id INT(10),
+checked_set set ('option_a','option_b','option_c') COLLATE 'utf8mb4_general_ci',
+ CONSTRAINT chk_set CHECK (CHAR_LENGTH(checked_set) > 0) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_enum_set_check VALUES (1, 'option_a,option_c');
+INSERT INTO t_enum_set_check VALUES (2, 'option_b');
+INSERT INTO t_enum_set_check VALUES (3, '');
+SELECT * FROM t_enum_set_check;
+id	checked_set
+1	option_a,option_c
+2	option_b
+3	
+DROP TABLE t_enum_set_check;
+CREATE PROCEDURE p_enum_operation(IN p_enum_val ENUM('proc_a', 'proc_b'))
+BEGIN
+DECLARE v_result VARCHAR(50);
+SET v_result = CONCAT('Processed ENUM value: ', p_enum_val);
+SELECT v_result AS enum_operation_result;
+END $$
+CALL p_enum_operation('proc_a');
+enum_operation_result
+Processed ENUM value: proc_a
+DROP PROCEDURE p_enum_operation;
+CREATE FUNCTION f_enum_operation(p_enum_val ENUM('func_x', 'func_y'))
+RETURNS VARCHAR(100)
+BEGIN
+RETURN CONCAT('Function received: ', p_enum_val);
+END $$
+SELECT f_enum_operation('func_y') AS function_result;
+function_result
+Function received: func_y
+DROP FUNCTION f_enum_operation;
+CREATE TABLE t_enum_set_basic (
+id INT,
+trig_status ENUM('triggered', 'not_triggered')
+);
+CREATE TABLE t_trigger_log (
+log_msg VARCHAR(100)
+);
+CREATE TRIGGER tr_enum_insert
+AFTER INSERT ON t_enum_set_basic
+FOR EACH ROW
+BEGIN
+INSERT INTO t_trigger_log VALUES (CONCAT('Inserted ENUM: ', NEW.trig_status));
+END $$
+INSERT INTO t_enum_set_basic VALUES (1, 'triggered');
+SELECT * FROM t_trigger_log;
+log_msg
+NULL
+DROP TRIGGER tr_enum_insert;
+DROP TABLE t_trigger_log;
+DROP TABLE t_enum_set_basic;
+CREATE PROCEDURE p_set_operation(IN p_set_val SET('proc_flag1', 'proc_flag2'))
+BEGIN
+DECLARE v_result VARCHAR(100);
+SET v_result = CONCAT('Processed SET value: ', p_set_val);
+SELECT v_result AS set_operation_result;
+END $$
+CALL p_set_operation('proc_flag1,proc_flag2');
+set_operation_result
+Processed SET value: proc_flag1,proc_flag2
+DROP PROCEDURE p_set_operation;
+CREATE FUNCTION f_set_operation(p_set_val SET('func_opt1', 'func_opt2'))
+RETURNS VARCHAR(150)
+BEGIN
+RETURN CONCAT('Function received SET: ', p_set_val);
+END $$
+SELECT f_set_operation('func_opt2') AS function_set_result;
+function_set_result
+Function received SET: func_opt2
+DROP FUNCTION f_set_operation;
+CREATE TABLE t_enum_set_basic (
+id INT,
+trig_flags SET('flag_t1', 'flag_t2')
+);
+CREATE TABLE t_trigger_log (
+log_msg VARCHAR(100)
+);
+CREATE TRIGGER tr_set_insert
+AFTER INSERT ON t_enum_set_basic
+FOR EACH ROW
+BEGIN
+INSERT INTO t_trigger_log VALUES (CONCAT('Inserted SET: ', NEW.trig_flags));
+END $$
+INSERT INTO t_enum_set_basic VALUES (1, 'flag_t1,flag_t2');
+SELECT * FROM t_trigger_log;
+log_msg
+Inserted SET: 
+DROP TRIGGER tr_set_insert;
+DROP TABLE t_trigger_log;
+DROP TABLE t_enum_set_basic;

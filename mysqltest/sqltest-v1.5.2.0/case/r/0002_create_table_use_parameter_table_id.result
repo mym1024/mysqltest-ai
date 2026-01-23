@@ -1,0 +1,196 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+set @@session.yao_disable_create_sys_table=false;
+drop table if exists t1,t2,t3,t4,ttt1,__ttt1,__ttt2,__ttt3,___ttt4;
+set @@session.yao_disable_create_sys_table=true;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3001
+t2	3002
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=3002;
+ERROR 42S01: YAO-5020: Table with id=3002 already exists
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3001
+t2	3002
+drop table t1,t2;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3003
+t2	3004
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=3005;
+ERROR HY000: YAO--1: User table id must not bigger than yao_max_used_table_id[3004], ret[1]
+drop table t1,t2;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3005
+t2	3006
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+drop table t2;
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=3006;
+ERROR HY000: YAO-54: No tablets created
+major_freeze...
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=3006;
+insert into t2 values(1,2,3,'a');
+select * from t2;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3005
+t2	3006
+t3	3007
+drop table t1,t2,t3;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3008
+t2	3009
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=3010;
+ERROR HY000: YAO--1: User table id must not bigger than yao_max_used_table_id[3009], ret[1]
+create table t4(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+insert into t4 values(1,2,3,'a');
+select * from t4;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3008
+t2	3009
+t4	3010
+drop table t1,t2,t4;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3011
+t2	3012
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2000;
+insert into t3 values(1,2,3,'a');
+select * from t3;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3011
+t2	3012
+t3	2000
+drop table t1,t2,t3;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3013
+t2	3014
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=10;
+ERROR 42S01: YAO-5020: Table with id=10 already exists
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3013
+t2	3014
+drop table t1,t2;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3015
+t2	3016
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=-1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3015
+t2	3016
+drop table t1,t2;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3017
+t2	3018
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=0;
+ERROR HY000: YAO-2: Invalid argument
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3017
+t2	3018
+drop table t1,t2;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+create table t1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table t2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3019
+t2	3020
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=105;
+ERROR 42S01: YAO-5020: Table with id=105 already exists
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+create table t3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=107;
+insert into t3 values(1,2,3,'a');
+select * from t3;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like 't_';
+table_name	table_id
+t1	3019
+t2	3020
+t3	107
+drop table t1,t2,t3;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+create table ttt1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table __ttt2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+ERROR HY000: YAO-5036: invalid table name to create, table_name=__ttt2
+create table __ttt3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2001;
+ERROR HY000: YAO-5036: invalid table name to create, table_name=__ttt3
+set @@session.yao_disable_create_sys_table=false;
+create table __ttt2(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+create table __ttt3(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=2001;
+insert into __ttt2 values(1,2,3,'a');
+insert into __ttt3 values(1,2,3,'a');
+select * from __ttt2;
+i1	i2	i3	v1
+1	2	3	a
+select * from __ttt3;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like '%ttt%';
+table_name	table_id
+ttt1	3021
+__ttt2	3022
+__ttt3	2001
+drop table ttt1,__ttt2,__ttt3;
+set @@session.yao_disable_create_sys_table=true;
+alter system set ddl_system_table_switch = 'false' server_type=yaoadminsvr;
+create table ttt1(i1 int primary key, i2 int, i3 int, v1 varchar(20));
+set @@session.yao_disable_create_sys_table=false;
+create table __ttt4(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=200;
+ERROR HY000: YAO-4007: create table failed, while table_id[200] less than 1000, and drop system table switch is false
+alter system set ddl_system_table_switch = 'true' server_type=yaoadminsvr;
+create table __ttt4(i1 int primary key, i2 int, i3 int, v1 varchar(20)) table_id=200;
+insert into __ttt4 values(1,2,3,'a');
+select * from __ttt4;
+i1	i2	i3	v1
+1	2	3	a
+select table_name,table_id from __first_tablet_entry where table_name like '%ttt%';
+table_name	table_id
+ttt1	3023
+__ttt4	200
+drop table ttt1,__ttt4;

@@ -1,0 +1,22 @@
+#######################################################
+###1.���Թ��ܵ㣺��list����������У���ͬsession�£���ȡδ�ύ����;
+#######################################################
+
+drop table if exists c;
+
+create table c(c1 int primary key, c2 varchar(8)) partition by list(c1) (partition q0 values in (1,3), partition q1 values in(2,4,5));
+
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+set autocommit=0;
+insert into c values(1,1);
+connection conn2;
+set autocommit=0;
+--error 5049
+select * from c where c1=1 for update;
+commit;
+connection conn1;
+commit;
+

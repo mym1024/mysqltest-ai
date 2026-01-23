@@ -1,0 +1,211 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：验证索引表与数据表的一致性操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists test1;
+--enable_warnings
+set yao_query_timeout=900000000;
+--disable_query_log
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+--enable_query_log
+sleep 1;
+
+create table o_euif_fd_org_1(org_id varchar(11) not null,parent_org_id decimal(10,0),parent_org_code varchar(11),area_code varchar(3),org_code varchar(11),org_name varchar(128),org_en_name varchar(128),short_name varchar(10),org_level decimal(2,0),org_seq varchar(1000),org_type varchar(4),in_country varchar(20),org_catagory varchar(4),org_addr varchar(512),system_type_id decimal(10,0),is_reserve_code varchar(1),company_org_id decimal(10,0),pbc_no varchar(50),swift_no varchar(50),ehr_org_pk varchar(30),ehr_order varchar(30),omi_org_pk varchar(30),is_leaf varchar(1),is_online varchar(1),sort_no decimal(4,0),zipcode varchar(10),link_man varchar(32),link_tel varchar(20),email varchar(128),web_url varchar(512),status varchar(4),ehr_status varchar(4),omis_status varchar(4),org_effective_date varchar(10),org_expire_date varchar(10),memo varchar(512),create_time varchar(26),last_update varchar(26),updator decimal(10,0),org_creator varchar(10),enterprise_flag varchar(1),branch_flag varchar(1),other_place_flag varchar(1),hds_lupt varchar(10) not null,primary key(org_code,org_id)) compress_method='snappy_1.0';
+
+create table o_euif_fd_org_2(org_id decimal(10,0) not null,parent_org_id decimal(10,0),parent_org_code varchar(11),area_code varchar(3),org_code varchar(11),org_name varchar(128),org_en_name varchar(128),short_name varchar(10),org_level decimal(2,0),org_seq varchar(1000),org_type varchar(4),in_country varchar(20),org_catagory varchar(4),org_addr varchar(512),system_type_id decimal(10,0),is_reserve_code varchar(1),company_org_id decimal(10,0),pbc_no varchar(50),swift_no varchar(50),ehr_org_pk varchar(30),ehr_order varchar(30),omi_org_pk varchar(30),is_leaf varchar(1),is_online varchar(1),sort_no decimal(4,0),zipcode varchar(10),link_man varchar(32),link_tel varchar(20),email varchar(128),web_url varchar(512),status varchar(4),ehr_status varchar(4),omis_status varchar(4),org_effective_date varchar(10),org_expire_date varchar(10),memo varchar(512),create_time varchar(26),last_update varchar(26),updator decimal(10,0),org_creator varchar(10),enterprise_flag varchar(1),branch_flag varchar(1),other_place_flag varchar(1),hds_lupt varchar(10) not null,primary key(org_code,org_id)) compress_method='snappy_1.0';
+
+create index org_id on o_euif_fd_org_1(org_id,org_code);
+create index org_id2 on o_euif_fd_org_1(org_id,org_code) storing (swift_no);
+create index parent_org_code on o_euif_fd_org_1(parent_org_code,org_code,org_id);
+create index parent_org_code2 on o_euif_fd_org_1(parent_org_code,org_code,org_id) storing (swift_no);
+
+create index org_id on o_euif_fd_org_2(org_id,org_code);
+create index org_id2 on o_euif_fd_org_2(org_id,org_code) storing (swift_no);
+create index parent_org_code on o_euif_fd_org_2(parent_org_code,org_code,org_id);
+create index parent_org_code2 on o_euif_fd_org_2(parent_org_code,org_code,org_id) storing (swift_no);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on o_euif_fd_org_1;
+show index on o_euif_fd_org_2;
+
+###2-1:通过delete和update操作来验证数据表与索引表的一致性
+insert into o_euif_fd_org_1(org_id,org_code,hds_lupt) values('1000003316','1000003316','2'),('666','666','2');
+insert into o_euif_fd_org_2(org_id,org_code,hds_lupt) values('1000003316','1000003316','2'),('666','666','2');
+
+--real_sleep 1
+select * from o_euif_fd_org_1;
+select * from o_euif_fd_org_2;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on o_euif_fd_org_1;
+select count(*) from o_euif_fd_org_1;
+select count(*) from __3001__idx__org_id;
+select count(*) from __3001__idx__parent_org_code;
+select count(*) from __3001__idx__org_id2;
+select count(*) from __3001__idx__parent_org_code2;
+
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+show index on o_euif_fd_org_2;
+select count(*) from o_euif_fd_org_2;
+--real_sleep 5
+select count(*) from __3002__idx__org_id;
+select count(*) from __3002__idx__parent_org_code;
+--real_sleep 5
+select count(*) from __3002__idx__org_id2;
+select count(*) from __3002__idx__parent_org_code2;
+
+select * from o_euif_fd_org_2;
+--real_sleep 5
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+--real_sleep 5
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+delete from o_euif_fd_org_1 where org_id='1000003316';
+delete from o_euif_fd_org_1 where org_id='666';
+delete from o_euif_fd_org_2 where org_id='1000003316';
+delete from o_euif_fd_org_2 where org_id='666';
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on o_euif_fd_org_1;
+select count(*) from o_euif_fd_org_1;
+select count(*) from __3001__idx__org_id;
+select count(*) from __3001__idx__parent_org_code;
+--real_sleep 5
+select count(*) from __3001__idx__org_id2;
+select count(*) from __3001__idx__parent_org_code2;
+
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+select * from o_euif_fd_org_2;
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+
+insert into o_euif_fd_org_1(org_id,org_code,hds_lupt) values('1000003316','1000003316','2');
+insert into o_euif_fd_org_2(org_id,org_code,hds_lupt) values('1000003316','1000003316','2');
+
+--real_sleep 1
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+
+select * from o_euif_fd_org_2;
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+select * from o_euif_fd_org_2;
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+#添加操作：增加update更新操作
+update o_euif_fd_org_1 set org_id='1234567890' where org_id ='1000003316';
+update o_euif_fd_org_2 set org_code='1234567890' where org_id ='1000003316';
+--real_sleep 2
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+select * from o_euif_fd_org_2;
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+select * from o_euif_fd_org_1;
+select * from __3001__idx__org_id;
+select * from __3001__idx__parent_org_code;
+select * from __3001__idx__org_id2;
+select * from __3001__idx__parent_org_code2;
+show index on o_euif_fd_org_1;
+
+select * from o_euif_fd_org_2;
+select * from __3002__idx__org_id;
+select * from __3002__idx__parent_org_code;
+select * from __3002__idx__org_id2;
+select * from __3002__idx__parent_org_code2;
+show index on o_euif_fd_org_2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

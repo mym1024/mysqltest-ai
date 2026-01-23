@@ -1,0 +1,207 @@
+###########################################################################################
+###1.测试功能点：partition_hash：批量正常插入
+## 预期：用枚举函数作为分区函数时，插入的数据不符合函数体内任意一组枚举值时，会报错。
+#
+###2.测试项：（每新添一测试项,需在添加前注明测试项,注释填写在新添sql前,不填在此处,如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：663.766943.s
+###5.编写/修改人：lyy
+###6.编写/修改日期：2019-11-01
+###7.其它（选填）：case格式规范化修改
+###
+##
+#
+###########################################################################################
+
+####################################Do sql######################################################
+###2-1：单主键：hash分区函数参数=1，分区规则（x+1）
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function h;
+--enable_warnings
+create hash partition function h(x)'x+1';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+--real_sleep 3
+insert into t1 select * from t2;
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+--real_sleep 3
+insert into t1 select * from t2 where c6='maosuy';
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+show partition groups;
+
+###2-2：组合主键：hash分区函数参数=1，带where条件与不带where条件正常插入
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function f;
+--enable_warnings
+create hash partition function f(x)'x+1';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,f,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,f,c1);
+--real_sleep 3
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+--real_sleep 3
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2;
+--real_sleep 3
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2;
+--real_sleep 3
+select * from t1;
+show partition groups;
+
+###2-3:组合主键+单主键：hash分区函数参数=1，带where条件与不带where条件正常插入
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function g;
+--enable_warnings
+create hash partition function g(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g,c1);
+
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(hs,g,c1);
+--real_sleep 3
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+--real_sleep 3
+select * from t2;
+# --error 16 -linfang
+insert into t1 (c1,c4,c2) select * from t2;
+--real_sleep 3
+insert into t2 values(3,8.35,7.899);
+select * from t1;
+--real_sleep 3
+select * from t2;
+#--error 16
+insert into t1 (c1,c4,c2) select * from t2 where c1>2;
+--real_sleep 3
+select * from t1;
+show partition groups;
+
+###2-4:单主键、不保证事务一致性：hash分区函数参数=1，批量插入带where条件/不带where条件
+drop table if exists t1,t2;
+--error 5077
+drop partition function g2;
+create hash partition function g2(x)'x+2';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(hs,g2,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(hs,g2,c1);
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+--real_sleep 3
+insert into t1 select * from t2 multi_batch;
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+select * from t2;
+--error 5001
+insert into t1 select * from t2 where c6='maosuy' multi_batch ;
+select * from t1;
+show partition groups;
+
+###2-5:组合主键、不保证事务一致性：hash分区哈数（x+2），批量插入带where条件/不带where条件
+drop table if exists t1,t2;
+--error 5077
+drop partition function g3;
+create hash partition function g3(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g3,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g3,c1);
+--real_sleep 3
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+--real_sleep 3
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 MULTI_BATCH;
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+--real_sleep 3
+select * from t2;
+--error 5001
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2 MULTI_BATCH;
+select * from t1;
+show partition groups;
+
+####2-6:组合主键+单主键、不保证事务一致性：hash分区函数（*）,批量插入带where条件/不带where条件
+drop table if exists t1,t2;
+--error 5077
+drop partition function g4;
+create hash partition function g4(x)'x*2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g4,c1);
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(hs,g4,c1);
+--real_sleep 3
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+# --error 16 -linfang
+insert into t1 (c1,c4,c2) select * from t2 MULTI_BATCH;
+select * from t1;
+insert into t2 values(3,8.35,7.899);
+select * from t2;
+--error 5001
+insert into t1 (c1,c4,c2) select * from t2 where c1>2 MULTI_BATCH;
+select * from t1;
+show partition groups;
+
+###2-7:组合主键：hash分区函数（+），插入非空主键
+drop table if exists t1,t2;
+--error 5077
+drop partition function g5;
+create hash partition function g5(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g5,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g5,c1);
+--real_sleep 3
+insert into t1 select * from t2;
+#--error 5702
+insert into t2 values(NULL,1.25,'2015-08-08 12:45:54',2.32,0,'HEHE');
+--real_sleep 3
+insert into t1 select * from t2;
+--real_sleep 3
+insert into t2 values(1,NULL,NULL,NULL,NULL,NULL);
+--real_sleep 3
+insert into t1 select * from t2 where c1 is not null ;
+select * from t1;
+--real_sleep 3
+select * from t2;
+show partition groups;
+
+###2-8:组合主键+单主键：带where条件正常插入
+drop table if exists t1,t2;
+--error 5077
+drop partition function g6;
+create hash partition function g6(x)'x+1';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g6,c1);
+--real_sleep 3
+insert into t1 select * from t1;
+select * from t1;
+create table t2 (c1 int primary key ,c2 decimal(3,2) ,c3 real) partition by(hs,g6,c1);
+--real_sleep 3
+insert into t2 values(1,1.25,4.562);
+--real_sleep 3
+insert into t1(c1 ,c4,c2) select * from t2;
+--real_sleep 3
+insert into t1(c1 ,c4,c2) values(2,2.35,2.564);
+--real_sleep 3
+insert into t2 select c1 ,c4,c2 from t1 where c1=2;
+--real_sleep 3
+select * from t1;
+--real_sleep 3
+select * from t2;
+show partition groups;

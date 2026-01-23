@@ -1,0 +1,38 @@
+##############################################################################################
+###1.测试功能点：xxx
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_worker_idle_sleep_seconds=33 COMMENT 'new all balance_worker_idle_sleep_seconds' SERVer_TYPE = YAOADMINSVR cluster = 0;
+alter system set balance_worker_idle_sleep_seconds=39 COMMENT 'new1 root balance_worker_idle_sleep_seconds' SERVer_TYPE =YAOADMINSVR server_ip = '10.235.162.3' server_port = 47051;
+create table t_status(id int primary key,yaodatasvr char(90),mergesrver char(90),yaoadminsvr char(90),yaotxnsvr char(90),tablet_max_size int,status int);
+insert into t_status(id,yaodatasvr,tablet_max_size,status) values (1,'yaodatasvr',1024,0);
+select id,yaodatasvr,status from t_status;
+select id,yaodatasvr,status as verbose from t_status;
+select id,yaodatasvr,grants.status as verbose from t_status grants;
+
+--error 5001
+select use_bloom_filter() from dual;
+
+--error 5055
+select use_bloom() from dual;
+
+drop table t_status;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

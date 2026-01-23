@@ -1,0 +1,312 @@
+##############################################################################################
+###1.测试功能点：创建分区属性为单列或多列的range分区的表，
+###    验证varchar类型以及表达式可作为分区属性列名
+##      并在建分区的语句中进行不同参数的非法性测试
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：98.040982 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--sleep 10
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+
+###2-1：分区属性为单列用range语句创建range分区表
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+show table rules;
+--real_sleep 5
+insert into trange1 values(1,'a',1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  trange1;
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+show table rules;
+--real_sleep 5
+insert into trange1 values(15,'a',1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  trange1;
+--error 5089
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1) (partition r0 values less than(16),partition r1 values less than ('g'),partition r2 values less than maxvalue);
+show table rules;
+--error 5019
+insert into trange1 values(15,'h',1);
+--error 5019
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+
+###2-2：分区属性为多列用range columns语句创建range分区表，并在分区函数中用错误类型的值进行法非测试
+--error 5019
+drop table t6;
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--real_sleep 5
+insert into t6 values(1,1,'a',1);
+select * from t6;
+--replace_column 3 0
+show partition groups;
+drop table  t6;
+create table t6(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than('b','b'),partition rr1 values less than ('d','d'),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--real_sleep 5
+insert into t6 values('a','a','a',1);
+select * from t6;
+--replace_column 3 0
+show partition groups;
+drop table  t6;
+create table t6(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than(2,'b'),partition rr1 values less than (4,'d'),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--real_sleep 5
+insert into t6 values(1,'a',1);
+select * from t6;
+--replace_column 3 0
+show partition groups;
+drop table  t6;
+--error 5089
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than('2','2'),partition rr1 values less than ('4','4'),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+insert into t6 values(1,1,'a',1);
+--error 5019
+select * from t6;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table  t6;
+--error 5089
+create table t6(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+insert into t6 values(1,1,'a',1);
+--error 5019
+select * from t6;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table  t6;
+create table t6(c1 int,c2 varchar(20),c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2)  (partition rr0 values less than(2,'b'),partition rr1 values less than (4,'d'),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--real_sleep 5
+insert into t6 values(1,'a','a',1);
+select * from t6;
+--replace_column 3 0
+show partition groups;
+
+###2-3：测试最多16列参数是否可用
+--error 5019
+drop table trange1;
+create table trange1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by range columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) (partition r0 values less than(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5),partition r1 values less than (10,10,10,10,10,10,10,10,10,10,10,10,10,10,10),partition r2 values less than (maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange1 values(15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,1,1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  trange1;
+create table trange1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by range columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) (partition r0 values less than(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5),partition r1 values less than (10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10),partition r2 values less than (maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange1 values(15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,1,1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  trange1;
+
+###2-4：用range cloumns语句，分区属性可为varchar类型，并且可以是多列
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange1 values(15,'a',1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  trange1;
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range columns(c2) (partition r0 values less than('d'),partition r1 values less than ('g'),partition r2 values less than maxvalue) with prefix(b);
+show table rules;
+--real_sleep 5
+insert into trange1 values(15,'h',1);
+select * from trange1;
+--replace_column 3 0
+show partition groups;
+drop table  t6;
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue)) with prefix(c);
+show table rules;
+--real_sleep 5
+insert into t6 values(1,1,'a',1);
+select * from t6;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table  trange2;
+
+###2-5：用表达式作为分区的参数值创建range分区表
+create table trange2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c1) (partition r0 values less than(5+3),partition r1 values less than (10*2),partition r2 values less than maxvalue) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange2 values(15,'a',1);
+select * from trange2;
+--replace_column 3 0
+show partition groups;
+drop table  trange2;
+create table trange2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c1) (partition r0 values less than(5-3),partition r1 values less than (100%200),partition r2 values less than maxvalue) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange2 values(15,'a',1);
+select * from trange2;
+--replace_column 3 0
+show partition groups;
+drop table  trange2;
+create table trange2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c1) (partition r0 values less than(5*3/4),partition r1 values less than (10*2-9),partition r2 values less than maxvalue) with prefix(a);
+show table rules;
+--real_sleep 5
+insert into trange2 values(15,'a',1);
+select * from trange2;
+--replace_column 3 0
+show partition groups;
+
+###2-6：非法性测试
+drop table trange1;
+--error 65535
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c2) (partition r0 values less than('5'),partition r1 values less than ('10'),partition r2 values less than ('15'),partition r3 values less than maxvalue);
+--error 5019
+drop table  trange1;
+--error 5081
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c3) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+--error 5019
+drop table  trange1;
+--error 65535
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1)) partition by range(c2) (partition r0 values less than('5'),partition r1 values less than ('10'),partition r2 values less than ('15'),partition r3 values less than maxvalue);
+drop table  t6;
+--error 5089
+create table t6(c1 float,c2 float,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5081
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c3)) partition by range columns(c1,c2) (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5089
+create table t6(c1 float,c2 float,c3 varchar(20),c4 int,primary key(c3)) partition by range columns(c1,c2) (partition rr0 values less than(2,2),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5081
+create table t6(c1 int,c2 float,c3 varchar(20),c4 int,primary key(c1)) partition by range columns(c1,c3) (partition rr0 values less than(2,'2'),partition rr1 values less than (4,'4'),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5089
+create table t6(c1 int,c2 float,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1.1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table   trange1;
+--error 5009
+create table trange1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by range(c0) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+--error 5019
+drop table  t6;
+--error 5009
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c0) (partition rr0 values less than(2,1.1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5025
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c1) (partition rr0 values less than(2,1.1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1) (partition rr0 values less than(2,1.1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1) (partition rr0 values less than(2+1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2+1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than((2,1)),partition rr1 values less than (4,4),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (4,4+3,7),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5089
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (4,'d'),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+#--error 5089
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (4,4.1),partition rr2 values less than (maxvalue,maxvalue));
+#--error 5019
+drop table  t6;
+--error 65535
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (2,1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(0,1),partition rr1 values less than (2,1),partition rr2 values less than (maxvalue,maxvalue));
+drop table  t6;
+--error 65535
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(maxvalue,1),partition rr1 values less than (0,1),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 65535
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(maxvalue,1),partition rr1 values less than (maxvalue,2),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+set @a=9;
+--error 7
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(@a,1),partition rr1 values less than (maxvalue,2),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+#V1.2.0.0错误码从7变为5089
+#--error 7
+--error 65535
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(1<2,1),partition rr1 values less than (maxvalue,2),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+sleep 5;
+drop table  t6;
+
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+drop table  t6;
+--error 65535
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(maxvalue,1),partition rr1 values less than (maxvalue,2),partition rr2 values less than (maxvalue,maxvalue));
+--error 5019
+drop table  t6;
+--error 5001
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1+1,c2-1) (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+drop table  t6;
+--error 5001
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+drop table  t6;
+--error 5001
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range(c1,c2) (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+drop table  t6;
+--error 5001
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range() (partition rr0 values less than(2,1),partition rr1 values less than (9,2),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;
+--error 5019
+drop table  t6;
+--error 5088
+create table t6(c1 int,c2 int,c3 varchar(20),c4 int,primary key(c1,c2)) partition by range columns(c1,c2) (partition rr0 values less than(2,(1)),partition rr1 values less than ((9,(2+1))),partition rr2 values less than (maxvalue,maxvalue));
+show table rules;

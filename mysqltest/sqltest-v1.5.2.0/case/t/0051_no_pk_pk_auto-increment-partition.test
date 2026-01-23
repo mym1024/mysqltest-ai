@@ -1,0 +1,257 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+####################################必填######################################################
+###1.测试功能点：全主键、无主键、自增主键列表---分区情况
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###hash分区
+###1-1：多列无主键表
+set yao_read_consistency=4;
+create hash partition function h(x) 'x+1';
+--error 5081
+create table test_no_pk(c1 int,c2 varchar(10)) partition by(hs,h,c1);
+
+###1-2：单列无主键表
+--error 5081
+create table test_no_pk(c1 int) partition by(hs,h,c1);
+
+###2-1：自增列主键
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by(hs,h,c1);
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('a'),('c'),('a'),('c'),('b'),('d');
+show partition groups;
+select * from test_auto;
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+select * from test_auto where c1=1;
+select count(*) from test_auto;
+show create table test_auto;
+truncate table test_auto;
+desc test_auto;
+drop table if exists test_auto;
+
+###3-1多列全主键
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by(hs,h,c1);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+select * from test_pk;
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+###3-2单列全主键
+create table test_pk(c1 int  primary key) partition by(hs,h,c1);
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+
+
+###enum分区
+
+###1-1：多列无主键表
+create enum partition function e1(x) '[(1),(2),(3),(4),(5)]';
+--error 5081
+create table test_no_pk(c1 int,c2 varchar(10)) partition by(em,e1,c1);
+
+###1-2：单列无主键表
+--error 5081
+create table test_no_pk(c1 int) partition by(em,e1,c1);
+
+###2-1：自增列主键
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by(em,e1,c1);
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('b'),('c'),('d'),('e');
+--error 5702
+insert into test_auto(c2) values('f'),('g'),('h');
+show partition groups;
+select * from test_auto;
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+select * from test_auto where c1=1;
+select count(*) from test_auto;
+show create table test_auto;
+truncate table test_auto;
+desc test_auto;
+drop table if exists test_auto;
+
+###3-1多列全主键
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by(em,e1,c1);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+select * from test_pk;
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+###3-2单列全主键
+create table test_pk(c1 int  primary key) partition by(em,e1,c1);
+insert into test_pk values(1);
+--error 5702
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+
+###list分区
+
+###1-1：多列无主键表
+--error 5081
+create table test_no_pk(c1 int,c2 varchar(10)) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+
+###1-2：单列无主键表
+--error 5081
+create table test_no_pk(c1 int) partition by list(c1) (partition q0 values in(1,2,3,4,5)) ;
+
+###2-1：自增列主键
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by list(c1) (partition q0 values in(1,2,3,4,5)) ;
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('b'),('c'),('d'),('e');
+--error 5702
+insert into test_auto(c2) values('f'),('g'),('h');
+show partition groups;
+select * from test_auto;
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+select * from test_auto where c1=1;
+select count(*) from test_auto;
+show create table test_auto;
+truncate table test_auto;
+desc test_auto;
+drop table if exists test_auto;
+
+###3-1多列全主键
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+select * from test_pk;
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+###3-2单列全主键
+create table test_pk(c1 int  primary key) partition by list(c1) (partition q0 values in(1,2,3,4,5));
+insert into test_pk values(1);
+--error 5702
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+
+###range分区
+
+###1-1：多列无主键表
+--error 5081
+create table test_no_pk(c1 int,c2 varchar(10)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+
+###1-2：单列无主键表
+--error 5081
+create table test_no_pk(c1 int) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue) ;
+
+###2-1：自增列主键
+drop table if exists test_auto;
+create table test_auto(c1 int auto_increment primary key,c2 varchar(10)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue) ;
+insert into test_auto(c2) values('a');
+insert into test_auto(c2) values('a'),('c'),('a'),('c'),('b'),('d');
+show partition groups;
+select * from test_auto;
+UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+select * from test_auto;
+select * from test_auto where c1=1;
+select count(*) from test_auto;
+show create table test_auto;
+truncate table test_auto;
+desc test_auto;
+drop table if exists test_auto;
+
+###3-1多列全主键
+drop table if exists test_pk;
+create table test_pk(c1 int,c2 varchar(10),primary key(c1,c2)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+insert into test_pk values(1,'a');
+insert into test_pk values(1,'aa'),(2,'c');
+show partition groups;
+select * from test_pk;
+UPDATE test_pk  set c2 = 'dd' WHERE c1 = 2;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+###3-2单列全主键
+create table test_pk(c1 int primary key) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+insert into test_pk values(1);
+insert into test_pk values(11),(2),(3),(4);
+show partition groups;
+select * from test_pk;
+select * from test_pk where c1=1;
+select count(*) from test_pk;
+truncate table test_pk;
+desc test_pk;
+show create table test_pk;
+drop table if exists test_pk;
+
+
+
+#do sql
+########################################################################################################

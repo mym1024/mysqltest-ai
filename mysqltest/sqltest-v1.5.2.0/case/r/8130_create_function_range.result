@@ -1,0 +1,14 @@
+create database test_range;
+using database test_range;
+create range partition function __r(x) '(10),(20),(maxvalue)';
+ERROR HY000: YAO--1: Invalid partition function name.
+create range partition function r() '(10),(20),(maxvalue)';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create range partition function r(x,x) '(10,50),(20,60),(maxvalue)';
+ERROR 42S01: YAO-5025: duplicate param 'x'
+create range partition function r(x,y) '(10),(20),(maxvalue)';
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partition function.
+create range partition function r(x) '(10),(5),(20)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r(x) '(\'a\'),(\'b\'),(\'c\'),(maxvalue)';
+drop database test_range;

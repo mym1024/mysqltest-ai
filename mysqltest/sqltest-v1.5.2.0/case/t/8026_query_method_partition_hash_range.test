@@ -1,0 +1,123 @@
+##############################################################################################
+###1.测试功能点：用explain输出绑定hash或range分区表的select语句的逻辑计划和物理计划，
+###                       可对不同查询语句下的逻辑计划和物理计划进行检验，也可根据输出结果进行sql优化
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：12.762568 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+drop table if exists t1,t2;
+
+###打开查询优化器开关
+set yao_enable_query_optimizer=true;
+
+create table t1 (c1 int primary key, c2 int)partition by range(c1)(partition a1 values less than(2),partition a values less than(5),partition a2 values less than maxvalue);
+insert into t1 values(1,0),(2,0),(3,0);
+
+--echo check get
+explain select * from t1 where c1=1;
+explain select * from t1 where c1=1 and c1=2;
+
+explain select * from t1 where c1=1 and c2=0;
+explain select * from t1 where c1=1 and c2=0;
+explain select * from t1 where c1=1 and c2 > 0;
+explain select * from t1 where c1=1 and c2 < 0;
+explain select * from t1 where c1=1 and c2 != 0;
+explain select * from t1 where c1=1 and c2 >= 0;
+explain select * from t1 where c1=1 and c2 <= 0;
+
+
+--echo check multiget
+explain select * from t1 where c1=1 or c1=2;
+explain select * from t1 where c1=1 in (1,2,3);
+explain select * from t1 where c1=1 in (1);
+explain select * from t1 where (c1,c2) in ((1,0));
+explain select * from t1 where (c1,c2) in ((1,0),(1,1));
+explain select * from t1 where (c2,c1) in ((0,1),(1,1));
+explain select * from t1 where (c2,c1) in ((0,1));
+
+--echo check scan
+explain select * from t1;
+explain select * from t1 where c1 > 0;
+explain select * from t1 where c1 > 0 and c1 < 2;
+explain select * from t1 where c1 != 1;
+explain select * from t1 where c1 between 0 and 2;
+explain select * from t1 where c1 between 0 and 200;
+explain select * from t1 where c1 > 0 limit 1;
+explain select * from t1 where c1 > 0 and c1 < 2 limit 1;
+explain select * from t1 where c1 != 1 limit 1;
+explain select * from t1 where c1 between 0 and 2 limit 1;
+explain select * from t1 where c1 between 0 and 200 limit 1;
+explain select * from t1 limit 1;
+explain select * from t1 limit 1,1;
+
+explain select * from t1 limit 1000;
+explain select * from t1 limit 1000,10;
+
+explain select * from t1 where 1 = 0;
+explain select * from t1 where false;
+
+--echo check join
+create table t2 (c1 int primary key, c2 int);
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1;
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c2=0;
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c2=0 and t2.c2=0;
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c1=0 and t2.c1=0;
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c1=0;
+
+
+
+drop table t1;
+--error 5077
+drop partition function h1;
+create hash partition function h1(x,y)'x+y+1';
+create table t1 (c1 int, c2 int, c3 int, primary key(c1,c2)) partition by(ta1,h1,c1,c2);
+--real_sleep 5
+insert into t1 values(1,1,0),(2,2,0),(3,3,0);
+
+--echo check get
+
+explain select * from t1 where c1=1 and c2=1;
+explain select * from t1 where c2=1 and c1=1;
+
+explain select * from t1 where c1=1 and c2=1 and c3=0;
+explain select * from t1 where c1=1 and c2=1 and c3>0;
+explain select * from t1 where c1=1 and c2=1 and c3<0;
+explain select * from t1 where c1=1 and c2=1 and c3!=0;
+
+--echo check multiget
+
+explain select * from t1 where (c1,c2) in ((1,1));
+explain select * from t1 where (c1,c2) in ((1,1),(2,2));
+explain select * from t1 where (c2,c1) in ((1,1));
+explain select * from t1 where (c2,c1) in ((1,1),(2,2));
+explain select * from t1 where (c1=1 and c2=1) or (c1=2 and c2=2);
+
+--echo check scan
+explain select * from t1 where c1=1;
+explain select * from t1 where c2=1;
+explain select * from t1 where c3=1;
+explain select * from t1 where c1=1 and c3=0;
+explain select * from t1 where c2=1 and c3=0;
+explain select * from t1;
+
+explain select * from t1 where c1=1 limit 1;
+explain select * from t1 where c2=1 limit 1;
+explain select * from t1 where c3=1 limit 1;
+
+explain select * from t1 limit 1;
+explain select * from t1 limit 1,10;
+explain select * from t1 limit 1000,10;
+
+
+explain select * from t1 where c1 in (1,2,3);
+explain select * from t1 where c2 in (1,2,3);
+explain select * from t1 where c3 in (1,2,3);
+explain select * from t1 where (c1,c3) in ((1,0),(2,0));

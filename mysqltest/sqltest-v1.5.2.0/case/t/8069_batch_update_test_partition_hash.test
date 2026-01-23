@@ -1,0 +1,1473 @@
+####################################必填######################################################
+###1.测试功能点：哈希分区，prepare
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：197 s
+###6.编写/修改人：caojun
+###7.编写/修改日期：2019-12-30
+###8.其他（选填）：xxx
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_query_log
+#alter system set max_mutator_size='64MB'  server_type=yaotxnsvr;
+alter system set using_strong_consistency=true  server_type=yaosqlsvr;
+--enable_query_log
+
+--disable_warnings
+drop table if exists t4,t1,t2,t3,t5;
+
+--error 5077
+drop partition function h;
+create hash partition function h(x,y) 'x+y';
+--real_sleep 1
+create hash partition function h1(x) 'x+1';
+--real_sleep 1
+--enable_warnings
+
+create table t4(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint, c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2))partition by(hs,h,c1,c2);
+--real_sleep 1
+create table t1(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint, c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2))partition by(hs,h,c1,c2);
+--real_sleep 1
+create table t5(c1 int,c2 int,c3 int,c4 bigint,c5 integer,c6 mediumint, c7 smallint,c8 tinyint,c9 binary(30),c10 char(30),c11 binary(30),c12 varchar(20),c13 bool,c14 datetime,c15 timestamp,c16 decimal(20,4),primary key(c1,c2))partition by(hs,h,c1,c2);
+
+--real_sleep 1
+insert into t4(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-25 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 1
+insert into t1(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-25 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 1
+insert into t5(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) values(1,1,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(1,2,1,1,1,1,1,1,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123),(3,3,2,2,2,2,2,2,'b','b','b','b',false,'2015-9-28 00:00:00','2015-9-25 00:00:00',51.0123),(4,4,3,3,3,3,3,3,'ab','ab','ab','ab',false,'2015-9-30 00:00:00','2015-9-30 00:00:00',51.0123),(5,5,5,5,5,5,5,5,null,null,null,null,false,'2015-9-30 00:00:00','2015-9-27 00:00:00',100.0123);
+--real_sleep 1
+create table t2(c1 int primary key,c2 int)partition by(hs,h1,c1);
+create table t3(c1 int primary key,c2 int)partition by(hs,h1,c1);
+--real_sleep 1
+insert into t2 values(0,10),(1,11),(2,12);
+--real_sleep 1
+insert into t3 values(33,10),(1,11),(2,12);
+--real_sleep 1
+show partition groups;
+select * from t4;
+select * from t1;
+select * from t2;
+select * from t3;
+select * from t5;
+
+
+###2-1：对各种属性进行prepare的更新测试
+prepare stmt from update t4 set c3=3 where c1=1 and c2=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t1 set c3=null where c1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 > 100;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1>1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=112 where c1=1 or c1=1 or c1=1 or c1=1 or c1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=113 where c1=1 or c1=2 or c1=3 or c1=4 or c1=5;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+--error 145
+prepare stmt from update t1 set c4=114 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+--error 5043
+execute stmt;
+--real_sleep 1
+select * from t1;
+--error 5043
+drop prepare stmt;
+
+--error 145
+prepare stmt from update t1 set c4=111 where c1=1 and c1=2 and c1=3 and c1=4 and c1=5;
+--error 5043
+execute stmt;
+--real_sleep 1
+select * from t1;
+--error 5043
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 between 1 and 1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 between 3 and 4;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 in(10,11,12,13,14,15);
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=112 where c1 in(1);
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=113 where c1 in(2);
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 in(1,2,3,4,5,6,7,8,9,10);
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1 / 2 - 1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=112 where c1 * 2 / 3 * 5 % 4 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=113 where (c1 * 2 / 3 * 5)mod 3 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=10 where c3=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=10 where c3>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=11 where c3>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=12 where c3<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=13 where c3<=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=14 where c3!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=15 where c3<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=16 where c3 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=17 where c3 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=18 where c3+0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=19 where c3-0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=20 where c3*1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=10 where c3/1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=11 where c3%2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=12 where c3 mod 2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=13 where c3/0 is null;
+#--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=14 where c3%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c3=15 where c3%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+prepare stmt from update t4 set c3=16 where c3 mod 0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c3=10 where c3 is not null;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c3=11 where not c3=0;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=11 where c4>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=12 where c4<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4<=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=11 where c4!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=12 where c4<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=13 where c4 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=14 where c4 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=15 where c4+0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4-0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=11 where c4*1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=12 where c4/1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=13 where c4%2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=14 where c4 mod 2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4/0 is null;
+#--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=11 where c4%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=12 where c4%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=10 where c4 mod 0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c4=11 where c4 is not unknown;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c4=12 where c4 is not null;
+--real_sleep 1
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c4=13 where not c4=0;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+prepare stmt from update t4 set c5=10 where c5<=3;
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5+0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5-0 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5*1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5/1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5%2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5 mod 2 = 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5/0 is null;
+#--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5%0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5 mod 0 is null;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c5=10 where c5 is not unknown;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where c5 is not null;
+--real_sleep 1
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c5=10 where not c5=0;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+
+prepare stmt from update t4 set c6=10 where c6=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6<=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c6=10 where c6 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7<=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=10 where c7 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+
+prepare stmt from update t4 set c8=10 where c8=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8>1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8>=2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8<2;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8<=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8!=3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8<>3;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8 between 2 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c8=10 where c8 in(2,3,4,5,6,7,8);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+
+prepare stmt from update t4 set c9='abc'  where c9 = 'a';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c10='abc' where c10 = 'a';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c11='abc' where c11 = 'a';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 = 'a';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 > 'a';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 >= 'b';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 < 'b';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 <= 'b';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 != 'c';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 <> 'c';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 between 'a' and 'c';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 in('a','ab');
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 is not null;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 is not unknown;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 like '%b';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='abc' where c12 ||'b'='ab';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=false where c13 is true;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=true where c13 is false;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=true where c13 is unknown;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=true where c13 is not true;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=false where c13 is not false;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=true where c13 is not unknown;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=true where not c13 is not true;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c13=false where not c13 is not false;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14>'2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14>='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14<'2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14<='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14!='2015-9-30 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c14='2015-10-1 00:00:00' where c14<>'2015-9-30 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15='2015-9-30 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15>'2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15>='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15<'2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15<='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15!='2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c15='2015-10-1 00:00:00' where c15<>'2015-9-28 00:00:00';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c16=22.2222 where c16='100.0123';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c16=22.2222 where c16>'50.0123';
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c16=22.2222 where c16>='50.0123.0123';
+#--error 119
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=22.2222 where c16<'50.0123.0123';
+#--error 119
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=22.2222 where c16<='50.0123.0123';
+#--error 119
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=22.2222 where c16!='50.0123.0123';
+##--error 119
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=22.2222 where c16<>'50.0123.0123';
+#--error 119
+#execute stmt;
+#drop prepare stmt;
+--real_sleep 1
+prepare stmt from update t4 set c16=22.2222 where c16*1<52.2222;
+execute stmt;
+#--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c16=11.2222 where c16/1<52.2222;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=33.2222 where c16%2<52.2222;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=66.2222 where c16 mod 2<52.2222;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c16=11.2222 where c16 is not unknown;
+#execute stmt;
+#--real_sleep 1
+#select * from t4;
+#drop prepare stmt;
+
+
+prepare stmt from update t1 set c4=111 where c3 between 1 and 4 and c4 between 3 and 4;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2*2 +c3 >3;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2*3 -1 >1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2* 2 / c3 * 5 % c3 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1=1 or c2=2 or c3=3 or c4=4;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1=1 and c2=2 and c3=3 and c4=4;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1=1 and c2=1 and c3=1 and c4=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c1=1 or c2=2 and c4=3 or c2=4 and c2=5;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c3 between 1 and 4 and c4 between 3 and 4;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2*2 +c3 >3;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2*3 -1 >1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c4=111 where c2* 2 / c3 * 5 % c3 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=1.11 and c3='a';
+#--error 5023
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=1.11 and c3>'a';
+--error 7
+execute stmt;
+drop prepare stmt;
+
+#prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=1 and c3='b';
+#--error 5023
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=2 and c3='c';
+#--error 5023
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 or c2=2 and c3='d';
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1>1 and c2>1 and c3>'a';
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c2>1;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c3>'a';
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 or c2=2 or c3='a';
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 between 1 and 1;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c2 between 3 and 4;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c3 between 'a' and 'd';
+#--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 in(10,11,12,13,14,15);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c2 in(1);
+--error 119
+execute stmt;
+drop prepare stmt;
+
+
+#prepare stmt from update t4 set c7=11.11,c8='abcd' where c3 in('a');
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 in(1,2,3,4,5,6,7,8,9,10);
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 * c2 + 1 > 3;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 / c2 - 1 > 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1 * 2 / c2 * 5 % 4 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where (c1 * 2 / 3 * 5)mod 3 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c4>100;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c5=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c6=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 or c2=2 or c4=3 or c5=4 or c6=5;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=1 and c4=1 and c5=1 and c6=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c1=1 and c2=2 and c3=3 and c4=4 and c6=5;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c2=1 or c4=2 and c5=3 or c7=4 and c6=5;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c4 between 1 and 1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c5 between 3 and 4;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c6 in(10,11,12,13,14,15);
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c7 in(1);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c8 in(2);
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c5 in(1,2,3,4,5,6,7,8,9,10);
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c4 * 2 + 1 > 3;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c5 / 2 - 1 > 1;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where c7 * 2 / 3 * c6 % 4 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c7=11.11,c8='abcd' where (c8 * c4 / 3 * 5)mod 3 + 1 > 8;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+#--error 5001
+prepare stmt from update t1 set c3=10 where c2=2 limit 2;
+execute stmt;
+drop prepare stmt;
+
+--error 5001
+prepare stmt from update t1 set c3=10 where c2=2 limit 2 offset 1;
+#execute stmt;
+#drop prepare stmt;
+
+--error 5001
+prepare stmt from update t1 set c3=10 where c2=2 order by c1;
+#execute stmt;
+#drop prepare stmt;
+#drop prepare stmt;
+
+--error 5001
+prepare stmt from update t1 set c3=10 where c2=2 order by c1 desc limit 1;
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t1 set c3=10 where 1<2;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c3=10 where 1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+--error 5009
+prepare stmt from update t2,t3 set t2.c2=20,t3.c2=30 where t2.t1=t3.t1;
+#execute stmt;
+#drop prepare stmt;
+
+#--error 5001
+prepare stmt from update t2,t3 set t2.c2=t3.c2 where t2.c1=t3.c1;
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t1 set c3=null where c1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+#--error 5006
+prepare stmt from update t2 set c2=(select c2 from t3 where c1=0) where c1=0;
+execute stmt;
+drop prepare stmt;
+
+prepare stmt from update t3 set c2=15 where c1=(select c2 from t3 where c1=1);
+execute stmt;
+--real_sleep 1
+select * from t3;
+drop prepare stmt;
+
+prepare stmt from update t3 set c2=15 where c1!=(select c2 from t3 where c1=1);
+execute stmt;
+--real_sleep 1
+select * from t3;
+drop prepare stmt;
+
+prepare stmt from update t3 set c2=15 where c1<(select c2 from t3 where c1=1);
+execute stmt;
+--real_sleep 1
+select * from t3;
+drop prepare stmt;
+
+#prepare stmt from update t3 set c2=15 where c1=(select c1 from t3 where c1=(select c1 from t3 where c1=3));
+#execute stmt;
+#drop prepare stmt;
+
+#prepare stmt from update t4 set c2=5 where c1=1;
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t4 set c3=10;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t1 set c3=c3+10 where c1=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='r' where c1=17 when row_count(insert into t4 values(17,17,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123))=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='r' where c1=18 when row_count(replace into t4 values(18,18,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123))=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t4 set c12='l' where c1=16 when row_count(insert into t4 values(16,16,2,1,1,1,1,2,'a','a','a','a',true,'2015-9-30 00:00:00','2015-9-30 00:00:00',100.0123))=1;
+execute stmt;
+--real_sleep 1
+select * from t4;
+drop prepare stmt;
+
+prepare stmt from update t1 set c12='e' where c1=3 when row_count(delete from t1 where c1=2)=0;
+--error 119
+execute stmt;
+drop prepare stmt;
+
+#prepare stmt from delete from t1 where c1=3 when row_count(insert into t1 values(5,'r',5,5) when row_count(delete from t1 where c1=3))>=0;
+#execute stmt;
+#drop prepare stmt;
+
+prepare stmt from update t1 set c4=c1+c2 where c3=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt from update t1 set c3=1;
+execute stmt;
+--real_sleep 1
+select * from t1;
+drop prepare stmt;
+
+prepare stmt1 from update t4 set c3=3 where c1=?;
+set @c1=1;
+--real_sleep 10
+execute stmt1 using @c1;
+--real_sleep 1
+select * from t4;
+deallocate prepare stmt1;
+
+prepare stmt1 from update t4 set c3=?;
+set @c3=1;
+execute stmt1 using @c1;
+--real_sleep 1
+select * from t4;
+deallocate prepare stmt1;
+
+#prepare stmt1 from update t4 where c1=?;
+#set @c1=1;
+#execute stmt1 using @c1;
+#deallocate prepare stmt1;
+#deallocate prepare stmt1;
+
+
+###2-2: explain
+explain update t4 set c3=3 where c1=1 and c2=1;
+explain update t1 set c3=null where c1=1;
+explain update t1 set c4=111 where c1>100;
+explain update t1 set c4=111 where c1=1;
+explain update t1 set c4=111 where c1>1;
+explain update t1 set c4=111 where c1=1 or c1=1 or c1=1 or c1=1 or c1=1;
+explain update t1 set c4=111 where c1=1 or c1=2 or c1=3 or c1=4 or c1=5;
+--error 145
+explain update t1 set c4=111 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+--error 145
+explain update t1 set c4=111 where c1=1 and c1=2 and c1=3 and c1=4 and c1=5;
+explain update t1 set c4=111 where c1 between 1 and 1;
+explain update t1 set c4=111 where c1 between 3 and 4;
+explain update t1 set c4=111 where c1 in(10,11,12,13,14,15);
+explain update t1 set c4=111 where c1 in(1);
+explain update t1 set c4=111 where c1 in(2);
+explain update t1 set c4=111 where c1 in(1,2,3,4,5,6,7,8,9,10);
+explain update t1 set c4=111 where c1 / 2 - 1 > 1;
+explain update t1 set c4=111 where c1 * 2 / 3 * 5 % 4 + 1 > 8;
+explain update t1 set c4=111 where (c1 * 2 / 3 * 5) mod 3 + 1 > 8;
+explain update t4 set c3=10 where c3=1;
+explain update t4 set c3=10 where c3>1;
+explain update t4 set c3=10 where c3>=2;
+explain update t4 set c3=10 where c3<2;
+explain update t4 set c3=10 where c3<=3;
+explain update t4 set c3=10 where c3!=3;
+explain update t4 set c3=10 where c3<>3;
+explain update t4 set c3=10 where c3 between 2 and 4;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

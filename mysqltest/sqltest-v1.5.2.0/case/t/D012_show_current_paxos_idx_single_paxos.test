@@ -1,0 +1,92 @@
+####################################必填######################################################
+###1.测试功能点：在单paxos组下测试 show current paxos_idx: 显示当前事务执行所在的paxos组
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：414
+###5.预计运行时间：2 s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-03-09
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+--enable_warnings
+
+#建表
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+
+#不在事务内，执行show current paxos_idx
+show current paxos_idx;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+show current paxos_idx;
+update t1 set c2 = 10 where c1 = 1;
+delete from t2 where c1 = 1;
+show current paxos_idx;
+replace into t1 values(1,100);
+show current paxos_idx;
+select * from t1;
+select * from t2;
+show current paxos_idx;
+
+#在事务内，执行show current paxos_idx
+
+start transaction;
+select * from t1;
+show current paxos_idx;
+select * from t2;
+show current paxos_idx;
+commit;
+
+begin;
+replace into t1 values(1,1);
+delete from t2 where c1 = 1;
+show current paxos_idx;
+insert into t2 values(1,1);
+update t1 set c1 = 10 where c1 = 1;
+show current paxos_idx;
+commit;
+
+
+set autocommit = 0;
+select * from t1;
+select * from t2;
+show current paxos_idx;
+insert into t1 values(1,1);
+replace into t2 values(10,10); 
+show current paxos_idx;
+commit;
+set autocommit = 1;
+
+start transaction;
+update t1 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+replace into t2 values(1,100);
+show current paxos_idx;
+select * from t2;
+select * from t1;
+show current paxos_idx;
+commit;
+
+begin;
+replace into t1 values(100,100);
+replace into t2 values(100,100);
+show current paxos_idx;
+commit;
+show current paxos_idx;
+
+start transaction;
+replace into t1 values(10,10);
+replace into t2 values(10,10);
+show current paxos_idx;
+rollback;
+show current paxos_idx;

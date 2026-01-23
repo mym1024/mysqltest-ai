@@ -1,0 +1,97 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：replace插入数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1000s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+--disable_query_log
+--enable_query_log
+
+
+create table t1 (c1 datetime,c2 int,c3 varchar(8),c4 float,c5 double,c6 decimal(5,4),primary key (c1));
+
+insert into t1 values('2015-08-08 12:13:16',1,'maosiyu',4.56,2.36455,3.26),('3012-08-08 12:13:16',2,'maosiyu',45.6,2.36455,4.18),('1960-08-08 12:13:16',1,'maosiyu',59.98,2.36455,9.56);
+create index il0 on t1(c6,c3,c5) storing (c2,c4);
+create index il1 on t1(c6,c2) storing (c5,c3,c4);
+create index il2 on t1(c3,c5) storing (c2);
+create index il3 on t1(c3,c6,c5,c4);
+create index il4 on t1(c4);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 750
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end =__idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+eval select * from $table_name;
+
+--let $table_end1=__idx__il1
+--let $table_name1=$table_head$n$table_end1
+eval select * from $table_name1;
+--let $table_end2=__idx__il2
+--let $table_name2=$table_head$n$table_end2
+eval select * from $table_name2;
+--let $table_end3=__idx__il3
+--let $table_name3=$table_head$n$table_end3
+eval select * from $table_name3;
+--let $table_end4=__idx__il4
+--let $table_name4=$table_head$n$table_end4
+eval select * from $table_name4;
+
+
+replace into t1 values('2015-06-02 12:45:32.238746',78,'hese',1.1,1.10000,1.265);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+
+replace into t1 values('2015-12-11 19:29:26.486128',8*9,'hwr3',7/8,8/9,9/10);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+replace into t1(c1,c6,c2) values('2015-06-22 12:45:32.238746',7/9,7*8);
+replace into t1(c1,c6,c3) values('2015-06-22 12:45:32.238746',7/9,'zhangd');
+replace into t1(c1,c6,c4) values('2015-06-22 12:45:32.238746',7/9,7/95);
+replace into t1(c1,c6,c5) values('2015-06-22 12:45:32.238746',7/9,7/98);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

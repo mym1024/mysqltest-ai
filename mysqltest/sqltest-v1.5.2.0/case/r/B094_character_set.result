@@ -1,0 +1,916 @@
+set names utf8mb4;
+create database db1;
+show create database db1;
+Database	Create Database
+db1	CREATE DATABASE db1 COLLATE 'utf8mb4_general_ci'
+show create database yao;
+Database	Create Database
+yao	CREATE DATABASE yao COLLATE 'utf8mb4_general_ci'
+create database db2 charset 'gbk' collate 'gbk_bin';
+show create database db2;
+Database	Create Database
+db2	CREATE DATABASE db2 COLLATE 'gbk_bin'
+alter database db2 charset 'utf8mb4' collate 'utf8mb4_general_ci';
+show create database db2;
+Database	Create Database
+db2	CREATE DATABASE db2 COLLATE 'utf8mb4_general_ci'
+create database db3 character set 'gbk';
+show create database db3;
+Database	Create Database
+db3	CREATE DATABASE db3 COLLATE 'gbk_chinese_ci'
+create database db4 collate 'gbk_bin';
+show create database db4;
+Database	Create Database
+db4	CREATE DATABASE db4 COLLATE 'gbk_bin'
+alter database db4 collate utf8mb4_bin;
+show create database db4;
+Database	Create Database
+db4	CREATE DATABASE db4 COLLATE 'utf8mb4_bin'
+create database db5 character set gb18030_2022 collate gb18030_2022_stroke_ci;
+show create database db5;
+Database	Create Database
+db5	CREATE DATABASE db5 COLLATE 'gb18030_2022_stroke_ci'
+CREATE DATABASE db6 CHARSET utf16;
+show create database db6;
+Database	Create Database
+db6	CREATE DATABASE db6 COLLATE 'utf16_general_ci'
+CREATE DATABASE db7 CHARSET = binary;
+ALTER DATABASE db7 collate gb18030_bin;
+show create database db7;
+Database	Create Database
+db7	CREATE DATABASE db7 COLLATE 'gb18030_bin'
+CREATE DATABASE db8 collate = gb18030_2022_stroke_ci;
+ALTER DATABASE db8 CHARSET latin1;
+show create database db8;
+Database	Create Database
+db8	CREATE DATABASE db8 COLLATE 'latin1_swedish_ci'
+create database d1 character set binary;
+create database d2 character set utf8mb4 collate utf8mb4_general_ci;
+create database d3 character set utf8mb4 collate utf8mb4_bin;
+create database d4 character set gbk collate gbk_chinese_ci;
+create database d5 character set utf16 collate utf16_general_ci;
+create database d6 character set utf16 collate utf16_bin;
+create database d7 character set gb18030 collate gb18030_chinese_ci;
+create database d8 character set gb18030 collate gb18030_bin;
+create database d9 character set latin1 collate latin1_swedish_ci;
+create database d10 character set latin1 collate latin1_bin;
+create database d11 character set gb18030_2022 collate gb18030_2022_bin;
+create database d12 character set gb18030_2022 collate gb18030_2022_chinese_ci;
+create database d13 character set gb18030_2022 collate gb18030_2022_chinese_cs;
+create database d14 character set gb18030_2022 collate gb18030_2022_radical_ci;
+create database d15 character set gb18030_2022 collate gb18030_2022_radical_cs;
+create database d16 character set gb18030_2022 collate gb18030_2022_stroke_cs;
+drop database d1;
+create database db5 collate 'gbk';
+ERROR HY000: YAO-5143: Unknown COLLATION
+create database db character set utf16 collate utf16_unicode_ci;
+ERROR HY000: YAO-5143: Unknown COLLATION
+create database db character set 'gbka' collate 'gbk_bina';
+ERROR HY000: YAO-5142: Unknown CHARACTER
+create database db character set =binary collate = utf16_general_ci;
+ERROR HY000: YAO-5144: COLLATION 'utf16_general_ci' is not valid for CHARACTER SET 'binary'
+create database db character set binary collate binary;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter database db10 charset 'gbk';
+ERROR HY000: YAO-5602: Database not exist
+create table t1(c1 int,c2 varchar(255)) character set binary;
+create table t2(c1 int,c2 varchar(255)) character set utf8mb4 collate utf8mb4_general_ci;
+create table t3(c1 int,c2 varchar(255)) character set utf8mb4 collate utf8mb4_bin;
+create table t5(c1 int,c2 varchar(255)) character set gbk collate gbk_bin;
+create table t6(c1 int,c2 varchar(255)) character set utf16 collate utf16_general_ci;
+create table t7(c1 int,c2 varchar(255)) character set utf16 collate utf16_bin;
+create table t8(c1 int,c2 varchar(255)) character set gb18030 collate gb18030_chinese_ci;
+create table t9(c1 int,c2 varchar(255)) character set gb18030 collate gb18030_bin;
+create table t10(c1 int,c2 varchar(255)) character set latin1 collate latin1_swedish_ci;
+create table t11(c1 int,c2 varchar(255)) character set latin1 collate latin1_bin;
+create table t12(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_bin;
+create table t13(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_chinese_ci;
+create table t14(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_chinese_cs;
+create table t15(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_radical_ci;
+create table t16(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_radical_cs;
+create table t17(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_stroke_ci;
+create table t18(c1 int,c2 varchar(255)) character set gb18030_2022 collate gb18030_2022_stroke_cs;
+drop table t1,t2,t3,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18;
+create table tb1(name varchar(255), age int, addr varchar(255));
+show create table tb1;
+Table	Create Table
+test.tb1	CREATE TABLE tb1 (
+name VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE tb1 CHARACTER SET utf8;
+show create table tb1;
+Table	Create Table
+test.tb1	CREATE TABLE tb1 (
+name VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table tb2(col1 varchar(255))charset 'gbk' collate 'gbk_bin';
+alter table tb2 character set 'utf8mb4' collate 'utf8mb4_general_ci';
+show create table tb2;
+Table	Create Table
+test.tb2	CREATE TABLE tb2 (
+col1 VARCHAR (255) COLLATE 'gbk_bin'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE tb3 (c1 INT, c2 VARCHAR(32), c3 VARCHAR(32),c4 bit(1),c5 json, PRIMARY KEY (c1),UNIQUE KEY idx_tb3_c2(c2));
+ALTER TABLE tb3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
+ALTER TABLE tb3 CONVERT TO CHARACTER SET gbk COLLATE gbk_bin;
+show create table tb3;
+Table	Create Table
+test.tb3	CREATE TABLE tb3 (
+c1 INT(10),
+c2 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c3 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c4 BIT,
+c5 JSON,
+ PRIMARY KEY(c1),
+ UNIQUE KEY idx_tb3_c2(c2)
+) COLLATE = 'gbk_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE tb3 CHARACTER SET gb18030_2022;
+show create table tb3;
+Table	Create Table
+test.tb3	CREATE TABLE tb3 (
+c1 INT(10),
+c2 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c3 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c4 BIT,
+c5 JSON,
+ PRIMARY KEY(c1),
+ UNIQUE KEY idx_tb3_c2(c2)
+) COLLATE = 'gb18030_2022_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE tb3 COLLATE latin1_bin;
+show create table tb3;
+Table	Create Table
+test.tb3	CREATE TABLE tb3 (
+c1 INT(10),
+c2 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c3 VARCHAR (32) COLLATE 'utf8mb4_general_ci',
+c4 BIT,
+c5 JSON,
+ PRIMARY KEY(c1),
+ UNIQUE KEY idx_tb3_c2(c2)
+) COLLATE = 'latin1_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table tb4(name varchar(255), age int, addr varchar(255))charset 'gbk';
+show create  table tb4;
+Table	Create Table
+test.tb4	CREATE TABLE tb4 (
+name VARCHAR (255) COLLATE 'gbk_chinese_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+alter table tb4 convert to character set 'utf8mb4';
+show create table tb4;
+Table	Create Table
+test.tb4	CREATE TABLE tb4 (
+name VARCHAR (255) COLLATE 'gbk_chinese_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table tb5(name varchar(255), age int, addr varchar(255)) collate 'gbk_bin';
+show create table tb5;
+Table	Create Table
+test.tb5	CREATE TABLE tb5 (
+name VARCHAR (255) COLLATE 'gbk_bin',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_bin'
+) COLLATE = 'gbk_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+alter table tb5 collate 'gbk_bin';
+show create table tb5;
+Table	Create Table
+test.tb5	CREATE TABLE tb5 (
+name VARCHAR (255) COLLATE 'gbk_bin',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_bin'
+) COLLATE = 'gbk_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+alter database test charset 'gbk';
+create table tb6(name varchar(255), age int, addr varchar(255));
+show create table tb1;
+Table	Create Table
+test.tb1	CREATE TABLE tb1 (
+name VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show create table tb6;
+Table	Create Table
+test.tb6	CREATE TABLE tb6 (
+name VARCHAR (255) COLLATE 'gbk_chinese_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE tb1 CHARACTER SET utf8 COLLATE latin1_danish_ci;
+ERROR HY000: YAO-5142: CHARACTER is not vaild, please check it
+create table tb7(name varchar(255), age int, addr varchar(255)) charset 'gbk' collate 'utf8mb4_bin';
+ERROR HY000: YAO-16: COLLATE is not vaild for CHARACTER SET
+alter table tb4 convert to character set 'gbk' collate'utf8mb4_bin';
+ERROR HY000: YAO-16: COLLATE is not vaild for CHARACTER SET
+CREATE TABLE t1 ( a CHAR(1) ) CHARACTER SET utf8;
+CREATE TABLE t2 ( a CHAR(1) ) CHARACTER SET "utf8";
+CREATE TABLE t3 ( a CHAR(1) ) CHARACTER SET 'utf8';
+CREATE TABLE t4 ( a CHAR(1) ) CHARACTER SET `utf8`;
+DROP TABLE t1, t2, t3, t4;
+create table tab(
+c1 VARCHAR(5) character set binary,
+c2 VARCHAR(5) character set utf8mb4 collate utf8mb4_general_ci comment 'utf8mb4',
+c3 VARCHAR(5) character set utf8mb4 collate utf8mb4_bin,
+c4 VARCHAR(5) character set gbk collate gbk_chinese_ci,
+c5 VARCHAR(5) character set gbk collate gbk_bin,
+c6 VARCHAR(5) character set utf16 collate utf16_general_ci,
+c7 VARCHAR(5) character set utf16 collate utf16_bin,
+c8 VARCHAR(5) character set gb18030 collate gb18030_chinese_ci,
+c9 VARCHAR(5) character set gb18030 collate gb18030_bin,
+c10 VARCHAR(5) character set latin1 collate latin1_swedish_ci,
+c11 VARCHAR(5) character set latin1 collate latin1_bin,
+c12 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_bin,
+c13 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_chinese_ci,
+c14 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_chinese_cs,
+c15 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_radical_ci,
+c16 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_radical_cs,
+c17 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_stroke_ci,
+c18 VARCHAR(5) character set gb18030_2022 collate gb18030_2022_stroke_cs);
+show create table tab;
+Table	Create Table
+test.tab	CREATE TABLE tab (
+c1 VARCHAR (5) COLLATE 'binary',
+c2 VARCHAR (5) COLLATE 'utf8mb4_general_ci' COMMENT 'utf8mb4' ,
+c3 VARCHAR (5) COLLATE 'utf8mb4_bin',
+c4 VARCHAR (5) COLLATE 'gbk_chinese_ci',
+c5 VARCHAR (5) COLLATE 'gbk_bin',
+c6 VARCHAR (5) COLLATE 'utf16_general_ci',
+c7 VARCHAR (5) COLLATE 'utf16_bin',
+c8 VARCHAR (5) COLLATE 'gb18030_chinese_ci',
+c9 VARCHAR (5) COLLATE 'gb18030_bin',
+c10 VARCHAR (5) COLLATE 'latin1_swedish_ci',
+c11 VARCHAR (5) COLLATE 'latin1_bin',
+c12 VARCHAR (5) COLLATE 'gb18030_2022_bin',
+c13 VARCHAR (5) COLLATE 'gb18030_2022_chinese_ci',
+c14 VARCHAR (5) COLLATE 'gb18030_2022_chinese_cs',
+c15 VARCHAR (5) COLLATE 'gb18030_2022_radical_ci',
+c16 VARCHAR (5) COLLATE 'gb18030_2022_radical_cs',
+c17 VARCHAR (5) COLLATE 'gb18030_2022_stroke_ci',
+c18 VARCHAR (5) COLLATE 'gb18030_2022_stroke_cs'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t(c1 int);
+SHOW CREATE TABLE t;
+Table	Create Table
+test.t	CREATE TABLE t (
+c1 INT(10)
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t ADD c2 int COLLATE 'binary';
+SHOW CREATE TABLE t;
+Table	Create Table
+test.t	CREATE TABLE t (
+c1 INT(10),
+c2 INT(10)
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t1(col1 varchar(255) character set 'gbk' collate 'gbk_bin');
+alter table t1 modify col1 varchar(255)  character set 'utf8mb4' collate 'utf8mb4_bin';
+SHOW CREATE TABLE t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+col1 VARCHAR (255) COLLATE 'utf8mb4_bin'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t2 (f1 CHAR(20) COLLATE 'binary');
+SHOW CREATE TABLE t2;
+Table	Create Table
+test.t2	CREATE TABLE t2 (
+f1 VARCHAR (20) COLLATE 'binary'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t3 (col1 VARCHAR(5) CHARACTER SET gb18030 COLLATE 'gb18030_chinese_ci');
+SHOW CREATE TABLE t3;
+Table	Create Table
+test.t3	CREATE TABLE t3 (
+col1 VARCHAR (5) COLLATE 'gb18030_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t3 MODIFY col1 VARCHAR(5) CHARACTER SET gbk COLLATE gbk_chinese_ci;
+SHOW CREATE TABLE t3;
+Table	Create Table
+test.t3	CREATE TABLE t3 (
+col1 VARCHAR (5) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t4(c1 json CHARACTER SET 'gb18030_2022' COLLATE 'gb18030_2022_chinese_ci');
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t5(name varchar(255) charset 'utf8mb4', age int, addr varchar(255));
+show create table t5;
+Table	Create Table
+test.t5	CREATE TABLE t5 (
+name VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+alter table t5 modify name varchar(255) collate 'gbk_bin';
+show create table t5;
+Table	Create Table
+test.t5	CREATE TABLE t5 (
+name VARCHAR (255) COLLATE 'gbk_bin',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t6(name varchar(255) collate 'gbk_bin', age int, addr varchar(255));
+show create table t6;
+Table	Create Table
+test.t6	CREATE TABLE t6 (
+name VARCHAR (255) COLLATE 'gbk_bin',
+age INT(10),
+addr VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE TABLE t7 (col1 VARCHAR(5) CHARACTER SET utf8mb4 COLLATE 'gb18030_chinese_ci');
+ERROR HY000: YAO-5177: COLLATION 'gb18030_chinese_ci' is not valid for CHARACTER SET 'utf8mb4'
+drop table t1,t2,t3,t5,t6;
+create database test1;
+use test1;
+create table t1(str_def varchar(255), str_utf8 varchar(255) charset 'utf8mb4', str_gbk varchar(255) charset 'gbk', str_latin varchar(255) charset 'latin1', str_utf16 varchar(255) charset 'utf16', str_binary varchar(255) charset 'binary', str_gb varchar(255) charset 'gb18030');
+insert into t1 values(_utf8mb4'中文字符', _utf8mb4'中文字符', _gbk'中文字符', _latin1'中文字符', _utf16'中文字符', _binary'中文字符', _gb18030'中文字符');
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃
+alter table t1 add column str_def2 varchar(255);
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+str_def VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_utf8 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk VARCHAR (255) COLLATE 'gbk_chinese_ci',
+str_latin VARCHAR (255) COLLATE 'latin1_swedish_ci',
+str_utf16 VARCHAR (255) COLLATE 'utf16_general_ci',
+str_binary VARCHAR (255) COLLATE 'binary',
+str_gb VARCHAR (255) COLLATE 'gb18030_chinese_ci',
+str_def2 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	NULL
+insert into t1(str_def2) values(_utf8mb4'中文字符');
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	NULL
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	中文字符
+update t1 set str_def2=_utf8mb4'英文字符';
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	英文字符
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	英文字符
+delete from t1;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2
+insert into t1 values(_utf8mb4'中文字符', _utf8mb4'中文字符', _gbk'中文字符', _latin1'中文字符', _utf16'中文字符', _binary'中文字符', _gb18030'中文字符',_utf8mb4'中文字符');
+alter table t1 add column str_gbk2 varchar(255) charset 'gbk';
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+str_def VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_utf8 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk VARCHAR (255) COLLATE 'gbk_chinese_ci',
+str_latin VARCHAR (255) COLLATE 'latin1_swedish_ci',
+str_utf16 VARCHAR (255) COLLATE 'utf16_general_ci',
+str_binary VARCHAR (255) COLLATE 'binary',
+str_gb VARCHAR (255) COLLATE 'gb18030_chinese_ci',
+str_def2 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk2 VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gbk2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	NULL
+insert into t1(str_gbk2) values(_gbk'中文字符');
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gbk2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	NULL
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	涓枃瀛楃
+update t1 set str_gbk2=_gbk'英文字符';
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gbk2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	鑻辨枃瀛楃
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	鑻辨枃瀛楃
+delete from t1;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gbk2
+alter table t1 drop column str_gbk2;
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+str_def VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_utf8 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk VARCHAR (255) COLLATE 'gbk_chinese_ci',
+str_latin VARCHAR (255) COLLATE 'latin1_swedish_ci',
+str_utf16 VARCHAR (255) COLLATE 'utf16_general_ci',
+str_binary VARCHAR (255) COLLATE 'binary',
+str_gb VARCHAR (255) COLLATE 'gb18030_chinese_ci',
+str_def2 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+insert into t1 values(_utf8mb4'中文字符', _utf8mb4'中文字符', _gbk'中文字符', _latin1'中文字符', _utf16'中文字符', _binary'中文字符', _gb18030'中文字符',_utf8mb4'中文字符');
+alter table t1 add column str_gb2 varchar(255) charset 'gb18030';
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+str_def VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_utf8 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk VARCHAR (255) COLLATE 'gbk_chinese_ci',
+str_latin VARCHAR (255) COLLATE 'latin1_swedish_ci',
+str_utf16 VARCHAR (255) COLLATE 'utf16_general_ci',
+str_binary VARCHAR (255) COLLATE 'binary',
+str_gb VARCHAR (255) COLLATE 'gb18030_chinese_ci',
+str_def2 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gb2 VARCHAR (255) COLLATE 'gb18030_chinese_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gb2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	NULL
+insert into t1(str_gb2) values(_gb18030'中文字符');
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gb2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	NULL
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	涓枃瀛楃
+update t1 set str_gb2=_gb18030'英文字符';
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gb2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符	鑻辨枃瀛楃
+NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	鑻辨枃瀛楃
+delete from t1;
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2	str_gb2
+alter table t1 drop column str_gb2;
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+str_def VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_utf8 VARCHAR (255) COLLATE 'utf8mb4_general_ci',
+str_gbk VARCHAR (255) COLLATE 'gbk_chinese_ci',
+str_latin VARCHAR (255) COLLATE 'latin1_swedish_ci',
+str_utf16 VARCHAR (255) COLLATE 'utf16_general_ci',
+str_binary VARCHAR (255) COLLATE 'binary',
+str_gb VARCHAR (255) COLLATE 'gb18030_chinese_ci',
+str_def2 VARCHAR (255) COLLATE 'utf8mb4_general_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+delete from t1;
+alter table t1 modify str_def varchar(255) charset 'binary';
+insert into t1 values(_binary'中文字符', _utf8mb4'中文字符', _gbk'中文字符', _latin1'中文字符', _utf16'中文字符', _binary'中文字符',  _gb18030'中文字符',_binary'中文字符');
+select * from t1;
+str_def	str_utf8	str_gbk	str_latin	str_utf16	str_binary	str_gb	str_def2
+中文字符	中文字符	涓枃瀛楃	ä¸­æ–‡å­—ç¬¦	귦隇韧겦	中文字符	涓枃瀛楃	中文字符
+drop table t1;
+create table t1(col1 varchar(255) character set 'gbk' collate 'gbk_bin')character set 'latin1' collate 'latin1_bin';
+create table t2(col1 varchar(255) character set 'gbk')character set 'latin1';
+show create table t1;
+Table	Create Table
+test1.t1	CREATE TABLE t1 (
+col1 VARCHAR (255) COLLATE 'gbk_bin'
+) COLLATE = 'latin1_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show create table t2;
+Table	Create Table
+test1.t2	CREATE TABLE t2 (
+col1 VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'latin1_swedish_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create database test2 character set utf16 collate utf16_bin;
+use test2;
+create table t3(col1 varchar(255) character set 'gbk')COLLATE 'gb18030_2022_bin';
+show create table t3;
+Table	Create Table
+test2.t3	CREATE TABLE t3 (
+col1 VARCHAR (255) COLLATE 'gbk_chinese_ci'
+) COLLATE = 'gb18030_2022_bin', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t2(str_def varchar(255));
+insert into t2(str_def) values(_utf8mb4'中文字符');
+select * from t2;
+str_def
+中文字符
+update t2 set str_def=_utf8mb4'英文字符';
+select * from t2;
+str_def
+英文字符
+delete from t2;
+select * from t2;
+str_def
+alter table t2 charset 'utf8mb4';
+alter table t2 add column str_utf8 varchar(255);
+insert into t2(str_utf8) values(_utf8mb4'中文字符');
+select * from t2;
+str_def	str_utf8
+NULL	中文字符
+update t2 set str_utf8=_utf8mb4'英文字符';
+select * from t2;
+str_def	str_utf8
+NULL	英文字符
+alter table t2 drop column str_utf8;
+insert into t2(str_def) values(_utf8mb4'中文字符');
+select * from t2;
+str_def
+NULL
+中文字符
+update t2 set str_def=_utf8mb4'英文字符';
+select * from t2;
+str_def
+英文字符
+英文字符
+delete from t2;
+select * from t2;
+str_def
+create database db_test;
+use db_test;
+create table t1 (str_def varchar(255));
+insert into t1 values(_utf8mb4'中文字符');
+select * from t1;
+str_def
+中文字符
+alter database db_test charset 'utf16';
+create table t2 (str_utf16 varchar(255));
+insert into t2 values(_utf16'中文字符');
+select * from t2;
+str_utf16
+귦隇韧겦
+update t2 set str_utf16=_utf16'英文字符';
+select * from t2;
+str_utf16
+뇦隇韧겦
+delete from t2;
+alter database db_test charset 'gb18030_2022';
+create table t3 (str_gb20 varchar(255));
+insert into t3 values(_gb18030_2022'中文字符');
+select * from t3;
+str_gb20
+涓枃瀛楃
+update t3 set str_gb20=_gb18030_2022'英文字符';
+select * from t3;
+str_gb20
+鑻辨枃瀛楃
+delete from t3;
+select * from t3;
+str_gb20
+SHOW CHARACTER SET;
+Charset	Description	Default collation	Maxlen
+binary	Binary pseudo charset	binary	1
+utf8mb4	UTF-8 Unicode	utf8mb4_general_ci	4
+gbk	GBK charset	gbk_chinese_ci	2
+utf16	UTF-16 Unicode	utf16_general_ci	2
+gb18030	GB18030 charset	gb18030_chinese_ci	4
+latin1	cp1252 West European	latin1_swedish_ci	1
+gb18030_2022	GB18030-2022 charset	gb18030_2022_chinese_ci	4
+SHOW COLLATION;
+Collation	Charset	Id	Default	Compiled	Sortlen
+utf8mb4_general_ci	utf8	45	Yes	Yes	1
+utf8mb4_general_ci	utf8mb4	45	Yes	Yes	1
+utf8mb4_bin	utf8mb4	46	 	Yes	1
+gbk_chinese_ci	gbk	28	Yes	Yes	1
+gbk_bin	gbk	87	 	Yes	1
+utf16_general_ci	utf16	54	Yes	Yes	1
+utf16_bin	utf16	55	 	Yes	1
+gb18030_chinese_ci	gb18030	248	Yes	Yes	1
+gb18030_bin	gb18030	249	 	Yes	1
+latin1_swedish_ci	latin1	8	Yes	Yes	1
+latin1_bin	latin1	47	 	Yes	1
+gb18030_2022_bin	gb18030_2022	216	 	Yes	1
+gb18030_2022_chinese_ci	gb18030_2022	217	Yes	Yes	1
+gb18030_2022_chinese_cs	gb18030_2022	218	 	Yes	1
+gb18030_2022_radical_ci	gb18030_2022	219	 	Yes	1
+gb18030_2022_radical_cs	gb18030_2022	220	 	Yes	1
+gb18030_2022_stroke_ci	gb18030_2022	221	 	Yes	1
+gb18030_2022_stroke_cs	gb18030_2022	222	 	Yes	1
+SHOW SESSION VARIABLES LIKE 'character\_set\_%';
+variable_name	value
+character_set_system	utf8mb4
+character_set_server	utf8mb4
+character_set_results	utf8mb4
+character_set_filesystem	binary
+character_set_database	utf8mb4
+character_set_connection	utf8mb4
+character_set_client	utf8mb4
+SHOW SESSION VARIABLES LIKE 'collation\_%';
+variable_name	value
+collation_server	utf8mb4_general_ci
+collation_database	utf8mb4_general_ci
+collation_connection	utf8mb4_general_ci
+SET NAMES utf8mb4;
+select _gbk'中文' collate 'gbk_bin';
+_gbk'中文' collate 'gbk_bin'
+涓枃
+select concat(_latin1'中文',_latin1'中文');
+concat(_latin1'中文',_latin1'中文')
+ä¸­æ–‡ä¸­æ–‡
+select concat_ws(',',_latin1'中文',_latin1'中文');
+concat_ws(',',_latin1'中文',_latin1'中文')
+ä¸­æ–‡,ä¸­æ–‡
+select substring(_gbk'中文字符',3);
+substring(_gbk'中文字符',3)
+枃瀛楃
+select length(_gbk'中文字符');
+length(_gbk'中文字符')
+12
+select replace(_gbk'中文字符',_gbk'中文',_gbk'测试');
+replace(_gbk'中文字符',_gbk'中文',_gbk'测试')
+娴嬭瘯瀛楃
+select left(_gbk'中文字符',2);
+left(_gbk'中文字符',2)
+涓
+select right(_gbk'中文字符',2);
+right(_gbk'中文字符',2)
+楃
+select instr(_gbk'中文字符',_gbk'字符');
+instr(_gbk'中文字符',_gbk'字符')
+4
+select ord(_gbk'中');
+ord(_gbk'中')
+58552
+select convert(_utf8mb4'中文',char character set gbk);
+convert(_utf8mb4'中文',char character set gbk)
+中文
+select cast(_utf16'中文' as char);
+cast(_utf16'中文' as char)
+귦隇
+select cast(_gbk'中文'as char character set gbk);
+cast(_gbk'中文'as char character set gbk)
+涓枃
+select char_length(_gbk'中文');
+char_length(_gbk'中文')
+3
+select substring_index(_utf16'测试,中文,字符',',',2);
+substring_index(_utf16'测试,中文,字符',',',2)
+诨꾕ⳤ뢭蜬韧겦
+select find_in_set(_gbk'测试',_gbk'中文,测试,字符');
+find_in_set(_gbk'测试',_gbk'中文,测试,字符')
+2
+select substr(_gbk'中文字符', 3);
+substr(_gbk'中文字符', 3)
+枃瀛楃
+select lower(_utf8mb4'中文字符');
+lower(_utf8mb4'中文字符')
+中文字符
+select trim(_gbk' 中文字符 ');
+trim(_gbk' 中文字符 ')
+涓枃瀛楃
+select replace(_gbk'中文字符', _gbk'中文', _gbk'测试');
+replace(_gbk'中文字符', _gbk'中文', _gbk'测试')
+娴嬭瘯瀛楃
+select locate(_gbk'字符', _gbk'中文字符', 2);
+locate(_gbk'字符', _gbk'中文字符', 2)
+4
+select ceil(_utf8mb4'中文');
+ceil(_utf8mb4'中文')
+0
+select floor(_gbk'中文');
+floor(_gbk'中文')
+0
+create database db_dml;
+use db_dml;
+create table t1(data_binary varchar(255) charset 'binary', data_gbk varchar(255) charset 'gbk', data_gb18030 varchar(255) charset 'gb18030', data_utf16 varchar(255) charset 'utf16', data_utf8mb4 varchar(255) charset 'utf8mb4', data_latin1 varchar(255) charset 'latin1');
+insert into t1 values(_binary'中文字符', _gbk'中文字符', _gb18030'中文字符', _utf16'中文字符', _utf8mb4'中文字符', _latin1'中文字符');
+insert into t1 values(_binary'中文', _gbk'中文', _gb18030'中文', _utf16'中文', _utf8mb4'中文', _latin1'中文');
+insert into t1 values(_binary'中国', _gbk'中国', _gb18030'中国', _utf16'中国', _utf8mb4'中国', _latin1'中国');
+update t1 set data_binary = _binary'英文字符' where data_binary = _binary'中文字符';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃瀛楃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	中文	ä¸­æ–‡
+中国	涓浗	涓浗	귥鮽	中国	ä¸­å›½
+update t1 set data_utf8mb4 = _utf8mb4'英文' where data_utf8mb4 = _utf8mb4'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃瀛楃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	英文	ä¸­æ–‡
+中国	涓浗	涓浗	귥鮽	中国	ä¸­å›½
+update t1 set data_latin1 = _latin1'英文' where data_latin1 = _latin1'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃瀛楃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	英文	è‹±æ–‡
+中国	涓浗	涓浗	귥鮽	中国	ä¸­å›½
+update t1 set data_gbk = _gbk'中文' where data_gbk > _gbk'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	英文	è‹±æ–‡
+中国	涓浗	涓浗	귥鮽	中国	ä¸­å›½
+update t1 set data_utf8mb4 = _utf8mb4'中特' where data_utf8mb4 < _utf8mb4'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	英文	è‹±æ–‡
+中国	涓浗	涓浗	귥鮽	中特	ä¸­å›½
+update t1 set data_binary = _binary'中文' where data_binary like _binary'中国%';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	귦隇	英文	è‹±æ–‡
+中文	涓浗	涓浗	귥鮽	中特	ä¸­å›½
+update t1 set data_utf16 = _utf16'测试' where data_utf16 <= _utf16'中文字符' and data_utf16 >= _utf16'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	涓枃	诨꾕	英文	è‹±æ–‡
+中文	涓浗	涓浗	귥鮽	中特	ä¸­å›½
+update t1 set data_gb18030 = _gb18030'分布' where  data_gb18030 between _gb18030'中' and _gb18030'中文';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	鍒嗗竷	诨꾕	英文	è‹±æ–‡
+中文	涓浗	鍒嗗竷	귥鮽	中特	ä¸­å›½
+update t1 set data_utf8mb4 = _utf8mb4'中投靓仔' where data_utf8mb4 in(_utf8mb4'英', _utf8mb4'英文');
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	鍒嗗竷	诨꾕	中投靓仔	è‹±æ–‡
+中文	涓浗	鍒嗗竷	귥鮽	中特	ä¸­å›½
+select * from t1 where data_gbk = _gbk'中文';
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	鍒嗗竷	诨꾕	中投靓仔	è‹±æ–‡
+select * from t1 where data_utf8mb4 not in(_utf8mb4'英', _utf8mb4'英文');
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+中文	涓枃	鍒嗗竷	诨꾕	中投靓仔	è‹±æ–‡
+中文	涓浗	鍒嗗竷	귥鮽	中特	ä¸­å›½
+update t1 set data_gbk = _gbk'测试文字' where data_gbk = _utf16'测试字符';
+ERROR 25S03: YAO-119: Illegal type, error code = -5023
+select * from t1 where data_gbk = _gbk'测试文字';
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+delete from t1 where data_gb18030 = _gb18030'分布';
+select * from t1;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+英文字符	涓枃	涓枃瀛楃	诨꾕	中文字符	ä¸­æ–‡å­—ç¬¦
+create table t2(data_binary varchar(255) charset 'binary', data_gbk varchar(255) charset 'gbk', data_gb18030 varchar(255) charset 'gb18030', data_utf16 varchar(255) charset 'utf16', data_utf8mb4 varchar(255) charset 'utf8mb4', data_latin1 varchar(255) charset 'latin1');
+insert into t2 values(_binary'中投', _gbk'中投', _gb18030'中投', _utf16'中投', _utf8mb4'中投', _latin1'中投');
+insert into t2 values(_binary'中投靓仔', _gbk'中投靓仔', _gb18030'中投靓仔', _utf16'中投靓仔', _utf8mb4'中投靓仔', _latin1'中投靓仔');
+insert into t2 values(_binary'中投靓仔大师', _gbk'中投靓仔大师', _gb18030'中投靓仔大师', _utf16'中投靓仔大师', _utf8mb4'中投靓仔大师', _latin1'中投靓仔大师');
+delete from t2 where data_gbk < _gbk'中投靓仔';
+select * from t2;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+中投靓仔	涓姇闈撲粩	涓姇闈撲粩	귦誕鏤뮔	中投靓仔	ä¸­æŠ•é“ä»”
+中投靓仔大师	涓姇闈撲粩澶у笀	涓姇闈撲粩澶у笀	귦誕鏤뮔꟥뢈	中投靓仔大师	ä¸­æŠ•é“ä»”å¤§å¸ˆ
+select * from t1 join t2 on t1.data_utf8mb4 = t2.data_utf8mb4;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1	data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+create database db_coll;
+use db_coll;
+create table t1 (data_general_ci varchar(255) collate 'utf8mb4_general_ci', data_bin varchar(255) collate 'utf8mb4_bin');
+insert into t1 (data_general_ci, data_bin) values ('apple', 'apple'), ('Apple', 'Apple'), ('banana', 'banana'), ('Orange', 'Orange'), ('orange', 'orange');
+select data_general_ci from t1 order by data_general_ci collate utf8mb4_general_ci;
+data_general_ci
+apple
+Apple
+banana
+Orange
+orange
+select data_general_ci from t1 group by data_general_ci collate utf8mb4_general_ci;
+data_general_ci
+apple
+banana
+Orange
+select data_bin from t1 order by data_bin;
+data_bin
+Apple
+Orange
+apple
+banana
+orange
+select distinct binary data_general_ci from t1;
+binary data_general_ci
+Apple
+Orange
+apple
+banana
+orange
+select distinct data_general_ci collate utf8mb4_general_ci from t1;
+data_general_ci collate utf8mb4_general_ci
+apple
+banana
+Orange
+select max(data_bin collate utf8mb4_bin) from t1;
+max(data_bin collate utf8mb4_bin)
+orange
+create table t2 (data_swedish_ci varchar(255)) collate 'latin1_swedish_ci';
+alter table t2 collate 'latin1_bin';
+alter table t2 add column data_bin varchar(255);
+insert into t2(data_swedish_ci, data_bin) values ('apple', 'apple'), ('Banana', 'Banana'), ('Orange', 'Orange'), ('grape', 'grape'), ('Grape', 'Grape');
+select data_swedish_ci from t2 order by data_swedish_ci ;
+data_swedish_ci
+apple
+Banana
+grape
+Grape
+Orange
+select data_bin from t2 order by data_bin;
+data_bin
+Banana
+Grape
+Orange
+apple
+grape
+select distinct binary data_swedish_ci from t2;
+binary data_swedish_ci
+Banana
+Grape
+Orange
+apple
+grape
+select * from t2 where data_bin='apple' collate utf8mb4_bin;
+data_swedish_ci	data_bin
+apple	apple
+create table t11(data_binary varchar(255) charset 'binary', data_gbk varchar(255) charset 'gbk', data_gb18030 varchar(255) charset 'gb18030', data_utf16 varchar(255) charset 'utf16', data_utf8mb4 varchar(255) charset 'utf8mb4', data_latin1 varchar(255) charset 'latin1');
+insert into t11 values(_binary'中文', _gbk'中文', _gb18030'中文', _utf16'中文', _utf8mb4'中文', _latin1'中文');
+insert into t11 values(_binary'中文字符', _gbk'中文字符', _gb18030'中文字符', _utf16'中文字符', _utf8mb4'中文字符', _latin1'中文字符');
+insert into t11 values(_binary'测试', _gbk'测试', _gb18030'测试', _utf16'测试', _utf8mb4'测试', _latin1'测试');
+insert into t11 values(_binary'中文', _gbk'中文', _gb18030'中文', _utf16'中文', _utf8mb4'中文', _latin1'中文');
+select sum(data_gbk) from t11;
+sum(data_gbk)
+0
+select avg(data_gbk) from t11;
+avg(data_gbk)
+0
+select min(data_gbk) from t11;
+min(data_gbk)
+涓枃
+select max(data_gbk) from t11;
+max(data_gbk)
+娴嬭瘯
+select count(data_gbk) from t11;
+count(data_gbk)
+4
+select data_gbk as data1 from t11 order by data_gbk;
+data1
+涓枃
+涓枃
+涓枃瀛楃
+娴嬭瘯
+select data_gbk from t11 group by data_gbk;
+data_gbk
+涓枃
+涓枃瀛楃
+娴嬭瘯
+select data_gbk from t11 group by data_gbk order by data_gbk asc;
+data_gbk
+涓枃
+涓枃瀛楃
+娴嬭瘯
+select distinct data_gbk from t11 order by data_gbk desc;
+data_gbk
+娴嬭瘯
+涓枃瀛楃
+涓枃
+select data_gbk from t11 group by data_gbk having data_gbk = _gbk'中文字符' order by data_gbk desc;
+data_gbk
+涓枃瀛楃
+select * from t11 where data_binary='中文' collate utf8mb4_bin;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+中文	涓枃	涓枃	귦隇	中文	ä¸­æ–‡
+中文	涓枃	涓枃	귦隇	中文	ä¸­æ–‡
+set names gb18030;
+select * from t11;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+中文	中文	中文	��8�1�	����	�0�1�0�0�0�2�0�3�C�6�0
+中文字符	中文字符	中文字符	��8�1ꞣg�͂7�1	�����ַ�	�0�1�0�0�0�2�0�3�C�6�0�0�2�0�2���0�4�0�1�0�7
+测试	测试	测试	�Oڻ�8�2	����	�0�3�0�8�6�8���0�4�6�1
+中文	中文	中文	��8�1�	����	�0�1�0�0�0�2�0�3�C�6�0
+set names latin1;
+select * from t11;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+中文	???	???	???	??	中文
+中文字符	??????	??????	??????	????	中文字符
+测试	???	???	???	??	测试
+中文	???	???	???	??	中文
+set names utf8mb4;
+select * from t11;
+data_binary	data_gbk	data_gb18030	data_utf16	data_utf8mb4	data_latin1
+中文	涓枃	涓枃	귦隇	中文	ä¸­æ–‡
+中文字符	涓枃瀛楃	涓枃瀛楃	귦隇韧겦	中文字符	ä¸­æ–‡å­—ç¬¦
+测试	娴嬭瘯	娴嬭瘯	诨꾕	测试	æµ‹è¯•
+中文	涓枃	涓枃	귦隇	中文	ä¸­æ–‡
+select charset('abc');
+charset('abc')
+utf8mb4
+select collation('abc');
+collation('abc')
+utf8mb4_general_ci
+select coercibility('abc');
+coercibility('abc')
+4
+create table test_table (id int, name varchar(50), description varchar(255)) charset 'utf8mb4' collate 'utf8mb4_general_ci';
+create index idx_name on test_table(name);
+insert into test_table (id, name, description) values(1, 'Apple', 'Fruit'), (2, 'banana', 'Fruit'), (3, 'Orange', 'Fruit'), (4, 'Grapes', 'Fruit');
+set names utf8mb4;
+select * from test_table where name like 'A%' collate utf8mb4_general_ci;
+id	name	description
+1	Apple	Fruit
+select * from test_table order by name collate utf8mb4_general_ci;
+id	name	description
+1	Apple	Fruit
+2	banana	Fruit
+4	Grapes	Fruit
+3	Orange	Fruit
+select * from test_table order by name collate utf8mb4_bin;
+id	name	description
+1	Apple	Fruit
+4	Grapes	Fruit
+3	Orange	Fruit
+2	banana	Fruit
+create table test_c (id int, name varchar(255), description varchar(255)) charset 'utf8mb4' collate 'utf8mb4_general_ci';
+create index idx_chinese_name on test_c(name);
+insert into test_c (id, name, description) values (1, _gbk'张三',  _gbk'这是张三'), (2, _utf16'李四', _utf16'这是李四'), (3, _latin1'王五', _latin1'这是王五'), (4, _utf8mb4'赵六', _utf8mb4'这是赵六');
+select * from test_c where name=_latin1'王五';
+id	name	description
+3	çŽ‹äº”	è¿™æ˜¯çŽ‹äº”
+select * from test_c where name=_utf16'王五';
+id	name	description
+select * from test_c where name=_utf8mb4'赵六';
+id	name	description
+4	赵六	这是赵六
+select * from test_c where name=_gbk'赵六';
+id	name	description

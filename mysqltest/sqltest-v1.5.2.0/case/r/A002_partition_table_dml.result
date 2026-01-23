@@ -1,0 +1,25 @@
+drop table if exists yao_new_sql_test;
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create hash partition function h2(x) 'x+2';
+create table yao_new_sql_test(c0 varchar(20), c1 int primary key ,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int) partition by(h2,h2,c1);
+insert into yao_new_sql_test(c0,c1) values('hello',0);
+select * from yao_new_sql_test where c1 < 1;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+hello	0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+select * from yao_new_sql_test where c1 = 0;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+hello	0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+update yao_new_sql_test set c0='world' where c1 < 1;
+select * from yao_new_sql_test where c1 < 1;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+world	0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+select * from yao_new_sql_test where c1 = 0;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+world	0	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+delete from yao_new_sql_test where c1 = 0;
+select * from yao_new_sql_test where c1 < 1;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+select * from yao_new_sql_test where c1 = 0;
+c0	c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15
+drop table yao_new_sql_test;

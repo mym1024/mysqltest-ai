@@ -1,0 +1,54 @@
+###1.测试功能点：hash分区、range分区、list分区和listagg功能结合测试
+##
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：8.725055 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1,t2,left_table;
+--enable_warnings
+
+###2-1:不指定分区建表
+#--error SHY000
+create table t1 (c_int int, c_ts timestamp, c_vchar varchar(250));
+
+#--error 5019
+drop table t1;
+
+###2-2:建哈希分区表，并测试表可用
+--error 5077
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table t1( a int primary key,b int)partition by(hs,h1,a);
+--real_sleep 5
+insert into t1 values(1,1);
+--sleep 5
+select a from t1;
+drop table t1;
+--error 5019
+select * from t1;
+
+###2-3:重复建表
+create table left_table (k1 varchar(30),k2 varchar(30),v1 int,v2 varchar(30),v3 int,primary key (k1, k2));
+--error 5025
+create table left_table (k1 varchar(30),k2 varchar(30),v1 int,v2 varchar(30),v3 int,primary key (k1, k2));
+
+###2-4: 建枚举分区表，并重复建表
+--error 5077
+drop partition function e;
+create enum  partition function e(x) '[(1)],[(3)]';
+create table t1 (v varchar(30), c char(3), e char(20), t varchar(256) primary key)partition by(em,e,t);
+
+--error 5025
+create table t1 (v varchar(30), c char(3), e char(20), t varchar(256) primary key);
+drop table t1;
+drop table left_table;

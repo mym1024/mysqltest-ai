@@ -1,0 +1,103 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：拒绝对过期列进行ddl操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：4 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-10-16 
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+##################################### MODIFYTIME ###################################################
+create table test1(c1 int primary key, c2 int, c3 int, c4 int, c5 modifytime);
+
+alter table test1 rename column c2 to col2;
+
+alter table test1 add current expire_info='$SYS_DATE>c5+1*1*1*60*1000000';
+
+###2-1 拒绝修改过期列
+--error 1046
+alter table test1 rename column c5 to col5;
+
+###2-2 拒绝删除过期列
+--error 5056
+alter table test1 drop column c5;
+
+show create table test1;
+
+
+##################################### VARCHAR ###################################################
+create table test2(c1 int primary key, c2 int, c3 decimal(12,6), c4 varchar(30), c5 varchar(30));
+
+alter table test2 rename column c3 to col3;
+alter table test2 rename column c4 to col4;
+
+alter table test2 add current expire_info='$SYS_DATE>c5+1*1*1*60*1000000';
+
+###2-3 拒绝修改过期列
+--error 1046
+alter table test2 rename column c5 to col5;
+--error 1046
+alter table test2 alter column c5 set data type varchar(35);
+--error 1046
+alter table test2 drop column c5;
+
+alter table test2 alter column col4 set data type varchar(35);
+
+alter table test2 add column c6 int;
+
+alter table test2 alter column col3 set data type decimal(15,6);
+
+alter table test2 drop column col4;
+
+alter table test2 add column c4 varchar(30);
+
+alter table test2 alter column c4 set not null;
+
+alter table test2 alter column c4 drop not null;
+
+
+###2-4 拒绝过期列NULL值设置
+--error 1046
+alter table test2 alter column c5 set not null;
+--error 1046
+alter table test2 alter column c5 drop not null;
+
+alter table test2 alter column c4 set default 'a';
+
+alter table test2 alter column c4 drop default;
+
+
+###2-5 拒绝过期列default设置
+--error 1046
+alter table test2 alter column c5 set default 'a';
+--error 1046
+alter table test2 alter column c5 drop default;
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+--enable_query_log
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

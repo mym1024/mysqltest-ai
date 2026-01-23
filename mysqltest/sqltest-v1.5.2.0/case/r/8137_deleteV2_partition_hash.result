@@ -1,0 +1,129 @@
+can't determine a row 
+drop table if exists t1;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(hs,h,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+delete from t1 where c1 in(1);
+delete from t1 where c1 in(1,2);
+delete from t1 where c1 >=3;
+delete from t1 where c1 <=1;
+delete from t1 where 1>=c1;
+delete from t1 where 3<=c1;
+delete from t1 where c1>1 and c1<3;
+delete from t1 where c1=1 or c1=2;
+delete from t1 where c1<1 or c1<2;
+delete from t1 where c1=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+delete from t1 where c1>1 and c1=2;
+select * from t1;
+c1	c2
+drop table if exists t1;
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create hash partition function h2(x) 'x+2';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(hs,h2,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+delete from t1 where c2 in(1);
+delete from t1 where c2 in(1,2);
+delete from t1 where c2 >=3;
+delete from t1 where c2 <=1;
+delete from t1 where 1>=c2;
+delete from t1 where 3<=c2;
+delete from t1 where c2>1 and c2<3;
+delete from t1 where c2=1 or c2=2;
+delete from t1 where c2<1 or c2<2;
+delete from t1 where c2=1 and c2=2;
+delete from t1 where c2>1 and c2=2;
+drop table if exists t1;
+drop partition function h3;
+ERROR HY000: YAO-5077: partition function 'h3' doesn't exist
+create hash partition function h3(x) 'x+3';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(hs,h3,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t1 values(4,4);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+delete from t1 where (c1,c2) in((1,1));
+delete from t1 where (c1,c2) in((1,1),(2,2));
+delete from t1 where (c2,c1) in((1,1));
+delete from t1 where (c2,c1) in((1,1),(2,2));
+delete from t1 where c1>1 and c2>10 and c1=1;
+select * from t1;
+c1	c2
+3	3
+4	4
+delete from t1 where c1>1 and c2>10 and c1=1;
+drop table if exists t1;
+drop partition function h4;
+ERROR HY000: YAO-5077: partition function 'h4' doesn't exist
+create hash partition function h4(x) 'x+4';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(hs,h4,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+delete from t1 where c2 <=1;
+delete from t1 where 1>=c2;
+delete from t1 where 3<=c2;
+delete from t1 where c2>1 and c2<3;
+delete from t1 where c2=1 or c2=2;
+delete from t1 where c2<1 or c2<2;
+delete from t1 where c2=1 and c2=2;
+delete from t1 where c2>1 and c2=2;

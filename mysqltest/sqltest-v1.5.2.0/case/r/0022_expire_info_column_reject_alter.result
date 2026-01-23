@@ -1,0 +1,52 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists test1;
+drop table if exists test2;
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+create table test1(c1 int primary key, c2 int, c3 int, c4 int, c5 modifytime);
+alter table test1 rename column c2 to col2;
+alter table test1 add current expire_info='$SYS_DATE>c5+1*1*1*60*1000000';
+alter table test1 rename column c5 to col5;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test1 drop column c5;
+ERROR HY000: YAO-5056: Drop column 'c5' with type YaoCreateTimeType/YaoModifyTimeType is not allowed
+show create table test1;
+Table	Create Table
+test.test1	CREATE TABLE test1 (
+c5 MODIFYTIME,
+c1 INT(10),
+col2 INT(10),
+c3 INT(10),
+c4 INT(10),
+ PRIMARY KEY(c1)
+) EXPIRE_INFO = '$SYS_DATE>c5+1*1*1*60*1000000', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table test2(c1 int primary key, c2 int, c3 decimal(12,6), c4 varchar(30), c5 varchar(30));
+alter table test2 rename column c3 to col3;
+alter table test2 rename column c4 to col4;
+alter table test2 add current expire_info='$SYS_DATE>c5+1*1*1*60*1000000';
+alter table test2 rename column c5 to col5;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 alter column c5 set data type varchar(35);
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 drop column c5;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 alter column col4 set data type varchar(35);
+alter table test2 add column c6 int;
+alter table test2 alter column col3 set data type decimal(15,6);
+alter table test2 drop column col4;
+alter table test2 add column c4 varchar(30);
+alter table test2 alter column c4 set not null;
+alter table test2 alter column c4 drop not null;
+alter table test2 alter column c5 set not null;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 alter column c5 drop not null;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 alter column c4 set default 'a';
+alter table test2 alter column c4 drop default;
+alter table test2 alter column c5 set default 'a';
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046
+alter table test2 alter column c5 drop default;
+ERROR HY000: YAO-1046: can not alter expire column, ret=-1046

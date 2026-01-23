@@ -1,0 +1,7016 @@
+drop table if exists t1;
+create table t1(pk int primary key, c1 int);
+insert into t1 values (1,1);
+insert into t1 values (2,2);
+"connect conn1";
+begin;
+insert into t1 values(3,3),(4,4),(5,5);
+"connect conn2";
+begin;
+update t1 set c1=c1+10 where pk=2;
+"connect conn1";
+update t1 set c1=c1+20 where pk=2;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:2' for key 'PRIMARY'
+commit;
+commit;
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+select * from t1;
+pk	c1
+1	1
+2	12
+3	3
+4	4
+5	5
+commit;

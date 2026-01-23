@@ -1,0 +1,96 @@
+##############################################################################################
+###1.测试功能点：不同分区规则下，hint的使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-31
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+drop table if exists t;
+###2-1：enum分区，hint使用
+create enum partition function e1(x)'[(1)],[(3)],[(5)]';
+--real_sleep 3
+create table t(c1 int primary key,c2 int) partition by(em,e1,c1);
+--real_sleep 3
+insert into t values(1,2),(3,4),(5,6);
+--real_sleep 3
+show partition groups;
+
+--real_sleep 5
+select /*+ read_consistency(weak)*/ * from t;
+select /*+ read_consistency(weak)*/ * from t where c1=1;
+select /*+ read_consistency(strong)*/ * from t where c1=1;
+select /*+ READ_CONSISTENCY(STATIC)*/ * from t;
+select /*+ READ_CONSISTENCY(STRONG)*/ * from t;
+select /*+ READ_CONSISTENCY(WEAK)*/ * from t;
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from t;
+update /*+ hotspot */ t set c2=1 where c1=1;
+--real_sleep 5
+drop table t;
+--real_sleep 5
+
+
+###2-2：hash分区，hint的使用
+create hash partition function h1(x)'x+1';
+--real_sleep 5
+create table t(c1 int primary key,c2 int) partition by(hs,h1,c1);
+--real_sleep 3
+insert into t values(1,2),(3,4),(5,6);
+--real_sleep 10
+select /*+ read_consistency(weak)*/ * from t;
+select /*+ read_consistency(weak)*/ * from t where c1=1;
+select /*+ read_consistency(strong)*/ * from t where c1=1;
+select /*+ READ_CONSISTENCY(STATIC)*/ * from t;
+select /*+ READ_CONSISTENCY(STRONG)*/ * from t;
+select /*+ READ_CONSISTENCY(WEAK)*/ * from t;
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from t;
+update /*+ hotspot */ t set c2=1 where c1=1;
+drop table t;
+--real_sleep 5
+
+###2-3：list分区，hint的使用
+create table list1(c1 int primary key,c2 int) partition by list(c1) (partition q0 values in(1,3,5));
+--real_sleep 2
+insert into list1 values(1,2),(3,4),(5,6);
+--real_sleep 5
+select /*+ read_consistency(weak)*/ * from list1;
+select /*+ read_consistency(weak)*/ * from list1 where c1=1;
+select /*+ read_consistency(strong)*/ * from list1 where c1=1;
+select /*+ READ_CONSISTENCY(STATIC)*/ * from list1;
+select /*+ READ_CONSISTENCY(STRONG)*/ * from list1;
+select /*+ READ_CONSISTENCY(WEAK)*/ * from list1;
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from list1;
+update /*+ hotspot */ list1 set c2=1 where c1=1;
+--real_sleep 5
+drop table list1;
+--real_sleep 5
+
+###2-4：
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 int) partition by range columns(c1)(partition r0 values less than(10),partition r1 values less than maxvalue);
+--real_sleep 2
+insert into trange1 values(1,2),(3,4),(5,6);
+--real_sleep 5
+select /*+ read_consistency(weak)*/ * from trange1;
+select /*+ read_consistency(weak)*/ * from trange1 where c1=1;
+select /*+ read_consistency(strong)*/ * from trange1 where c1=1;
+select /*+ READ_CONSISTENCY(STATIC)*/ * from trange1;
+select /*+ READ_CONSISTENCY(STRONG)*/ * from trange1;
+select /*+ READ_CONSISTENCY(WEAK)*/ * from trange1;
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from trange1;
+update /*+ hotspot */ trange1 set c2=1 where c1=1;
+--real_sleep 5
+drop table trange1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

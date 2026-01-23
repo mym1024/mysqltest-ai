@@ -1,0 +1,98 @@
+##############################################################################################
+###1.测试功能点：在hash分区规则下，测试select的查询效率
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-02
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--error 5077
+drop partition function h1;
+--disable_warnings
+
+
+###2-1：在hash分区规则下，测试select的查询效率
+set yao_query_timeout=90000000;
+create hash partition function h1(x) 'x+2';
+create table t1(id int primary key,age int) partition by(ta1,h1,id);
+--let $insert_head=insert into t1 values(1,1)
+--let $insert_sql=
+--let $m=(
+--let $n=)
+--let $d=,
+--let $id_int=5130
+
+while($id_int!=1)
+{
+--let $insert_sql=$insert_sql$d$m$id_int$d$id_int$n
+dec $id_int;
+}
+eval $insert_head$insert_sql;
+
+#filter512
+--let $head = select id from t1 where age in (
+--let $sql_512 = 
+--let $x=,
+--let $count=512
+while ($count!=1)
+{
+--let $sql_512=$sql_512$x$count
+dec $count;
+}
+--let $end=)
+--echo succ select 512
+eval $head$count$sql_512$end;
+
+#filter 5116
+--let $age_int=5116
+--let $head=$head$age_int
+--let $sql_5116=
+while($age_int!=1)
+{
+dec $age_int;
+--let $sql_5116=$sql_5116$x$age_int
+}
+--echo succ select 5116
+eval $head$sql_5116$end;
+
+#filter 5117
+--let $age_int_5117=5117
+eval $head$sql_5116$x$age_int_5117$end;
+--echo succ select 5117
+
+#filter 5118
+--let $age_int_5118=5118
+eval $head$sql_5116$x$age_int_5117$x$age_int_5118$end;
+--echo succ select 5118
+
+#filter 5119
+--let $age_int_5119=5119
+eval $head$sql_5116$x$age_int_5117$x$age_int_5118$x$age_int_5119$end;
+
+#filter 5120
+--let $age_int_5120=5120
+eval $head$sql_5116$x$age_int_5117$x$age_int_5118$x$age_int_5119$x$age_int_5120$end;
+
+#filter 5121
+--echo select 5121 error
+--let $age_int_5121=5121
+eval $head$sql_5116$x$age_int_5117$x$age_int_5118$x$age_int_5119$x$age_int_5120$x$age_int_5121$end;
+
+--let $age_int_5122=5122
+eval $head$sql_5116$x$age_int_5117$x$age_int_5118$x$age_int_5119$x$age_int_5120$x$age_int_5121$x$age_int_5122$end;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

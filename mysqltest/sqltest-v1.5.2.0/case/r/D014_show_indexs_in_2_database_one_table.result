@@ -1,0 +1,143 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set min_drop_cache_wait_time='1s' server_type=yaodatasvr;
+show current database;
+Database
+test
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+create index i1 on t1(c2);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	4
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	4
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+show current database;
+Database
+test
+create database test1;
+using database test1;
+show current database;
+Database
+test1
+refresh_schema
+Okay
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+create index i1 on t1(c2);
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	4
+test1	t1	3004	__3003__idx__i1	4
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	4
+test1	t1	3004	__3003__idx__i1	4
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+merge
+major_freeze...
+merge: DONE
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	1
+test1	t1	3004	__3003__idx__i1	1
+show indexs where status = 1;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	1
+test1	t1	3004	__3003__idx__i1	1
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	1
+test1	t1	3004	__3003__idx__i1	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+update __first_tablet_entry set index_status = 2 where table_id = 3002;
+update __index_process_info set status = 2 where index_id = 3002;
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	1
+test1	t1	3004	__3003__idx__i1	1
+refresh_schema
+Okay
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	2
+test1	t1	3004	__3003__idx__i1	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test1	t1	3004	__3003__idx__i1	1
+create index i2 on t1(c3);
+create index i3 on t1(c4);
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+test1	t1	3005	__3003__idx__i2	4
+test1	t1	3006	__3003__idx__i3	4
+show current database;
+Database
+test1
+using database test;
+show current database;
+Database
+test
+create index i2 on t1(c5);
+create index i3 on t1(c6);
+show init indexs where db_name = 'test';
+db_name	data_table_name	index_id	index_name	status
+test	t1	3007	__3001__idx__i2	4
+test	t1	3008	__3001__idx__i3	4
+merge
+major_freeze...
+merge: DONE
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	2
+test	t1	3007	__3001__idx__i2	1
+test	t1	3008	__3001__idx__i3	1
+test1	t1	3004	__3003__idx__i1	1
+test1	t1	3005	__3003__idx__i2	1
+test1	t1	3006	__3003__idx__i3	1
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3002	__3001__idx__i1	2
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+test	t1	3007	__3001__idx__i2	1
+test	t1	3008	__3001__idx__i3	1
+test1	t1	3004	__3003__idx__i1	1
+test1	t1	3005	__3003__idx__i2	1
+test1	t1	3006	__3003__idx__i3	1
+show init indexs;
+db_name	data_table_name	index_id	index_name	status
+drop table t1;
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+test1	t1	3004	__3003__idx__i1	1
+test1	t1	3005	__3003__idx__i2	1
+test1	t1	3006	__3003__idx__i3	1
+using database test1;
+drop table t1;
+show current database;
+Database
+test1
+show indexs;
+db_name	data_table_name	index_id	index_name	status
+show invalid indexs;
+db_name	data_table_name	index_id	index_name	status
+show valid indexs;
+db_name	data_table_name	index_id	index_name	status
+show init indexs;
+db_name	data_table_name	index_id	index_name	status

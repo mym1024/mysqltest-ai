@@ -1,0 +1,73 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：统计信息模块的预收集，范围收集，修改收集线程数，停止收集，查看收集状态功能
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/merge_requests/531
+###4.问题号：432-feature_statistic_info_and_optimizer
+###5.预计运行时间：xxx
+###6.编写/修改人：张旭，张二宝
+###7.编写/修改日期：20200903
+###8.其他（选填）：xxx
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+create database statistics_info;
+using database statistics_info;
+sleep 5;
+
+--enable_warnings
+
+#创建t1表，该表有10行数据，只有一个tablet
+create table t1(c1 int,c2 datetime,c3 varchar(20),c4 int,c5 datetime,c6 varchar(20),c7 decimal(10, 1), c8 double, c9 float, primary key(c1,c2,c3));
+insert into t1 values (0,'1000-10-10 10:10:10', 'aaa', 3, '1000-10-10 10:10:10', 'bbb', 1.1, 2.2, 3.3);
+insert into t1 values (1,'1000-10-10 10:10:10', 'aaa', 4, '1000-10-10 10:10:11', 'ccc', 1.2, 2.3, 3.4);
+insert into t1 values (2,'1000-10-10 10:10:10', 'aaa', 5, '1000-10-10 10:10:12', 'ddd', 1.3, 2.4, 3.5);
+insert into t1 values (3,'1000-10-10 10:10:10', 'aaa', 6, '1000-10-10 10:10:13', 'eee', 1.4, 2.5, 3.6);
+insert into t1 values (4,'1000-10-10 10:10:10', 'aaa', 7, '1000-10-10 10:10:14', 'fff', 1.5, 2.6, 3.7);
+insert into t1 values (5,'1000-10-10 10:10:10', 'aaa', 8, '1000-10-10 10:10:15', 'ggg', 1.6, 2.7, 3.8);
+insert into t1 values (6,'1000-10-10 10:10:10', 'aaa', 9, '1000-10-10 10:10:16', 'hhh', 1.7, 2.8, 3.9);
+insert into t1 values (7,'1000-10-10 10:10:10', 'aaa', 10, '1000-10-10 10:10:17', 'iii', 1.8, 2.9, 4.0);
+insert into t1 values (8,'1000-10-10 10:10:10', 'aaa', 11, '1000-10-10 10:10:18', 'jjj', 1.9, 3.0, 4.1);
+insert into t1 values (9,'1000-10-10 10:10:10', 'aaa', 12, '1000-10-10 10:10:19', 'kkk', 2.0, 3.1, 4.2);
+insert into t1 values (10,'1000-10-10 10:10:10', 'aaa', 11, '1000-10-10 10:10:19', 'kkk', 2.0, 3.1, 4.2);
+
+#发起冻结合并
+--echo “merge”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+###2-1:测试预收集
+--echo “get statistics task...”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT get_statistics_task -o db_name='statistics_info' | tail -1;
+select * from __all_udi_monitor_list;
+
+###2-3:修改收集线程数
+--echo “alter gather_thread_num...”
+alter system set gather_thread_num='20' server_type=yaodatasvr;
+
+###2-2:测试范围收集
+delete from __all_statistic_info;
+--echo “execute range collection...”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT execute_range_collection -o range_start=0,range_end=2 | tail -1;
+--real_sleep 10
+select * from __all_statistic_info;
+
+###2-4:测试停止收集
+--echo “stop gathering statistics...”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stop_gather_statistics | tail -1;
+
+###2-4:测试查看收集状态
+--echo “get gather state...”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o gather | tail -1;
+
+###删表删库
+drop table if exists t1;
+drop database statistics_info;
+########################################################################################################

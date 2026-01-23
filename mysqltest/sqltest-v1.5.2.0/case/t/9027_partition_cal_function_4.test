@@ -1,0 +1,74 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：分区计算函数
+#                测试不同类型的表，指定分区键值对应的group组合paxos组
+#                 主要对应场景：不同数据库下的表名
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/552
+###4.问题号：552
+###5.预计运行时间：408s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+--enable_warnings
+set names utf8mb4;
+
+create range partition function r1(x) '(10),(20),(maxvalue)';
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4)],[(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4)],[(5),(6),(7),(8)]';
+
+create database test1;
+create database test2;
+--real_sleep 3
+
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create index i1 on t1(c2) storing(c5);
+using database test1;
+--real_sleep 3
+
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+using database test2;
+--real_sleep 3
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+
+
+#查询(0,1,-1)以外的版本
+
+select partition_calc(test.t1,(1),0);
+--error 5019
+select partition_calc(t1,(1),0);
+select partition_calc(test.t1,(1));
+
+select partition_calc(test1.t2,(1),0);
+select partition_calc(test1.t2,(1));
+
+select partition_calc(test1.t3,(1),0);
+select partition_calc(test1.t3,(1));
+
+select partition_calc(test2.t4,('a',1,1),0);
+select partition_calc(t4,('a',1,1),0);
+select partition_calc(t4,('a',1,1));
+--error 5019
+select partition_calc(test4.t4,(1));
+--error 5019
+select partition_calc(t5,(1));
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

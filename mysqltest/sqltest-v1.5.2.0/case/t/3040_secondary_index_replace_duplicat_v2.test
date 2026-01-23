@@ -1,0 +1,191 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：replace插入重复数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1357s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists test1,test2;
+--enable_warnings
+
+###2-1:在两张拥有不同索引的数据表，replace重复字段
+create table test1 (c1 varchar(8) primary key,c2 varchar(8),c3 datetime,c4 decimal(5,4));
+insert into test1 values(1,1,'2015-08-08 12:13:16',1),(2,2,'3012-08-08 12:13:16',2),(3,3,'1960-08-08 12:13:16',3);
+create index idx1 on test1(c1);
+create index idx2 on test1(c2);
+create index idx3 on test1(c3);
+create index idx4 on test1(c4);
+sleep 3;
+
+
+create table test2 (c1 varchar(8),c2 datetime,c3 decimal(5,4),c4 varchar(8),c5 datetime,c6 decimal(5,4),c7 int,c8 int,primary key(c1,c2,c3));
+insert into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),(2,'3012-08-08 12:13:16',2,2,'3012-08-08 12:13:16',2,2,2),(3,'1960-08-08 12:13:16',3,3,'1960-08-08 12:13:16',3,3,3);
+create index idx1 on test2(c2);
+create index idx2 on test2(c5) storing(c6,c4);
+create index idx3 on test2(c6,c3) storing(c4,c7);
+create index idx4 on test2(c8,c7,c5) storing(c4,c6);
+create index idx5 on test2(c5,c4) storing(c6,c7,c8);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on test1;
+show index on test2;
+
+let $test1_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test1',table_id,1);
+let $test2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test2',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__idx1
+--let $index2_end =__idx__idx2
+--let $index3_end =__idx__idx3
+--let $index4_end =__idx__idx4
+--let $index5_end =__idx__idx5
+
+--let $test1_idx1_name=$index_head$test1_tb_id$index1_end
+--let $test1_idx2_name=$index_head$test1_tb_id$index2_end
+--let $test1_idx3_name=$index_head$test1_tb_id$index3_end
+--let $test1_idx4_name=$index_head$test1_tb_id$index4_end
+
+--let $test2_idx1_name=$index_head$test2_tb_id$index1_end
+--let $test2_idx2_name=$index_head$test2_tb_id$index2_end
+--let $test2_idx3_name=$index_head$test2_tb_id$index3_end
+--let $test2_idx4_name=$index_head$test2_tb_id$index4_end
+--let $test2_idx5_name=$index_head$test2_tb_id$index5_end
+
+echo $test1_idx1_name;
+echo $test1_idx2_name;
+echo $test1_idx3_name;
+echo $test1_idx4_name;
+
+echo $test2_idx1_name;
+echo $test2_idx2_name;
+echo $test2_idx3_name;
+echo $test2_idx4_name;
+echo $test2_idx5_name;
+select * from test1;
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+eval select * from $test1_idx4_name;
+
+replace into test1 values(1,1,'2015-08-08 12:13:16',1),(1,1,'2015-08-08 12:13:16',1),(1,1,'2015-08-08 12:13:16',1);
+select * from test1;
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+eval select * from $test1_idx4_name;
+
+replace into test1 values(2,2,'3012-08-07 12:13:16',2),(2,2,'3012-08-09 12:13:16',2),(2,2,'3012-08-10 12:13:16',2);
+select * from test1;
+sleep 3;
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+eval select * from $test1_idx4_name;
+replace into test1 values(2,2,'3012-08-07 12:13:16',2);
+
+replace into test1 values(2,2,'3012-08-07 12:13:16',2),(2,2,'3012-08-09 12:13:16',5),(2,2,'3012-08-10 12:13:16',9);
+sleep 3;
+select * from test1;
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+eval select * from $test1_idx4_name;
+replace into test1 values(2,2,'3012-08-08 12:13:16',2);
+
+replace into test1 values(1,1,'2015-08-08 12:13:16',1),(2,6,'2015-08-08 12:13:16',1),(2,1,'2015-08-08 12:13:16',1),(1,1,'2015-08-08 12:13:16',9);
+sleep 3;
+select * from test1;
+eval select * from $test1_idx1_name;
+eval select * from $test1_idx2_name;
+eval select * from $test1_idx3_name;
+eval select * from $test1_idx4_name;
+replace into test1 values(1,1,'2015-08-08 12:13:16',1),(2,2,'3012-08-08 12:13:16',2);
+sleep 3;
+
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1);
+sleep 3;
+select * from test2;
+eval select * from $test2_idx1_name;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+eval select * from $test2_idx4_name;
+eval select * from $test2_idx5_name;
+sleep 3;
+
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',2,1,1),(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',3,1,1),(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',4,1,1);
+sleep 5;
+select * from test2;
+eval select * from $test2_idx1_name;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+eval select * from $test2_idx4_name;
+eval select * from $test2_idx5_name;
+
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1);
+sleep 3;
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-06 12:13:16',1,1,1),
+                         (1,'2015-08-08 12:13:16',1,1,'2015-08-07 12:13:16',1,1,1),
+						 (1,'2015-08-08 12:13:16',1,1,'2015-08-09 12:13:16',1,1,1);
+sleep 3;
+select * from test2;
+eval select * from $test2_idx1_name;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+eval select * from $test2_idx4_name;
+eval select * from $test2_idx5_name;
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-06 12:13:16',1,1,1);
+sleep 3;
+
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),
+                         (1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),
+						 (1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1);
+sleep 3;
+
+select * from test2;
+eval select * from $test2_idx1_name;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+eval select * from $test2_idx4_name;
+eval select * from $test2_idx5_name;
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1);
+
+sleep 3;
+
+replace into test2 values(1,'2015-08-08 12:13:16',1,1,'2015-08-08 12:13:16',1,1,1),
+                         (1,'2015-08-08 12:13:16',1,4,'2015-08-08 12:13:16',1,1,1),
+						 (2,'3012-08-08 12:13:16',2,2,'3012-08-08 12:13:16',2,2,2),
+                         (1,'2015-08-08 12:13:16',1,5,'2015-08-08 12:13:16',1,1,1),
+                         (2,'3012-08-08 12:13:16',2,7,'3012-08-08 12:13:16',2,2,2),
+						 (2,'3012-08-08 12:13:16',2,8,'3012-08-08 12:13:16',2,2,2);
+sleep 3;
+select * from test2;
+eval select * from $test2_idx1_name;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+eval select * from $test2_idx4_name;
+eval select * from $test2_idx5_name;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

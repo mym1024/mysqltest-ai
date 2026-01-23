@@ -1,0 +1,290 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 CREATE TABLE with ENUM and SET types
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+
+#setup: Create a complex table structure for INSERT/REPLACE testing
+CREATE TABLE t_complex_ddl_parent (
+    parent_id INT PRIMARY KEY,
+    parent_tag VARCHAR(20) UNIQUE
+);
+INSERT INTO t_complex_ddl_parent VALUES (100, 'parent_tag_a'), (200, 'parent_tag_b');
+
+CREATE TABLE t_complex_ddl_enum_set (
+    pk_enum ENUM('type_a', 'type_b', 'type_c'),
+    pk_id INT,
+    status_set SET('active', 'inactive', 'pending', 'archived') NOT NULL,
+    detail_enum ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    description VARCHAR(100),
+    fk_parent_id INT,
+    PRIMARY KEY (pk_enum, pk_id),
+    UNIQUE KEY uk_set_enum (status_set, detail_enum),
+    KEY idx_set (status_set),
+    CONSTRAINT chk_status_not_empty CHECK (status_set != ''),
+    CONSTRAINT chk_detail_valid CHECK (detail_enum IN ('low', 'medium', 'high')),
+    CONSTRAINT fk_enum_set_to_parent FOREIGN KEY (fk_parent_id) REFERENCES t_complex_ddl_parent(parent_id)
+);
+CREATE TABLE t_insert_source (
+    src_enum ENUM('type_a', 'type_b'),
+    src_id INT,
+    src_set SET('active', 'pending'),
+    src_detail ENUM('low', 'high'),
+    src_desc VARCHAR(50),
+    src_fk INT
+);
+
+
+# 1. Basic INSERT Operations
+
+# 1.1. Single Row Insert with all valid values
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description) VALUES ('type_a', 1, 'active,pending', 'high', 'First record');
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+
+# 1.2. Batch Insert with multiple rows
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES
+('type_b', 1, 'inactive', 'low', 'Second record', 200),
+('type_a', 2, 'archived', 'medium', 'Third record', 100),
+('type_c', 1, 'pending,active', DEFAULT, 'Fourth record with default enum', 200);
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+
+
+# 2. Special Value Handling during INSERT
+
+# 2.1. Insert ENUM using numeric index
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES (3, 2, 'active', 1, 'ENUM by index', 100);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 2;
+
+# 2.2. Insert SET using member names (standard)
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_b', 2, 'pending,archived', 'medium', 'SET by names', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_b' AND pk_id = 2;
+
+# 2.3. Insert ENUM with invalid string value (should result in empty string or error depending on SQL mode)
+TRUNCATE TABLE t_complex_ddl_enum_set;
+SET @old_sql_mode = @@sql_mode;
+SET sql_mode = '';
+--error 5047
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 99, 'active', 'invalid_detail', 'Invalid ENUM', 100);
+SET sql_mode = @old_sql_mode;
+--error 5047
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 99, 'active', 'invalid_detail', 'Invalid ENUM', 100);
+
+# 2.4. Insert SET with invalid member (should ignore invalid member or error)
+--error 5047
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 98, 'active,nonexistent_member', 'high', 'Invalid SET member', 100);
+
+# 2.5. Insert with NULL for columns allowing NULL (none in this specific table for enum/set, but for fk)
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 3, 'inactive,pending', 'medium', 'NULL FK allowed?', NULL);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 3;
+
+# 2.6. Insert omitting columns (test DEFAULT)
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, fk_parent_id) 
+VALUES ('type_b', 3, 'archived', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_b' AND pk_id = 3;
+
+#
+# 3. INSERT ... SELECT
+#
+
+# 3.1. Insert data from another table
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_insert_source VALUES
+('type_a', 1, 'active', 'low', 'Source 1', 100),
+('type_b', 2, 'pending', 'high', 'Source 2', 200),
+('type_a', 3, 'active,pending', 'low', 'Source 3', 100);
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+SELECT src_enum, src_id, src_set, src_detail, src_desc, src_fk FROM t_insert_source;
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+
+#
+# 4. Prepared Statement INSERT
+#
+
+# 4.1. Using prepared statement for INSERT
+TRUNCATE TABLE t_complex_ddl_enum_set;
+PREPARE stmt_insert_enum_set FROM
+'INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES (?, ?, ?, ?, ?, ?)';
+SET @p_enum = 'type_c';
+SET @p_id = 4;
+SET @p_set = 'active,inactive';
+SET @p_detail = 'high';
+SET @p_desc = 'Prepared Stmt Insert';
+SET @p_fk = 100;
+#--mysql、ob执行成功，表现不一致
+--error 6
+EXECUTE stmt_insert_enum_set USING @p_enum, @p_id, @p_set, @p_detail, @p_desc, @p_fk;
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 4;
+DEALLOCATE PREPARE stmt_insert_enum_set;
+
+#
+# 5. REPLACE Operations
+# Testing REPLACE on the complex table with PK and Unique constraints
+
+# 5.1. REPLACE that inserts a new row (no PK/UK conflict)
+truncate table t_complex_ddl_enum_set;
+#--mysql、ob执行成功，表现不一致
+--error 7
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 10, 'pending', 'low', 'New row via REPLACE', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 10;
+
+# 5.2. REPLACE that updates due to Primary Key conflict
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 1, 'active,pending', 'high', 'First record', 100);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+--error 7
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 1, 'archived', 'low', 'REPLACED original row', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+
+# 5.3. REPLACE that fails due to Unique Key conflict (but not PK conflict)
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES
+('type_b', 1, 'inactive', 'low', 'Second record', 200),
+('type_a', 2, 'archived', 'medium', 'Third record', 100),
+('type_c', 1, 'pending,active', DEFAULT, 'Fourth record with default enum', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 2;
+--error 7
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_b', 99, 'archived', 'medium', 'UK conflict on REPLACE', 100);
+
+# 5.4. REPLACE with invalid ENUM/SET values (should behave like INSERT)
+--error 7
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 99, 'active', 'invalid_on_replace', 'Invalid ENUM on REPLACE', 100);
+
+#
+# 6. Error Handling and Constraint Checks
+#
+
+
+# 6.1. Insert violating CHECK constraint on ENUM
+--error 5047
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 5, 'active', 'super_high', 'Violates ENUM CHECK', 100);
+
+# 6.3. Insert violating CHECK constraint on SET
+--error 5689
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 6, '', 'low', 'Violates SET CHECK (empty)', 100);
+
+# 6.4. Insert violating FOREIGN KEY constraint
+--error 5209
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 7, 'pending', 'high', 'Violates FK', 9999);
+
+#
+# Final State Check
+#
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+
+#
+# Cleanup
+#
+DROP TABLE t_complex_ddl_enum_set;
+DROP TABLE t_complex_ddl_parent;
+DROP TABLE t_insert_source;
+
+
+
+--disable_warnings
+DROP TABLE IF EXISTS t_replace_no_constraints, t_replace_pk_no_uk;
+--enable_warnings
+
+#
+# Setup 1: Table with NO Primary Key and NO Unique Keys, only Plain Indexes
+#
+CREATE TABLE t_replace_no_constraints (
+    id INT,
+    data_enum ENUM('alpha', 'beta', 'gamma'),
+    data_set SET('x', 'y', 'z'),
+    description VARCHAR(50),
+    KEY idx_enum (data_enum),
+    KEY idx_set (data_set)
+);
+SHOW CREATE TABLE t_replace_no_constraints;
+
+# S1.1. Initial REPLACE (acts like INSERT)
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (1, 'alpha', 'x,z', 'First row');
+SELECT * FROM t_replace_no_constraints;
+
+# S1.2. REPLACE with different values but same non-unique key components
+#--mysql、ob 表现不一致
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (2, 'alpha', 'x,z', 'Second row, same enum/set values');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+
+# S1.3. REPLACE with identical values to a previous row
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (3, 'alpha', 'x,z', 'Third row, identical values');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+
+# S1.4. Attempt to "replace" by using same 'id' (which is just a normal column)
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (1, 'beta', 'y', 'Fourth row, using id=1');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+
+# Observation: All REPLACE operations resulted in new rows being added.
+# There were no deletions because no PK or UK constraints were violated.
+SELECT COUNT(*) AS total_rows FROM t_replace_no_constraints;
+DROP TABLE t_replace_no_constraints;
+
+
+#
+# Setup 2: Table with a Primary Key but NO Unique Keys (other than PK)
+# This is to contrast with the no-constraint case and confirm PK behavior.
+#
+CREATE TABLE t_replace_pk_no_uk (
+    pk_id INT PRIMARY KEY,
+    data_enum ENUM('red', 'green', 'blue'),
+    data_set SET('read', 'write', 'execute'),
+    description VARCHAR(50),
+    KEY idx_enum (data_enum) 
+);
+SHOW CREATE TABLE t_replace_pk_no_uk;
+
+# S2.1. Initial REPLACE (acts like INSERT)
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (10, 'red', 'read,write', 'PK Row 1');
+SELECT * FROM t_replace_pk_no_uk;
+
+# S2.2. REPLACE with same PK (this WILL replace/delete the old row)
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (10, 'blue', 'execute', 'PK Row 1 - REPLACED');
+SELECT * FROM t_replace_pk_no_uk;
+
+# S2.3. REPLACE with different PK (acts like INSERT)
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (20, 'red', 'read', 'PK Row 2');
+SELECT * FROM t_replace_pk_no_uk ORDER BY pk_id;
+
+# S2.4. REPLACE with same non-unique key value (e.g., data_enum='red')
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (30, 'red', 'write', 'PK Row 3, also data_enum=red');
+SELECT * FROM t_replace_pk_no_uk ORDER BY pk_id;
+
+# Observation: REPLACE only replaced when PK (pk_id=10) conflicted.
+# The plain index (data_enum='red') did not cause a replace.
+SELECT COUNT(*) AS total_rows FROM t_replace_pk_no_uk;
+DROP TABLE t_replace_pk_no_uk;
+
+############################################ end sql ###################################################

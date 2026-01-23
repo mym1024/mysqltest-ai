@@ -1,0 +1,129 @@
+##############################################################################################
+###1.测试功能点：prepare相关bug测试
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：33s
+###6.编写/修改人： huangpeng
+###7.编写/修改日期：2019-11-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+###2-1：
+create table t1(c1 int not null auto_increment,c2 varchar(20) not null default '',c3 varchar(250),c4 int default null,c5 createtime,primary key(c1));
+create table t2(c1 int ,c2 varchar(250),c3 varchar(250),c4 int,c5 varchar(250),c6 int,c7 int,primary key(c1));
+
+--real_sleep 5
+insert into t1(c1,c2,c3,c4) values (1,'demo','demo s',0),(2,'code2','name 2',0),(3,'code3','name 3',0);
+insert into t2 values (2,'email1','name1',3,'password1',0,0),(3,'email2','name1',1,'password2',1,0),(5,'email3','name3',2,'password3',0,0);
+
+prepare stmt from select t2.c1 from t2,t1 where(t1.c1 = ? and t2.c4 = t1.c1);
+set @p1=1;
+execute stmt using @p1;
+
+select t2.c1 from t2,t1 where(t1.c1 = 1 and t2.c4 = t1.c1);
+drop table t1,t2;
+
+###2-2:
+
+create table t1(c1 int not null default 0 primary key,c2 varchar(20) not null default '');
+--real_sleep 5
+insert into t1 values (80,'pendant'),(475,'pretendants'),(989,'tendances'),(1019,'cependant'),(1022,'abondance'),(1205,'independants'),(13,'lessiver'),(25,'lambiner'),(46,'situer'),(71,'terminer'),(82,'decrocher');
+select count(*) from t1 where c2 like '%ndan%';
+select count(*) from t1 where c2 like '%er';
+
+prepare stmt from select count(*) from t1 where c2 like ?;
+set @p1='%ndan%';
+execute stmt using @p1;
+set @p1='%er';
+execute stmt using @p1;
+set @p1='%ndan%';
+execute stmt using @p1;
+set @p1='%er';
+execute stmt using @p1;
+
+drop table t1;
+
+
+###2-3:
+
+create table t1(c1 integer primary key,c2 integer);
+--real_sleep 5
+insert into t1 values(100,100),(101,101),(102,102),(103,103);
+
+prepare stmt from select c1,c2 from t1 where(c1,c2) in ((?,?));
+set @p1=100;
+set @p2=100;
+execute stmt using @p1,@p2;
+set @p1=101;
+set @p2=101;
+execute stmt using @p1,@p2;
+set @p1=102;
+set @p2=102;
+execute stmt using @p1,@p2;
+set @p1=102;
+set @p2=103;
+execute stmt using @p1,@p2;
+
+drop table t1;
+
+
+
+###2-4:
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1(c1 int primary key,c2 int);
+--real_sleep 5
+insert into t1 values(1,1);
+
+prepare stmt from select (count(c1) = 1),count(c1) from t1 where c1 = ?;
+set @p1 = 0;
+execute stmt using @p1;
+set @p1 = 1;
+execute stmt using @p1;
+set @p1 = 0;
+execute stmt using @p1;
+
+
+prepare stmt from select (avg(c1) = 1),avg(c1) from t1 where c1 = ?;
+set @p1 = 0;
+execute stmt using @p1;
+set @p1 = 1;
+execute stmt using @p1;
+set @p1 = 0;
+execute stmt using @p1;
+
+drop table t1;
+deallocate prepare stmt;
+
+###2-5:
+create table t1(c1 int primary key ,c2 int);
+--real_sleep 5
+insert into t1 values(2,1),(3,1),(1,1);
+
+prepare st1 from (select c1 from t1) union (select c1 + 10 from t1) order by 0 + c1;
+
+execute st1;
+###--error 16
+execute st1;
+
+deallocate prepare st1;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

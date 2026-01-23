@@ -1,0 +1,81 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：一张数据表中的主键列不超过16列的情况下创建索引，此时，创建的索引列+数据表中的主键列之和不能
+##超过16，如果索引表中包含了数据表的主键列，则这个列在所有列数计算中只记录一次，以及如何规范的创建索引
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：3109s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+
+###测试条件：
+###2-：场景一：创建有15列主键的表t1
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int,
+primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15));
+
+###2-1:主键列+索引列<16列
+create index il on t1(c1) storing (c16);
+
+###2-2:主键列+索引列=16列
+create index il1 on t1(c16) storing (c17);
+
+###2-3:主键列+索引列>16列
+#--error 5007
+create index il2 on t1(c16,c17) storing (c18);
+
+show index on t1;
+drop table t1;
+
+###2-：场景二：创建有16列主键的表t1
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int,
+primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16));
+
+###2-4:主键列+索引列>16列
+#--error 5007
+create index il on t1(c17) storing (c18);
+
+###2-5:主键列+索引列=16列
+create index il1 on t1(c1) storing (c17);
+show index on t1;
+drop table t1;
+
+###2-：场景三：创建有1个主键的表t1
+create table t1(c1 int primary key,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int);
+###2-6:15列非主键作为索引列
+create index il on t1(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) storing (c17);
+
+###2-7:主键列+索引列=16列
+
+create index il1 on t1(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c1) storing (c16);
+
+###2-8:主键列+索引列>16列
+#--error 5007
+create index il2 on t1(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17) storing (c18);
+
+###2-9:16个非主键作为索引列
+create index il3 on t1(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c1) storing (c17);
+show index on t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

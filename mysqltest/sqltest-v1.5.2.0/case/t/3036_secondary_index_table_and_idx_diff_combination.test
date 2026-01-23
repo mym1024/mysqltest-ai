@@ -1,0 +1,110 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：分别在相同和不同的数据表中创建相同或不同索引，测试点包括索引列与冗余列的组合
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1747s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+--disable_query_log
+--enable_query_log
+
+
+###2-1:在同一数据表中创建多张索引，索引中有冗余列
+create table t1 (c1 int primary key,c2 int,c3 int);
+create index il0 on t1(c2) storing (c3);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c2);
+
+###2-2：在同一数据表中创建多张索引，索引中不包含冗余列
+create index il3 on t1(c2,c3);
+create index il4 on t1(c2,c1);
+--error 5031
+create index il5 on t1(c1) storing (c1);
+
+show index on t1;
+--real_sleep 1
+drop table t1;
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-3:在不同数据表中创建相同的索引
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+create index il on t1(c1) storing (c2);
+create index il on t2(c1) storing (c2);
+--error 65535
+create index il1 on t1(c2) storing (c2);
+--error 65535
+create index il1 on t2(c2) storing (c2);
+
+--error 5031
+create index il2 on t1(c2) storing (c1);
+--error 5031
+create index il2 on t2(c2) storing (c1);
+create index il3 on t1(c2);
+create index il3 on t2(c2);
+drop table t1,t2;
+
+###2-4:在不同数据表中创建不同索引
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int,c3 int);
+create index it1 on t1(c1) storing (c2);
+create index it2 on t2(c2) storing (c3);
+drop table t1,t2;
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2));
+create index i1 on t1(c2) storing (c3);
+drop table t1;
+create table t1(c1 int primary key,c2 int,c3 int,c4 int);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c2) storing (c3);
+create index il3 on t1(c1) storing (c2);
+
+drop table if exists t1,t2;
+
+create table t1(c1 int primary key,c2 int,c3 int,c4 int);
+insert into t1 values(1,1,1,1),(2,2,2,2);
+create index il on t1(c2) storing (c3);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+echo $n;
+--let $sql_head =select * from __
+--let $sql_end =__idx__il;
+--let $sql=$sql_head$n$sql_end
+echo $sql;
+eval $sql;
+insert into t1 values(3,3,3,3);
+eval $sql;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

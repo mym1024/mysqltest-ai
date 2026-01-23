@@ -1,0 +1,37 @@
+drop table if exists t,b;
+create table t(x int primary key, c int, c1 int);
+create table b(x int primary key, c int);
+insert into t values(1,2,1),(2,2,2),(3,3,3);
+insert into b values(1,99),(2,98),(3,97);
+select a.c1 as a_c, b.c as b_c from (select c, sum(c1) as c1 from t group by c) a left join b on a.c=b.x;
+a_c	b_c
+3	98
+3	97
+drop table if exists t,b;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+1';
+create table t(x int primary key, c int, c1 int) partition by (ta1, h1, x);
+create table b(x int primary key, c int) partition by list(x)(partition b1 values in(1,2), partition b2 values in(3,4));
+insert into t values(1,2,1),(2,2,2),(3,3,3);
+insert into b values(1,99),(2,98),(3,97);
+select a.c1 as a_c, b.c as b_c from (select c, sum(c1) as c1 from t group by c) a left join b on a.c=b.x;
+a_c	b_c
+3	98
+3	97
+drop table t,b;
+drop partition function h1;
+drop table if exists t,b;
+drop partition function e1;
+ERROR HY000: YAO-5077: partition function 'e1' doesn't exist
+create enum partition function e1(x) '[(1)],[(2)],[(3)]';
+create table t(x int primary key, c int, c1 int) partition by (ta1, e1, x);
+create table b(x int primary key, c int) partition by range(x)(partition r0 values less than(2), partition r1 values less than(10), partition r2 values less than maxvalue);
+insert into t values(1,2,1),(2,2,2),(3,3,3);
+insert into b values(1,99),(2,98),(3,97);
+select a.c1 as a_c, b.c as b_c from (select c, sum(c1) as c1 from t group by c) a left join b on a.c=b.x;
+a_c	b_c
+3	98
+3	97
+drop table t,b;
+drop partition function e1;

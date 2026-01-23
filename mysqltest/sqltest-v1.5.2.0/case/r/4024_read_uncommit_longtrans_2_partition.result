@@ -1,0 +1,11 @@
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8)) partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+begin;
+insert into c values(1,1);
+update c set c2='2' where c1=1;
+select * from c where c1=1 for update;
+c1	c2
+1	2
+select * from c where c1=2 for update;
+c1	c2
+commit;

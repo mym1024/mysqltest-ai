@@ -1,0 +1,113 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：表列数的限制
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+--let $loop=3
+while($loop)
+{
+###2-1:表中有100 columns,正常系
+--let $head = create table t1(pk int primary key
+--let $sql = 
+--let $column=100
+
+--let $x=, c
+--let $y= varchar(20)
+while($column)
+{
+
+   --let $sql=$sql$x$column $y
+   dec $column;
+}
+--let $z=)
+eval $head$sql$z;
+
+let $a=1000;
+--disable_query_log
+while($a)
+{
+  eval insert into t1(pk,c1) values($a,'$a');
+  dec $a;
+}
+--enable_query_log
+select c1 from t1;
+select * from t1;
+show create table t1;
+drop table t1;
+
+###2-2:表中有495列,正常系(边界测试项)
+--let $head = create table t1(pk int primary key 
+--let $sql=
+--let $column=493
+--let $x=, c
+--let $y= varchar(20)
+while($column)
+{
+
+   --let $sql=$sql$x$column $y
+   dec $column;
+}
+--let $z=)
+eval $head$sql$z;
+
+let $a=1000;
+--disable_query_log
+while($a)
+{
+  eval insert into t1(pk,c1) values($a,'$a');
+  dec $a;
+}
+--enable_query_log
+select c1 from t1;
+select * from t1;
+show create table t1;
+drop table t1;
+
+###2-3:表中有496列，异常系(超限测试项)
+--let $head = create table t1(pk int primary key 
+--let $sql=
+--let $column=494
+--let $x=, c
+--let $y= varchar(20)
+while($column)
+{
+
+   --let $sql=$sql$x$column $y
+   dec $column;
+}
+--let $z=)
+--error 5042
+eval $head$sql$z;
+
+--error 5019
+show create table t1;
+drop table if exists t1;
+
+dec $loop;
+}
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

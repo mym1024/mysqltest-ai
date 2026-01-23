@@ -1,0 +1,133 @@
+##############################################################################################
+###1.测试功能点：事务中进行主键更新操作
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database rowkey_database;
+using database rowkey_database;
+sleep 5;
+
+--disable_warnings
+drop table if exists t;
+
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+
+update t set id1=9,id2=9,col1=9,col2=9 where id1=0 and id2=0;
+select * from t;
+commit;
+select * from t;
+drop table t;
+
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id1=0;
+select * from t;
+commit;
+select * from t;
+drop table t;
+
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id2=0;
+select * from t;
+commit;
+select * from t;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id1>0;
+select * from t;
+commit;
+select * from t;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+start transaction;
+--error 119
+update t set id1=9,col1=10 where id1>0;
+select * from t;
+commit;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+--error 119
+update t set id1=1,col1=10 where id1=0;
+sleep 5;
+select * from t;
+commit;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+--error 119
+update t set id1=1,col1=10 where id1=0 and id2=0;
+sleep 6;
+select * from t;
+commit;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+--error 119
+update t set id1=1,id1=2 where id1=0;
+commit;
+sleep 6;
+select * from t;
+drop table t;
+
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+create sequence seq;
+start transaction;
+replace into t values(2,0,0,0);
+--error 163
+update t set id1=nextval for seq where id1>=0;
+commit;
+select * from t;
+drop table t;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

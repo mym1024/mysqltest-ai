@@ -1,0 +1,806 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+set names utf8mb4;
+drop table if exists t1;
+drop view if exists v1;
+create table t1 ( column1 INT, column2 VARCHAR(50));
+create view v1 as select column1, column2 from t1;
+insert into v1 values(1, 'value1'),(2, 'value2');
+update v1 set column1 = 9 where column2 = 'value2';
+update v1 set column2 = 'new_value' where column2 = 'value2';
+select * from v1;
+column1	column2
+1	value1
+9	new_value
+delete from v1 where column2 = 'value1';
+replace into v1 values (300, 'John');
+select * from v1;
+column1	column2
+300	John
+9	new_value
+select * from t1;
+column1	column2
+300	John
+9	new_value
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (a int, b int, c int, primary key(a,b));
+insert into t1 values (10,2,-1), (20,3,-2);
+create view v1 (x,y,z) as select c, b, a from t1;
+create view v2 (x,y) as select b, a from t1;
+create view v3 (x,y,z) as select b, a, b from t1;
+create view v4 (x,y,z) as select c+1, b, a from t1;
+create view v5 (x,y,z) as select c, b, a from t1;
+insert into v1 values (-60,4,30);
+insert into v1 values (10,2,10);
+ERROR 23000: YAO-5024: Duplicate entry ' <3003.16>=int32:10 <3003.17>=int32:2' for key 'PRIMARY'
+update v1 set z=-1 where z=30;
+update v1 set y=3,z=20;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+insert into v2 values (5,40);
+replace into v4 (z,y,x) values (50,6,-100);
+ERROR HY000: YAO-5863: The view is not insertable
+select * from t1;
+a	b	c
+-1	4	-60
+10	2	-1
+20	3	-2
+40	5	NULL
+insert into v3 values (-60,4,30);
+ERROR HY000: YAO-5863: The view is not insertable
+delete from v3;
+select * from t1;
+a	b	c
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+CREATE TABLE t1 ( id INT PRIMARY KEY AUTO_INCREMENT, column1 VARCHAR(50), column2 INT);
+CREATE VIEW v1 AS SELECT id, column1, column2 FROM t1;
+INSERT INTO v1 (column1, column2)VALUES ('value1', 100);
+UPDATE v1 SET column1 = 'new_value' WHERE id = 1;
+select * from t1;
+id	column1	column2
+1	new_value	100
+DELETE FROM v1 WHERE id = 1;
+replace into v1 values (300, 'John',9);
+SELECT * FROM v1;
+id	column1	column2
+300	John	9
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1(department_id INT PRIMARY KEY, department_name VARCHAR(50) NOT NULL);
+create table tt1(employee_id INT PRIMARY KEY,first_name VARCHAR(50) NOT NULL,last_name VARCHAR(50), job_id VARCHAR(50), department_id INT, salary DECIMAL(10, 2),FOREIGN KEY (department_id) REFERENCES t1(department_id));
+insert into t1 (department_id, department_name)values (1, 'HR'),(2, 'Finance'),(3, 'IT'),(4, 'Sales'), (5, 'Marketing');
+insert into tt1 (employee_id, first_name, last_name, job_id, department_id, salary)values (100, 'John', 'Smith', 'HR_REP', 1, 5000.00),(101, 'Sara', 'Jones', 'FIN_ANALYST', 2, 6000.00),(102, 'Tom', 'Brown', 'IT_PROG', 3, 7000.00),(103, 'Linda', 'White', 'SALES_REP', 4, 5500.00),(104, 'Michael', 'Green', 'MARK_MGR', 5, 7500.00);
+create OR REPLACE view v1 as select employee_id, first_name, last_name, job_id, department_id, salary from tt1;
+insert into v1 (employee_id) values (105);
+ERROR HY000: YAO-5500: column:'first_name' can not be null
+insert into v1 values (200, 'John', 'Smith', 'HR_REP', 1, 5000.00);
+insert into v1 (employee_id, first_name, last_name, job_id,department_id,salary) values (106, 'John', 'Doe', 'IT_PROG',2,3.99);
+insert into v1 (employee_id, first_name,department_id) values (300, 'John',2);
+insert into v1 (employee_id, first_name,department_id) values (301, 'John',33);
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+update  v1 set job_id ='bbbb' where job_id ='IT_PROG';
+delete from v1 where last_name ='Jones';
+replace into v1 values (300, 'John', 'Smith', 'HR_REP', 1, 5000.00);
+insert into v1 (employee_id, first_name, last_name,department_id) values (107, 'Jane', NULL,2);
+delete from v1 where last_name is null;
+select * from v1;
+employee_id	first_name	last_name	job_id	department_id	salary
+100	John	Smith	HR_REP	1	5000
+102	Tom	Brown	bbbb	3	7000
+103	Linda	White	SALES_REP	4	5500
+104	Michael	Green	MARK_MGR	5	7500
+106	John	Doe	bbbb	2	3.99
+200	John	Smith	HR_REP	1	5000
+300	John	Smith	HR_REP	1	5000
+select * from tt1;
+employee_id	first_name	last_name	job_id	department_id	salary
+100	John	Smith	HR_REP	1	5000
+102	Tom	Brown	bbbb	3	7000
+103	Linda	White	SALES_REP	4	5500
+104	Michael	Green	MARK_MGR	5	7500
+106	John	Doe	bbbb	2	3.99
+200	John	Smith	HR_REP	1	5000
+300	John	Smith	HR_REP	1	5000
+insert into v1 (employee_id, first_name, last_name, job_id) select department_id + 200, department_name, 'Unknown', 'IT_PROG' from t1 ;
+replace into v1 (employee_id, first_name, last_name, job_id,department_id) values (609, 'Alice', 'Smith', 'HR_REP',1), (119, 'Bob', 'Johnson', 'FIN_MGR',5);
+insert IGNORE into v1 (employee_id, first_name, last_name, job_id,department_id)values (111, 'Carol', 'Williams', 'SA_REP',4);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+insert into v1 (employee_id, first_name, last_name, salary,department_id) values (116, 'Hank', 'Lopez', 5000 * 1.1,2);
+insert into v1 (employee_id, first_name, last_name, job_id,department_id) select department_id + 400, department_name, 'Employee', 'SA_REP',department_id from t1 where department_id < 3;
+alter table tt1 add column c1 int;
+create OR REPLACE view v2 as select * from tt1;
+desc v2;
+Field	Type	Null	Key	Default	Extra
+employee_id	int(10)	YES		NULL	
+first_name	varchar(50)	NO		NULL	
+last_name	varchar(50)	YES		NULL	
+job_id	varchar(50)	YES		NULL	
+department_id	int(10)	YES		NULL	
+salary	decimal(10,2)	YES		NULL	
+c1	int(10)	YES		NULL	
+alter table tt1 add column c2 int;
+desc v2;
+Field	Type	Null	Key	Default	Extra
+employee_id	int(10)	YES		NULL	
+first_name	varchar(50)	NO		NULL	
+last_name	varchar(50)	YES		NULL	
+job_id	varchar(50)	YES		NULL	
+department_id	int(10)	YES		NULL	
+salary	decimal(10,2)	YES		NULL	
+c1	int(10)	YES		NULL	
+create INDEX idx_1 ON v1(employee_id);
+ERROR HY000: YAO-5610: Index Columns employee_id are not found
+create INDEX idx_2 ON v2(c1);
+ERROR HY000: YAO-5610: Index Columns c1 are not found
+create INDEX idx_3 ON tt1(c1);
+insert into tt1 (employee_id, first_name, last_name,department_id,c1)values (112, 'David', 'Brown',3,9);
+desc tt1;
+Field	Type	Null	Key	Default	Extra
+employee_id	int(10)	YES	PRI	NULL	
+first_name	varchar(50)	NO		NULL	
+last_name	varchar(50)	YES		NULL	
+job_id	varchar(50)	YES		NULL	
+department_id	int(10)	YES		NULL	
+salary	decimal(10,2)	YES		NULL	
+c1	int(10)	YES	MUL	NULL	
+c2	int(10)	YES		NULL	
+desc v1;
+Field	Type	Null	Key	Default	Extra
+employee_id	int(10)	YES		NULL	
+first_name	varchar(50)	NO		NULL	
+last_name	varchar(50)	YES		NULL	
+job_id	varchar(50)	YES		NULL	
+department_id	int(10)	YES		NULL	
+salary	decimal(10,2)	YES		NULL	
+select * from v1;
+employee_id	first_name	last_name	job_id	department_id	salary
+100	John	Smith	HR_REP	1	5000
+102	Tom	Brown	bbbb	3	7000
+103	Linda	White	SALES_REP	4	5500
+104	Michael	Green	MARK_MGR	5	7500
+106	John	Doe	bbbb	2	3.99
+112	David	Brown	NULL	3	NULL
+116	Hank	Lopez	NULL	2	5500
+119	Bob	Johnson	FIN_MGR	5	NULL
+200	John	Smith	HR_REP	1	5000
+201	HR	Unknown	IT_PROG	NULL	NULL
+202	Finance	Unknown	IT_PROG	NULL	NULL
+203	IT	Unknown	IT_PROG	NULL	NULL
+204	Sales	Unknown	IT_PROG	NULL	NULL
+205	Marketing	Unknown	IT_PROG	NULL	NULL
+300	John	Smith	HR_REP	1	5000
+401	HR	Employee	SA_REP	1	NULL
+402	Finance	Employee	SA_REP	2	NULL
+609	Alice	Smith	HR_REP	1	NULL
+create table t2(c1 INT ,c2 VARCHAR(50),c3 VARCHAR(50),c4 int);
+create view v3 as select * from t2;
+create UNIQUE INDEX idx_4 ON t2(c3);
+insert into t2 (c1, c2, c3,c4) values (113, 'Eve', 'Davis',6);
+insert into t2 (c1, c2, c3,c4) values (113, 'Eve', 'Davis',6);
+ERROR 23000: YAO-5024: Duplicate entry ' <3018.18>=varchar:Davis <3018.32787>=null:' for key 'PRIMARY'
+select * from v3;
+c1	c2	c3	c4
+113	Eve	Davis	6
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	varchar(50)	YES		NULL	
+c3	varchar(50)	YES	UNI	NULL	
+c4	int(10)	YES		NULL	
+drop table tt1;
+show tables;
+table_name_in_test
+t1
+v1
+v2
+t2
+v3
+desc v1;
+ERROR 42S02: YAO-5019: table 'test.tt1' does not exist
+drop table if exists t1,t2,tt1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt1 (cc1 INT PRIMARY KEY,cc2 VARCHAR(50) UNIQUE, c1 INT, FOREIGN KEY (c1) REFERENCES t1(c1));
+insert into t1 (c1, c2) values(1, 'Sales'),(2, 'Marketing');
+insert into tt1 (cc1, cc2, c1) values(1, 'Alice', 1),(2, 'Bob', 1),(3, 'Charlie', 2);
+alter table tt1 add column cc3 text;
+create view v1 as select * from tt1 where c1 = 1;
+update v1 set cc2 = 'Alice Smith' where cc1 = 1;
+update v1 set cc1 = cc1*c1;
+update v1 set cc3=concat(cc1,cc2) where cc3 is null;
+select * from v1;
+cc1	cc2	c1	cc3
+1	Alice Smith	1	1Alice Smith
+2	Bob	1	2Bob
+select * from tt1;
+cc1	cc2	c1	cc3
+1	Alice Smith	1	1Alice Smith
+2	Bob	1	2Bob
+6	Charlie	2	NULL
+create view v2 as select e.cc1, e.cc2, d.c2 from tt1 e  JOIN t1 d ON e.c1 = d.c1;
+update v2 set cc2 = 'Bob Johnson' where cc1 = 2;
+ERROR HY000: YAO-5865: The target table is not updatable
+create view v3 as select cc1, cc2, c1 from tt1 where c1 = 2;
+update v3 set cc2 = 'Christine' where cc1 = 3;
+update v1 set cc2 = 'Bob' where cc1 = 2;
+create INDEX idx_c1 ON tt1 (c1);
+update v1 set c1 = 2 where cc1 = 1;
+select * from v1;
+cc1	cc2	c1	cc3
+2	Bob	1	2Bob
+drop table tt1,t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt1 (cc1 INT PRIMARY KEY,cc2 VARCHAR(50) UNIQUE,c1 INT,FOREIGN KEY (c1) REFERENCES t1(c1));
+insert into t1 (c1, c2) values(1, 'Sales'),(2, 'Marketing');
+insert into tt1 (cc1, cc2, c1) values(1, 'Alice', 1),(2, 'Bob', 1),(3, 'Charlie', 2);
+create view v1 as select cc1, cc2, c1 from tt1 where c1 = 1;
+delete from v1 where cc1 = 1;
+select * from v1;
+cc1	cc2	c1
+2	Bob	1
+create view v2 as select e.cc1, e.cc2, d.c2 from tt1 e JOIN t1 d ON e.c1 = d.c1;
+delete from v2 where cc1 = 2;
+ERROR HY000: YAO-5861: can not modify more than one base table.
+create view v3 as select cc1, cc2, c1 from tt1 where c1 = 2;
+delete from v3 where cc1 = 3;
+select * from v3;
+cc1	cc2	c1
+select * from tt1;
+cc1	cc2	c1
+2	Bob	1
+delete from v1 where cc1 = 2;
+create INDEX idx_c1 ON tt1 (c1);
+delete from v1 where cc1 = 1;
+select * from v1;
+cc1	cc2	c1
+select * from tt1;
+cc1	cc2	c1
+drop table tt1,t1;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1(c1 INT,c2 VARCHAR(50), c3 DATE,PRIMARY KEY (c1, c3));
+insert into t1 (c1, c2, c3) values(1, 'jogging', '2024-06-01'),(1, 'cycling', '2024-06-02'),(2, 'swimming', '2024-06-03');
+create view v1 as select c1, c2, c3 from t1;
+REPLACE into v1 (c1, c2, c3)values (1, 'running', '2024-06-01');
+REPLACE into v1 (c1, c2, c3)values (1, 'hiking', '2024-06-02');
+REPLACE into v1 (c1, c2, c3)values (2, 'yoga', '2024-06-04');
+REPLACE into v1 (c1, c2, c3)values (2, 'yoga', '2024-06-03');
+select * from v1;
+c1	c2	c3
+1	running	2024-06-01
+1	hiking	2024-06-02
+2	yoga	2024-06-03
+2	yoga	2024-06-04
+create table t2 (id INT PRIMARY KEY,name VARCHAR(50));
+insert into t2 values(1, 'aaa'),(2, 'bbb');
+create view v2 as select ua.c1, ua.c2, ua.c3, u.name as clo from t1 ua JOIN t2 u ON ua.c1 = u.id;
+REPLACE into v2 (c1, c2, c3, clo)values (3, 'dancing', '2024-06-05', 'Eve');
+ERROR HY000: YAO-5861: can not modify more than one base table.
+create table t4 (c1 INT AUTO_INCREMENT PRIMARY KEY,c2 VARCHAR(50),c3 VARCHAR(50));
+create view v4 as select  c1,c2,c3 from t4;
+REPLACE into v4 values (1,'Ivan', 'Martinez');
+select * from v4;
+c1	c2	c3
+1	Ivan	Martinez
+drop table if exists t1,t2,tt3,t3;
+create table t3 (c1 INT PRIMARY KEY,c2 VARCHAR(50) UNIQUE);
+create table tt3 (c1 INT PRIMARY KEY,c2 VARCHAR(50),c3 INT,FOREIGN KEY (c3) REFERENCES t3(c1));
+insert into t3 values(1,'qqq'),(2,'bbb');
+create view v5 as select * from tt3;
+REPLACE into v5 (c1, c2,c3) values (1, 'Sales',1);
+select * from v5;
+c1	c2	c3
+1	Sales	1
+select * from tt3;
+c1	c2	c3
+1	Sales	1
+insert into t3 (c1, c2) values (1, 'Sales')ON DUPLICATE KEY update c2 = 'Marketing';
+drop table if exists t1,t2,tt3,t3;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (a int, b int,c varchar(30),d bit(1),e float,f json);
+insert into t1 values (1,2,'aaa',b'1',1.1,'{"age":12}'), (1,3,'bbb',b'1',1.1,'{"age":19}'), (2,4,'ccc',b'1',1.1,'{"age":92}'), (2,5,'ddd',b'1',1.1,'{"age":52}'), (3,10,'eee',b'1',1.1,'{"age":12}');
+create view v1 (c,d,e,f) as select a,b,c,d,e,f from t1;
+ERROR HY000: YAO-5007: view's SELECT and view's field list have different column counts
+create view v1 (c,d,e,f) as select a,b, a in (select a+2 from t1), b in (select a from t1) from t1;
+create view v2 as select c, d from v1;
+create view v3 as select * from t1;
+select * from v1;
+c	d	e	f
+1	2	0	1
+1	3	0	1
+2	4	0	0
+2	5	0	0
+3	10	1	0
+select * from v2;
+c	d
+1	2
+1	3
+2	4
+2	5
+3	10
+select * from v3;
+a	b	c	d	e	f
+1	2	aaa		1.1	{"age": 12}
+1	3	bbb		1.1	{"age": 19}
+2	4	ccc		1.1	{"age": 92}
+2	5	ddd		1.1	{"age": 52}
+3	10	eee		1.1	{"age": 12}
+show tables;
+table_name_in_test
+t4
+t1
+v1
+v2
+v3
+show full tables;
+Tables_in_test	Table_type
+t4	BASE TABLE
+t1	BASE TABLE
+v1	VIEW
+v2	VIEW
+v3	VIEW
+drop table t1;
+drop view v1,v2,v3;
+create table t1 (a int, b int, primary key(a));
+insert into t1 values (10,2), (20,3), (30,4), (40,5), (50,10);
+create view v1 (a,c) as select a, b+1 from t1;
+create view v2 (a,c) as select a, b from t1;
+create view v3(a) as select sum(a) from t1;
+insert into v3 values(66);
+ERROR HY000: YAO-5863: The view is not insertable
+update v1 set c=a+c;
+ERROR HY000: YAO-5860: The view is not updatable
+update v1 set a=a+c;
+select * from v1;
+a	c
+13	3
+24	4
+35	5
+46	6
+61	11
+select * from t1;
+a	b
+13	2
+24	3
+35	4
+46	5
+61	10
+insert into t1 values (1,2), (2,3), (3,4), (4,5), (5,10);
+delete from v1 where c < 4;
+ERROR HY000: YAO-5860: The view is not updatable
+delete from v2 where c < 4;
+drop table t1;
+drop view v1,v2,v3;
+create table t1 (a int, b int, c int, primary key(a,b));
+insert into t1 values (10,2,-1), (20,3,-2);
+create table t2 (a int, b int, c int, primary key(a,b));
+insert into t2 values (30,4,-60);
+create view v1 (x,y,z) as select c, b, a from t1;
+create view v2 (x,y) as select b, a from t1;
+create view v3 (x,y,z) as select b, a, b from t1;
+create view v4 (x,y,z) as select c+1, b, a from t1;
+create view v5 (x,y,z) as select c, b, a from t1;
+insert into v3 select c, b, a from t2;
+ERROR HY000: YAO-5863: The view is not insertable
+insert into v4 select c, b, a from t2;
+ERROR HY000: YAO-5863: The view is not insertable
+insert into v1 select c, b, a from t2;
+insert into v1 (z,y,x) select a+20,b+2,-100 from t2;
+insert into v2 select b+1, a+10 from t2;
+select * from t1;
+a	b	c
+10	2	-1
+20	3	-2
+30	4	-60
+40	5	NULL
+50	6	-100
+drop table t1, t2;
+drop view v1,v2,v3,v4,v5;
+create table t1 (a int, primary key(a));
+insert into t1 values (1), (2), (3), (200);
+create view v1 (x) as select a from t1;
+create view v2 (y) as select x from v1;
+update v2 set y=10;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from v2;
+y
+1
+2
+3
+200
+drop table t1;
+drop view v1,v2;
+create table t1 (col1 int,col2 char(22));
+insert into t1 values(5,'Hello, world of views');
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+update v2 set col2='Hello, view world';
+select * from t1;
+col1	col2
+5	Hello, view world
+drop view v2, v1;
+drop table t1;
+create table t1 (s1 int);
+create view v1 as select s1 as a, s1 as b from t1;
+insert into v1 values (1,1);
+ERROR HY000: YAO-5863: The view is not insertable
+update v1 set a = 5;
+select * from v1;
+a	b
+drop view v1;
+drop table t1;
+create table t1 (col1 bigint not null, primary key (col1));
+create table t2 (col1 bigint not null, key (col1));
+create view v1 as select * from t1;
+create view v2 as select * from t2;
+insert into v1 values (1);
+insert into v2 values (1);
+create view v3 (a,b) as select v1.col1 as a, v2.col1 as b from v1, v2 where v1.col1 = v2.col1;
+select * from v3;
+a	b
+1	1
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."v1"."col1" as "a", "test"."v2"."col1" as "b" from "test"."v1", "test"."v2" where (("test"."v1"."col1" = "test"."v2"."col1"))	utf8mb4	utf8mb4_general_ci
+drop view v3, v2, v1;
+drop table t2, t1;
+create table t1 (a int, primary key (a), b int);
+create table t2 (a int, primary key (a));
+insert into t1 values (1,100), (2,200);
+insert into t2 values (1), (3);
+create view v3 (a,b) as select t1.a as a, t2.a as b from t1, t2;
+update v3 set a= 10 where a=1;
+ERROR HY000: YAO-5860: The view is not updatable
+select * from v3;
+a	b
+1	1
+1	3
+2	1
+2	3
+delete from v3 where a=1;
+ERROR HY000: YAO-5860: The view is not updatable
+drop view v3;
+drop table t1,t2;
+create table t1 (f59 int, f60 int, f61 int);
+insert into t1 values (19,41,32);
+create view v1 as select f59, f60 from t1 where f59 in(select f59 from t1);
+update t1 set f60=(select max(f60) from v1);
+drop view v1;
+drop table t1;
+create table t1 (s1 smallint);
+create view v1 as select * from t1 where 20 < (select (s1) from t1);
+insert into v1 values (30);
+create view v2 as select * from t1;
+create view v3 as select * from t1 where 20 < (select (s1) from v2);
+insert into v3 values (30);
+create view v4 as select * from v2 where 20 < (select (s1) from t1);
+insert into v4 values (30);
+drop view if exists v4, v3, v2, v1;
+drop table t1;
+create table t1 (col1 int,col2 char(22));
+create view v1 as select * from t1;
+create index i1 on v1 (col1);
+ERROR HY000: YAO-5610: Index Columns col1 are not found
+drop view v1;
+drop table t1;
+create table t1 (col1 INT NOT NULL, col2 INT NOT NULL);
+create view v1 (vcol1) as select col1 from t1;
+create view v2 (vcol1) as select col1 from t1 where col2 > 2;
+insert into t1 (col1) values(12);
+ERROR HY000: YAO-5500: column:'col2' can not be null
+insert into v1 (vcol1) values(12);
+ERROR HY000: YAO-5500: column:'col2' can not be null
+insert into v2 (vcol1) values(12);
+ERROR HY000: YAO-5500: column:'col2' can not be null
+drop view v2,v1;
+drop table t1;
+create table t1 (col1 int);
+insert into t1 values (1);
+create view v1 as select count(*) from t1;
+insert into v1 values (null);
+ERROR HY000: YAO-5863: The view is not insertable
+select * from v1;
+count(*)
+1
+drop view v1;
+drop table t1;
+create function f1 () returns int begin return 5;end//
+create view v1 as select test.f1 ();
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select f1() as "test.f1 ()" from dual	utf8mb4	utf8mb4_general_ci
+select * from v1;
+test.f1 ()
+5
+drop view v1;
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+set names utf8;
+create table tü (cü char(30));
+create view vü as select cü from tü;
+insert into vü values ('ü');
+select * from vü;
+cü
+ü
+drop view vü;
+drop table tü;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1 (a int);
+create table t2 (a int);
+create table t3 (a int);
+insert into t1 values (1), (2), (3);
+insert into t2 values (1), (3);
+insert into t3 values (1), (2), (4);
+create view v3 (a,b) as select t1.a as a, t2.a as b from t1 left join t2 on (t1.a=t2.a);
+select * from v3;
+a	b
+1	1
+3	3
+2	NULL
+update v3 set a =9 where b=1;
+ERROR HY000: YAO-5865: The target table is not updatable
+create view v1 (a) as select a from t1;
+create view v2 (a) as select a from t2;
+create view v4 (a,b) as select v1.a as a, v2.a as b from v1 left join v2 on (v1.a=v2.a);
+select * from v4;
+a	b
+1	1
+3	3
+2	NULL
+delete from v4;
+ERROR HY000: YAO-5861: can not modify more than one base table.
+delete from v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1 (col1 int);
+create table t2 (col1 int);
+create table t3 (col1 datetime not null);
+create view v1 as select * from t1;
+create view v2 as select * from v1;
+create view v3 as select v2.col1 from v2,t2 where v2.col1 = t2.col1;
+update v2 set col1 = (select max(col1) from v1);
+ERROR HY000: YAO-5006: Sub-query is illeagal in INSERT/UPDATE statement or AGGREGATION function
+update v1,t2 set v1.col1 = (select max(col1) from t1) where v1.col1 = t2.col1;
+ERROR HY000: YAO-5006: Sub-query is illeagal in INSERT/UPDATE statement or AGGREGATION function
+drop view if exists v4,v3,v2,v1;
+drop table if exists t1,t2,t3;
+create table t1 (s1 char) charset utf8mb4;
+insert into t1 values ('Z');
+create view v1 as select s1 collate utf8mb4_bin as col from t1;
+create view v2 (col) as select s1 collate utf8mb4_bin from t1;
+insert into v1 (col) values ('b');
+ERROR HY000: YAO-5863: The view is not insertable
+insert into v2 (col) values ('c');
+ERROR HY000: YAO-5863: The view is not insertable
+DROP view v1, v2;
+DROP table t1;
+create table t1 (c1 int comment '表的列1注释',c2 varchar(50) comment '表的列2注释' );
+insert into t1 values (2,'aaa'),(3,'ccc'),(0,'ddd');
+create view v1 as select c1 comment '视图的列1注释',c2 comment '视图的列2注释' from t1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop table t1;
+create table t1 (a int);
+create view v1 as select * from t1 where a < 2 with check option;
+insert into v1 values(3);
+ERROR HY000: YAO-5862: check option failed
+insert into v1 values(1);
+delete from t1;
+insert into v1 select 1;
+insert into v1 select 3;
+ERROR 25S03: YAO-119: Check option failed, error code = -5862
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create table t1 (a int);
+create view v1 as select * from t1 where a < 2 with check option;
+create view v2 as select * from v1 where a > 0 with local check option;
+create view v3 as select * from v1 where a > 0 with cascaded check option;
+insert into v2 values (1);
+insert into v3 values (1);
+insert into v2 values (0);
+ERROR HY000: YAO-5862: check option failed
+insert into v3 values (0);
+ERROR HY000: YAO-5862: check option failed
+insert into v2 values (2);
+ERROR HY000: YAO-5862: check option failed
+insert into v3 values (2);
+ERROR HY000: YAO-5862: check option failed
+select * from t1;
+a
+1
+1
+drop view v3,v2,v1;
+create view v2 as select distinct a from t1 WITH CHECK OPTION;
+create view v3 as select a from t1 WITH CHECK OPTION;
+create view v4 as select a from t1 WITH CasCADED CHECK OPTION;
+create view v5 as select a from t1 WITH LOCAL CHECK OPTION;
+drop view v5 RESTRICT;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop view v5 CasCADE;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop view if exists v1,v2,v3,v4,v5,v6,v7;
+drop table t1;
+create table t1 (s1 tinyint);
+create view v1 as select * from t1 where s1 <> 0;
+create view v2 as select * from v1 where s1 <> 1 with cascaded check option;
+insert into v2 values (0);
+ERROR HY000: YAO-5862: check option failed
+select * from v2;
+s1
+select * from t1;
+s1
+drop view v2, v1;
+drop table t1;
+create table t1(f1 int, f2 int);
+create view v1 as select ta.f1 as a, tb.f1 as b from t1 ta, t1 tb where ta.f1=tb.f1 and ta.f2=tb.f2;
+insert into t1 values(1,1),(2,2);
+create view v2 as select * from v1 where a > 1 with local check option;
+select * from v2;
+a	b
+2	2
+update v2 set b=3 where a=2;
+ERROR HY000: YAO-5860: The view is not updatable
+select * from v2;
+a	b
+2	2
+drop view v2, v1;
+drop table t1;
+create table t1 (a int);
+create table t2 (b int);
+insert into t1 values (1), (2);
+insert into t2 values (1), (2);
+create view v1 as  select t2.b from t1,t2 where t1.a = t2.b WITH CHECK OPTION;
+select * from v1;
+b
+1
+2
+update v1 set b=3;
+ERROR HY000: YAO-5860: The view is not updatable
+select * from v1;
+b
+1
+2
+select * from t1;
+a
+1
+2
+select * from t2;
+b
+1
+2
+DROP view v1;
+DROP table t1,t2;
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+create table t1 (c1 INT, c2 VARCHAR(50), c3 VARCHAR(50), c4 INT, c5 DECIMAL(10, 2));
+create table t2 (c1 INT,c2 VARCHAR(50),c3 INT);
+insert into t1 values(1,'aaa','aa',1,2.6),(2,'bbb','bb',2,5.6),(1,'aaa','aa',3,6);
+insert into t2 values(1,'testaa',1700),(2,'testbb',2001);
+create OR REPLACE view v1 as select c1, c2, c3, c4 from t1 where c4 = 3;
+insert into v1 (c1, c2, c3, c4)values (118, 'John', 'Doe', 3);
+update v1 set c2 = 'Johnny' where c1 = 118;
+delete from v1 where c1 = 118;
+select * from v1;
+c1	c2	c3	c4
+1	aaa	aa	3
+create OR REPLACE view v2 as select e.c1, e.c2, e.c3  from t1 e JOIN t2 d ON e.c4 = d.c1 where d.c3 = 1700;
+select * from v2;
+c1	c2	c3
+1	aaa	aa
+update v2 set c2 = 'Johnny' where c1 = 1;
+ERROR HY000: YAO-5865: The target table is not updatable
+select * from v2;
+c1	c2	c3
+1	aaa	aa
+create OR REPLACE view aggregate_view as select c4, AVG(c5) as avg_salary from t1 GROUP BY c4 HAVING AVG(c5) > 5000;
+drop table t1,t2;
+drop view v1,v2;
+drop table if exists t1,t2;
+create table t1 (employee_id INT,first_name VARCHAR(50),last_name VARCHAR(50), hire_date DATE);
+create OR REPLACE view view_uppercase as select employee_id as "EMP_ID", first_name as "FIRST", last_name as "LasT", hire_date as "HIREDATE" from t1;
+desc view_uppercase;
+Field	Type	Null	Key	Default	Extra
+EMP_ID	int(10)	YES		NULL	
+FIRST	varchar(50)	YES		NULL	
+LasT	varchar(50)	YES		NULL	
+HIREDATE	date	YES		NULL	
+create OR REPLACE view view_lowercase as select EMPLOYEE_ID as "emp_id",FIRST_NAME as "first",LasT_NAME  as "last", HIRE_DATE  as "hiredate" from t1;
+desc view_lowercase;
+Field	Type	Null	Key	Default	Extra
+emp_id	int(10)	YES		NULL	
+first	varchar(50)	YES		NULL	
+last	varchar(50)	YES		NULL	
+hiredate	date	YES		NULL	
+create table table_uppercase ("ID" INT,"name" VARCHAR(50), "AGE" INT);
+create OR REPLACE view uppercase_v as select * from table_uppercase;
+desc uppercase_v;
+Field	Type	Null	Key	Default	Extra
+ID	int(10)	YES		NULL	
+name	varchar(50)	YES		NULL	
+AGE	int(10)	YES		NULL	
+drop table if exists t1,t2;
+drop view if exists v1,v2;
+create table t1 (c1 INT PRIMARY KEY,c2 VARCHAR(100),c3 INT);
+create table t2 (c1 INT PRIMARY KEY,c2 VARCHAR(100));
+create OR REPLACE view info_view as select e.c1, e.c2 from t1 e JOIN t2 d ON e.c3 = d.c1;
+select v.c2 as "Name", v.c2 as "Department" from info_view v where v.c1 = 123;
+Name	Department
+create table employee_salary_info (employee_id INT,employee_name VARCHAR(50),department VARCHAR(50),salary DECIMAL(10, 2));
+create view department_salary_view as select employee_id, employee_name, department, salary from employee_salary_info where department = 'IT';
+insert into employee_salary_info (employee_id, employee_name, department, salary)values(1, 'Alice', 'IT', 60000.00),(2, 'Bob', 'HR', 50000.00),(3, 'Charlie', 'IT', 55000.00),(4, 'David', 'IT', 62000.00);
+update department_salary_view set salary = salary * 1.05;
+select * from department_salary_view;
+employee_id	employee_name	department	salary
+1	Alice	IT	63000
+3	Charlie	IT	57750
+4	David	IT	65100
+update department_salary_view set salary = salary * 1.05 where employee_id=1;
+select * from employee_salary_info;
+employee_id	employee_name	department	salary
+1	Alice	IT	66150
+2	Bob	HR	52500
+3	Charlie	IT	57750
+4	David	IT	65100
+drop table if exists t3;
+drop view if exists v3;
+create table if not exists t3(c1 int primary key,c2 int,c3 int default 0);
+insert into t3 values(1,1,1),(2,2,2),(3,3,3);
+create or replace view v3 as select c1 as a,c2 as b from t3;
+insert into v3 values(9,9);
+update v3 view3 set b=1;
+select * from v3;
+a	b
+1	1
+2	1
+3	1
+9	1
+update v3 as view3 set b=2;
+update v3 set a=8 where a =9;
+select * from v3;
+a	b
+1	2
+2	2
+3	2
+8	2
+drop table if exists t3;
+drop view if exists v3;
+create table if not exists t3(c1 int, c2 varchar(30), c3 decimal(6,2), c4 float, c5 double, c6 int, c7 bool, c8 char(30), primary key(c1, c2));
+replace into t3 values(1, 'aaa', 1.11,1.1,1.11, 1, true,'aaa'), (2,'bbb', 2.22, 2.2, 2.22, 2, false,'bbb'), (3,'ccc', 3.33, 3.3, 3.33,3, true, 'ccc'), (4, 'ddd', 4.44,4.4, 4.44, 4, false,'ddd'), (12, 'fff', 12.22, 12.2, 12.22, 12, false, 'ff'),(13, 'ggg', 13.33, 13.3, 13.33,13, true, 'ggg'), (14, 'hhh', 14.44, 14.4, 14.44, 14, false,'hhh'), (18,'ccc', 18.33, 18.3, 18.33, 18, true,'ccc'), (19, 'ddd', 19.44,19.4,19.44,19, false,'ddd');
+create or replace view v3 as select c1, c2, c3, c8 from t3 where c1 > 13 or c7 = true with check option;
+update v3 set c8=concat(c1,c3) where c1 >=10;
+select * from v3;
+c1	c2	c3	c8
+1	aaa	1.11	aaa
+3	ccc	3.33	ccc
+13	ggg	13.33	1313.33
+14	hhh	14.44	1414.44
+18	ccc	18.33	1818.33
+19	ddd	19.44	1919.44
+drop table if exists employees;
+drop view  if exists employee_bonus_view;
+create table employees (employee_id INT,employee_name VARCHAR(50),department VARCHAR(50),salary INT);
+create view employee_bonus_view as
+select 
+employee_id, 
+employee_name, 
+department, 
+salary,
+CasE 
+WHEN department = 'Sales' THEN salary * 0.1
+WHEN department = 'Marketing' THEN salary * 0.08
+ELSE salary * 0.05
+END as bonus
+from employees;
+insert into employees (employee_id, employee_name, department, salary) values (1, 'Alice', 'Sales', 50000);
+insert into employees (employee_id, employee_name, department, salary) values (2, 'Bob', 'Marketing', 60000);
+insert into employees (employee_id, employee_name, department, salary) values (3, 'Charlie', 'Engineering', 55000);
+select * from employee_bonus_view;
+employee_id	employee_name	department	salary	bonus
+1	Alice	Sales	50000	5000
+2	Bob	Marketing	60000	4800
+3	Charlie	Engineering	55000	2750

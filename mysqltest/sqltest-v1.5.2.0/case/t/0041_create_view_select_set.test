@@ -1,0 +1,119 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210201
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:含有union操作   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 union select c1,c3,c2 from t2;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 union select c1,c3,c2 from t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-2:含有except操作   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 except select c1,c3,c2 from t2;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 except select c1,c3,c2 from t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-3:含有intersect操作   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 intersect select c1,c3,c2 from t2;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 intersect select c1,c3,c2 from t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-4:集合操作中含有子查询   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select c1,c3,c2 from t2;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select c1,c3,c2 from t2;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-5:集合操作中含有join语句   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select t2.c1,t1.c3,t2.c2 from t2 join t1 on t1.c1>=t2.c1;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select t2.c1,t1.c3,t2.c2 from t2 join t1 on t1.c1>=t2.c1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:集合操作中含有dual表查询   [desc view 出现OB-16:Ooooooooooooops]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select 1,2,3 from t1;
+desc v1;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from (select * from t2) t1 union select 1,2,3 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

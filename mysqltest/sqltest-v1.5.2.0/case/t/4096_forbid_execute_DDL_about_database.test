@@ -1,0 +1,131 @@
+#######################################################
+#1.���Թ��ܵ㣺��������ִ���й����ݿ��DDL����
+#######################################################
+
+using database test;
+sleep 5;
+
+###2-1:������������ʱִ��DDL����create database, drop database
+create database dbtest;
+sleep 10;
+show databases;
+drop database dbtest;
+show databases;
+
+###2-2:������������ִ��DDL����create database, drop database
+###��ʽһ: set autocommit =0 + insert
+create table t1(c1 int, c2 int, primary key(c1));
+
+set autocommit=0;
+insert into t1 values(1,1);
+#--error 5060
+create database dbtest;
+commit;
+select * from t1;
+show databases;
+
+set autocommit=0;
+insert into t1 values(2,1);
+#--error 5060
+#create database dbtest;
+rollback;
+select * from t1;
+show databases;
+
+set autocommit=1;
+#create database dbtest;
+sleep 10;
+
+set autocommit=0;
+insert into t1 values(3,1);
+#--error 5060
+drop database dbtest;
+commit;
+select * from t1;
+show databases;
+
+set autocommit=0;
+insert into t1 values(4,1);
+#--error 5060
+#drop database dbtest;
+rollback;
+select * from t1;
+show databases;
+
+set autocommit=1;
+drop table t1;
+#drop database dbtest;
+
+###��ʽ��:begin
+create table t1(c1 int, c2 int, primary key(c1));
+
+begin;
+#--error 5060
+create database dbtest;
+insert into t1 values(1,1);
+commit;
+select * from t1;
+show databases;
+
+begin;
+#--error 5060
+#create database dbtest;
+insert into t1 values(2,1);
+rollback;
+select * from t1;
+show databases;
+
+#create database dbtest;
+sleep 10;
+
+begin;
+#--error 5060
+drop database dbtest;
+insert into t1 values(3,1);
+commit;
+select * from t1;
+show databases;
+
+begin;
+#--error 5060
+#drop database dbtest;
+insert into t1 values(4,1);
+rollback;
+select * from t1;
+show databases;
+
+drop table t1;
+
+###2-3:����������autocommitΪ0��ִ��DDL����create database, drop database
+###��ʽһ: set autocommit =0 + insert
+create table t1(c1 int, c2 int, primary key(c1));
+
+set autocommit=0;
+create database dbtest1;
+sleep 10;
+insert into t1 values(1,1);
+commit;
+select * from t1;
+show databases;
+
+set autocommit=0;
+create database dbtest2;
+sleep 10;
+insert into t1 values(2,1);
+rollback;
+select * from t1;
+show databases;
+
+set autocommit=0;
+drop database dbtest1;
+insert into t1 values(3,1);
+commit;
+select * from t1;
+show databases;
+
+set autocommit=0;
+drop database dbtest2;
+insert into t1 values(4,1);
+rollback;
+select * from t1;
+show databases;

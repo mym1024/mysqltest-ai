@@ -1,0 +1,973 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  
+for each row  
+begin 
+case when @a<old.c1 then 
+set @a=@a+1;
+end case;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+zhf_loop:loop if(@a<3) then 
+set @a=@a+1; 
+else leave zhf_loop;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+set @a=8;
+end|
+delete from zhf_table where c1=1;
+select @a;
+@a
+8
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row
+begin 
+if(old.c1=2) then 
+set @a=2;
+end if;
+end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+loop_zhf:loop set @a=@a+1; 
+if(@a>old.c1) then 
+leave loop_zhf;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+4
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+repeat set @a=@a+1;
+until @a>old.c1 end repeat;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+4
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+while @a<old.c1 do 
+set @a=@a+1;
+end while;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+loop_zhf:loop set @a=@a+1; 
+if(@a<old.c1) then iterate loop_zhf;
+end if;
+set @b=@b+1;
+if(@a=old.c1) then leave loop_zhf;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @b;
+@b
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+set @a=1+(select 1); 
+end|
+delete from zhf_table where c1=1;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row begin end|
+delete from zhf_table where c1=1;
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+loop_zhf:loop 
+set @a=@a+1;
+if(@a<old.c1) then 
+case when @b=1 then 
+set @b=@b+1;
+end case; 
+else leave loop_zhf;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @a, @b;
+@a	@b
+3	2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+prepare zhf_pre from select * from zhf_table where old.c1=1;
+end|
+ERROR HY000: YAO-7013: trigger does not support prepare statement now
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+update zhf_table set zhf_table.c2=old.c1 where old.c1=3;
+end|
+delete from zhf_table where c1=3;
+ERROR HY000: YAO-7022: Can't update table in stored function/trigger because it is already used by statement which invoked this stored funct
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+insert into zhf_table values(old.c1+5,old.c2);
+end|
+delete from zhf_table where c1=3;
+ERROR HY000: YAO-7022: Can't update table in stored function/trigger because it is already used by statement which invoked this stored funct
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+delete from zhf_table where old.c1=3;
+end|
+delete from zhf_table where c1=3;
+ERROR HY000: YAO-7022: Can't update table in stored function/trigger because it is already used by statement which invoked this stored funct
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+set old.c1=2;
+end|
+ERROR HY000: YAO-7009: can't set OLD variable new value
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+prepare zhf_pre from insert into zhf_table values(4,4);
+update zhf_table set c2=5 where c1=4;
+delete from zhf_table where c1=4;
+end|
+ERROR HY000: YAO-7013: trigger does not support prepare statement now
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+case @a when 1 then set @a=7;
+when 2 then set @a=9;
+end case;
+end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+7
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row 
+begin 
+zhf_loop:loop set @a=@a+1; 
+if (@a>3) then leave zhf_loop;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=1;
+select @a;
+@a
+4
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  begin set @a=0;end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+0
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+if(@a=1) then set @a=10; 
+elseif(@a=2) then set @a=20; 
+end if;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+10
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a>5) then leave zhf_loop;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=1;
+select @a;
+@a
+6
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+repeat set @a=@a+1; 
+until(@a>5) end repeat;
+end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+6
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+while(@a<5) do 
+set @a=@a+1;
+end while;	
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+5
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table  for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a<5) then iterate zhf_loop;
+end if;
+set @b=@b+1;
+if(@a=5) then leave zhf_loop;
+end if;
+end loop; 
+end|
+delete from zhf_table where c1=2;
+select @a, @b;
+@a	@b
+5	2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+set @a=1+(select 1);
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  begin end|
+delete from zhf_table where c1=1;
+select * from zhf_table;
+c1	c2
+2	2
+3	3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row  
+begin 
+prepare zhf_pre from select * from zhf_table;
+end|
+ERROR HY000: YAO-7013: trigger does not support prepare statement now
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+update zhf_table set c2=5 where c1=1;
+end|
+delete from zhf_table where c1=3;
+ERROR HY000: YAO-7022: Can't update table in stored function/trigger because it is already used by statement which invoked this stored funct
+select * from zhf_table;
+c1	c2
+1	1
+2	2
+3	3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+insert into zhf_table values(4,4);
+end|
+delete from zhf_table where c1=3;
+ERROR HY000: YAO-7022: Can't update table in stored function/trigger because it is already used by statement which invoked this stored funct
+select * from zhf_table;
+c1	c2
+1	1
+2	2
+3	3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger before delete on zhf_table for each row 
+begin 
+delete from zhf_table where c1=1;
+end|
+select * from zhf_table;
+c1	c2
+1	1
+2	2
+3	3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row 
+begin 
+case  when @a<old.c1 then
+set @a=5;
+end case;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+5
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+zhf_loop:loop set @a=@a+1; 
+if (@a>old.c1) then leave zhf_loop;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+4
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+set @a=7;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+7
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row 
+begin 
+if(old.c1=2) then set @a=5;
+elseif(old.c1=1) then set @a=0;
+end if;
+end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+5
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a>old.c1) then leave zhf_loop;
+end if;
+end loop;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+4
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+repeat  set @a=@a+1;
+until(@a>old.c1)  
+end repeat;
+end|
+delete from zhf_table where c1=2;
+select @a;
+@a
+3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table  for each row  
+begin 
+while(@a<old.c1) do 
+set @a=@a+1;
+end while;
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a<5) then iterate zhf_loop;
+end if;
+set @b=@b+1;
+if(@a=5) then leave zhf_loop;
+end if;
+end loop; 
+end|
+delete from zhf_table where c1=1;
+select @a, @b;
+@a	@b
+5	2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+set @a=1+(select 1);
+end|
+delete from zhf_table where c1=3;
+select @a;
+@a
+2
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin
+update zhf_tabl2 set c2=old.c2+5 where c1=3;
+end|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	2
+3	6
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+insert into zhf_tabl2 values(old.c1+10,old.c1+20);
+end|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	2
+3	3
+11	21
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+delete from zhf_tabl2 where c1=old.c2+2;
+end|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+end|
+delete from zhf_table where c1=1;
+select * from zhf_table;
+c1	c2
+2	2
+3	3
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+repeat set @a=@a+1; 
+until(@a>5) end repeat;
+case @a when 6 then set @b=66;
+end case;
+end|
+delete from zhf_table where c1=1;
+select @a, @b;
+@a	@b
+6	66
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row 
+begin 
+prepare zhf_pre from  select * from zhf_table where c1=old.c1+5;
+end;|
+ERROR HY000: YAO-7013: trigger does not support prepare statement now
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row 
+begin 
+set old.c2=5;
+end;|
+ERROR HY000: YAO-7013: after trigger does not support this function
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table   for each row  
+begin 
+end;|
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+case @a when 1 then set @a=7;
+when 2 then set @a=8;
+end case;
+end;|
+delete from zhf_table where c1=1;
+select @a;
+@a
+7
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a>4) then leave zhf_loop;
+end if;
+end loop;
+end;|
+delete from zhf_table where c1=2;
+select @a;
+@a
+5
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+set @a=2;
+end;|
+delete from zhf_table where c1=3;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+if(@a=1) then set @a=2;
+end if;
+end;|
+delete from zhf_table where c1=1;
+select @a;
+@a
+2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a>5) then leave zhf_loop;
+end if;
+end loop;
+end;|
+delete from zhf_table where c1=2;
+select @a;
+@a
+6
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+repeat set @a=@a+1;
+until(@a>6) end repeat;
+end;|
+delete from zhf_table where c1=3;
+select @a;
+@a
+7
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+while(@a<5) do 
+set @a=@a+1;
+end while;
+end;|
+delete from zhf_table where c1=1;
+select @a;
+@a
+5
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+zhf_loop:loop set @a=@a+1;
+if(@a<5) then iterate zhf_loop;
+end if;
+set @b=@b+1;
+leave zhf_loop;
+end loop;
+end;|
+delete from zhf_table where c1=2;
+select @a, @b;
+@a	@b
+5	2
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+set @a=1+(select 1);
+end;|
+delete from zhf_table where c1=3;
+select @a;
+@a
+2
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+update zhf_tabl2 set c2=c2+5;
+end;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	6
+2	7
+3	8
+drop table if exists zhf_table;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row 
+begin 
+insert into zhf_tabl2 values(4,4);
+end;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	6
+2	7
+3	8
+4	4
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+delete from zhf_tabl2 where c1=3;
+end;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	2
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+end;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	2
+3	3
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+create table zhf_tabl2(c1 int primary key,c2 int);
+insert into zhf_tabl2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+update zhf_tabl2 set c2=c2+5 where c1=2;
+insert into zhf_tabl2 values(4,4);
+end;|
+delete from zhf_table where c1=1;
+select * from zhf_tabl2;
+c1	c2
+1	1
+2	7
+3	3
+4	4
+drop table if exists zhf_table,zhf_tabl2;
+create table zhf_table(c1 int primary key,c2 int);
+insert into zhf_table values(1,1),(2,2),(3,3);
+set @a=1;
+set @b=1;
+set @a=1,@b=1;
+create trigger zhf_trigger after delete on zhf_table for each row  
+begin 
+prepare zhf_pre from select * from zhf_table;
+end|
+ERROR HY000: YAO-7013: trigger does not support prepare statement now

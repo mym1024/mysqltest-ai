@@ -1,0 +1,58 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists c,d;
+create table c (c1 int primary key,c2 varchar(8)) partition by range(c1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+create table d (d1 int primary key,d2 varchar(8)) partition by range(d1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+create index c_index on c(c2);
+create index d_index on d(d2);
+show index on c;
+index_name	status	index_type
+__3001__idx__c_index	4	0
+show index on d;
+index_name	status	index_type
+__3002__idx__d_index	4	0
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+c#r0	2	0	NULL
+c#r1	2	1	NULL
+c#r2	2	0	NULL
+c#r3	2	1	NULL
+d#r0	2	0	NULL
+d#r1	2	1	NULL
+d#r2	2	0	NULL
+d#r3	2	1	NULL
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	c	1	c#r0,c#r1,c#r2,c#r3	__range@3001	c1
+3002	2	d	1	d#r0,d#r1,d#r2,d#r3	__range@3002	d1
+begin;
+insert into c values(1,1);
+insert into c values(-1,1);
+insert into c values(5,1);
+insert into c values(6,1);
+insert into d values(1,1);
+insert into d values(-1,1);
+insert into d values(5,1);
+insert into d values(6,1);
+begin;
+select * from c,d where c.c1=d.d1;
+c1	c2	d1	d2
+select * from c left join d on c.c1=d.d1;
+c1	c2	d1	d2
+select * from c right join d on c.c1=d.d1;
+c1	c2	d1	d2
+select * from c inner join d on c.c1=d.d1;
+c1	c2	d1	d2
+select/*+join(si)*/ * from c left join d on c.c1=d.d1;
+c1	c2	d1	d2
+select/*+join(bloomfilter_join)*/ * from c left join d on c.c1=d.d1;
+c1	c2	d1	d2
+commit;
+commit;

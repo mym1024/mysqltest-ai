@@ -1,0 +1,121 @@
+####################################必填######################################################
+###1.测试功能点:租户权限隔离测试
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-12-31
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+
+# 开启cgroup（需要在系统租户下执行）
+ALTER SYSTEM SET enable_cgroup = true server_type=yaosqlsvr;
+
+# 查看初始系统租户
+SELECT * FROM __all_tenant_config;
+
+# 创建租户
+create tenant t1 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+create tenant t2 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+
+# 租户t1初始化数据
+connect (tenant_t1,$OBMYSQL_MS0,admin@t1,admin,yao,$OBMYSQL_PORT);
+connection tenant_t1;
+create database t1;
+CREATE TABLE t1.users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100),
+    tenant_id VARCHAR(50) DEFAULT 'tenant_t1'
+);
+INSERT INTO t1.users (username, email) VALUES
+('user_a1', 'user_a1@example.com'),
+('user_a2', 'user_a2@example.com');
+select * from t1.users;
+
+CREATE USER 't1_user' IDENTIFIED BY 't1@password';
+CREATE USER 't1_reader' IDENTIFIED BY 't1@password';
+GRANT ALL PRIVILEGES,GRANT OPTION ON t1.* TO 't1_user';
+GRANT SELECT ON t1.* TO 't1_reader';
+show grants for t1_user;
+show grants for t1_reader;
+
+# 租户t2初始化数据
+connect (tenant_t2,$OBMYSQL_MS0,admin@t2,admin,yao,$OBMYSQL_PORT);
+connection tenant_t2;
+create database t2;
+CREATE TABLE t2.users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100),
+    tenant_id VARCHAR(50) DEFAULT 'tenant_t2'
+);
+INSERT INTO t2.users (username, email) VALUES
+('user_a1', 'user_a1@example.com'),
+('user_a2', 'user_a2@example.com');
+select * from t2.users;
+
+CREATE USER 't2_user' IDENTIFIED BY 't2@password';
+CREATE USER 't2_reader' IDENTIFIED BY 't2@password';
+GRANT ALL PRIVILEGES,GRANT OPTION ON t2.* TO 't2_user';
+GRANT SELECT ON t2.* TO 't2_reader';
+show grants for t2_user;
+show grants for t2_reader;
+
+# 测试1: 验证租户用户只能访问自己的数据库
+connect (tenant_t1_user,$OBMYSQL_MS0,t1_user@t1,t1@password,t1,$OBMYSQL_PORT);
+connection tenant_t1_user;
+select * from t1.users;
+
+# 测试2: 验证跨租户访问被拒绝
+--error 5603
+use t2;
+--error 5603
+select * from t2.users;
+
+# 测试3: 验证只读用户权限
+connect (tenant_t1_reader,$OBMYSQL_MS0,t1_reader@t1,t1@password,t1,$OBMYSQL_PORT);
+connection tenant_t1_reader;
+select * from t1.users;
+--error 5036
+INSERT INTO t1.users (username, email) VALUES ('test', 'test@test.com');
+
+# 测试4: 数据查询隔离,使用不同租户用户查询各自数据,插入数据
+connection tenant_t1_user;
+INSERT INTO t1.users (username, email) VALUES ('new_user_t1', 'new_t1@example.com');
+select * from t1.users;
+
+connect (tenant_t2_user,$OBMYSQL_MS0,t2_user@t2,t2@password,t2,$OBMYSQL_PORT);
+connection tenant_t2_user;
+INSERT INTO t2.users (username, email) VALUES ('new_user_t2', 'new_t1@example.com');
+select * from t2.users;
+
+# 清理验证
+# 注意: 以下清理操作需要回到系统租户执行
+# 删除租户：前提删除完个租户下的库、表、用户后才能删除租户
+connection tenant_t1;
+drop user t1_user;
+drop user t1_reader;
+drop table t1.users;
+drop database t1;
+
+connection tenant_t2;
+drop user t2_user;
+drop user t2_reader;
+drop table t2.users;
+drop database t2;
+
+connect (conn_sys,$OBMYSQL_MS0,admin,admin,yao,$OBMYSQL_PORT);
+connection conn_sys;
+SELECT * FROM __all_tenant_config;
+drop tenant t1;
+drop tenant t2;
+SELECT * FROM __all_tenant_config;
+
+############################################ end sql ###################################################

@@ -1,0 +1,559 @@
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+select * from v1;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v2 order by c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 order by t1.c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select * from v3;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v4 order by c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 order by t1.c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3003	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))
+3004	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))
+3005	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))
+3006	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1"))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 and t1.c1>=t2.c1;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 and t1.c1<0;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 and t1.c1>0;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 and t1.c1<=12213123123123123;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+select * from v1;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 and t1.c1>=t2.c1;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v2 order by c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 and t1.c1<0 order by t1.c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+select * from v3;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 and t1.c1>0;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v4 order by c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+NULL	NULL	NULL
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 and t1.c1<=12213123123123123 order by t1.c1;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+12321112147483647	2	3.15
+NULL	NULL	NULL
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3009	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" >= "test"."t2"."c1"))
+3010	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" < 0))
+3011	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" > 0))
+3012	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" <= 12213123123123123))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" >= "test"."t2"."c1"))	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" < 0))	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" > 0))	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1") and ("test"."t1"."c1" <= 12213123123123123))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+select * from v1;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v2;
+c1	c2	c3
+12321112147483647	2	3.15
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10;
+c1	c2	c3
+12321112147483647	2	3.15
+select * from v3;
+c1	c2	c3
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10;
+c1	c2	c3
+select * from v4;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3015	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c7" is true))
+3016	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" > 10))
+3017	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 10))
+3018	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 11))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c7" is true))	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" > 10))	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 10))	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 11))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true group by t1.c1 having sum(t1.c1)<=0;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10 group by t1.c1 having sum(t1.c1)<=0;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10 group by t1.c1 having sum(t1.c1)<=0;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11  group by t1.c1 having sum(t1.c1)<=0;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	float	YES		NULL	
+select * from v1;
+c1	c2	c3
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true group by t1.c1 having sum(t1.c1)<=0;
+c1	c2	c3
+select * from v2;
+c1	c2	c3
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10 group by t1.c1 having sum(t1.c1)<=0;
+c1	c2	c3
+select * from v3;
+c1	c2	c3
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10 group by t1.c1 having sum(t1.c1)<=0;
+c1	c2	c3
+select * from v4;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11 group by t1.c1 having sum(t1.c1)<=0;
+c1	c2	c3
+-12321112147483647	-2	-3.15
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3021	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c7" is true)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)
+3022	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" > 10)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)
+3023	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 10)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)
+3024	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 11)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" inner join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c7" is true)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" left join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" > 10)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" right join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 10)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)	utf8mb4	utf8mb4_general_ci
+show create view v4;
+View	Create View	character_set_client	collation_connection
+test.v4	create view `test`.`v4` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from ("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) where (("test"."t1"."c1" < 11)) group by "test"."t1"."c1" having (sum("test"."t1"."c1") <= 0)	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+create table t3(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t3 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6,c7,c8,c9) as select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 =6;
+create view v2(c1,c2,c3,c4,c5,c6,c7,c8,c9) as select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in (1,2,3,4);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+c7	int(10)	YES		NULL	
+c8	int(10)	YES		NULL	
+c9	varchar(30)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+c7	int(10)	YES		NULL	
+c8	int(10)	YES		NULL	
+c9	varchar(30)	YES		NULL	
+select * from v1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 =6;
+c1	c2	c3	c1	c2	c3	c1	c2	c3
+select * from v2;
+c1	c2	c3	c4	c5	c6	c7	c8	c9
+1	1	aaa	1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc	3	3	ccc
+select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in (1,2,3,4);
+c1	c2	c3	c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc	3	3	ccc
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3028	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t2"."c1" as "c4", "test"."t2"."c2" as "c5", "test"."t2"."c3" as "c6", "test"."t3"."c1" as "c7", "test"."t3"."c2" as "c8", "test"."t3"."c3" as "c9" from (("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) full join "test"."t3" on ("test"."t2"."c1" = "test"."t3"."c1")) where (("test"."t1"."c1" = 6))
+3029	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t2"."c1" as "c4", "test"."t2"."c2" as "c5", "test"."t2"."c3" as "c6", "test"."t3"."c1" as "c7", "test"."t3"."c2" as "c8", "test"."t3"."c3" as "c9" from (("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) full join "test"."t3" on ("test"."t2"."c1" = "test"."t3"."c1")) where ("test"."t1"."c1" in (1, 2, 3, 4))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t2"."c1" as "c4", "test"."t2"."c2" as "c5", "test"."t2"."c3" as "c6", "test"."t3"."c1" as "c7", "test"."t3"."c2" as "c8", "test"."t3"."c3" as "c9" from (("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) full join "test"."t3" on ("test"."t2"."c1" = "test"."t3"."c1")) where (("test"."t1"."c1" = 6))	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3", "test"."t2"."c1" as "c4", "test"."t2"."c2" as "c5", "test"."t2"."c3" as "c6", "test"."t3"."c1" as "c7", "test"."t3"."c2" as "c8", "test"."t3"."c3" as "c9" from (("test"."t1" full join "test"."t2" on ("test"."t1"."c1" = "test"."t2"."c1")) full join "test"."t3" on ("test"."t2"."c1" = "test"."t3"."c1")) where ("test"."t1"."c1" in (1, 2, 3, 4))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from (select * from t1) a inner join t2 b on a.c1=b.c1;
+create view v2(c1,c2,c3,c4,c5,c6) as select * from (select * from t1) a inner join t2 b on a.c1=b.c1 where b.c1<6;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+select * from v1;
+c1	c2	c3	c4	c5	c6
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from (select * from t1) a inner join t2 b on a.c1=b.c1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from v2;
+c1	c2	c3	c4	c5	c6
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from (select * from t1) a inner join t2 b on a.c1=b.c1 where b.c1<6;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3032	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ((select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1") as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1"))
+3033	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ((select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1") as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1")) where (("b"."c1" < 6)) and (("a"."c1" < 6))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join (select * from t2) b on a.c1=b.c1;
+create view v2(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join (select * from t2) b on a.c1=b.c1 where a.c1 in(1,2,3,4);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+select * from v1;
+c1	c2	c3	c4	c5	c6
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from t1 a inner join (select * from t2) b on a.c1=b.c1;
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from v2;
+c1	c2	c3	c4	c5	c6
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+select * from t1 a inner join (select * from t2) b on a.c1=b.c1 where a.c1 in(1,2,3,4);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3036	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join (select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3" from "test"."t2") as "b" on ("a"."c1" = "b"."c1"))
+3037	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join (select "test"."t2"."c1" as "c1", "test"."t2"."c2" as "c2", "test"."t2"."c3" as "c3" from "test"."t2") as "b" on ("a"."c1" = "b"."c1")) where ("a"."c1" in (1, 2, 3, 4))
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 =(select c1 from t2 where c2=6);
+create view v2(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	varchar(30)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	varchar(30)	YES		NULL	
+select * from v1;
+c1	c2	c3	c4	c5	c6
+select * from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 =(select c1 from t2 where c2=6);
+c1	c2	c3	c1	c2	c3
+select * from v2;
+c1	c2	c3	c4	c5	c6
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+c1	c2	c3	c1	c2	c3
+1	1	aaa	1	1	aaa
+2	2	bbb	2	2	bbb
+3	3	ccc	3	3	ccc
+5	5	eee	5	5	eee
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3040	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1")) where (("a"."c1" = (select "test"."t2"."c1" as "c1" from "test"."t2" where (("test"."t2"."c2" = 6)))))
+3041	0	1	select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1")) where ("b"."c1" in ((select "test"."t1"."c1" as "c1" from "test"."t1" where ("test"."t1"."c2" between 1 and 6))))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1")) where (("a"."c1" = (select "test"."t2"."c1" as "c1" from "test"."t2" where (("test"."t2"."c2" = 6)))))	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "a"."c1" as "c1", "a"."c2" as "c2", "a"."c3" as "c3", "b"."c1" as "c4", "b"."c2" as "c5", "b"."c3" as "c6" from ("test"."t1" as "a" inner join "test"."t2" as "b" on ("a"."c1" = "b"."c1")) where ("b"."c1" in ((select "test"."t1"."c1" as "c1" from "test"."t1" where ("test"."t1"."c2" between 1 and 6))))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3,t4;
+drop view if exists v1,v2,v3,v4;
+create table t1(id int ,c1 int,c2 int,c3 int,c4 int,primary key(id,c1,c2));
+create table t2(id int primary key,c1 int,c2 int,c3 int,c4 int);
+create table t3(id int primary key,c1 int,c2 int,c3 int,c4 int,c5 int,c6 int);
+create table t4(id int primary key,c1 int,c2 int);
+insert into t1 values(1,2,3,4,5),(2,5,6,2,1),(3,4,8,2,3),(4,1,2,6,8);
+insert into t2 values(2,5,2,4,4),(5,5,2,5,4),(6,5,2,5,9);
+insert into t3 values(1,5,2,4,4,3,22),(2,5,2,4,4,9,13);
+insert into t4 values(3,5,2),(7,4,5);
+create view v1 (c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20) as select * from t1 inner join t2 on t1.id=t2.id and t1.c1 = t2.id join t3 on t3.id >=1 join t4 on t4.id is not null;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	int(10)	YES		NULL	
+c4	int(10)	YES		NULL	
+c5	int(10)	YES		NULL	
+c6	int(10)	YES		NULL	
+c7	int(10)	YES		NULL	
+c8	int(10)	YES		NULL	
+c9	int(10)	YES		NULL	
+c10	int(10)	YES		NULL	
+c11	int(10)	YES		NULL	
+c12	int(10)	YES		NULL	
+c13	int(10)	YES		NULL	
+c14	int(10)	YES		NULL	
+c15	int(10)	YES		NULL	
+c16	int(10)	YES		NULL	
+c17	int(10)	YES		NULL	
+c18	int(10)	YES		NULL	
+c19	int(10)	YES		NULL	
+c20	int(10)	YES		NULL	
+select * from v1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17	c18	c19	c20
+select * from t1 inner join t2 on t1.id=t2.id and t1.c1 = t2.id join t3 on t3.id >=1 join t4 on t4.id is not null;
+id	c1	c2	c3	c4	id	c1	c2	c3	c4	id	c1	c2	c3	c4	c5	c6	id	c1	c2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3046	0	0	select "test"."t1"."id" as "c1", "test"."t1"."c1" as "c2", "test"."t1"."c2" as "c3", "test"."t1"."c3" as "c4", "test"."t1"."c4" as "c5", "test"."t2"."id" as "c6", "test"."t2"."c1" as "c7", "test"."t2"."c2" as "c8", "test"."t2"."c3" as "c9", "test"."t2"."c4" as "c10", "test"."t3"."id" as "c11", "test"."t3"."c1" as "c12", "test"."t3"."c2" as "c13", "test"."t3"."c3" as "c14", "test"."t3"."c4" as "c15", "test"."t3"."c5" as "c16", "test"."t3"."c6" as "c17", "test"."t4"."id" as "c18", "test"."t4"."c1" as "c19", "test"."t4"."c2" as "c20" from ((("test"."t1" inner join "test"."t2" on ("test"."t1"."id" = "test"."t2"."id") and ("test"."t1"."c1" = "test"."t2"."id")) inner join "test"."t3" on ("test"."t3"."id" >= 1)) inner join "test"."t4" on ("test"."t4"."id" is not null))
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."id" as "c1", "test"."t1"."c1" as "c2", "test"."t1"."c2" as "c3", "test"."t1"."c3" as "c4", "test"."t1"."c4" as "c5", "test"."t2"."id" as "c6", "test"."t2"."c1" as "c7", "test"."t2"."c2" as "c8", "test"."t2"."c3" as "c9", "test"."t2"."c4" as "c10", "test"."t3"."id" as "c11", "test"."t3"."c1" as "c12", "test"."t3"."c2" as "c13", "test"."t3"."c3" as "c14", "test"."t3"."c4" as "c15", "test"."t3"."c5" as "c16", "test"."t3"."c6" as "c17", "test"."t4"."id" as "c18", "test"."t4"."c1" as "c19", "test"."t4"."c2" as "c20" from ((("test"."t1" inner join "test"."t2" on ("test"."t1"."id" = "test"."t2"."id") and ("test"."t1"."c1" = "test"."t2"."id")) inner join "test"."t3" on ("test"."t3"."id" >= 1)) inner join "test"."t4" on ("test"."t4"."id" is not null))	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3,t4;
+drop view if exists v1,v2,v3;

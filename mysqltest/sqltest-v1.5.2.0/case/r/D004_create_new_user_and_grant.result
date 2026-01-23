@@ -1,0 +1,21 @@
+drop table if exists t1,t2,t3,t4;
+set names utf8mb4;
+create user 'u1' identified by 'password1*';
+GRANT SELECT ON test.* TO 'u1';
+create database test1;
+use test1;
+create table t1(c1 int,c2 int);
+create table t2(c1 int primary key,c2 int);
+grant insert on t1 to 'u1';
+grant insert on t2 to 'u1';
+show grants for u1;
+grants
+GRANT SELECT ON yao.* TO 'u1'
+GRANT SELECT ON test.* TO 'u1'
+GRANT INSERT ON test1.t1 TO 'u1'
+GRANT INSERT ON test1.t2 TO 'u1'
+rename user 'u1' to 'u2';
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+update t1 set c2=9;
+ERROR HY000: YAO-5036: no privilege

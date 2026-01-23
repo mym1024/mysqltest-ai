@@ -1,0 +1,187 @@
+##############################################################################################
+###1.测试功能点：测试row_count系统函数功能
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-02-07
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+
+#环境准备
+use test;
+create table t1(c1 int primary key);
+insert into t1 values(-1),(0),(1);
+create table t2(c1 int primary key,c2 int);
+insert into t2 values(-1,-1),(0,0),(1,1);
+create table t3(c1 int);
+insert into t3 values(1),(2),(3);
+create table t4(c1 int primary key);
+create table t5(c1 int primary key);
+insert into t5 values(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19),(20);
+
+#参数不同
+--error 5001
+select row_count(1);
+--error 5001
+select row_count(1,2);
+select row_count();
+
+#函数位置不同
+select * from t1;
+update t1 set c1=-2 where c1=row_count();
+select * from t1;
+update t1 set c1=row_count()-2 where c1=-2;
+select * from t1;
+select c1 from t1 having row_count()>=-1;
+select c1 from t1 group by c1 having c1> row_count();
+select c1 from t1 where c1>row_count() order by c1;
+select * from t1;
+insert into t1 values(row_count());
+select * from t1;
+delete from t1 where c1=row_count()-2;
+select * from t1;
+(select c1 from t1 where c1=-1) union (select c1 from t2 where c1=row_count());
+(select c1 from t1 where c1=1) intersect (select c1 from t2 where c1=row_count());
+(select c1 from t1 where c1=1) except (select c1 from t2 where c1=row_count());
+select ord(row_count()) from t1;
+select floor(row_count());
+select if(1<2,row_count(),4);
+select concat(row_count(),-2);
+select c1 from t1 where c1 between row_count() and 2;
+select c1 from t1 where c1 between -1 and row_count();
+
+#参数为列
+select row_count()+c1 from t1;
+select row_count()-c1 from t1;
+select row_count()*c1 from t1;
+select c1/row_count() from t1;
+select c1 from t1 where c1 in (select row_count() from t1);
+select row_count() from t1 join t2 on t1.c1=t2.c1;
+select t1.c1 from t1,t2 where t2.c1=row_count() and t1.c1=t2.c1;
+
+#上一条执行语句
+create database rowtest;
+select row_count();
+use rowtest;
+select row_count();
+drop database rowtest;
+select row_count();
+create database ybtest;
+use ybtest;
+create table test(c1 int);
+select row_count();
+drop table test;
+select row_count();
+use test;
+alter table t1 add c2 int;
+select row_count();
+truncate table t3;
+select row_count();
+show tables;
+select row_count();
+create or replace sequence seq1 as integer start with 1 increment by 1 minvalue -1 maxvalue 1 cycle;
+select row_count();
+alter sequence seq1 restart with 1 increment by 1 no minvalue no maxvalue no cycle;
+select row_count();
+drop sequence seq1;
+select row_count();
+create hash partition function hs(x) '(x+1)%2';
+select row_count();
+create enum partition function em(x,y) '[(1,1),(2,3)],[(3,4)]';
+select row_count();
+drop partition function hs;
+select row_count();
+create index indx on t2(c2);
+select row_count();
+drop index indx on t2;
+select row_count();
+create view v1 as select * from t1;
+select row_count();
+alter view v1 as select * from t1 where c1>0;
+select row_count();
+select * from v1;
+select row_count();
+show create view v1;
+select row_count();
+drop view v1;
+select row_count();
+desc t1;
+select row_count();
+insert into t1(c1) values(4),(5),(6);
+select row_count();
+insert into t4 select * from t5;
+select row_count();
+update t1 set c2=c1;
+select row_count();
+delete from t1 where c1=4 or c1=5 or c1=6;
+select row_count();
+replace into t1 values(1,1),(3,3);
+select row_count();
+replace into t2 values(1,2);
+select row_count();
+select * from t1;
+select row_count();
+select * from t2 where c1=1 for update;
+select row_count();
+prepare stmt_1 from 'update  t2 set c1=2 where c2=?';
+select row_count();
+set @a=2;
+select row_count();
+execute stmt_1 using @a;
+select row_count();
+deallocate prepare stmt_1;
+select row_count();
+create user 'test' identified by 'test.123456';
+select row_count();
+set password for 'test' = '1.password';
+select row_count();
+grant select on *.* to 'test';
+select row_count();
+revoke select on *.* from 'test';
+select row_count();
+rename user 'test' to 'test1';
+select row_count();
+alter user test1 locked;
+select row_count();
+alter user test1 unlocked;
+select row_count();
+drop user 'test1';
+select row_count();
+set @@session.yao_tx_timeout=900000;
+select row_count();
+alter system set tablet_replicas_num=3 comment 'modify by wn' scope = spfile server_type=yaoadminsvr;
+select row_count();
+select * from t3;
+begin;
+select row_count();
+insert into t3 values(4),(5);
+select row_count();
+commit;
+select row_count();
+select * from t3;
+#explain select 1\G
+explain select 1;
+select row_count();
+select * from t2 where c1=2 when 1=1;
+select row_count();
+update t3 set c1=3 where c1=4 when 1=1;
+select row_count();
+delete from t3 where c1=3 or c1=5;
+#;
+select row_count();
+select * from t1;
+select c1 from t1 where c1=3 when row_count(update t1 set c2=2 where c1=3)>=0;
+select * from t1;

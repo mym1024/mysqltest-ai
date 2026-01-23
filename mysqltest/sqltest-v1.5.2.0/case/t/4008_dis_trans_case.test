@@ -1,0 +1,234 @@
+--source merge.sql
+#######################################################
+###1.测试功能点：验证分布式事务开关的有效性；
+#######################################################
+
+--disable_query_log
+--enable_query_log
+
+# 关闭分布式事务开关
+alter system set enable_dist_trans='False' server_type=yaosqlsvr;
+
+
+###2-1:在hash分区下，通过DML操作来验证分布式事务开关的有效性
+drop table if exists t1;
+--error 5077
+drop partition function h1;
+create hash partition function h1(x)'x+1';
+create table t1(c1 int primary key,c2 int,c3 varchar(30)) partition by(hs,h1,c1);
+show table rules;
+show partition groups;
+--real_sleep 5
+## 隐藏事务
+# 插入的数据只涉及同一个参与者
+insert into t1 values(1,1,'aaaaa');
+insert into t1 values(2,2,'iiiii');
+insert into t1 values(3,3,'iiiii');
+insert into t1 values(4,4,'iiiii');
+insert into t1 values(13,13,'iiiii'),(15,15,'iiiii'),(17,17,'iiiii');
+
+replace into t1 values(12,12,'aaa'),(14,14,'aaa'),(16,16,'aaa');
+replace into t1 values(5,5,'aaa');
+replace into t1 values(6,6,'aaa');
+replace into t1 values(7,7,'aaa');
+replace into t1 values(16,16,'bbb'),(12,12,'bbb'),(14,14,'bbb');
+
+select * from t1;
+select * from t1 where c1 between 2 and 5;
+
+update t1 set c3='zzzzz' where c1=2;
+update t1 set c3='zzzzz' where c1=3;
+update t1 set c3='zzzzz' where c1=5 or c1=7;
+update t1 set c3='zzzzz' where c1=4 or c1=6;
+
+select * from t1;
+
+delete from t1 where c1=1 or c1=3 or c1=5;
+delete from t1 where c1 in (2,4,6);
+select * from t1;
+
+# 插入的数据涉及不同参与者
+--error 5087
+insert into t1 values(1,1,'aaaaa'),(2,2,'bbbbb'),(3,3,'ccccc'),(4,4,'ddddd'),(5,5,'eeeee'),(6,6,'fffff');
+--error 5087
+replace into t1 values(1,1,'aaaaaaaa'),(2,2,'bbbbbbb'),(3,3,'cccccccc'),(4,4,'dddddddd');
+--error 5087
+replace into t1 values(9,9,'ccc'),(11,11,'ccc'),(13,13,'ccc');
+select * from t1;
+
+--error 119
+update t1 set c3='ooooo' where c1 between 7 and 13;
+select * from t1 where c1<=10;
+select * from t1;
+
+## 显式事务
+# 插入的数据只涉及同一个参与者
+begin;
+insert into t1 values(1,1,'ppp');
+insert into t1 values(3,3,'ppp'),(5,5,'ppp');
+commit;
+select * from t1;
+
+begin;
+replace into t1 values(15,15,'ppp');
+replace into t1 values(17,17,'ppp'),(19,19,'ppp');
+commit;
+select * from t1;
+
+begin;
+update t1 set c2=c2*10 where c1=1;
+update t1 set c2=c2*10 where c1 in (3,7);
+commit;
+
+select * from t1;
+
+begin;
+delete from t1 where c1=1;
+delete from t1 where c1 in (3,5);
+commit;
+select * from t1;
+
+begin;
+insert into t1 values(1,1,'zzzzz');
+replace into t1 values(3,3,'zzzzz'),(5,5,'zzzzz');
+update t1 set c2=c2*10 where c1 in (1,3);
+commit;
+select * from t1;
+
+# 插入的数据涉及不同参与者
+begin;
+insert into t1 values(21,21,'iiiii');
+--error 5087
+insert into t1 values(22,22,'iiiii'),(23,23,'iiiii');
+--error 119
+update t1 set c3='fffff';
+commit;
+select * from t1;
+
+begin;
+update t1 set c2=c2*2 where c1=1;
+--error 5087
+update t1 set c2=c2*2 where c1=2;
+commit;
+select * from t1;
+
+begin;
+delete from t1 where c1=1;
+--error 5087
+delete from t1 where c1=2;
+delete from t1 where c1 in(3,4);
+commit;
+
+drop table if exists t1;
+drop partition function h1;
+--error 5019
+select  * from t1;
+--error 5019
+select * from t1 where c1 between 1 and 5;
+show table rules;
+
+###2-2:在指定enum分区下，验证分布式事务开关的有效性；
+create enum partition function e(x)'[(1)],[(3)],[(5)]';
+create table t1 (c1 int, c2 varchar(30), c3 int, c4 varchar(30), primary key(c1,c2)) partition by(em,e,c1);
+show table rules;
+show partition groups;
+
+--error 5702
+insert into t1 values(1,'aaaaa',1,'aaaaa'),(2,'bbbbb',2,'bbbbb'),(3,'ccccc',3,'ccccc'),(4,'ddddd',4,'ddddd'),(5,'eeeee',5,'eeeee');
+sleep 5;
+select * from t1;
+--error 5087
+insert into t1 values(1,'aaaaa',1,'aaaaa'),(1,'bbbbbb',1,'bbbbbb'),(3,'ccccc',3,'ccccc'),(5,'eeeee',5,'eeeee');
+
+select * from t1;
+select * from t1 where c1 between 1 and 5;
+
+insert into t1 values(1,'aaaaa',1,'aaaaa');
+
+--error 5702
+insert into t1 values(2,'bbbbb',2,'bbbbb');
+insert into t1 values(3,'ccccc',3,'ccccc');
+--error 5702
+insert into t1 values(4,'ddddd',4,'ddddd');
+insert into t1 values(5,'eeeee',5,'eeeee');
+select * from t1;
+select * from t1 where c1 between 1 and 5;
+--error 119
+update t1 set c2='zzzzz',c3=66 where c1 between 1 and 5;
+
+select * from t1;
+
+update t1 set c2='yyyyy' where c1=2;
+update t1 set c2='uuuuu' where c1=3;
+select * from t1 where c1 between 1 and 5;
+
+
+--error 119
+delete from t1;
+delete from t1 where c1=1;
+select *from t1;
+
+begin;
+--error 5702
+insert into t1 values(7,'rrrrr',7,'rrrrr'),(8,'ooooo',8,'ooooo'),(9,'tttttt',9,'ttttt');
+--error 5702
+insert into t1 values(10,'ggggg',10,'ggggg');
+--error 5702
+insert into t1 values(11,'vvvvv',11,'vvvvv');
+delete from t1 where c1=11;
+commit;
+select * from t1;
+
+begin;
+insert into t1 values(1,'vvvvv',1,'vvvvv');
+update t1 set c4='rrrrr' where c1=7;
+commit;
+select * from t1;
+
+begin;
+delete from t1 where c1=3;
+update t1 set c3=c3*10 where c1=2;
+commit;
+
+begin;
+replace into t1 values(3,'ggggg',3,'ggggg');
+update t1 set c3=c3+10 where c1=2;
+commit;
+select * from t1;
+
+show tables;
+show table rules;
+drop table if exists t2;
+
+###2-3:关闭分布式开关后，验证分布式事务开关的有效性；
+alter system set enable_dist_trans='true' server_type=yaosqlsvr;
+sleep 3;
+create hash partition function h1(x)'x+1';
+create table t2(c1 int, c2 int,c3 int, c4 varchar(20), primary key(c1,c2,c3)) partition by(hs,h1,c1);
+sleep 5;
+insert into t2 values(1,1,1,'aaaaa'),(2,2,2,'bbbbb'),(3,3,3,'ccccc'),(4,4,4,'ddddd'),(5,5,5,'eeeee'),(6,6,6,'fffff');
+--real_sleep 5
+select * from t2;
+insert into t2 values(7,7,7,'aaaaa');
+insert into t2 values(8,8,8,'bbbbb');
+insert into t2 values(9,9,9,'ccccc');
+insert into t2 values(10,10,10,'ddddd');
+--real_sleep 5
+select * from t2;
+show tables;
+show table rules;
+
+begin;
+insert into t2 values(11,11,11,'fffff');
+replace into t2 values(12,12,12,'ggggg'),(10,10,10,'hhhhh');
+commit;
+sleep 3;
+select * from t2;
+
+begin;
+update t2 set c3=c3*10 where c1=2;
+delete from t2 where c1=1;
+commit;
+sleep 3;
+select * from t2;
+

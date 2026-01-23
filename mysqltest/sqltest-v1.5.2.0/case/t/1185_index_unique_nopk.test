@@ -1,0 +1,339 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：可无主键表空列创建唯一索引、唯一约束
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：zhangtong
+###7.编写/修改日期：2023-08-22
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--source merge.sql
+
+#connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+#connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+#connection conn1;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6;
+--enable_warnings
+
+###2-1:唯一索引和唯一约束null列的测试
+##唯一约束
+create table test1(c1 int primary key, c2 int unique);
+create table test2(c1 int primary key , c2 bigint unique);
+create table test3(c1 int primary key , c2 timestamp unique);
+create table test4(c1 int primary key, c2 int not null, c3 int, unique(c2,c3));
+create table test5(c1 int primary key,c2 float ,unique idx_1 (c2));
+show create table test5;
+#约束列限制<16
+create table test6(c1 int primary key ,c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, c18 int,unique(c2 , c3 , c4 , c5 , c6 , c7 , c8 , c9 , c10 , c11 , c12 , c13 , c14 , c15 , c16  ));
+#--error 5007
+create table test7(c1 int primary key ,c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, c18 int,unique(c2 , c3 , c4 , c5 , c6 , c7 , c8 , c9 , c10 , c11 , c12 , c13 , c14 , c15 , c16 , c17 ));
+#冗余列
+create table test8 (c1 int primary key, c2 int , c3 int , c4 int , unique(c2)storing(c3,c4));
+--replace_column 1 '__3013__idx__uk_1718935651588339'
+show index on test8;
+--error 5031
+create table test9(c1 int  primary key, c2 int ,c3 int, unique index idx_1(c2) storing(c3,c1));
+#索引表<=16
+create table test10(c1 int primary key,c2 int unique,c3 int unique,c4 int unique, c5 int  unique, c6 int  unique,c7 int unique, c8 int unique,c9 int unique, c10 int unique,c11 int unique);
+#对约束列进行操作
+#--error 1
+create table test11(c1 int primary key,c2 int unique,c3 int unique,c4 int unique, c5 int  unique, c6 int  unique,c7 int unique, c8 int unique,c9 int unique, c10 int unique,c11 int unique,c12 int unique,c13 int unique,c14 int unique,c15 int unique,c16 int unique,c17 int unique,c18 int unique);
+create table test12(c1 int primary key, c2 int, c3 int not null,c4 varchar(50));
+alter table test12 add unique uk_1(c2);
+alter table test12 add unique index uk_2(c2);
+drop unique index uk_2 on test12;
+show index on test12;
+create unique index idx_1 ON test12(c4);
+alter table test12 drop unique index idx_1;
+desc test12;
+alter table test12 add column c5 int;
+alter table test12 add unique idx_2(c5);
+--error 65535
+alter table test12 drop column c5;
+alter table test12 drop unique index idx_2;
+show index on test12;
+desc test12;
+create table test13(c1 int primary key, c2 int, c3 int);
+alter table test13 add constraint indx_1 unique (c2);
+alter table test13 add constraint indx_2 unique (c1);
+alter table test13 add constraint indx_3 unique index (c3);
+show index on test13;
+#与普通索引结合
+create table test (c1 int PRIMARY KEY,c2 VARCHAR(50) NOT NULL,c3 VARCHAR(50) unique,c4 INT);
+create index idx_1 ON test(c3);
+show create table test;
+create unique index c1x_2  ON test(c4);
+create index idx_3 ON test(c4);
+alter table test add unique uk_1(c3);
+show create table test;
+show index on test;
+insert into test (c1,c2, c3, c4) VALUES (1,'John', 'aaa', 25),(2,'Jane Smith', 'bbb', 30),(3,'Bob', 'ccc', 35),(4,'Jude', 'ddd', 40);
+select * from test where c4 = 30;
+select * from test where c3 = 'ccc';
+drop table test;
+
+##唯一索引
+#通过create unique index 创建唯一索引
+create table test28(c1 int primary key, c2 int);
+create unique index idx_1 on test28(c2);
+show index on test28;
+create table test33(c1 int primary key, c2 int , c3 int);
+create unique index idx_1 on test33(c2) storing(c3);
+drop unique index idx_1 on test33;
+#索引表索引列临界值
+create table test42(c1 int primary key ,c2 int , c3 int , c4 int , c5 int , c6 int , c7 int , c8 int , c9 int , c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int );
+create unique index idx_1 on test42(c2  , c3  , c4  , c5  , c6  , c7  , c8  , c9  , c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16  );
+create table test43(c1 int primary key ,c2 int , c3 int , c4 int , c5 int , c6 int , c7 int , c8 int , c9 int , c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int );
+#--error 5007
+create unique index idx_1 on test43(c2  , c3  , c4  , c5  , c6  , c7  , c8  , c9  , c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16,c17  );
+create table test45(c1 int primary key ,c2 int , c3 int , c4 int , c5 int , c6 int , c7 int , c8 int , c9 int , c10 int,c11 int,c12 int); 
+create unique index idx_1 on test45(c2); 
+create unique index idx_2 on test45(c3); 
+create unique index idx_3 on test45(c4); 
+create unique index idx_4 on test45(c5); 
+create unique index idx_5 on test45(c6); 
+create unique index idx_6 on test45(c7); 
+create unique index idx_7 on test45(c8); 
+create unique index idx_8 on test45(c9); 
+create unique index idx_9 on test45(c10);
+create unique index idx_10 on test45(c11);
+#在非分区情况下，唯一索引的INSERT、DELETE、REPLACE
+create table test84(c1 int , c2 int , c3 int ,c4 int ,primary key(c1,c2),unique index idx_1(c3,c2));
+insert into test84 values(1,1,1,1);
+insert into test84 values(1,2,2,2);
+insert into test84 values(1,3,3,3);
+insert into test84 values(4,4,4,4);
+insert into test84 values(1,null,1,5);
+--error 5024
+insert into test84 values(null,1,1,5);
+--error 5024
+insert into test84 values(1,1,null,5);
+select * from test84;
+delete from test84 where c2=3 and c3=3;
+select * from test84;
+update test84 set c2=3 where c2=2;
+--error 119
+update test84 set c2=null where c2=1;
+update test84 set c1=4 where c2 is null and c3 is null;
+select * from test84;
+--error 7
+replace into test84 values(6,6,6,6);
+show create table test84;
+
+create table test94(c1 int  primary key, c2 int , c3 int ,unique index idx_1(c2), unique index idx_2(c2) storing(c3), unique index idx_3(c3), unique index idx_4(c3) storing(c2),unique index idx_5(c2,c1), unique index idx_6(c2,c3));
+insert into test94 values(1,1,1);
+insert into test94 values(2,2,2);
+insert into test94 values(3,3,3);
+insert into test94 values(4,4,4);
+insert into test94 values(5,5,5);
+--error 5024
+insert into test94 values(null,5,5);
+--error 5024
+insert into test94 values(5,5,null);
+insert into test94 values(null,null,null);
+select * from test94;
+delete from test94 where c2=2;
+select * from test94;
+--error 119
+update test94 set c1 = 4 where c2 = 1;
+update test94 set c1=null where c2 = 2;
+update test94 set c2=null where c2 = 3;
+--error 119
+update test94 set c1=4 where c2 is null and c3 is null;
+select * from test94;
+show create table test94;
+
+#insert的先试试回滚
+create table test64(c1 int primary key, c2 varchar(10)  unique);
+set autocommit = 0;
+insert into test64 values(1,'abc');
+select * from test64;
+rollback;
+select * from test64;
+commit;
+set autocommit =1;
+#临时变量
+create table test65(c1 int primary key ,c2 int  unique);
+set @a=1;
+insert into test65 values(1,@a);
+--error 5024
+insert into test65 values(2,@a);
+select * from test65;
+#在分区的情况下，唯一索引的增删查改测试
+create hash partition function h(x) 'x%3';
+create table test226(c1 int primary key, c2 int  unique, c3 int )partition by(hs,h,c1);
+--sleep 2
+insert into test226 values(1,null,1);
+insert into test226 values(2,null,2);
+insert into test226 values(3,null,3);
+--sleep 2
+select * from test226;
+delete from test226 where c1=3;
+--sleep 2
+select * from test226;
+insert into test226 values(3,null,3);
+update test226 set c1=4 where c3=1;
+--error 119
+update test226 set c1=4 where c2 is null and c3=3 and c1=3;
+select * from test226;
+desc test226;
+show create table test226;
+#回表、不回表
+create table test001(c1 int primary key, c2 int  unique, c3 int )partition by(hs,h,c1);
+--sleep 2
+insert into test001 values(1,1,1);
+insert into test001 values(2,2,2);
+insert into test001 values(3,3,3);
+--sleep 2
+select * from test001;
+explain select c3 from test001 where c2=3;
+
+create table test321(c1 int primary key, c2 int  , c3 int , unique index idx_1(c2) storing(c3))partition by(hs,h,c1);
+--sleep 2
+insert into test321 values(1,1,1);
+insert into test321 values(2,2,2);
+insert into test321 values(3,3,3);
+--sleep 3
+select * from test321;
+explain select c3 from test321 where c2=3;
+
+#数据表带有二级索引、唯一索引，进行增删查改数据操作
+create table test263(c1 int primary key, c2 int , c3 int ,unique index idx_1(c2), unique index idx_2(c2) storing(c3))partition by(hs,h,c1);
+create index idx_3 on test263(c2);
+create index idx_4 on test263(c2) storing(c3);
+insert into test263 values(1,1,1);
+--error 5024
+insert into test263 values(1,2,2);
+insert into test263 values(2,2,2);
+--error 5024
+insert into test263 values(3,2,3);
+insert into test263 values(3,3,3);
+insert into test263 values(4,null,null);
+insert into test263 values(5,null,5);
+insert into test263 values(6,6,null);
+--sleep 3
+select * from test263;
+delete from test263 where c2 is null and c1=4;
+--sleep 3
+update test263 set c2=null where c3=2;
+--sleep 2
+select * from test263;
+
+#合并操作后，唯一索引表的状态测试
+create table test302(c1 int  primary key, c2 int , c3 int , unique index idx_1(c2),unique index idx_2(c3),unique index idx_3(c2)storing(c3), unique index_4(c3) storing(c2), unique index idx_5(c2,c3,c1));
+insert into test302 values(1,1,1);
+insert into test302 values(2,2,2);
+insert into test302 values(3,3,3);
+show index on test302;
+
+#唯一索引表的drop unique index 测试
+create table test266(c1 int  primary key, c2 int, c3 int , unique index idx_1(c2), unique index idx_2(c3));
+show index on test266;
+drop unique index idx_2 on test266;
+alter table test266 add constraint indx_3 unique index (c3);
+show index on test266;
+
+#与外键结合
+CREATE TABLE table100 (c1 INT PRIMARY KEY, c2 VARCHAR(50), c3 VARCHAR(50) not null, unique index idx_1(c2) storing(c3));
+show index on table100;
+CREATE TABLE table200 (c1 INT PRIMARY KEY,c2 VARCHAR(50),FOREIGN KEY (c2) REFERENCES table100 (c2));
+--replace_column 1 '2023-12-28 10:52:32.980024' 2 '2023-12-28 10:52:32.980024' 5 'table2_ybfk_1703731952542041'
+select * from __all_foreign_key;
+insert into table100 VALUES(1,'aaa','aaa'),(2,'bbb','bbb'),(3,'ccc','ccc');
+insert into table200 VALUES(1,'aaa');
+drop table table200,table100;
+
+###2-4:无主键表上添加唯一约束和唯一索引
+#创建数据表时，建立唯一索引
+create table a2(c1 int, c2 int , c3 int , unique(c1,c2,c3));
+create table a5(c1 int ,c2 int ,unique idx_1 (c2));
+create table a9(c1 int  , c2 char(20) unique);
+show create table a9;
+create table a21(c1 int , c2 int , c3 int , c4 int , unique(c2)storing(c3,c4));
+--replace_column 1 '__3102__idx__uk_1718936905757571'
+show index on a21;
+create table a23(c1 int  , c2 int ,c3 int, unique index idx_1(c2) storing(c3,c1));
+show index on a23;
+
+#索引列索引表边界值
+create table a17(c1 int  ,c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, c18 int,unique(c2 , c3 , c4 , c5 , c6 , c7 , c8 , c9 , c10 , c11 , c12 , c13 , c14 , c15 , c16  ));
+#--error 5007
+create table a18(c1 int  ,c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, c18 int,unique(c2 , c3 , c4 , c5 , c6 , c7 , c8 , c9 , c10 , c11 , c12 , c13 , c14 , c15 , c16 , c17 ));
+create table a26(c1 int ,c2 int unique,c3 int unique,c4 int unique, c5 int  unique, c6 int  unique,c7 int unique, c8 int unique,c9 int unique, c10 int unique,c11 int unique);
+create table a42(c1 int  ,c2 int , c3 int , c4 int , c5 int , c6 int , c7 int , c8 int , c9 int , c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int,c18 int );
+create unique index idx_1 on a42(c2  , c3  , c4  , c5  , c6  , c7  , c8  , c9  , c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16  );
+
+#通过create unique index 创建唯一索引
+create table a40(c1 int , c2 int, c3 int, c4 int ,c5 int , c6 int);
+create unique index idx_1 on a40(c2);
+create unique index idx_2 on a40(c3);
+create unique index idx_3 on a40(c4);
+create unique index idx_4 on a40(c5);
+create unique index idx_5 on a40(c6);
+drop unique index idx_5 on a40;
+desc a40;
+show index on a40;
+
+#在非分区情况下，唯一索引的INSERT、DELETE、UPDATE、REPLACE
+create table a50(c1 int , c2 varchar(7)  unique);
+insert into a50 values(1,'abc');
+--error 5024
+insert into a50 values(2,'abc');
+insert into a50 values(3,null);
+insert into a50 values(4,null);
+select * from a50;
+
+create table a55(c1 int , c2 timestamp  unique);
+insert into a55 values(1,'2023-01-01 12:00:01');
+--error 5024
+insert into a55 values(2,'2023-01-01 12:00:01');
+insert into a55 values(3,null);
+insert into a55 values(4,null);
+select * from a55;
+
+CREATE TABLE example_table (id INT,name VARCHAR(50));
+ALTER TABLE example_table ADD CONSTRAINT uc_name UNIQUE (name);
+CREATE UNIQUE INDEX idx_name ON example_table(name);
+INSERT INTO example_table (id, name) VALUES (1, 'Alice');
+INSERT INTO example_table (id, name) VALUES (2, 'Bob');
+--error 5024
+INSERT INTO example_table (id, name) VALUES (3, 'Alice');
+SELECT * FROM example_table WHERE name = 'Alice';
+UPDATE example_table SET name = 'Charlie' WHERE id = 2;
+DELETE FROM example_table WHERE id = 1;
+ALTER TABLE example_table ADD age INT;
+INSERT INTO example_table (id, name, age) VALUES (4, 'David', 30);
+SELECT * FROM example_table WHERE age > 25;
+UPDATE example_table SET age = 35 WHERE id = 4;
+select * from example_table;
+DELETE FROM example_table WHERE id = 4;
+select * from example_table;
+ALTER TABLE example_table DROP age;
+show create table example_table;
+
+create table a172(c1 int  , c2 int ,c3 int , unique index idx_1(c2), unique index idx_2(c3), unique index idx_3(c2) storing(c3), unique index idx_4(c3) storing(c2),unique index idx_5(c2,c3,c1),unique index idx_6(c2,c1), unique index idx_7(c3,c1));
+insert into a172 values(1,null,null);
+insert into a172 values(2,2,2);
+insert into a172 values(3,3,3);
+select * from a172;
+update a172 set c3=4 where c2 is null and c3 is null and c1=1;
+delete from a172 where c3=5;
+select * from a172;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

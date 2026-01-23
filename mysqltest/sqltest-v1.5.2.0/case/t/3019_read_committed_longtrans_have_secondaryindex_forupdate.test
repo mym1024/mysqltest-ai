@@ -1,0 +1,46 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：有索引表的数据表，for update
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1002s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists c;
+--enable_warnings
+
+--disable_query_log
+--enable_query_log
+
+
+
+create table c (c1 int primary key,c2 varchar(8)) ;
+
+create index c_index on c(c2);
+
+show index on c;
+
+begin;
+insert into c values(1,1);
+select * from c where c1=1 for update;
+commit;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

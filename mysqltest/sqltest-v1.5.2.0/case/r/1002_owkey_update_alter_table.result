@@ -1,0 +1,55 @@
+create database rowkey_database;
+using database rowkey_database;
+create table if not exists t1(id1 int primary key, col1 int);
+create table if not exists t2(id1 int primary key, col1 int, col2 int);
+replace into t1 values(0,0);
+replace into t1 values(1,0);
+replace into t1 values(2,0);
+select * from t1;
+id1	col1
+0	0
+1	0
+2	0
+replace into t2 values(0,0,0);
+replace into t2 values(1,0,0);
+replace into t2 values(2,0,0);
+select * from t2;
+id1	col1	col2
+0	0	0
+1	0	0
+2	0	0
+alter table t1 add column col2 int;
+alter table t1 add column col3 int;
+select table_id,max_used_column_id from __first_tablet_entry where table_name='t1';
+table_id	max_used_column_id
+3001	19
+update t1 set id1=3 where id1=0;
+select * from t1;
+id1	col1	col2	col3
+1	0	NULL	NULL
+2	0	NULL	NULL
+3	0	NULL	NULL
+update t1 set id1=id1+10 where id1>=0;
+select * from t1;
+id1	col1	col2	col3
+11	0	NULL	NULL
+12	0	NULL	NULL
+13	0	NULL	NULL
+alter table t2 drop column col1;
+select table_id,max_used_column_id from __first_tablet_entry where table_name='t2';
+table_id	max_used_column_id
+3002	18
+update t2 set id1=4 where id1=1;
+select * from t2;
+id1	col2
+0	0
+2	0
+4	0
+update t2 set id1=id1+10 where id1>=0;
+select * from t2;
+id1	col2
+10	0
+12	0
+14	0
+drop table if exists t1;
+drop table if exists t2;

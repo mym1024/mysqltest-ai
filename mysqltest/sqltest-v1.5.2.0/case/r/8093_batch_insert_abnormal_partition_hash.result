@@ -1,0 +1,123 @@
+drop table if exists t1,t2;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x)'x+1';
+create table t1(c1 int primary key,c2 int not null)partition by(hs,h,c1);
+create table t2(c1 int primary key,c2 int)partition by(hs,h,c1);
+insert into t2 values(1,1),(2,2);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from t2;
+c1	c2
+1	1
+2	2
+insert into t1(c1) select c1 from t2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from t1;
+c1	c2
+insert into t1(c1) select c1 from t2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from t1;
+c1	c2
+insert into t1 select * from t2;
+select * from t1;
+c1	c2
+1	1
+2	2
+insert into t1 select * from t1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	1
+2	2
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	1
+2	2
+drop table if exists t1,t2,t3;
+drop partition function g;
+ERROR HY000: YAO-5077: partition function 'g' doesn't exist
+create hash partition function g(x)'x+1';
+create table t1(c1 int primary key,c2 int)partition by(hs,g,c1);
+create table t2(c1 int primary key,c2 int)partition by(hs,g,c1);
+create table t3(c1 int primary key,c2 varchar(30))partition by(hs,g,c1);
+insert into t3 values(10,'hhaa');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from t3;
+c1	c2
+10	hhaa
+insert into t1 select * from t3;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from t1;
+c1	c2
+insert into t1(c1) select * from t3;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2
+insert into t2(c2) select c1 from t3;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from t2;
+c1	c2
+drop table if exists t1,t2,t3;
+drop partition function f;
+ERROR HY000: YAO-5077: partition function 'f' doesn't exist
+create hash partition function f(x)'x+1';
+create table t1(c1 int,c2 real,c3 varchar(30),primary key(c1,c2))partition by(hs,f,c1);
+create table t2(c1 int primary key,c2 real)partition by(hs,f,c1);
+insert into t2 values(1,1.256);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+select * from t2;
+c1	c2
+1	1.256
+insert into t1(c1,c2) select * from t2;
+select * from t1;
+c1	c2	c3
+1	1.256	NULL
+insert into t1 select * from t2;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2	c3
+1	1.256	NULL

@@ -1,0 +1,167 @@
+--source merge.sql
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+#######################################################
+#1.���Թ��ܵ㣺��������ִ���й�������DDL����
+#######################################################
+
+using database test;
+sleep 5;
+--disable_query_log
+--enable_query_log
+sleep 5;
+
+###2-1:������������ʱִ��DDL����create index, drop index
+create table t1(c1 int,c2 int, c3 int,c4 int,primary key(c1,c2));
+insert into t1 values(1,2,3,4);
+insert into t1 values(2,3,4,5);
+insert into t1 values(3,4,5,6);
+create index i1 on t1(c2) storing(c3,c4);
+show index on t1;
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+sleep 600;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+drop index i1 on t1;
+show index on t1;
+
+
+###2-2:������������ִ��DDL����create index, drop index
+###��ʽһ: set autocommit =0 + insert
+create table t2(c1 int, c2 int, primary key(c1));
+
+set autocommit=0;
+insert into t2 values(1,1);
+--error 5060
+create index i1 on t1(c2) storing(c3,c4);
+commit;
+select * from t2;
+show index on t1;
+
+set autocommit=0;
+insert into t2 values(2,1);
+--error 5060
+create index i1 on t1(c2) storing(c3,c4);
+rollback;
+select * from t2;
+show index on t1;
+
+set autocommit=1;
+create index i1 on t1(c2) storing(c3,c4);
+show index on t1;
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+sleep 700;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+
+set autocommit=0;
+insert into t2 values(3,1);
+--error 5060
+drop index i1 on t1;
+commit;
+select * from t2;
+show index on t1;
+
+set autocommit=0;
+insert into t2 values(4,1);
+--error 5060
+drop index i1 on t1;
+rollback;
+select * from t2;
+show index on t1;
+
+set autocommit=1;
+drop table t2;
+drop index i1 on t1;
+
+
+###��ʽ��:begin
+create table t2(c1 int, c2 int, primary key(c1));
+
+begin;
+--error 5060
+create index i1 on t1(c2) storing(c3,c4);
+insert into t2 values(1,1);
+commit;
+select * from t2;
+show index on t1;
+
+begin;
+--error 5060
+create index i1 on t1(c2) storing(c3,c4);
+insert into t2 values(2,1);
+rollback;
+select * from t2;
+show index on t1;
+
+create index i1 on t1(c2) storing(c3,c4);
+show index on t1;
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+sleep 800;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+
+begin;
+--error 5060
+drop index i1 on t1;
+insert into t2 values(3,1);
+commit;
+select * from t2;
+show index on t1;
+
+begin;
+--error 5060
+drop index i1 on t1;
+insert into t2 values(4,1);
+rollback;
+select * from t2;
+show index on t1;
+
+drop table t2;
+drop index i1 on t1;
+
+
+###2-3:����������autocommitΪ0��ִ��DDL����create index, drop index
+create table t2(c1 int, c2 int, primary key(c1));
+
+set autocommit=0;
+create index i1 on t1(c1) storing(c3);
+insert into t2 values(1,1);
+commit;
+select * from t2;
+show index on t1;
+
+set autocommit=0;
+create index i2 on t1(c2) storing(c4);
+insert into t2 values(2,1);
+rollback;
+select * from t2;
+show index on t1;
+
+set autocommit=1;
+show index on t1;
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+sleep 1000;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+
+set autocommit=0;
+drop index i1 on t1;
+insert into t2 values(3,1);
+commit;
+select * from t2;
+show index on t1;
+
+set autocommit=0;
+drop index i2 on t1;
+insert into t2 values(4,1);
+rollback;
+select * from t2;
+show index on t1;

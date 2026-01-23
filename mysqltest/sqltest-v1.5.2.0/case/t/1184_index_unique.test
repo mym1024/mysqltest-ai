@@ -1,0 +1,454 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：测试唯一索引、唯一约束
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：zhangtong
+###7.编写/修改日期：2023-08-22
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--source merge.sql
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6;
+--enable_warnings
+
+###2-1:唯一约束测试
+##正常系建唯一约束
+create table t1(c1 int primary key, c2 int not null, c3 int not null, unique(c2,c3));
+desc t1;
+create table t2(c1 int primary key,c2 int not null,unique idx_1 (c2));
+show create table t2;
+show index on t2;
+create table t3(c1 int primary key, c2 varchar(20) not null unique);
+desc t3;
+create table t4(c1 int primary key, c2 timestamp not null unique);
+desc t4;
+create table t5(c1 int primary key, c2 int not null, c3 int not null, c4 int not null, unique idx_2 (c2)storing(c3,c4));
+show create table t5;
+drop table t1,t2,t3,t4,t5;
+
+##异常系建唯一约束
+#--error 166
+create table t1(c1 int primary key, c2 int unique);
+show create table t1;
+drop table t1;
+#--error 5211
+create table t1(c1 int, c2 int not null unique);
+show create table t1;
+drop table t1;
+#--error 5211
+create table t1(c1 int primary key auto_increment, c2 int not null unique);
+show create table t1;
+drop table t1;
+--error 5206
+create table t1(c1 int primary key, c2 int not null unique auto_increment);
+--error 5006
+create table t1(c1 int primary key ,c2 createtime not null unique);
+--error 31
+create table t1(c1 int primary key, c2 int not null, unique(c3));
+--error 5031
+create table t1(c1 int not null primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3,c1));
+--error 5209
+create table t1(c1 int not null primary key, c2 int not null, unique index idx_1(c2) storing(c2));
+
+##唯一约束列临界值测试
+#唯一约束列>16
+#--error 5007
+create table t1(c1 int primary key, c2 int not null, c3 int not null, c4 int not null,c5 int not null, c6 int not null, c7 int not null, c8 int not null, c9 int not null, c10 int not null ,c11 int not null, c12 int not null, c13 int not null, c14 int not null, c15 int not null, c16 int not null, c17 int not null, c18 int not null, unique(c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18));
+drop table t1;
+#唯一约束对应创建的索引表>16
+#--error 1
+create table t2(c1 int primary key,c2 int not null unique,c3 int not null unique,c4 int not null unique, c5 int not null unique, c6 int not null unique,c7 int not null unique, c8 int not null unique,c9 int not null unique, c10 int not null unique,c11 int not null unique,c12 int not null unique);
+create table t3(c1 int primary key,c2 int not null unique,c3 int not null unique,c4 int not null unique, c5 int not null unique, c6 int not null unique,c7 int not null unique, c8 int not null unique,c9 int not null unique, c10 int not null unique,c11 int not null unique);
+show index on t2;
+drop table t2,t3;
+
+##在非分区情况下，唯一约束的INSERT、DELETE、UPDATE、REPLACE
+#指定临时变量
+create table t1(c1 int primary key ,c2 int not null unique);
+--error 7
+replace into t1 values(1,1);
+set @a=1;
+insert into t1 values(1,@a);
+--error 5024
+insert into t1 values(2,@a);
+select * from t1;
+#唯一约束的索引表增删改数据
+create table t3(c1 int primary key, c2 timestamp not null unique);
+insert into t3 values(1,'2023-06-12 12:00:00.123456');
+insert into t3 values(2,'2023-06-12 12:00:00.456789');
+--error 5024
+insert into t3 values(3,'2023-06-12 12:00:00.456789');
+select * from t3;
+show index on t3;
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t3',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__c2
+--let $index1_name=$index_head$n$index1_end
+echo $index1_name;
+eval select * from $index1_name;
+--error 119
+update t3 set c2='2023-06-12 12:00:00.456789' where c2='2023-06-12 12:00:00.123456';
+update t3 set c2='2023-06-14 12:00:01.555555' where c2='2023-06-12 12:00:00.123456';
+select * from t3;
+eval select * from $index1_name;
+delete from t3 where c2='2023-06-12 12:00:00.456789';
+select * from t3;
+eval select * from $index1_name;
+update t3 set c2='2023-06-14 12:00:01.666666' where c1=1;
+select * from t3;
+drop unique index c2 on t3;
+show index on t3;
+desc t3;
+drop table t1,t3;
+
+##alter table语句
+create table t1(c1 int primary key, c2 int not null , c3 int not null);
+desc t1;
+alter table t1 add unique uk_1(c2);
+--error 17
+alter table t1 add unique uk_1(c2);
+alter table t1 add unique index uk_2(c2);
+desc t1;
+show index on t1;
+--error 65535
+alter table t1 drop c2;
+alter table t1 drop unique uk_1;
+alter table t1 drop unique uk_2;
+alter table t1 drop c2;
+desc t1;
+show index on t1;
+--error 7
+alter table t1 add  c4 int unique;
+--error 7
+alter table t1 add  c5 int not null unique;
+desc t1;
+show index on t1;
+alter table t1 add unique index idx_1(c3);
+desc t1;
+show index on t1;
+alter table t1 add  c6 int not null;
+create unique index idx_c6 on t1(c6);
+desc t1;
+show index on t1;
+
+##在分区的情况下，唯一约束的增删查改测试
+create hash partition function h(x) 'x%3';
+--real_sleep 1
+create table t2(c1 int primary key, c2 int not null unique, c3 int not null)partition by(hs,h,c1);
+--real_sleep 1
+insert into t2 values(1,1,1);
+insert into t2 values(2,2,2);
+insert into t2 values(3,3,3);
+--error 5024
+insert into t2 values(4,2,3);
+select * from t2;
+explain select c3 from t2 where c2=3;
+
+--real_sleep 1
+create table t3(c1 int primary key, c2 int not null , c3 int not null, unique index idx_1(c2) storing(c3))partition by(hs,h,c1);
+--real_sleep 1
+insert into t3 values(1,1,1);
+insert into t3 values(2,2,2);
+insert into t3 values(3,3,3);
+select * from t3;
+explain select c3 from t3 where c2=3;
+drop table t1,t2,t3;
+
+##有唯一约束的数据表，insert、update、delete并发更新主键相同的记录
+create table t1(c1 int primary key, c2 int not null unique);
+set autocommit = 0;
+insert into t1 values(1,1);
+connection conn2;
+set autocommit = 0;
+--error 5049
+insert into t1 values(2,1);
+--error 5049
+update t1 set c2=2 where c1=1;
+--error 5049
+delete from t1 where c1=1;
+commit;
+connection conn1;
+commit;
+select * from t1;
+set autocommit = 1;
+drop table t1;
+
+##唯一约束事务回滚
+connection conn1;
+create table t1(c1 int primary key, c2 varchar(10) not null unique);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 1
+set autocommit=0;
+show variables like 'autocommit';
+insert into t1 values(1,'abc');
+select * from t1 where c1 = 1;
+commit;
+insert into t1 values (2, 'def');
+select * from t1 where c1 = 2;
+rollback;
+select * from t1;
+delete from t1 where c1=1;
+rollback;
+select * from t1;
+update t1 set c2='aaa' where c1=1;
+commit;
+set autocommit=1;
+drop table t1;
+
+###2-2:唯一索引测试
+#正常系建索引
+create table t1(c1 int primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3));
+show create table t1;
+show index on t1;
+desc t1;
+create table t2(c1 int primary key, c2 int not null, c3 int not null);
+show create table t2;
+create unique index idx_1 on t2(c2) storing(c3);
+show create table t2;
+show index on t2;
+desc t2;
+create table t4(c1 int primary key not null, c2 int not null, c3 int not null);
+alter table t4 add constraint indx_1 unique (c2);
+alter table t4 add constraint indx_2 unique (c1);
+alter table t4 add constraint indx_3 unique index (c3);
+show index on t4;
+
+#异常系建索引
+--error 5031
+create table t3(c1 int not null primary key, c2 int not null,c3 int not null, unique index idx_1(c2) storing(c3,c1));
+create table t3(c1 int primary key, c2 int not null, c3 int not null);
+--error 65535
+create unique index idx_1 on t3(c2) storing(c2);
+drop table t1,t2,t3,t4;
+
+#create unique index 创建唯一索引
+create table t1(c1 int primary key, c2 int not null);
+create unique index idx_1 on t1(c2);
+show create table t1;
+drop unique index idx_1 on t1;
+show index on t1;
+desc t1;
+create unique index idx_1 on t1(c2);
+show index on t1;
+drop unique index idx_1 on t1;
+--error 5008
+create unique index idx_1 on t1(c2,c2);
+--error 5610
+create unique index idx_1 on t1(c3);
+create table t2(c1 int primary key, c2 int not null, c3 int not null, c4 int not null, c5 int not null, c6 int not null,c7 int not null, c8 int not null, c9 int not null, c10 int not null, c11 int not null, c12 int not null);
+create unique index idx_1 on t2(c2);
+create unique index idx_2 on t2(c3);
+create unique index idx_3 on t2(c4);
+create unique index idx_4 on t2(c5);
+create unique index idx_5 on t2(c6);
+create unique index idx_6 on t2(c7);
+create unique index idx_7 on t2(c8);
+create unique index idx_8 on t2(c9);
+create unique index idx_9 on t2(c10);
+create unique index idx_10 on t2(c11);
+#--error 65535
+create unique index idx_11 on t2(c12);
+show index on t2;
+drop table t1,t2;
+
+##临界值测试
+#创建索引表>100
+--error 5042
+create table t2(c1 int not null primary key,c2 int  not null,c3  int not null ,c4 int not null,c5 int not null,c6 int not null,c7 int not null,c8 int not null,c9 int not null,c10 int not null,c11 int not null,c12 int not null,c13 int not null,c14 int not null,c15 int not null,c16 int not null,c17 int not null,c18 int not null,c19 int not null,c20 int not null,c21 int not null,c22 int not null,c23 int not null,c24 int not null,c25 int not null,c26 int not null,c27 int not null,c28 int not null,c29 int not null,c30 int not null,c31 int not null,c32 int not null,c33 int not null,c34 int not null,c35 int not null,c36 int not null,c37 int not null,c38 int not null,c39 int not null,c40 int not null,c41 int not null,c42 int not null,c43 int not null,c44 int not null,c45 int not null,c46 int not null,c47 int not null,c48 int not null,c49 int not null,c50 int not null,c51 int not null,c52 int not null,c53 int not null,c54 int not null,c55 int not null,c56 int not null,c57 int not null,c58 int not null,c59 int not null,c60 int not null,c61 int not null,c62 int not null,c63 int not null,c64 int not null,c65 int not null,c66 int not null,c67 int not null,c68 int not null,c69 int not null,c70 int not null,c71 int not null,c72 int not null,c73 int not null,c74 int not null,c75 int not null,c76 int not null,c77 int not null,c78 int not null,c79 int not null,c80 int not null,c81 int not null,c82 int not null,c83 int not null,c84 int not null,c85 int not null,c86 int not null,c87 int not null,c88 int not null,c89 int not null,c90 int not null,c91 int not null,c92 int not null,c93 int not null,c94 int not null,c95 int not null,c96 int not null,c97 int not null,c98 int not null,c99 int not null,c100 int not null,c101 int not null,c102 int not null,unique index idx_1(c2,c1) storing(c3 ,c4 ,c5 ,c6 ,c7 ,c8 ,c9 ,c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16 ,c17 ,c18 ,c19 ,c20 ,c21 ,c22 ,c23 ,c24 ,c25 ,c26 ,c27 ,c28 ,c29 ,c30 ,c31 ,c32 ,c33 ,c34 ,c35 ,c36 ,c37 ,c38 ,c39 ,c40 ,c41 ,c42 ,c43 ,c44 ,c45 ,c46 ,c47 ,c48 ,c49 ,c50 ,c51 ,c52 ,c53 ,c54 ,c55 ,c56 ,c57 ,c58 ,c59 ,c60 ,c61 ,c62 ,c63 ,c64 ,c65 ,c66 ,c67 ,c68 ,c69 ,c70 ,c71 ,c72 ,c73 ,c74 ,c75 ,c76 ,c77 ,c78 ,c79 ,c80 ,c81 ,c82 ,c83 ,c84 ,c85 ,c86 ,c87 ,c88 ,c89 ,c90 ,c91 ,c92 ,c93 ,c94 ,c95 ,c96 ,c97 ,c98 ,c99,c100,c101));
+--error 5042
+create table t2(c1 int not null primary key,c2 int  not null,c3  int not null ,c4 int not null,c5 int not null,c6 int not null,c7 int not null,c8 int not null,c9 int not null,c10 int not null,c11 int not null,c12 int not null,c13 int not null,c14 int not null,c15 int not null,c16 int not null,c17 int not null,c18 int not null,c19 int not null,c20 int not null,c21 int not null,c22 int not null,c23 int not null,c24 int not null,c25 int not null,c26 int not null,c27 int not null,c28 int not null,c29 int not null,c30 int not null,c31 int not null,c32 int not null,c33 int not null,c34 int not null,c35 int not null,c36 int not null,c37 int not null,c38 int not null,c39 int not null,c40 int not null,c41 int not null,c42 int not null,c43 int not null,c44 int not null,c45 int not null,c46 int not null,c47 int not null,c48 int not null,c49 int not null,c50 int not null,c51 int not null,c52 int not null,c53 int not null,c54 int not null,c55 int not null,c56 int not null,c57 int not null,c58 int not null,c59 int not null,c60 int not null,c61 int not null,c62 int not null,c63 int not null,c64 int not null,c65 int not null,c66 int not null,c67 int not null,c68 int not null,c69 int not null,c70 int not null,c71 int not null,c72 int not null,c73 int not null,c74 int not null,c75 int not null,c76 int not null,c77 int not null,c78 int not null,c79 int not null,c80 int not null,c81 int not null,c82 int not null,c83 int not null,c84 int not null,c85 int not null,c86 int not null,c87 int not null,c88 int not null,c89 int not null,c90 int not null,c91 int not null,c92 int not null,c93 int not null,c94 int not null,c95 int not null,c96 int not null,c97 int not null,c98 int not null,c99 int not null,c100 int not null,c101 int not null,c102 int not null,unique index idx_1(c2,c1) storing(c3 ,c4 ,c5 ,c6 ,c7 ,c8 ,c9 ,c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16 ,c17 ,c18 ,c19 ,c20 ,c21 ,c22 ,c23 ,c24 ,c25 ,c26 ,c27 ,c28 ,c29 ,c30 ,c31 ,c32 ,c33 ,c34 ,c35 ,c36 ,c37 ,c38 ,c39 ,c40 ,c41 ,c42 ,c43 ,c44 ,c45 ,c46 ,c47 ,c48 ,c49 ,c50 ,c51 ,c52 ,c53 ,c54 ,c55 ,c56 ,c57 ,c58 ,c59 ,c60 ,c61 ,c62 ,c63 ,c64 ,c65 ,c66 ,c67 ,c68 ,c69 ,c70 ,c71 ,c72 ,c73 ,c74 ,c75 ,c76 ,c77 ,c78 ,c79 ,c80 ,c81 ,c82 ,c83 ,c84 ,c85 ,c86 ,c87 ,c88 ,c89 ,c90 ,c91 ,c92 ,c93 ,c94 ,c95 ,c96 ,c97 ,c98 ,c99,c100));
+#show index on t2;
+#创建索引表名长度>242
+--error 5078
+create table t3(c1 int primary key,c2 int not null,unique index tttttt012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789ttttttt01234567890123456789012345677890123456789012345678901234567890123456789012345678901234567890123456789012345123(c2));
+create table t3(c1 int primary key,c2 int not null,unique index tttttt012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789ttttttt0123456789012345678901234567789012345678901234567890123456789012345678901234567890123456789012345678901234512(c2));
+show index on t3;
+
+##数据表带有二级索引、唯一索引，进行增删查改数据操作
+create table t1(c1 int primary key, c2 int not null, c3 int not null,unique index idx_1(c2), unique index idx_2(c2) storing(c3))partition by(hs,h,c1);
+create index idx_3 on t1(c2);
+create index idx_4 on t1(c2) storing(c3);
+show index on t1;
+--echo “merge”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+insert into t1 values(1,1,1);
+--error 5024
+insert into t1 values(1,2,2);
+insert into t1 values(2,2,2);
+--error 5024
+insert into t1 values(3,2,3);
+insert into t1 values(3,3,3);
+select * from t1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__idx_1
+--let $index1_name=$index_head$n$index1_end
+echo $index1_name;
+
+--let $index2_end =__idx__idx_2
+--let $index2_name=$index_head$n$index2_end
+echo $index2_name;
+
+--let $index3_end =__idx__idx_3
+--let $index3_name=$index_head$n$index3_end
+echo $index3_name;
+
+--let $index4_end =__idx__idx_4
+--let $index4_name=$index_head$n$index4_end
+echo $index4_name;
+
+--sleep 1
+delete from t1 where c1=3 and c3=3;
+select * from t1;
+eval select * from $index1_name;
+eval select * from $index2_name;
+eval select * from $index3_name;
+eval select * from $index4_name;
+
+--sleep 1
+update t1 set c1=4 where c1=1;
+--sleep 1
+select * from t1;
+--sleep 1
+eval select * from $index1_name;
+--sleep 1
+eval select * from $index2_name;
+--sleep 1
+eval select * from $index3_name;
+eval select * from $index4_name;
+
+drop unique index idx_1 on t1;
+show index on t1;
+drop table t1,t3;
+
+##并发处理
+#读未提交隔离级别(insert，join并发)
+create table t1 (c1 int primary key,c2 varchar(8)) ;
+create table t2 (d1 int primary key,d2 varchar(8)) ;
+--error 5001
+create unique index on t1(c2);
+create unique index t1_index on t1(c2);
+create unique index t2_index on t2(d2);
+#--echo “merge”
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+#--real_sleep 700 
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+show index on t2;
+connection conn1;
+set autocommit=0;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+--sleep 2
+connection conn2;
+set autocommit=0;
+insert into t1 values(2,2);
+--sleep 2
+select * from t1,t2 where t1.c1=t2.d1;
+select * from t1 left join t2 on t1.c1=t2.d1;
+select * from t1 right join t2 on t1.c1=t2.d1;
+select * from t1 inner join t2 on t1.c1=t2.d1;
+select/*+join(si)*/ * from t1 left join t2 on t1.c1=t2.d1;
+select/*+join(bloomfilter_join)*/ * from t1 left join t2 on t1.c1=t2.d1;
+commit;
+connection conn1;
+select * from t1;
+set autocommit=1;
+drop table t1,t2;
+#读提交隔离级别(并发读写join)
+create table t1 (c1 int primary key,c2 varchar(8));
+create table t2 (d1 int primary key,d2 varchar(8));
+create unique index t1_index on t1(c2);
+create unique index t2_index on t2(d2);
+#--echo “merge”
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+#--real_sleep 700 
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+show index on t2;
+connection conn1;
+begin;
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+--sleep 1
+connection conn2;
+begin;
+insert into t1 values(2,2);
+commit;
+--sleep 1
+connection conn1;
+select * from t1;
+disconnect conn1;
+disconnect conn2;
+
+##单个长事务多次insert
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 varchar(8)) ;
+create unique index c_index on t1(c2);
+#--echo "merge"
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+#--real_sleep 700
+#exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+show index on t1;
+begin;
+let $i=1;
+while($i < 20)
+{
+eval insert into t1 values($i,concat($i,'a'));
+inc $i;
+}
+set autocommit=0;
+show variables like 'autocommit';
+insert into t1 values (99,'aa');
+select count(*) from t1;
+commit;
+update t1 set c2 ='bb' where c1=99;
+select * from t1 where c1 =99;
+rollback;
+select * from t1 where c1 =99;
+rollback;
+delete from t1 where c1 = 99;
+select count(*) from t1;
+rollback;
+select * from t1 where c1 =99;
+set autocommit=1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__c_index
+--let $index1_name=$index_head$n$index1_end
+echo $index1_name;
+select * from t1;
+eval select * from $index1_name order by c2 desc;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

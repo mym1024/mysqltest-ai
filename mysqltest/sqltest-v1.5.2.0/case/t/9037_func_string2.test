@@ -1,0 +1,409 @@
+##############################################################################################
+###1.测试功能点：测试字符串char_length、REGEXP、LOCATE、SUBSTRING_INDEX函数功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-02-18
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+###2-1：char_length
+#参数为空不同
+select char_length(' ');
+select char_length('abcd');
+
+#参数含有不同的字符
+select char_length('你好abc');
+#--error 5001
+select char_length(char(0));
+select char_length(NULL);
+select char_length('，。【】@,. ');
+select char_length(',你好.abc []');
+
+#参数含有四则运算
+select char_length('2+3*2/2.5');
+select char_length('2+3*2/2.5-10');
+select char_length('5mod2');
+
+#参数含有逻辑运算
+select char_length('1=1');
+select char_length('1>1');
+select char_length('10>3.14');
+select char_length('(1+2*(0.5*2)/1)>10/2');
+select char_length('1<1');
+select char_length('(1+2*(0.5*2)/1)<10/2');
+select char_length('(1+2*(0.5*2)/1)>=3');
+select char_length('1+2*(0.5*2)/1)>=(10+2*1.5)');
+select char_length('(1+2*(0.5*2)/1)<=(10+2*1.5)');
+select char_length('(1+2*(0.5*2)/1)!=(10+2*1.5)/10');
+select char_length('(1+2*(0.5*2)/1)!=(1+2*(0.5*2)/1)');
+select char_length('1<>1');
+select char_length('1||2');
+
+#参数为列
+use test;
+create table t1 (c_int int,c_varchar varchar(30),c_float float,c_double double,c_decimal decimal);
+insert into t1 values(2,'西北工业大学',2.3,4.6,6);
+select char_length(c_varchar) from t1;
+select char_length(c_float) from t1;
+select char_length(c_double) from t1;
+select char_length(c_int) from t1;
+select char_length(c_decimal) from t1;
+
+#列四则运算
+select char_length(c_varchar + 'abc') from t1;
+select char_length(c_float*2) from t1;
+select char_length(c_decimal+2.5) from t1;
+select char_length(c_double+2.5) from t1;
+select char_length(c_int*2) from t1;
+
+#嵌套函数
+select char_length(concat(c_varchar,'123')) from t1;
+select char_length(upper(c_varchar)) from t1;
+insert into t1 values(3,'西安',2.3,4.6,6);
+insert into t1 values(4,'北京市',2.3,4.6,6);
+insert into t1 values(5,'1',2.3,4.6,6);
+select * from t1;
+update t1 set c_int=10 where char_length(c_varchar)=2;
+select * from t1;
+update t1 set c_int=char_length('今天天气真好！。') where c_varchar='1';
+select * from t1;
+insert into t1 values(5,'上海',char_length('你好abc,.，。'),4.5,1);
+select * from t1;
+delete from t1 where c_int=char_length('1234');
+select * from t1;
+create table t2(c_int int,c_varchar varchar(20),c_float float,c_double double,c_decimal decimal);
+insert into t2 values(5,'欢迎你',4.5,5.6,3);
+select c_varchar from t1 where c_int=char_length('西安') union select c_varchar from t2 where c_int=char_length('北京市人民');
+select c_varchar from t1 where c_int=char_length('西安') intersect select c_varchar from t2 where c_int=char_length('北京市人民');
+insert into t1 values(6,'西安市',2.3,4.6,6);
+select t1.c_int,t2.c_int from t1,t2 where char_length(t1.c_varchar)=char_length(t2.c_varchar);
+select char_length(t1.c_varchar||t2.c_varchar) from t1,t2 where t1.c_int=t2.c_int;
+
+###2-2：REGEXP
+#参数为空不同
+select null regexp '1';
+select '1' regexp null;
+select null regexp null;
+
+#第一个参数数据类型不同
+SELECT 111 REGEXP '1+'; 
+SELECT '111' REGEXP '1+'; 
+select '1998-09-03 00:00:00' REGEXP '1';
+select cast(2.141 as float) regexp '2.141+$';
+select cast(2.141 as double) regexp '2.141+$';
+select true regexp 'true$';
+
+#第二个参数数据类型不同
+SELECT '1' REGEXP 1; 
+SELECT '111' REGEXP '1+'; 
+select '1998-09-03 00:00:00' REGEXP '1998-09-03 00:00:00';
+select cast(2.141 as float) regexp '2.141+$';
+select cast(2.141 as double) regexp '2.141+$';
+select 'true' regexp true;
+
+#常见的正则匹配符号
+SELECT 'fo\nfo' REGEXP '^fo$'; 
+SELECT 'fo\no' REGEXP '^fo\no$'; 
+SELECT 'justalnums' REGEXP '[[:alnum:]]+'; 
+SELECT 'a word a' REGEXP '[[:<:]]word[[:>:]]';  
+SELECT '1+2' REGEXP '1\\+2'; 
+SELECT 'Ban' REGEXP '^Ba*n';        
+SELECT 'Ban' REGEXP '^Ba+n'; 
+SELECT 'Baan' REGEXP '^Ba?n';  
+SELECT 'pi' REGEXP 'pi|apa'; 
+SELECT 'pi' REGEXP '^(pi)*$'; 
+SELECT 'abcde' REGEXP 'a[bcd]{2}e'; 
+SELECT 'aXbc' REGEXP '[a-dXYZ]';  
+SELECT '~' REGEXP '[[.~.]]'; 
+
+#第一个参数为空字符串
+SELECT '' REGEXP '[[.~.]]'; 
+
+#第二个参数为空字符串
+--error 2
+SELECT '~' REGEXP '';
+
+#含有四则运算
+SELECT 98+2 REGEXP '1+'; 
+SELECT 102-2 REGEXP '1+'; 
+SELECT 20/2 REGEXP '1+'; 
+SELECT 5*2 REGEXP '1+'; 
+
+#含有逻辑运算
+SELECT 1=1 REGEXP '1+'; 
+SELECT 2<1 REGEXP '1+'; 
+SELECT 2>1 REGEXP '1+'; 
+SELECT 2>=1 REGEXP '1+'; 
+SELECT 2<=1 REGEXP '1+'; 
+SELECT 1!=1 REGEXP '0+'; 
+
+#函数位置不同
+CREATE TABLE STUDENT(ID  VARCHAR(50)  NOT NULL PRIMARY KEY, NAME VARCHAR(20) NOT NULL);
+insert into STUDENT values(1,'abcbcbc');
+select * from STUDENT where id  REGEXP '1+';
+update STUDENT set ID = ( '0'regexp '1+') where Id=1;
+SELECT * from STUDENT;
+select ID from STUDENT group by ID having ID > ( '1' regexp '1+');
+select * from STUDENT where id  REGEXP '0+' order by ID;
+insert into STUDENT values(1,'111' REGEXP '1+');
+SELECT * from STUDENT;
+delete from STUDENT where  id  REGEXP '1+';
+SELECT * from STUDENT; 
+select * from STUDENT where id  REGEXP '0+'  union select * from STUDENT where id  REGEXP '0+';
+SELECT SUBSTR('Quadratically','111' regexp '1+');
+select substr('1+111',1) regexp substr('1+111',3);
+
+#参数为列
+create table people(pid int primary key not null,pname varchar(20) not null,psex bool not null,pdate datetime not null,psalary_d double not null,psalary_f float not null);
+insert into people values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+SELECT pname REGEXP '1+' from people; 
+SELECT pid REGEXP '1+' from people; 
+SELECT psalary_d REGEXP '1+' from people; 
+SELECT psalary_f REGEXP '1+' from people; 
+SELECT 'jing' REGEXP pname from people; 
+SELECT '111' REGEXP pid from people; 
+SELECT '111' REGEXP psalary_d  from people; 
+SELECT '111' REGEXP psalary_f from people; 
+SELECT pname REGEXP pname from people; 
+SELECT pid-1 REGEXP '1+' from people; 
+SELECT pid+9 REGEXP '1+' from people; 
+SELECT pid*2 REGEXP '1+' from people; 
+SELECT (pid+1)/2 REGEXP '1+' from people; 
+SELECT sum(pid) REGEXP '1+' from people; 
+SELECT max(pid) REGEXP '1+' from people; 
+SELECT min(pid) REGEXP '1+' from people; 
+
+#多表测试
+CREATE TABLE STUDENT1(ID  number(10)  NOT NULL PRIMARY KEY, NAME VARCHAR(20) NOT NULL);
+CREATE TABLE STUDENT2(ID  number(10)  NOT NULL PRIMARY KEY, NAME VARCHAR(20) NOT NULL);
+insert into STUDENT1 values(1,'abcbcbc');
+insert into STUDENT2 values(1,'bc');
+SELECT student1.id REGEXP student2.id from student1,student2;
+SELECT student1.name REGEXP student2.name from student1,student2;
+
+###2-3：LOCATE
+#参数不同
+select locate('baidu','www.baidu.com') output;
+select locate(null,'www.baidu.com') output;
+select locate('baidu',null) output;
+select locate(null, null) output;
+--error 5054
+select locate() output;
+select locate(12,12312,1) output;
+select locate(12,12312,2) output;
+select (123);
+select locate('','') output;
+select locate('567','') output;
+select locate('','567') output;
+select locate('工','西北工业大学') output;
+select locate(123,12345) output;
+select locate('abc', 'aabcd') output;
+select locate(true,23145) output;
+select locate(false,123021) output;
+select locate(false,false) output;
+select locate(true,true) output;
+select locate('09','1998-09-03 00:00:00') output;
+select locate(cast(1.23 as float),1.23) output;
+select locate(cast(1.23 as double),1.23) output;
+select locate(1e3,1000) output;
+
+#函数位置不同
+drop table student;
+create table student (id int,name varchar(10), age int, sex varchar(10));
+insert into student values(1,'aaa',22,'男'),(2,'bbb',20,'男'),(3,'ccc',27,'女'),(4,'ddd',25,'女');
+update student set name='Jack' where id=locate('345','123456');
+select * from student;
+update student set age=locate('789','123456789') where id=1;
+select * from student;
+select sex,count(*) from student s GROUP BY sex having count(*)  > locate(123,12345);
+insert into student values(5,'胡图图',locate('678','123456789'),'男'); 
+select * from student;
+delete from student where age=locate('678','123456789'); 
+select * from student;
+(select name from student where age=locate('789','123456789')) union (select name from student where id=2);
+select substr('baid5',locate('baidu','www.baidu.com',5)) output;
+select locate('baidu','www.baidu.com',locate('baidu','www.baidu.com',5)) output;
+select locate('baidu','www.baidu.com',substr('baid5',5)) output;
+select name from student where id between locate(1+5,567) and 3;
+select locate(substr('2345',3),'1234567') output;
+select locate(replace('bc45','bc','23'),'12345') output;
+create table teacher (id int,name varchar(30),age int);
+insert into teacher values(1,'Tom',22),(2,'Jack',20),(3,'Mary',27);
+select s.name,t.name from student s,teacher t where t.id=locate('baidu','w.baidu.com',2) and s.id=locate('baidu','w.baidu.com',2); 
+
+#比较运算
+select locate(1<2,123) output;
+select locate(1>2,123) output;
+select locate(1<=2,123) output;
+select locate(1>=2,123) output;
+select locate(1!=2,123) output;
+select locate(1=1,123) output;
+select locate(1<>2,123) output;
+select locate(1=2,123) output;
+
+#算数运算
+select locate(1+1,123) output;
+select locate(1-1,1023) output;
+select locate(1*2,123) output;
+select locate(1/1,123) output;
+select locate(4/2,123) output;
+select locate(21%10,123) output;
+
+#参数为列
+insert into teacher values(4,'Tom',locate(1-1,163023));
+select * from teacher;
+insert into teacher values(5,'胡图图',locate('09','1998-09-03 00:00:00'));
+select * from teacher;
+insert into teacher values(6,'胡英俊',locate(2+1,'1998-09-03 00:00:00'));
+select * from teacher;
+insert into teacher values(7,'Bob',locate(2>1,'1998-09-03 00:00:00'));
+select * from teacher;
+insert into teacher values(8,substr('baid5',locate('baidu','www.baidu.com',5)),locate(2>1,'1998-09-03 00:00:00'));
+select * from teacher;
+select locate((select age from student where id =1),127) output;
+drop table people;
+create table people(pid int primary key not null,pname varchar(20) not null,psex bool not null,pdate datetime not null,psalary_d double not null,psalary_f float not null);
+insert into people values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+select locate((select psalary_d from people where pid =1),10324.83) output;
+select locate((select name from student where id =1),'xxaaa') output;
+select locate('ab' ,name) from student;
+select locate(123,id) from student;
+select locate('abc', name) from student;
+select locate(cast(id as float),1.23)  from student;
+select locate(cast(id as double),1.23) from student;
+select locate(id+1,123) from student;
+select locate(id-1,1023) from student;
+select locate(id*2,123) from student;
+select locate(id/1,123) from student;
+select locate(id%10,123) from student;
+select locate(sum(id),'1234') from student;
+select locate(max(id),'1234') from student;
+select locate(min(id),'1234') from student;
+select locate(id<4,123) from student;
+select locate(id>2,123) from student;
+select locate(id<=2,123) from student;
+select locate(id>=2,123) from student;
+select locate(id!=2,123) from student;
+select locate(id=1,123) from student;
+select locate(id<>2,123) from student;
+select locate(1=2,123) from student;
+select locate(id,id) from student;
+select locate(id,name) from student;
+select locate(student.id, teacher.name) from student, teacher;
+
+###2-4：SUBSTRING_INDEX测试
+#参数为空不同
+select substring_index('www.wiki.com','.',2) output;
+--error 5054
+select substring_index('www.wiki.com',2) output;
+--error 5054
+select substring_index('www.wiki.com','.') output;
+select substring_index(null,'.',2) output;
+select substring_index('www.wiki.com',null,2) output;
+select substring_index('www.wiki.com','.',null) output;
+select substring_index('www.wiki.com','.',-1) output;
+
+#参数特殊值
+select substring_index('www.wiki.com','.',20) output;
+select substring_index('www.wiki.com','.',0) output;
+select substring_index('西北工业大学','工',1) output;
+select substring_index('www.wiki.com',',',1) output;
+
+#数据类型不同
+select substring_index(567879,7,1) output;
+select substring_index(32123,true,1) output;
+select substring_index(32123,1,true) output;
+select substring_index('1998-09-03 00:00:00',':',1) output;
+select substring_index(cast(1.23 as float),'.',1) output;
+select substring_index(cast(1.23 as double),'.',1) output;
+
+#函数位置不同
+drop table student;
+create table student (id int,name varchar(10), age int, sex varchar(10));
+insert into student values(1,'aaa',22,'男'),(2,'bbb',20,'男'),(3,'ccc',27,'女'),(4,'ddd',25,'女');
+update student set age='24' where name=substring_index('aaatestbbb','t',1);
+select * from student;
+update student set name=substring_index('Tomtestbbb','t',1) where id=1;
+select * from student;
+select sex,count(*) from student s GROUP BY sex having count(*)  > substring_index(123,2,1);
+insert into student values(5,'胡图图',substring_index('223432',3,1),'男');
+select * from student;
+delete from student where name=substring_index('Tom3432',3,1);
+select * from student;
+(select * from student where name=substring_index('bbb3432',3,1)) union (select * from student where id=5);
+(select name from student where name=substring_index('bbb3432',3,1)) intersect (select name from student where age>=19);
+(select name from student where age>=19) except (select name from student where name=substring_index('bbb3432',3,1));
+select substring_index(substr('123456',2),substring_index(34567,4,1),1) output;
+select substring_index('1234567',substring_index(34567,4,1),1) output;
+select * from student where id between substring_index('1234321',2,1) and 3;
+select substring_index(substr('123456',2),substring_index(34567,4,1),1) output;
+select substring_index(replace('bc45','bc','23'),3,1) output;
+drop table teacher;
+create table teacher (id int,name varchar(30),age int);
+insert into teacher values(1,'Tom',22),(2,'Jack',20),(3,'Mary',27);
+select t.age,s.age from student s,teacher t where t.name=substring_index('Tom3432',3,1) and s.name=substring_index('bbb3432',3,1);
+
+#比较运算
+select substring_index('341567',1,2<3) output;
+select substring_index('341567',1,5>3) output;
+select substring_index('341567',1,2<=3) output;
+select substring_index('341567',1,2>=3) output;
+select substring_index('341567',1,2!=3) output;
+select substring_index('341567',1,3=3) output;
+select substring_index('341567',1,2<>3) output;
+
+#算数运算
+select substring_index('341567',1,2+3) output;
+select substring_index('341567',1,2-3) output;
+select substring_index('341567',1,2*3) output;
+select substring_index('341567',1,6/3) output;
+select substring_index('341567',1,11%10) output;
+
+#参数为列
+drop table people;
+create table people(pid int primary key not null,pname varchar(20) not null,psex bool not null,pdate datetime not null,psalary_d double not null,psalary_f float not null);
+insert into people values(1,'jing',true,'2020-04-21',10324.83,12439.9);
+insert into people values(7,substring_index('Tom3432',3,1),true,'2020-04-21',10324.83,12439.9);
+select * from people;
+--error 5102
+insert into people values(2,'jing',true,substring_index('1998-09-03 00:00:00','0',1+1),10324.83,12439.9);
+insert into people values(2,'jing',true,substring_index('1998-09-03 00:00:00',' ',3-2),10324.83,12439.9);
+insert into people values(10,substring_index('胡图图aba','a',3>2),true,'2020-04-21',10324.83,12439.9);
+select * from people;
+insert into people values(11,substring_index(substr('Jack23456',2),substring_index(34567,4,1),1),true,'2020-04-21',10324.83,12439.9);
+select * from people;
+select substring_index((select pname from people where pid =7),'o',1);
+select substring_index((select psalary_d from people where pid =7),0,1) output;
+select substring_index((select name from student where id =2),'b',2) output;
+select substring_index('12ccc12',name,1) from student;
+select substring_index('1234',sum(id),1) from student;
+select substring_index('123456789',max(id),1) res from student;
+select substring_index('123456789',min(id),1) res from student;
+select substring_index('341567',1,2<3) res from student;
+select substring_index('341567',1,5>3) res from student;
+select substring_index('341567',1,2<=3) res from student;
+select substring_index('341567',1,5>=3) res from student;
+select substring_index('341567',1,2!=3) res from student;
+select substring_index('341567',1,3=3) res from student;
+select substring_index('341567',1,6/3) res from student;
+select substring_index('341567',1,11%10) res from student;
+select substring_index('xccc',name,1) res from student;
+select substring_index(2,id,1) res from student;
+select substring_index(cast(id as float),1.23,1) from student;
+select substring_index(cast(id as double),1.23,1) from student;
+select substring_index(age,1.2,1.3)  from student;
+select substring_index('341567',id+2,1) res from student;
+select substring_index('341567',id-2,1) res from student;
+select substring_index('341567',id*2,1) res from student;
+select substring_index('341567',id/2,1) res from student;
+select substring_index(id,id,1) from student;
+select substring_index(id,name,1) from student;
+select substring_index(student.id, teacher.name,1) from student, teacher;

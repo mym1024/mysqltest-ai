@@ -1,0 +1,303 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,primary key(c1,c2,c3));
+insert into t1 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+create index idx1 on t1(c2);
+create index idx2 on t1(c5) storing(c6,c4);
+create index idx3 on t1(c6,c3) storing(c4,c7);
+create index idx4 on t1(c8,c7,c5) storing(c4,c6);
+create index idx5 on t1(c5,c4) storing(c6,c7,c8);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__idx1	1	0
+__3001__idx__idx2	1	0
+__3001__idx__idx3	1	0
+__3001__idx__idx4	1	0
+__3001__idx__idx5	1	0
+__3001__idx__idx1
+__3001__idx__idx2
+__3001__idx__idx3
+__3001__idx__idx4
+__3001__idx__idx5
+update t1 set c8 =10 where c1=1 and c2=1 and c3=1;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	10
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+1	1	1	1	1	1	1	10
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	10
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+replace into t1 values(1,1,1,1,1,1,8,8),(1,1,1,1,1,5,5,5),(1,1,1,1,1,1,1,1);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+update t1 set c7 =10 where c1>1 and c2>1 and c3>1;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	10	2
+3	3	3	3	3	3	10	3
+4	4	4	4	4	4	10	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	2	10
+3	3	3	3	3	10
+4	4	4	4	4	10
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	10	2
+3	3	3	3	3	3	10	3
+4	4	4	4	4	4	10	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	10	2
+3	3	3	3	3	3	10	3
+4	4	4	4	4	4	10	4
+replace into t1 values(2,2,2,2,2,2,2,1),(1,1,1,1,1,2,1,2),(1,1,1,1,1,1,1,1),(3,3,3,3,3,3,3,3),(2,2,2,2,2,2,2,2),(4,4,4,4,4,4,4,4);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+update t1 set c6 =10 where c1>1;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	10	2	2
+3	3	3	3	3	10	3	3
+4	4	4	4	4	10	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	10
+3	3	3	3	3	10
+4	4	4	4	4	10
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	10	2
+3	3	3	3	10	3
+4	4	4	4	10	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	10	2	2
+3	3	3	3	3	10	3	3
+4	4	4	4	4	10	4	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	10	2	2
+3	3	3	3	3	10	3	3
+4	4	4	4	4	10	4	4
+replace into t1 values(1,1,1,1,1,1,1,1),(2,2,2,2,2,2,2,2),
+(2,2,2,2,2,2,2,1),(1,1,1,1,1,2,1,2),
+(1,1,1,1,1,1,1,1),(3,3,3,3,3,3,3,3),
+(2,2,2,2,2,2,2,2),(4,4,4,4,7,7,7,7),
+(3,3,3,3,3,3,3,3),(4,4,4,4,4,4,4,4);
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	1	NULL
+2	2	2	NULL
+3	3	3	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	1	1	1	1
+2	2	2	2	2	2
+3	3	3	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	1	1	1	1	1	1
+2	2	2	2	2	2	2	2
+3	3	3	3	3	3	3	3
+4	4	4	4	4	4	4	4
+update t1 set c3=10 where c1 between 1 and 3;
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	10	1	1	1	1	1
+2	2	10	2	2	2	2	2
+3	3	10	3	3	3	3	3
+4	4	4	4	4	4	4	4
+update t1 set c1=11,c2=12 where c3=10;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	10	1	1	1	1	1
+2	2	10	2	2	2	2	2
+3	3	10	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx1;
+c1	c2	c3	yao_virtual_col
+1	1	10	NULL
+2	2	10	NULL
+3	3	10	NULL
+4	4	4	NULL
+select * from __3001__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1	10	1	1	1
+2	2	10	2	2	2
+3	3	10	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx3;
+c1	c2	c3	c4	c6	c7
+1	1	10	1	1	1
+2	2	10	2	2	2
+3	3	10	3	3	3
+4	4	4	4	4	4
+select * from __3001__idx__idx4;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	10	1	1	1	1	1
+2	2	10	2	2	2	2	2
+3	3	10	3	3	3	3	3
+4	4	4	4	4	4	4	4
+select * from __3001__idx__idx5;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1	10	1	1	1	1	1
+2	2	10	2	2	2	2	2
+3	3	10	3	3	3	3	3
+4	4	4	4	4	4	4	4

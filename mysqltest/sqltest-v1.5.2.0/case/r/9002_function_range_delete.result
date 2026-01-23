@@ -1,0 +1,22 @@
+drop table if exists t1;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+drop partition function r1;
+create range partition function r1(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+rule_name	rule_par_num	rule_par_list	rule_body	type
+boc_account_mixs	1	x	 	5
+boc_card_mixs	1	x	 	5
+r1	1	x	(10),(20),(maxvalue)	4
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r1,c1);
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list,ref_info from __all_table_rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list	ref_info
+3001	2	t1	1	rr	r1	c1	NULL
+drop partition function r1;
+ERROR HY000: YAO--1: Partition Funtion r1 is Using or using its table is in trash,Cann't Drop Now.
+drop table if exists t1;
+drop partition function r1;

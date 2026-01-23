@@ -1,0 +1,52 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：存在空数据时进行冻结合并操作
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：316.697561 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+--real_sleep 10
+create table t1(pk int primary key,extra int)partition by range(pk)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+--real_sleep 5
+#--error 5702
+insert into t1(pk) values(NULL);
+--let $v=0
+while($v < 10)
+{
+  eval insert into t1(pk) values($v);
+  inc $v;
+}
+#--error 5024
+#update t1 set pk=1 where pk is NULL;
+#update t1 set pk=11 where pk is NULL;
+#--error 5024
+#update t1 set pk=2 where pk is NULL;
+#update t1 set pk=12 where pk is NULL;
+delete from t1 where pk is NULL;
+delete from t1 where pk=0;
+select * from t1;
+#--error 5702
+insert into t1(pk) values(NULL);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+select * from t1;
+--real_sleep 300
+select * from t1;
+#--error 5024
+#inset into t1(pk) values(NULL);
+
+drop table t1;

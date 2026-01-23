@@ -1,0 +1,82 @@
+create database test_alter;
+using database test_alter;
+create table if not exists t1(c1 int primary key, c2 varchar(10));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES		NULL	
+insert into t1 values(1,'');
+insert into t1 values(2,'1');
+insert into t1 values(3,'123456789');
+insert into t1 values(4,'1234567890');
+insert into t1 values(5,'12345678901');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test_alter.t1], cname[c2], clength[11]
+alter table t1 alter column c2 set data type varchar(15);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(15)	YES		NULL	
+insert into t1 values(6,'');
+insert into t1 values(7,'1');
+insert into t1 values(8,'12345678901');
+insert into t1 values(10,'123456789');
+insert into t1 values(11,'1234567890');
+insert into t1 values(12,'12345678901234');
+insert into t1 values(13,'123456789012345');
+insert into t1 values(14,'1234567890123456');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test_alter.t1], cname[c2], clength[16]
+alter table t1 alter column c2 set data type varchar(10);
+ERROR HY000: YAO-5014: The length is less than the previous length,you may loss your data!,previous length is:15
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(15)	YES		NULL	
+insert into t1 values(15,'');
+insert into t1 values(16,'1');
+insert into t1 values(17,'123456789');
+insert into t1 values(18,'1234567890');
+insert into t1 values(19,'12345678901');
+insert into t1 values(20,'12345678901234');
+insert into t1 values(21,'123456789012345');
+insert into t1 values(22,'1234567890123456');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test_alter.t1], cname[c2], clength[16]
+drop table t1;
+create table if not exists t1(c1 int primary key, c2 varchar(10));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(10)	YES		NULL	
+insert into t1 values(1,'');
+insert into t1 values(2,'1');
+insert into t1 values(3,'123456789');
+insert into t1 values(4,'1234567890');
+insert into t1 values(5,'12345678901');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test_alter.t1], cname[c2], clength[11]
+create index testindex on t1(c2);
+alter table t1 alter column c2 set data type varchar(15);
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(15)	YES	MUL	NULL	
+insert into t1 values(6,'');
+insert into t1 values(7,'1');
+insert into t1 values(8,'12345678901');
+insert into t1 values(10,'123456789');
+insert into t1 values(11,'1234567890');
+insert into t1 values(12,'12345678901234');
+insert into t1 values(13,'123456789012345');
+insert into t1 values(14,'1234567890123456');
+ERROR HY000: YAO-5611: Varchar is too long, tname[test_alter.t1], cname[c2], clength[16]
+alter table t1 alter column c2 set data type varchar(10);
+ERROR HY000: YAO-5014: The length is less than the previous length,you may loss your data!,previous length is:15
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(15)	YES	MUL	NULL	
+insert into t1 values(15,'');
+insert into t1 values(16,'1');
+insert into t1 values(17,'123456789');
+insert into t1 values(18,'1234567890');
+insert into t1 values(19,'12345678901');
+drop table if exists t1;
+drop database test_alter;

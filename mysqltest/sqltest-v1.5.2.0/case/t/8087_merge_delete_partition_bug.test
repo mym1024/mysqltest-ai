@@ -1,0 +1,62 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：分区测试，原有分区删除数据后，数据仍然存在(bug已不存在)
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：560 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-11-7
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists sbtest;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+CREATE TABLE sbtest(id INTEGER NOT NULL,k integer DEFAULT 0 NOT NULL,c char(120) DEFAULT '' NOT NULL,pad char(60) DEFAULT '' NOT NULL,PRIMARY KEY(id)) partition by range(id)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+--echo "refresh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--echo insert 100 rows to ups
+--let $count=1
+while($count<101)
+{
+	--let $stmt=INSERT INTO sbtest(id,k,c,pad) VALUES($count,0,'yes','qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt')
+	eval $stmt;
+	inc $count;
+}
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/ts_admin -a $UPS1_IP -p $UPS_PORT -t drop;
+--real_sleep 50
+
+delete from sbtest where id=1;
+update sbtest set k=3 where id>2;
+
+
+###2-1:检查数据是否存在
+select * from sbtest where id=1;
+--real_sleep 5
+delete from sbtest where k=3;
+--real_sleep 5
+###2-2:检查数据是否存在
+select * from sbtest;
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

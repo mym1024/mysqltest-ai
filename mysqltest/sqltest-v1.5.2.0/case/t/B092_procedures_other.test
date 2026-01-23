@@ -1,0 +1,471 @@
+##############################################################################################
+###1.测试功能点：测试存储过程其他功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-03-22
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+
+###准备表数据
+create table proc_test(id int  primary key, age int, name varchar(20)); 
+insert into proc_test values(2,2,'a'),(3,3,'a'),(9,9,'a');
+select * from proc_test;
+
+###2-1、handler异常处理
+#以下'23000'表示为主键冲突错误
+#过程体中出现一次异常语句,handler为单条语句,handler为continue类型
+delimiter //;
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+  if 1=1 
+   then select 1;
+  end if;
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现两次异常语句,handler为单条语句,handler为continue类型
+create procedure p()
+begin
+declare continue handler for sqlstate '23000' 
+  if 1=1 
+   then select 1;
+  end if;
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现一次异常语句,handler为多条语句,handler为continue类型
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+  begin 
+   if 1=1 
+    then select 1;
+   end if;
+  select 'continue' from dual;
+  end; 
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现两次异常语句,handler为多条语句,handler为continue类型
+create procedure p()
+begin 
+declare continue handler for sqlstate '23000' 
+  begin 
+   if 1=1 
+    then select 1;
+   end if;
+  select 'continue' from dual;
+  end; 
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现一次异常语句,handler为单条语句,handler为exit类型
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+  if 1=1 
+   then select 1;
+  end if;
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现两次异常语句,handler为单条语句,handler为exit类型
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+  if 1=1 
+   then select 1; 
+  end if;
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a'); 
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现一次异常语句,handler为多条语句,handler为exit类型
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+  begin 
+   if 1=1 
+    then select 1;
+   end if;
+  select 'continue' from dual;
+  end; 
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+drop procedure p//
+
+#过程体中出现两次异常语句,handler为多条语句,handler为exit类型
+create procedure p()
+begin 
+declare exit handler for sqlstate '23000' 
+  begin 
+   if 1=1 
+    then select 1;
+  end if;
+  select 'continue' from dual;
+  end; 
+insert into proc_test values(9,9,'a');
+insert into proc_test values(9,9,'a');
+end;//
+call p()//
+drop procedure p//
+
+#多个handler语句，定义handler类型为exit，for条件不同，handler的过程体语句非空，存储过程的过程体多个语句出错
+create procedure p() 
+begin 
+  declare a int;
+  declare cond_p1 condition for '23000';
+  declare cond_p2 condition for 'HY000';
+  declare csr cursor for select * from proc_test;
+  declare exit handler for cond_p1 select 1;
+  declare exit handler for cond_p2 select 2;
+  set a=1;
+  insert into proc_test values(9,9,'a');
+  open csr;
+  open csr;
+end;//
+call p()//
+drop procedure p//
+
+#多个不同的handler语句，定义handler类型为continue，for条件sqlstate值，一个handler的过程体语句有begin end且begin前有标签，另一个handler的过程体语句无begin end且有标签，多个handler中的标签相同
+create procedure p()
+begin 
+  declare a int default 1;
+  declare continue handler for sqlstate '23000' 
+  lp:loop 
+       leave lp;
+     end loop;
+  declare continue handler for sqlstate 'HY000' 
+  lp:begin 
+     insert into proc_test values(2,1,'c');
+     end;
+  select a;
+end;//
+call p()//
+drop procedure p//
+
+###2-2、参数相关
+##准备数据
+create table t1(id int, age int, name varchar(20));// 
+insert into t1 values(2,2,'a'),(3,3,'a'),(4,4,'a');//
+select * from t1;//
+create table t2(id int primary key, age int, name varchar(20));//
+insert into t2 values(2,2,'a'),(3,3,'a'),(4,4,'a');//
+select * from t2;//
+#IN输入参数
+create procedure p(in p_in int) 
+begin 
+select p_in; 
+set p_in=2; 
+select p_in; 
+end;//
+set @pin=25//
+call p(@pin)//
+select @pin//
+drop procedure p//
+
+#OUT输出参数
+#简单测试
+create procedure p(out p_out int) 
+begin 
+select p_out; 
+set p_out=2; 
+select p_out; 
+end;// 
+set @pout=25//
+call p(@pout)//
+select @pout//
+drop procedure p//
+
+#create存储过程带参数类型为out,类型为varchar类型,无默认值的参数，过程体为包含loop语句，call参数传入变量
+create procedure p(out p_out varchar(20)) 
+begin 
+  declare a int default 1;
+  lp:loop set a=a+1;
+       if a=3 
+         then leave lp;
+       end if;
+     end loop;
+end;//
+set @a='a'//
+call p(@a)//
+drop procedure p//
+
+#INOUT输入输出参数
+#简单测试
+create procedure p(inout p_inout int) 
+begin 
+select p_inout; 
+set p_inout=2; 
+select p_inout; 
+end;//
+set @pinout=25//
+call p(@pinout)//
+select @pinout//
+drop procedure p//
+
+#create存储过程带参数类型为inout,类型为float类型,无默认值的参数，过程体为包含repeat语句，call参数传入变量
+create procedure p(inout p_inout float) 
+begin 
+  declare a int default 1;
+    repeat set a=a+1; 
+      delete from t1 where id=2;
+      insert into t1 values(1,1,'b');
+      until a=3 
+    end repeat;
+    select * from t1;
+end;//
+set @a=1.2;//
+call p(@a);//
+drop procedure p//
+
+#多参数测试
+#create存储过程多个参数，带参数类型为in,out,inout,类型为double,无默认值的参数，过程体可以有多个变量定义、条件定义、游标声明定义、handler定义语句，有while定义语句，call参数个数与create中参数个数相等，in类型传入数值，out和inout传入变量
+create procedure p(in p_in double,out p_out double,inout p_inout double)
+begin 
+  declare a int default 1;
+  declare b int default 1;
+  declare cond_p0 condition for sqlstate '23000';
+  declare cond_p1 condition for 5024;
+  declare exit handler for cond_p0 select 1;
+  declare exit handler for cond_p1 select 2;
+    while a<3 do set a=a+1;
+      delete from t2 where id=4;
+      insert into t2 values(5,1,'c');
+    end while;
+    select * from t2;
+end;//
+set @b=1.23;//
+set @d='c'//
+call p(1.22,@b,@d)//
+drop procedure p//
+
+#create存储过程多个参数，带参数类型为in,out,inout,类型为double,无默认值的参数，过程体可以有多个变量定义、条件定义、游标声明定义、handler定义语句，有游标open、fetch、close语句，call参数个数相等，in类型传入数值，out和inout传入变量
+create procedure p(in p_in double,out p_out double,inout p_inout double) 
+begin 
+  declare a int default 1;
+  declare b int default 1;
+  declare cond_p0 condition for sqlstate '23000';
+  declare cond_p1 condition for 5024;
+  declare csr cursor for select * from t2;
+    open csr;
+    fetch csr 
+      into a,b;
+    close csr;
+end;//
+set @a=1.8//
+set @b='d'//
+call p(1.23,@a,@b);//
+drop procedure p//
+
+#create存储过程多个参数，带参数类型为in,out,inout,类型为double,无默认值的参数，过程体可以有多个变量定义、条件定义、游标声明定义、handler定义语句，有loop定义语句，call参数个数相等，均传入变量
+create procedure p(in p_in double,out p_out double,inout p_inout double) 
+begin 
+  declare a int default 1;
+  declare b int default 1;
+  declare cond_p0 condition for sqlstate '23000';
+  declare cond_p1 condition for 5024;
+  declare exit handler for cond_p0 select 1;
+  declare exit handler for cond_p1 select 2;
+  lp:loop set a=a+1;
+       if a=3 
+         then leave lp;
+       end if;
+     insert into t2 values(8,8,'b');
+     end loop;
+end;//
+set @a=1.22,@b=1.23,@c=1.24;//
+call p(@a,@b,@c);//
+select * from t2//
+call p(@a,@b,@c);//
+drop procedure p//
+
+###2-3、cursor相关
+#结果集为小数据量，declare,open,fetch次数等于结果集数目
+delimiter $$//
+create procedure p()
+begin 
+  declare a,b int;
+  declare cur1 cursor for select * from proc_test;
+  open cur1;
+  fetch cur1 into a,b;
+  fetch cur1 into a,b;
+  fetch cur1 into a,b;
+end;$$
+call p()$$
+drop procedure p$$
+
+#fetch into变量，游标查询语句select 结果集为一列，列类型为整型，declare,open游标后，fetch into 变量，变量个数与结果集列数相等，close，select查看变量
+delimiter &&$$
+create procedure p()
+begin 
+  declare cur1 cursor for select age from proc_test;
+  open cur1;
+  fetch cur1 into @a;
+  close cur1;
+  select @a;
+end;&&
+call p()&&
+drop procedure p&&
+
+#fetch into变量，多个游标，第一个游标declare,open游标后，fetch into 变量，close后，第二个游标fetch into相同变量，select查看变量
+delimiter //&&
+create procedure p()
+begin 
+  declare cur1 cursor for select id from proc_test;
+  declare cur2 cursor for select age from proc_test;
+  open cur1;
+  fetch cur1 into @a;
+  close cur1;
+  select @a;
+  open cur2;
+  fetch cur2 into @a;
+  close cur2;
+  select @a;
+end;//
+call p()//
+drop procedure p//
+
+#多个存储过程，fetch into存储过程变量，相同的declare,open游标，fetch into 变量，close，select查看变量
+create procedure p()
+begin 
+  declare a,b int;
+  declare cur1 cursor for select * from proc_test;
+  open cur1;
+  fetch cur1 into a,b;
+  close cur1;
+  select a,b;
+end;//
+call p()//
+create procedure p1()
+begin 
+  declare a,b int;
+  declare cur1 cursor for select * from proc_test;
+  open cur1;
+  fetch cur1 into a,b;
+  close cur1;
+  select a,b;
+end;//
+call p1()//
+drop procedure p//
+drop procedure p1//
+
+#fetch into变量,select在游标内
+create procedure p() 
+begin
+  declare oage int;
+  declare cur cursor for select age from proc_test;
+  open cur;
+  fetch cur into oage;
+  select oage;
+  close cur;
+end //
+call p()//
+drop procedure p//
+
+#游标与handler及repeat联用
+create procedure p() 
+begin
+  declare done boolean default false;
+  declare oage int;
+  declare cur cursor for select age from proc_test;
+  declare continue handler for not found set done = 1;
+  open cur;
+  repeat 
+  fetch cur into oage;
+  select oage;
+  until done end repeat;
+  close cur;
+end //
+call p()//
+drop procedure p//
+
+###2-4、1.SQL MODE相关
+#设置NO_ANSI_QUOTES
+set @@sql_mode = 'NO_ANSI_QUOTES';//
+create procedure p(in in_name varchar(10))
+begin
+select * from proc_test where name = in_name;
+end;//
+--error 5006
+call p("a")//
+set @@sql_mode = 'ANTI_ANSI_AS_QUOTE';//
+call p("a")//
+drop procedure p//
+
+#设置NO_PIPES_AS_CONCAT
+set @@sql_mode = 'NO_PIPES_AS_CONCAT';//
+create procedure p(in in_name varchar(10))
+begin
+select (id || name) as new from proc_test where name = in_name;
+end;//
+call p('a')//
+drop procedure p//
+
+###2-5、存储过程调用自定义函数
+create function getNum() 
+   returns int 
+begin 
+   declare a int default 0; 
+   return a; 
+end //
+select getNum()//
+create procedure p() 
+begin 
+select getNum();  
+end//
+call p()//
+drop procedure p//
+
+create procedure p1() 
+begin
+declare a int;
+set a = getNum();  
+select a;
+end//
+call p1()//
+drop procedure p1//
+
+#2-6、#普通用户权限的测试
+delimiter ;//
+create  user  'test' identified by 'admin@1234';
+grant all privileges on __all_procedure to 'test';
+grant create on test.* to 'test';
+connect (conn2,$OBMYSQL_MS0,test,admin@1234,test,$OBMYSQL_PORT);
+connection conn2;
+delimiter //;
+create procedure p() 
+begin 
+create table test_user(id int  primary key, age int);
+select 1; 
+end;//
+call p()//
+drop procedure p//

@@ -1,0 +1,251 @@
+##############################################################################################
+###1.测试功能点：1.3.0.0bugfix用例补充
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw、zhangt
+###7.编写/修改日期：2024-02-18
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--source merge.sql
+set names utf8mb4;
+#############################zhangt########################################
+###issue153:投影in子查询结果错误
+create table t1(name varchar(1));
+insert into t1 values('a');
+insert into t1 values('b');
+insert into t1 values('c');
+select 'a' in (select name from t1 where name between 'a' and 'c');
+drop table t1;
+
+###issue186:多表连接查询报错
+create table t1 (c1 int, c2 varchar(10));
+create table all_audit_rules(`user` varchar(32), `db` varchar(32), `tid` int, `cid` int, `type` varchar(32), `stmt_type` varchar(32), `succ` varchar(32), `info` varchar(128));
+insert into all_audit_rules values('admin', 'yao', 3001, 17, 'column', 'update table', 'successful', 'audit update table on column yao.t1.c2');
+--error 5008
+select `user`, `db`, __first_tablet_entry.`table_name`, __all_all_column.`column_name`, `type`, `stmt_type`, `succ` from all_audit_rules left join __first_tablet_entry on tid=table_id left join __all_all_column on cid=column_id and tid=table_id;
+select `user`, `db`, __first_tablet_entry.`table_name`, __all_all_column.`column_name`, `type`, `stmt_type`, `succ` from all_audit_rules left join __first_tablet_entry on tid=table_id left join __all_all_column on cid=column_id and tid=__all_all_column.table_id;
+select `user`, `db`, __first_tablet_entry.`table_name`, __all_all_column.`column_name`, `type`, `stmt_type`, `succ` from all_audit_rules left join __first_tablet_entry on tid=__first_tablet_entry.table_id left join __all_all_column on cid=__all_all_column.column_id and tid=__all_all_column.table_id;
+drop table t1;
+create table tbl1(`user` varchar(32), `tid` int, `cid` int);
+create table tbl2(`table_name` varchar(256), table_id int);
+create table tbl3(`column_name` varchar(128), table_id int, column_id int);
+insert into tbl1 values('admin', 5001, 1);
+insert into tbl2 values('tbl_name', 5001);
+insert into tbl3 values('col_name', 5001, 1);
+select `user`, tbl2.`table_name`, tbl3.`column_name` from tbl1 left join tbl2 on tid=table_id left join tbl3 on cid=column_id and tid=tbl3.table_id;
+select table_id from tbl2 union select table_id from tbl3;
+drop table tbl3;
+create table tbl3(`column_name` varchar(128), tbl_id int, column_id int);
+insert into tbl3 values('col_name', 5001, 1);
+select `user`, tbl2.`table_name`, tbl3.`column_name` from tbl1 left join tbl2 on tid=table_id left join tbl3 on cid=column_id and tid=tbl_id;
+
+#############################wubw########################################
+##测试issue180：创建表带有default字段后续插入出错
+#创建表不指定默认字段
+use test;
+create table t1(c1 int, c2 bigint);
+insert into t1 values(1,1),(2,2);
+insert into t1(c1) values(1),(2);
+insert into t1(c2) values(1),(2);
+insert into t1(c1,c2) values(1,1),(2,2);
+select * from t1;
+#创建表指定一个默认字段，并且默认字段为null
+create table t2(c1 int,c2 bigint default null);
+insert into t2 values(1,1),(2,2);
+insert into t2(c1) values(1),(2);
+insert into t2(c2) values(1),(2);
+insert into t2(c1,c2) values(1,1),(2,2);
+select * from t2;
+#创建表指定多个默认字段，默认字段不为null
+create table t3(c1 int,c2 bigint default null,c3 varchar(10) default 'yes');
+insert into t3(c1) values(1),(2),(3);
+insert into t3(c2) values(1),(2),(3);
+insert into t3(c1,c2) values(1,1),(2,2),(3,3);
+select * from t3;
+#创建表指定主键，不含默认字段
+create table t4(c1 int primary key,c2 varchar(5));
+insert into t4 values(1,'yes');
+insert into t4 values(2,'yes'),(3,'no');
+select * from t4;
+#创建表指定主键，包含默认字段并不为null
+create table t5(c1 int primary key,c2 varchar(5) default 'no');
+insert into t5(c1) values(1);
+--error 5007
+insert into t5(c1,c2) values(2);
+insert into t5(c1,c2) values(2,'ok'),(3,'no');
+--error 5024
+insert into t5 values(2,'ok'),(3,'no');
+insert into t5 values(4,'ok'),(5,'no');
+select * from t5;
+#增加含有默认值的列时
+alter table t5 add c3 int default 100;
+select * from t5;
+alter table t5 add c4 varchar(10) default 'yes';
+select * from t5;
+
+##测试issue185：不支持数据含空格插入
+create table t6 (c1 int primary key,c2 varchar(30));
+insert into t6 values(1,'100 ');
+insert into t6 values(2,' 100 ');
+insert into t6 values(3,' 100');
+insert into t6 values(4,'100');
+insert into t6 values(5,'西安');
+insert into t6 values(6,'西安 ');
+insert into t6 values(7,' 西安 ');
+insert into t6 values(8,' 西安');
+select * from t6;
+
+create table t7(c1 int,c2 varchar(30));
+insert into t7 values(8,' 西安');
+insert into t7 values(8,' 西安 ');
+insert into t7 values(8,'西安 ');
+insert into t7 values(8,'西安');
+insert into t7 values(8,'100');
+insert into t7 values(8,'100 ');
+insert into t7 values(8,' 100 ');
+insert into t7 values(8,' 100');
+select * from t7;
+
+create table t8(c1 varchar(30) primary key,c2 int);
+insert into t8 values(' 100 ',1);
+insert into t8 values('100 ',1);
+--error 5024
+insert into t8 values('100',1);
+--error 5024
+insert into t8 values(' 100',1);
+insert into t8 values('西安',1);
+insert into t8 values(' 西安',1);
+--error 5024
+insert into t8 values(' 西安 ',1);
+--error 5024
+insert into t8 values('\西安 ',1);
+select * from t8;
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+
+#############################zhangt########################################
+###issue189:Semijoin 右表where条件列（和等值连接列不相同）命中不会表索引，报错：OB-2 Invalid argument
+#issue984:semi join方式为隐式join，且等值连接条件命中索引时执行报错-2
+create table t1(c1 decimal(10,0),c2 decimal(10,0),c3 decimal(10,0),c4 varchar(10),primary key(c1,c2));
+create table t2(c1 decimal(10,0),c2 decimal(10,0),c3 decimal(10,0),c4 varchar(16),c5 varchar(192),primary key(c1,c2));
+create index t2_c2 on t2(c3,c1,c2)storing(c4);
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 600
+select /*+join(si)*/ * from t1,t2 where t1.c3=t2.c3;
+select /*+join(si)*/ * from t1 join t2 on t1.c3=t2.c3;
+
+#issue992:Semijoin 右表where条件列（和等值连接列不相同）命中不会表索引
+create table t3(c1 decimal(10,0),c2 decimal(10,0),c3 decimal(10,0),c4 varchar(10),primary key(c1,c2));
+create table t4(c1 decimal(10,0),c2 decimal(10,0),c3 decimal(10,0),c4 varchar(16),c5 varchar(192),primary key(c1,c2));
+create index t3_c3 on t3(c3,c1,c2)storing(c4);
+--echo "merge"
+exec $LOCAL_DIR/bin/as_admin -r $RS0_IP -p $RS0_PORT major_freeze |tail -1;
+--real_sleep 600
+select  /*+join(sib)*/ t3.c4 from t4 inner join t3 on t4.c4=t3.c4 where t3.c3=10;
+
+#############################fan########################################
+## 支持默认值为负整数	6b16fb5f
+CREATE TABLE BIZ_DISPATCHTASK1
+(
+  dispatchtaskid NUMBER not null COMMENT '调度作业ID',
+  dispointsendstate NUMBER DEFAULT -1 COMMENT '调度节点下发状态：-1 未下发 0:下发成功 1:下发失败',
+  dispointsendtime VARCHAR2(50) COMMENT '调度节点下发时间'
+);
+desc BIZ_DISPATCHTASK1;
+insert into BIZ_DISPATCHTASK1(dispatchtaskid,dispointsendtime) values(1,20240218);
+select * from BIZ_DISPATCHTASK1;
+
+## 支持变量名带$		d48a35ff
+CREATE TABLE gv$database(c1 int,c2 int);
+desc gv$database;
+insert into gv$database values(1,1);
+select * from gv$database;
+CREATE TABLE gv$database1(c1$ int,c2 int);
+insert into gv$database1 values(2,2);
+select * from gv$database1;
+
+## 视图中带投影列子查询的bug	f314d5c8 35199a77
+create table TRANCTN(CTNNO int primary key,CONFIRM_USER int,PDFID int );
+create table PORT_TRAN_DISPATCH(custno int primary key, c2 int);
+create table INF_COMPANY(COMID int primary key,COMCODE int);
+insert into TRANCTN values(1,1,1),(2,2,2),(3,3,3);
+insert into PORT_TRAN_DISPATCH values(1,1),(2,2);
+insert into INF_COMPANY values(1,1),(2,2);
+CREATE  VIEW VIEW_TRANS (CUSTNO, CTNNO,SHIP) AS
+SELECT distinct t.PDFID as CUSTNO, T.CTNNO as CTNNO ,NVL((SELECT T1.COMID FROM INF_COMPANY T1 WHERE T1.COMCODE = T.CONFIRM_USER), NULL ) AS SHIP FROM TRANCTN T left join PORT_TRAN_DISPATCH DP on DP.custno=T.PDFID ;
+select * from VIEW_TRANS;
+
+## sequence死锁		274ef1e8----编译修复，可忽略
+## do com prepare批量更新bug	6fc1cb46---待写java代码
+## 建长索引名的bug		c4a6214c
+create table test1(c1 int primary key, c2 int, c3 int);
+create index testtesttest on test1(c2);
+--error 65535
+create index testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest on test1(c2);
+## 负号列别名bug		68f45cf9---wky暂不清楚
+## 连接带投影列子查询的bug	1d489c4f
+create table t(x int primary key, c int, c1 int);
+create table b(x int primary key, c int);
+--real_sleep 3
+insert into t values(1,2,1),(2,2,2),(3,3,3);
+insert into b values(1,99),(2,98),(3,97);
+select a.c1 as a_c, b.c as b_c,(select sum(c) as c1 from t ) from t a left join b on a.c=b.x;
+select (select 1) as c1;
+## 投影列子查询中带join的bug	298fa88d 5dbe865e 5f27fb73 8a34f9e2
+select (select sum(a.x) from t a left join b on a.c=b.x ) from t limit 1;
+## join和join条件不对应的bug	235b7b22
+create table BIZ_FEEOUT(containerid int primary key,sumtotal int);
+create table biz_dispatchdetailnowater(stepid int primary key,dispatchtaskid int );
+create table BIz_dispatchtask(dispatchtaskid int primary key,vehiclelic int,driverid int);
+create table inf_truck(truck_lic int primary key,c2 int );
+create table inf_driver(driverid int primary key,c2 int);
+create table biz_nowaterstepset(containerid int primary key,stepid int);
+--real_sleep 3
+insert into BIZ_FEEOUT values(1,1),(2,2),(3,3);
+insert into biz_dispatchdetailnowater values(3,3),(4,4);
+insert into BIz_dispatchtask values(1,1,1),(2,2,2),(3,3,3),(4,4,4);
+insert into inf_truck values(1,1),(2,2);
+insert into inf_driver values(1,1),(2,2);
+insert into biz_nowaterstepset values(1,1),(2,2);
+--real_sleep 3
+select sum(fi.sumtotal) as wfyf, fi.containerid from BIZ_FEEOUT fi 
+left join biz_nowaterstepset t5  on fi.containerid=t5.containerid
+left join biz_dispatchdetailnowater t6 on t5.stepid = t6.stepid
+left join BIz_dispatchtask t4 on t6.dispatchtaskid = t4.dispatchtaskid 
+left join inf_truck t7 on t7.truck_lic = t4.vehiclelic
+left join inf_driver t8 on t8.driverid = t4.driverid;
+## exist bug		5dfc9f00---回归测试发现的bug
+## 代码逻辑错误		ea20bef7---编写代码错误，可忽略。
+## alter table建唯一索引coredump	727f3682
+CREATE TABLE INF_ROLE (
+ID NUMBER(10,0) primary key,
+CODE VARCHAR2(40)  COMMENT '代码',
+UPDATE_BY NUMBER(10,0)  COMMENT '修改用户',
+CREATE_DATE date  COMMENT '创建日期'
+);
+CREATE UNIQUE INDEX PK_ROLE_ID ON INF_ROLE (ID) ;
+desc INF_ROLE;
+
+CREATE TABLE WS_LOCATION (
+ID VARCHAR2(20) ,
+LOCATION VARCHAR2(400)  COMMENT '接口地址',
+ESBID VARCHAR2(60)  not null COMMENT '服务ID（ESBID）',
+TONODE VARCHAR2(20)  not null COMMENT '目标节点代码'
+)
+COMMENT='接口平台----接口地址维护';
+ALTER TABLE WS_LOCATION ADD CONSTRAINT WS_LOCATION_UN UNIQUE (ESBID, TONODE);
+desc WS_LOCATION;
+
+## 序列化schema bug	de0e15e6---导数后合并出现超时问题，可忽略。
+## 闪回时间检查		aa4f2227---回归测试发现的bug
+## 内存空洞修复		c2207ccb---导数后查看内存
+## 投影列子查询相关bug\优化	085a54df ed77bdbf 4b0d5ce0 c28d9874--回归测试及优化慢SQL查询
+## 优化decimal比较		86b51ab3 85835b9a---优化慢sql查询耗时
+## fk作为核心表		1f2b35fa---扩缩容报的错误,可忽略

@@ -1,0 +1,701 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：测试GIS相关功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2025-01-06
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+#connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+#connection conn1;
+#--disable_warnings
+source $LOCAL_DIR/../yaobase/bin/default_srs_data_mysql.sql;
+
+###2-1、DDL--Geometry Types
+create table geo3(a int,b geometry,c varchar(20));
+create table geo_pk(a int primary key,b geometry,c varchar(20));
+--error 5006
+create table geo_pk2(a int ,b geometry primary key,c varchar(20));
+create table geo_notnull(a int primary key,b geometry not null,c varchar(20));
+--error 6003
+create table geo_default(b geometry default '1');
+create table geo_index(a int,b geometry,c varchar(20));
+--error 5416
+create index idx1 on geo_index(b);
+create table geo_normal_index(a int,b geometry,c varchar(20));
+create index idx1 on geo_normal_index(a);
+create table geo(b geometry);
+--error 5006
+create table int_srid(b int srid 4326);
+create table geo_id(b geometry srid 4326);
+--error 5238
+create table geo_id1(b geometry srid 1);
+create table geo33(b geometry, c geometry, d geometry);
+create table geo_index_mul(a int,b geometry,c varchar(20));
+--error 5416
+create index idx2 on geo_index_mul(a,b);
+alter table geo33 drop b;
+alter table geo33 add b geometry;
+desc geo33;
+show create table geo33;
+
+create table p3(a int,b point,c varchar(20));
+create table p_pk(a int primary key,b point,c varchar(20));
+--error 5006
+create table p_pk2(a int ,b point primary key,c varchar(20));
+create table p_notnull(a int primary key,b point not null,c varchar(20));
+--error 6003
+create table p_default(b point default '1');
+create table p_index(a int,b point,c varchar(20));
+--error 5416
+create index idx1 on p_index(b);
+create table p_normal_index(a int,b point,c varchar(20));
+create index idx2 on p_normal_index(a);
+create table p(b point);
+create table p_id(b point srid 4326);
+--error 5238
+create table p_id1(b point srid 1);
+create table p33(b point, c point, d point);
+create table p_index_mul(a int,b point,c varchar(20));
+--error 5416
+create index idx2 on p_index_mul(a,b);
+alter table p33 drop b;
+alter table p33 add b point;
+desc p33;
+show create table p33;
+
+create table mp3(a int,b multipoint,c varchar(20));
+create table mp_pk(a int primary key,b multipoint,c varchar(20));
+--error 5006
+create table mp_pk2(a int ,b multipoint primary key,c varchar(20));
+create table mp_notnull(a int primary key,b multipoint not null,c varchar(20));
+--error 6003
+create table mp_default(b multipoint default '1');
+create table mp_index(a int,b multipoint,c varchar(20));
+--error 5416
+create index idx1 on mp_index(b);
+create table mp_normal_index(a int,b multipoint,c varchar(20));
+create index idx3 on mp_normal_index(a);
+create table mp(b multipoint);
+create table mp_id(b multipoint srid 4326);
+--error 5238
+create table mp_id1(b multipoint srid 1);
+create table mp33(b multipoint, c multipoint, d multipoint);
+create table mp_index_mul(a int,b multipoint,c varchar(20));
+--error 5416
+create index idx2 on p_index_mul(a,b);
+alter table mp33 drop b;
+alter table mp33 add b multipoint;
+desc mp33;
+show create table mp33;
+
+create table ls3(a int,b linestring,c varchar(20));
+create table ls_pk(a int primary key,b linestring,c varchar(20));
+--error 5006
+create table ls_pk2(a int ,b linestring primary key,c varchar(20));
+create table ls_notnull(a int primary key,b linestring not null,c varchar(20));
+--error 6003
+create table ls_default(b linestring default '1');
+create table ls_index(a int,b linestring,c varchar(20));
+--error 5416
+create index idx1 on ls_index(b);
+create table ls_normal_index(a int,b linestring,c varchar(20));
+create index idx4 on ls_normal_index(a);
+create table ls(b linestring);
+create table ls_id(b linestring srid 4326);
+--error 5238
+create table ls_id1(b linestring srid 1);
+create table ls33(b linestring, c linestring, d linestring);
+create table ls_index_mul(a int,b linestring,c varchar(20));
+--error 5416
+create index idx2 on ls_index_mul(a,b);
+alter table ls33 drop b;
+alter table ls33 add b linestring;
+desc ls33;
+show create table ls33;
+
+create table mls3(a int,b multilinestring,c varchar(20));
+create table mls_pk(a int primary key,b multilinestring,c varchar(20));
+--error 5006
+create table mls_pk2(a int ,b multilinestring primary key,c varchar(20));
+create table mls_notnull(a int primary key,b multilinestring not null,c varchar(20));
+--error 6003
+create table mls_default(b multilinestring default '1');
+create table mls_index(a int,b multilinestring,c varchar(20));
+--error 5416
+create index idx1 on mls_index(b);
+create table mls_normal_index(a int,b multilinestring,c varchar(20));
+create index idx5 on mls_normal_index(a);
+create table mls(b multilinestring);
+create table mls_id(b multilinestring srid 4326);
+--error 5238
+create table mls_id1(b multilinestring srid 1);
+create table mls33(b multilinestring, c multilinestring, d multilinestring);
+create table mls_index_mul(a int,b multilinestring,c varchar(20));
+--error 5416
+create index idx2 on mls_index_mul(a,b);
+alter table mls33 drop b;
+alter table mls33 add b multilinestring;
+desc mls33;
+show create table mls33;
+
+create table pg3(a int,b polygon,c varchar(20));
+create table pg_pk(a int primary key,b polygon,c varchar(20));
+--error 5006
+create table pg_pk2(a int ,b polygon primary key,c varchar(20));
+create table pg_notnull(a int primary key,b polygon not null,c varchar(20));
+--error 6003
+create table pg_default(b polygon default '1');
+create table pg_index(a int,b polygon,c varchar(20));
+--error 5416
+create index idx1 on pg_index(b);
+create table pg_normal_index(a int,b polygon,c varchar(20));
+create index idx6 on pg_normal_index(a);
+create table pg(b polygon);
+create table pg_id(b polygon srid 4326);
+--error 5238
+create table pg_id1(b polygon srid 1);
+create table pg33(b polygon, c polygon, d polygon);
+create table pg_index_mul(a int,b polygon,c varchar(20));
+--error 5416
+create index idx2 on pg_index_mul(a,b);
+alter table pg33 drop b;
+alter table pg33 add b polygon;
+desc pg33;
+show create table pg33;
+
+create table mpg3(a int,b multipolygon,c varchar(20));
+create table mpg_pk(a int primary key,b multipolygon,c varchar(20));
+--error 5006
+create table mpg_pk2(a int ,b multipolygon primary key,c varchar(20));
+create table mpg_notnull(a int primary key,b multipolygon not null,c varchar(20));
+--error 6003
+create table mpg_default(b multipolygon default '1');
+create table mpg_index(a int,b multipolygon,c varchar(20));
+--error 5416
+create index idx1 on mpg_index(b);
+create table mpg_normal_index(a int,b multipolygon,c varchar(20));
+create index idx7 on mpg_normal_index(a);
+create table mpg(b multipolygon);
+create table mpg_id(b multipolygon srid 4326);
+--error 5238
+create table mpg_id1(b multipolygon srid 1);
+create table mpg33(b multipolygon, c multipolygon, d multipolygon);
+create table mpg_index_mul(a int,b multipolygon,c varchar(20));
+--error 5416
+create index idx2 on mpg_index_mul(a,b);
+alter table mpg33 drop b;
+alter table mpg33 add b multipolygon;
+desc mpg33;
+show create table mpg33;
+
+create table gc3(a int,b geometrycollection,c varchar(20));
+create table gc_pk(a int primary key,b geometrycollection,c varchar(20));
+--error 5006
+create table gc_pk2(a int ,b geometrycollection primary key,c varchar(20));
+create table gc_notnull(a int primary key,b geometrycollection not null,c varchar(20));
+--error 6003
+create table gc_default(b geometrycollection default '1');
+create table gc_index(a int,b geometrycollection,c varchar(20));
+--error 5416
+create index idx1 on gc_index(b);
+create table gc_normal_index(a int,b geometrycollection,c varchar(20));
+create index idx8 on gc_normal_index(a);
+create table gc(b geometrycollection);
+create table gc_id(b geometrycollection srid 4326);
+--error 5238
+create table gc_id1(b geometrycollection srid 1);
+create table gc33(b geometrycollection, c geometrycollection, d geometrycollection);
+create table gc_index_mul(a int,b geometrycollection,c varchar(20));
+--error 5416
+create index idx2 on gc_index_mul(a,b);
+alter table gc33 drop b;
+alter table gc33 add b geometrycollection;
+desc gc33;
+show create table gc33;
+
+create table mul(a point, b linestring, c polygon srid 4326);
+desc mul;
+
+###2-2、DML相关
+####2-2-1、Insert
+insert into geo values(st_geometryfromtext('point(1 1)'));
+insert into geo values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+insert into geo values(st_geometryfromtext('linestring(1 1, 2 2)'));
+insert into geo values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+insert into geo values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+insert into geo values(st_geometryfromtext('multipolygon(((1 1, 2 1, 2 2, 1 2, 1 1)), ((4 4, 5 4, 5 5, 4 5, 4 4)))'));
+insert into geo values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+insert into p values(st_geometryfromtext('point(1 1)'));
+--error 5243
+insert into p values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+
+--error 5243
+insert into ls values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+insert into ls values(st_geometryfromtext('linestring(1 1, 2 2)'));
+
+--error 5243
+insert into pg values(st_geometryfromtext('linestring(1 1, 2 2)'));
+insert into pg values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+
+insert into mp values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+--error 5243
+insert into mp values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+
+insert into mls values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+--error 5243
+insert into mls values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+
+insert into mpg values(st_geometryfromtext('multipolygon(((1 1, 2 1, 2 2, 1 2, 1 1)), ((4 4, 5 4, 5 5, 4 5, 4 4)))'));
+--error 5243
+insert into mpg values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+--error 5243
+insert into gc values(st_geometryfromtext('point(1 1)'));
+insert into gc values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+insert into geo values(x'000000000101000000000000000000F03F000000000000F03F');
+insert into geo values(x'000000000104000000020000000101000000000000000000F03F000000000000F03F010100000000000000000000400000000000000040');
+insert into geo values(x'00000000010200000002000000000000000000F03F000000000000F03F00000000000000400000000000000040');
+insert into geo values(x'00000000010500000002000000010200000002000000000000000000F03F000000000000F03F000000000000004000000000000000400102000000020000000000000000000840000000000000084000000000000010400000000000001040');
+insert into geo values(x'0000000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F');
+insert into geo values(x'0000000001060000000200000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F010300000001000000050000000000000000001040000000000000104000000000000014400000000000001040000000000000144000000000000014400000000000001040000000000000144000000000000010400000000000001040');
+insert into geo values(x'000000000107000000030000000101000000000000000000F03F000000000000F03F010200000002000000000000000000F03F000000000000F03F0000000000000040000000000000004001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F');
+
+--error 5243
+insert into gc values(x'0000000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F');
+insert into gc values(x'0000000001060000000200000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F010300000001000000050000000000000000001040000000000000104000000000000014400000000000001040000000000000144000000000000014400000000000001040000000000000144000000000000010400000000000001040');
+
+--error 5243
+insert into geo values(x'000000000101000000000000000000F03F0000000000F03F');
+insert into geo values(st_geomfromtext('point(3 3)', 2001));
+insert into geo values(st_geomfromtext('point(3 3)', 4326));
+--error 5244
+insert into geo_id values(st_geomfromtext('point(3 3)', 2001));
+insert into geo_id values(st_geomfromtext('point(3 3)', 4326));
+--error 5244
+insert into geo_id values(st_geomfromtext('point(3 3)'));
+insert into geo values(null);
+--error 5243
+insert into geo values(cast(1.1 as float));
+insert into geo values(st_geomfromtext('pointz(1 1 1)'));
+--error 5243
+insert into p values(st_geomfromtext('pointz(1 1 1)'));
+--error 5244
+insert into mul values(point(1,1), st_geomfromtext('linestring(1 1, 2 2)'), st_geomfromtext('polygon((0 0, 1 0, 1 1, 0 0))'));
+insert into mul values(point(1,1), st_geomfromtext('linestring(1 1, 2 2)'), st_geomfromtext('polygon((0 0, 1 0, 1 1, 0 0))', 4326));
+select _st_asewkt(a), _st_asewkt(b), _st_asewkt(c) from mul;
+
+####2-2-2、Update
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set b=st_geomfromtext('linestring(1 1, 2 2)');
+select a, st_astext(b) as bb, c from geo_pk;
+update geo_pk set b=x'000000000101000000000000000000F03F000000000000F03F';
+select a, st_astext(b) as bb, c from geo_pk;
+--error 119
+update geo_pk set b=x'0000000101000000000000000000F03F000000000000F03F';
+truncate table p;
+insert into p values(point(1,1));
+update p set b = st_geomfromtext('point(2 2)');
+--error 119
+update p set b = st_geomfromtext('multipoint(1 1, 2 2)');
+select st_astext(b) from p;
+
+truncate table mp;
+insert into mp values(multipoint(point(1,1), point(2,2)));
+update mp set b = st_geomfromtext('multipoint(1 1, 2 2)');
+select st_astext(b) from mp;
+
+truncate table ls;
+insert into ls values(st_geomfromtext('linestring(1 1, 2 2)'));
+update ls set b = st_geomfromtext('linestring(1 1, 2 2)');
+--error 119
+update ls set b = st_geomfromtext('multilinestring((1 1, 2 2))');
+select st_astext(b) from ls;
+
+truncate table mls;
+insert into mls values(st_geomfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+update mls set b = st_geomfromtext('multilinestring((1 1, 2 2))');
+--error 119
+update mls set b = st_geomfromtext('polygon((1 1, 2 2, 3 3, 1 1))');
+select st_astext(b) from mls;
+
+truncate table pg;
+insert into pg values(st_geomfromtext('polygon((1 1, 2 2, 3 1, 1 1))'));
+update pg set b = st_geomfromtext('polygon((1 1, 2 2, 3 3, 1 1))');
+--error 119
+update pg set b = st_geomfromtext('multipolygon(((1 1, 2 2, 3 3, 1 1)))');
+select st_astext(b) from pg;
+
+truncate table mpg;
+insert into mpg values(st_geomfromtext('multipolygon(((1 1, 2 1, 3 3, 1 1)))'));
+--error 119
+update mpg set b = st_geomfromtext('point(2 2)');
+update mpg set b = st_geomfromtext('multipolygon(((1 1, 2 2, 3 3, 1 1)))');
+select st_astext(b) from mpg;
+
+truncate table gc;
+insert into gc values(st_geomfromtext('geometrycollection(point(1 1), linestring(1 1,2 2))'));
+--error 119
+update gc set b = st_geomfromtext('polygon((1 1, 2 2, 3 3, 1 1))');
+update gc set b = st_geomfromtext('multipolygon(((1 1, 2 2, 3 3, 1 1)))');
+select st_astext(b) from gc;
+
+truncate table geo_id;
+insert into geo_id values(st_geomfromtext('point(1 1)', 4326));
+--error 119
+update geo_id set b = st_geomfromtext('point(1 1)', 2001);
+update geo_id set b = st_geomfromtext('linestring(1 1, 2 2)', 4326);
+select st_astext(b) from geo_id;
+
+truncate table geo_pk;
+insert into geo_pk values(1, point(1,1), 'a');
+update geo_pk set b=st_geomfromtext('pointz(2 2 2)');
+select st_astext(b) from geo_pk;
+
+truncate table p_pk;
+insert into p_pk values(1, point(1,1), 'a');
+--error 119
+update p_pk set b=st_geomfromtext('pointz(2 2 2)');
+select st_astext(b) from p_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, point(1,1), 'a');
+--error 119
+update geo_pk set b=current_timestamp();
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set c = 'up' where b =  x'000000000101000000000000000000F03F000000000000F03F';
+update geo_pk set c ='down' where b = st_geomfromtext('point(2 2)');
+select st_astext(b),c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set b = st_geomfromtext('pointz(4 4 5)') where b = st_geomfromtext('point(2 2)');
+select st_astext(b) from geo_pk;
+update geo_pk set b = st_geomfromtext('pointz(4 4 4)') where b = st_geomfromtext('pointz(4 4 5)');
+select st_astext(b) from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set b = st_geomfromtext('point(3 3)') where b =  x'000000000101000000000000000000F03F000000000000F03F';
+update geo_pk set b = st_geomfromtext('point(4 4)') where b = st_geomfromtext('point(2 2)');
+select st_astext(b) from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set a = 4 where b =  x'000000000101000000000000000000F03F000000000000F03F';
+update geo_pk set a = a - 1 where b = st_geomfromtext('point(2 2)');
+select a, st_astext(b), c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set a = a * 4;
+select a, st_astext(b), c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set c = 'c' where a = 1;
+update geo_pk set b = st_geomfromtext('point(3 3)') where a = 1;
+update geo_pk set a = 3 where a = 1;
+select a, st_astext(b), c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set a = a * 4, b = st_geomfromtext('point(3 3)');
+select a, st_astext(b), c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+update geo_pk set b = null;
+select a, b, c from geo_pk;
+
+####2-2-3、Delete
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+delete from geo_pk;
+select a, b, c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+delete from geo_pk where a = 1;
+select a, b, c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+delete from geo_pk where b = st_geomfromtext('point(2 2)');
+delete from geo_pk where b = x'000000000101000000000000000000F03F000000000000F03F';
+select a, b, c from geo_pk;
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+--error 119
+delete from geo_pk where b < st_geomfromtext('point(2 2)');
+--error 119
+delete from geo_pk where b >= x'000000000101000000000000000000F03F000000000000F03F';
+
+truncate table geo_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)'), 'a');
+insert into geo_pk values(2, st_geomfromtext('point(2 2)'), 'b');
+delete from geo_pk where b = 1;
+delete from geo_pk where b != 2;
+delete from geo_pk where b is null;
+
+####2-2-4、Replace
+truncate table geo;
+replace into geo values(st_geometryfromtext('point(1 1)'));
+replace into geo values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+replace into geo values(st_geometryfromtext('linestring(1 1, 2 2)'));
+replace into geo values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+replace into geo values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+replace into geo values(st_geometryfromtext('multipolygon(((1 1, 2 1, 2 2, 1 2, 1 1)), ((4 4, 5 4, 5 5, 4 5, 4 4)))'));
+replace into geo values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+truncate table p;
+replace into p values(st_geometryfromtext('point(1 1)'));
+--error 5243
+replace into p values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+
+truncate table ls;
+--error 5243
+replace into ls values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+replace into ls values(st_geometryfromtext('linestring(1 1, 2 2)'));
+
+truncate table pg;
+--error 5243
+replace into pg values(st_geometryfromtext('linestring(1 1, 2 2)'));
+replace into pg values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+
+truncate table mp;
+replace into mp values(st_geometryfromtext('multipoint((1 1), (2 2))'));
+--error 5243
+replace into mp values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+
+truncate table mls;
+replace into mls values(st_geometryfromtext('multilinestring((1 1, 2 2), (3 3, 4 4))'));
+--error 5243
+replace into mls values(st_geometryfromtext('multipolygon(((1 1, 2 1, 2 2, 1 2, 1 1)), ((4 4, 5 4, 5 5, 4 5, 4 4)))'));
+
+truncate table mpg;
+replace into mpg values(st_geometryfromtext('multipolygon(((1 1, 2 1, 2 2, 1 2, 1 1)), ((4 4, 5 4, 5 5, 4 5, 4 4)))'));
+--error 5243
+replace into mpg values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+truncate table gc;
+--error 5243
+replace into gc values(st_geometryfromtext('polygon((1 1, 2 1, 2 2, 1 2, 1 1))'));
+replace into gc values(st_geometryfromtext('geometrycollection(point(1 1), linestring(1 1, 2 2), polygon((1 1, 2 1, 2 2, 1 2, 1 1)))'));
+
+replace into geo values(x'000000000101000000000000000000F03F000000000000F03F');
+replace into geo values(x'000000000104000000020000000101000000000000000000F03F000000000000F03F010100000000000000000000400000000000000040');
+replace into geo values(x'00000000010200000002000000000000000000F03F000000000000F03F00000000000000400000000000000040');
+replace into geo values(x'00000000010500000002000000010200000002000000000000000000F03F000000000000F03F000000000000004000000000000000400102000000020000000000000000000840000000000000084000000000000010400000000000001040');
+replace into geo values(x'0000000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F');
+replace into geo values(x'0000000001060000000200000001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F010300000001000000050000000000000000001040000000000000104000000000000014400000000000001040000000000000144000000000000014400000000000001040000000000000144000000000000010400000000000001040');
+replace into geo values(x'000000000107000000030000000101000000000000000000F03F000000000000F03F010200000002000000000000000000F03F000000000000F03F0000000000000040000000000000004001030000000100000005000000000000000000F03F000000000000F03F0000000000000040000000000000F03F00000000000000400000000000000040000000000000F03F0000000000000040000000000000F03F000000000000F03F');
+
+replace into gc values(x'000000000104000000020000000101000000000000000000F03F000000000000F03F010100000000000000000000400000000000000040');
+--error 5243
+replace into gc values(x'00000000010200000002000000000000000000F03F000000000000F03F00000000000000400000000000000040');
+--error 5243
+replace into geo values(x'000000000101000000000000000000F03F0000000000F03F');
+replace into geo values(st_geomfromtext('point(3 3)', 2001));
+replace into geo values(st_geomfromtext('point(3 3)', 4326));
+--error 5244
+replace into geo_id values(st_geomfromtext('point(3 3)', 2001));
+replace into geo_id values(st_geomfromtext('point(3 3)', 4326));
+--error 5244
+replace into geo_id values(st_geomfromtext('point(3 3)'));
+replace into geo values(null);
+--error 5243
+replace into geo values(current_timestamp());
+replace into geo values(st_geomfromtext('pointz(1 1 1)'));
+--error 5243
+replace into p values(st_geomfromtext('pointz(1 1 1)'));
+
+####2-2-5、Select
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(2 2)'));
+select _st_asewkt(b) from geo where b=st_geomfromtext('point(1 1)');
+select _st_asewkt(b) from geo where b=x'000000000101000000000000000000F03F000000000000F03F';
+--error 2
+select _st_asewkt(b) from geo where b>=st_geomfromtext('point(1 1)');
+--error 2
+select _st_asewkt(b) from geo where b<st_geomfromtext('point(2 2)');
+select _st_asewkt(b) from geo where b in (select b from geo);
+select _st_asewkt(b) from geo where b in (st_geomfromtext('point(1 2)'), st_geomfromtext('point(2 2)'));
+select _st_asewkt(b) from geo where b in (select b  from geo bb where bb.b=st_geomfromtext('point(1 1)'));
+select _st_asewkt(b) from geo a where a.b in (select b  from geo bb where bb.b=st_geomfromtext('point(1 1)'));
+
+truncate table p;
+insert into p values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(3 3)'));
+select _st_asewkt(b) from geo where b in (select b from p);
+select count(*)from geo where b in (select st_geomfromtext('point(2 2)') from geo);
+select _st_asewkt(b) from geo order by b desc ;
+select _st_asewkt(b) from geo order by b asc ;
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(1 1)', 4326));
+select _st_asewkt(b) from geo where b=1 or b = st_geomfromtext('point(1 1)');
+select _st_asewkt(b) from geo except select _st_asewkt(b) from geo where b=st_geomfromtext('point(1 1)', 4326);
+select _st_asewkt(b) from geo where b=st_geomfromtext('point(1 1)') union select _st_asewkt(b) from geo where b=st_geomfromtext('point(1 1)', 4326);
+truncate table geo;
+truncate table p;
+insert into geo values(st_geomfromtext('point(1 1)', 4326));
+insert into p values(st_geomfromtext('point(2 2)', 2001));
+select _st_asewkt(b) from geo  union select _st_asewkt(b) from p;
+select _st_asewkt(b) from geo  except select _st_asewkt(b) from p where b=st_geomfromtext('point(1 1)');
+truncate table geo;
+truncate table p;
+insert into geo values(st_geomfromtext('point(1 1)', 4326)), (st_geomfromtext('point(2 2)', 2001));
+insert into p values(st_geomfromtext('point(2 2)', 2001));
+select _st_asewkt(b) from geo  intersect select _st_asewkt(b) from p;
+truncate table geo_pk;
+truncate table p_pk;
+insert into geo_pk values(1, st_geomfromtext('point(1 1)', 4326), 'a'), (2, st_geomfromtext('point(2 2)', 2001), 'b');
+insert into p_pk values(3, st_geomfromtext('point(1 1)', 4326), 'c');
+select * from geo_pk right join p_pk on geo_pk.b = p_pk.b; 
+select * from geo_pk left join p_pk on geo_pk.b = p_pk.b; 
+select * from geo_pk join p_pk on geo_pk.b = p_pk.b; 
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(1 1)', 4326));
+--error 2
+select  _st_asewkt(b) from geo where  _st_asewkt(b) between  st_geomfromtext('point(1 1)') and st_geomfromtext('point(1 1)', 4326);
+--error 2
+select max(b) from geo;
+--error 2
+select min(b) from geo;
+--error 2
+select sum(b) from geo;
+--error 2
+select avg(b) from geo;
+select 2 from geo where b in(select b from geo) ;
+select _st_asewkt(b),ord(b) from geo;
+select _st_asewkt(b),instr(b, '?') from geo;
+select _st_asewkt(b),left(b, 3),right(b,2) from geo;
+select _st_asewkt(b),substr(b,2),substr(b,2,3) from geo;
+select _st_asewkt(b),concat(b,point(1,1)),concat(b,' str'),concat('string ! ',b) from geo;
+select _st_asewkt(b),hex(b),unhex(b) from geo;
+
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(1 1)', 4326)), (null);
+select _st_asewkt(b) from geo where b is not null;
+select b is not null from geo;
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(1 1)', 4326)),(st_geomfromtext('point(1 1)'));
+select _st_asewkt(b),count(1) from geo group by b;
+select b, _st_asewkt(b) from geo having st_srid(b)=4326;
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)'));
+select charset(b), collation(b), coercibility(b) from geo;
+truncate table geo;
+insert into geo values(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(1 1)')),(st_geomfromtext('point(2 2)'));
+select st_astext(b), (select count(1) from geo a where a.b=aa.b) from geo aa;
+select st_astext(a.b) from geo a where exists (select 1 from geo aa where aa.b=a.b);
+
+###2-3、其他
+drop view if exists v1;
+create view v1 as select _st_asewkt(b) from geo;
+select * from v1;
+drop view if exists v1;
+create view v1 as select b from geo;
+select _st_asewkt(b) from v1 where b = st_geomfromtext('point(1 1)');
+drop view if exists v1;
+create view v1 as select _st_asewkt(b) from geo where b = st_geomfromtext('point(1 1)');
+select * from v1;
+CREATE TABLE tbl10 (col1 point, CONSTRAINT equal_check1 CHECK(st_srid(col1)=4326));
+--error 5689
+insert into tbl10 values(point(1,1));
+insert into tbl10 values(st_geomfromtext('point(1 1)', 4326));
+
+delimiter //;
+create procedure p() begin create table geo_p(g geometry); insert into geo_p values(point(1,1)); select _st_asewkt(g) from geo_p;end//
+call p();//
+delimiter ;//
+
+select cast(point(1,1) as double);
+select cast(point(1,1) as datetime);
+--error 5252
+select cast(cast(1.1 as double) as point);
+--error 5238
+select cast(current_date() as geometrycollection);
+
+select st_aswkt(cast(x'000000000101000000000000000000F03F000000000000F03F' as geometrycollection));
+select st_aswkt(cast(st_geomfromtext('point(1 2)') as point));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipoint(1 2, 1 1)') as point));
+select st_aswkt(cast(st_geomfromtext('geometrycollection(point(1 1))') as point));
+
+select st_aswkt(cast(st_geomfromtext('point(1 2)') as multipoint));
+select st_aswkt(cast(st_geomfromtext('linestring(1 1, 1 2)') as multipoint));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)), ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 1 2, 1 1)))') as multipoint));
+select st_aswkt(cast(st_geomfromtext('geometrycollection(point(1 1))') as multipoint));
+
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipoint(1 2)') as linestring));
+select st_aswkt(cast(st_geomfromtext('multipoint(1 2, 1 1)') as linestring));
+select st_aswkt(cast(st_geomfromtext('polygon((1 1, 2 2, 1 2, 1 1))') as linestring));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)))') as linestring));
+
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipoint(1 2, 1 1)') as multilinestring));
+select st_aswkt(cast(st_geomfromtext('polygon((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1))') as multilinestring));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)), ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 1 2, 1 1)))') as multilinestring));
+
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multilinestring((1 1, 1 2), (2 2, 3 3))') as polygon));
+select st_aswkt(cast(st_geomfromtext('polygon((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1))') as polygon));
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)))') as polygon));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('geometrycollection(point(1 1), linestring(1 1, 1 2))') as polygon));
+
+--error 5241
+select st_aswkt(cast(st_geomfromtext('multilinestring((1 1, 1 2), (2 2, 3 3))') as multipolygon));
+select st_aswkt(cast(st_geomfromtext('polygon((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1))') as multipolygon));
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)), ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 1 2, 1 1)))') as multipolygon));
+--error 5241
+select st_aswkt(cast(st_geomfromtext('geometrycollection(point(1 1), linestring(1 1, 1 2))') as multipolygon));
+
+select st_aswkt(cast(st_geomfromtext('multipoint(1 2, 1 1)') as geometrycollection));
+select st_aswkt(cast(st_geomfromtext('linestring(1 1, 1 2)') as geometrycollection));
+select st_aswkt(cast(st_geomfromtext('multilinestring((1 1, 1 2), (2 2, 3 3))') as geometrycollection)) res;
+select st_aswkt(cast(st_geomfromtext('polygon((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1))') as geometrycollection)) res;
+select st_aswkt(cast(st_geomfromtext('multipolygon(((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 2 2, 1 2, 1 1)), ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 2 1, 1 2, 1 1)))') as geometrycollection)) res;
+select st_aswkt(cast(st_geomfromtext('geometrycollection(point(1 1), linestring(1 1, 1 2))') as geometrycollection)) res;
+
+--error 5023
+select point(1,1)+point(1,1);
+--error 2
+select point(1,1)%point(1,1);
+--error 5023
+select point(1,1)-1.1;
+--error 5023
+select point(1,1)*cast(1.1 as double);

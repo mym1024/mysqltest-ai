@@ -1,0 +1,12 @@
+#######################################################
+###1.���Թ��ܵ㣺��list����������У�ͬһseesion�ж�ȡδ�ύ����;
+#######################################################
+
+drop table if exists c;
+
+create table c(c1 int primary key, c2 varchar(8)) partition by list(c1) (partition q0 values in (1,3), partition q1 values in(2,4,5));
+set autocommit=0;
+insert into c values(1,1);
+select * from c where c1=1 for update;
+commit;
+

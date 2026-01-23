@@ -1,0 +1,60 @@
+####################################必填######################################################
+###1.测试功能点：create table,alter table中未指定varchar类型的参数
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/539
+###4.问题号：539
+###5.预计运行时间：180 s
+###6.编写/修改人：penghuimin
+###7.编写/修改日期：2020-09-29
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+#不指定varchar类型的参数(未指定varchar类型的参数不成功)
+--error 5001
+create table test1 (c1 int primary key, c2 varchar);
+
+--error 5001
+create table test2 (c1 int primary key, c2 varchar, c2 varchar(255));
+
+#指定varchar类型的参数
+create table test3 (c1 int primary key, c2 varchar(255));
+desc test3;
+
+#不指定char类型的参数(char类型的参数不指定默认为1)
+create table test4 (c1 int primary key, c2 char);
+desc test4;
+
+#alter table不指定varchar类型的参数(未指定varchar类型的参数不成功)
+--error 5001
+alter table test3 add c3 varchar;
+
+#alter table指定varchar类型的参数
+alter table test3 add c3 varchar(255);
+desc test3;
+
+#alter table不指定char类型的参数
+alter table test3 add c4 char;
+desc test3;
+
+#alter table指定char类型的参数
+alter table test3 add c5 char(25);
+desc test3;
+
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+--enable_query_log
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

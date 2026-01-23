@@ -1,0 +1,83 @@
+can't determine a row 
+drop table if exists t1;
+create table list1(c1 int,c2 int,primary key(c1)) partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0,list1#q1	__list@3001	c1
+insert into list1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+delete from list1 where c1 in(1);
+delete from list1 where c1 in(1,2);
+delete from list1 where c1 >=3;
+delete from list1 where c1 <=1;
+delete from list1 where 1>=c1;
+delete from list1 where 3<=c1;
+delete from list1 where c1>1 and c1<3;
+delete from list1 where c1=1 or c1=2;
+delete from list1 where c1<1 or c1<2;
+delete from list1 where c1=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+delete from list1 where c1>1 and c1=2;
+select * from list1;
+c1	c2
+drop table if exists list1;
+create table list1(c1 int,c2 int,primary key(c1)) partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	list1	1	list1#q0,list1#q1	__list@3002	c1
+insert into list1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+delete from list1 where c2 in(1);
+delete from list1 where c2 in(1,2);
+delete from list1 where c2 >=3;
+delete from list1 where c2 <=1;
+delete from list1 where 1>=c2;
+delete from list1 where 3<=c2;
+delete from list1 where c2>1 and c2<3;
+delete from list1 where c2=1 or c2=2;
+delete from list1 where c2<1 or c2<2;
+delete from list1 where c2=1 and c2=2;
+delete from list1 where c2>1 and c2=2;
+drop table if exists list1;
+create table list1(c1 int,c2 int,primary key(c1)) partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	list1	1	list1#q0,list1#q1	__list@3003	c1
+insert into list1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+delete from list1 where (c1,c2) in((1,1));
+delete from list1 where (c1,c2) in((1,1),(2,2));
+delete from list1 where (c2,c1) in((1,1));
+delete from list1 where (c2,c1) in((1,1),(2,2));
+delete from list1 where c1>1 and c2>10 and c1=1;
+select * from list1;
+c1	c2
+3	3
+delete from list1 where c1>1 and c2>10 and c1=1;
+drop table if exists list1;
+create table list1(c1 int,c2 int,primary key(c1)) partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3004	2	list1	1	list1#q0,list1#q1	__list@3004	c1
+insert into list1 values(1,1),(2,2),(3,3);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	1	NULL
+delete from list1 where c2 <=1;
+delete from list1 where 1>=c2;
+delete from list1 where 3<=c2;
+delete from list1 where c2>1 and c2<3;
+delete from list1 where c2=1 or c2=2;
+delete from list1 where c2<1 or c2<2;
+delete from list1 where c2=1 and c2=2;
+delete from list1 where c2>1 and c2=2;

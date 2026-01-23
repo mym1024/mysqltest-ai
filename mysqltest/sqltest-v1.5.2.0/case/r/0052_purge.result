@@ -1,0 +1,159 @@
+drop table if exists tl,t2,t3,t4 purge;
+-- open trash
+set global trash_bin_switch = true;
+use drop_name purge table
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+insert into t1 values(1,1),(2,2);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3001	t1	2
+purge table t1_3001;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+show tables;
+table_name_in_test
+purge recyclebin;
+use drop_name purge table has index
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+create index t1_idx on t1(c1);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3002	t1	2
+__3002__idx__t1_idx_3003	__3002__idx__t1_idx	3
+purge table t1_3002;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+show tables;
+table_name_in_test
+purge recyclebin;
+use drop_name purge on table database
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_3	test1	1
+purge database __trash_test1_3;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+show databases;
+Database
+test
+trash
+yao
+purge recyclebin;
+use purge trashbin purge tables and databases
+drop table if exists t1 purge;
+create table t1(c1 int,c2 int primary key);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3004	t1	2
+create database test1;
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3004	t1	2
+__trash_test1_4	test1	1
+purge recyclebin;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+use purge trashbin purge tables and databases
+create table t1(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3005	t1	2
+t2_3006	t2	2
+purge recyclebin;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+use drop_name purge on tables
+drop table if exists t1,t2 purge;
+create table t1(c1 int,c2 int primary key);
+create table t2(c1 int,c2 int primary key);
+drop table t1,t2;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3007	t1	2
+t2_3008	t2	2
+purge table t1_3007,t2_3008;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name_in_test
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+purge recyclebin;
+purge table a;
+ERROR 42S02: YAO-5019: Table 'trash.a' doesn't exist
+purge recyclebin;
+purge database a;
+ERROR HY000: YAO-5602: Database not exist
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_5	test1	1
+purge database __trash_test1_5;
+ERROR HY000: YAO-5604: Still has table in database...
+flashback database __trash_test1_5 to before drop;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name
+using database test1;
+drop table t1 purge;
+drop database test1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+create database test1;
+using database test1;
+create table t1(c1 int primary key,c2 int);
+drop database test1;
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+__trash_test1_6	test1	1
+purge recyclebin;
+ERROR HY000: YAO-5604: Still has table in database...
+flashback database __trash_test1_6 to before drop;
+show recyclebin;
+drop_name	drop_time	object_name	type
+show tables;
+table_name
+using database test1;
+drop table t1 purge;
+drop database test1 purge;
+show recyclebin;
+drop_name	drop_time	object_name	type
+purge tables but one table not exists
+drop table if exists t1,t2 purge;
+using database test;
+create table t1(c1 int,c2 int primary key);
+drop table t1;
+purge table t1_3011,t2_3008;
+ERROR 42S02: YAO-5019: Table 'trash.t2_3008' doesn't exist
+show tables;
+table_name_in_test
+select drop_name,object_name,type from __all_trash;
+drop_name	object_name	type
+t1_3011	t1	2
+create database test1;
+create database test2;
+drop database test1;
+drop database test2;
+create user 'u1' identified by 'pass-12345';
+grant purge on * to 'u1';
+purge database __trash_test1_7;
+revoke purge on * from 'u1';
+purge database __trash_test2_8;
+ERROR HY000: YAO-5036: no privilege
+purge recyclebin;
+drop user 'u1';
+set global trash_bin_switch = false;

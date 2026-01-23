@@ -1,0 +1,174 @@
+####################################必填######################################################
+###1.测试功能点：show_trace、explain功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：15 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2024-02-26
+###8.其他（选填）：新编case
+###9.备注：在测试之前手动修改一下对应的result文件中的ip，保证与当前运行环境一致（TS、DS所在的IP）
+###
+##
+#
+##############################################################################################
+	
+
+#####################################Do sql###################################################
+--source merge.sql
+###Session级别设置和开启Trace功能
+### yao_enable_trace_log开关关闭，slow_query_threshold为0ms，show_trace都有返回结果集（对应SS日志）。
+show variables like '%yao_enable_trace_log%';
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+create table test1(id int primary key, name varchar(30), phone varchar(20));
+insert into test1 values(1,'yangf','15299996766');
+--replace_column 3 '固定值'
+show trace;
+### yao_enable_trace_log开关打开，slow_query_threshold为0ms，show_trace都有返回结果集（对应SS日志）。
+show variables like '%yao_enable_trace_log%';
+set yao_enable_trace_log=true;
+show variables like '%yao_enable_trace_log%';
+select * from test1;
+--replace_column 3 '固定值'
+show trace;
+
+### yao_enable_trace_log开关关闭，slow_query_threshold为100ms，只有大于slow_query_threshold阈值，show_trace才有返回结果集（对应SS日志）。
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=false;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+create table test2(id int primary key, name varchar(30), phone varchar(20));
+--replace_column 3 '固定值'
+show trace;
+insert into test2 values(1,'yangf','15299996766');
+select * from test2;
+show trace;
+drop table test2;
+
+
+### yao_enable_trace_log开关打开，slow_query_threshold为100ms，show_trace都有返回结果集（对应SS日志）。
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+create table test2(id int primary key, name varchar(30), phone varchar(20));
+--replace_column 3 '固定值'
+show trace;
+insert into test2 values(1,'yangf','15299996766');
+select * from test2;
+--replace_column 3 '固定值'
+show trace;
+
+
+### yao_enable_trace_log开关关闭、slow_query_threshold为100ms，加hint方式运行，show_trace都有返回结果集（对应SS日志）。
+ALTER SYSTEM SET slow_query_threshold='100ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+select /*+TRACE_LOG*/ * from test2;
+--replace_column 3 '固定值'
+show trace;
+explain select /*+TRACE_LOG*/ * from test2;
+--replace_column 3 '固定值'
+show trace;
+
+###ddl/dml各种数据类型相关，yao_enable_trace_log开关打开，slow_query_threshold为0，show_trace都有返回结果集（对应SS日志）。
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+set yao_enable_trace_log=true;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+### 创建表
+CREATE TABLE complex_table (
+    id INT  PRIMARY KEY,
+    name VARCHAR(50),
+    age INT,
+    height DECIMAL(5,2),
+    birthdate DATE,
+    profile_text VARCHAR(255),
+    creation_timestamp TIMESTAMP ,
+    is_employed BOOLEAN,
+    bit_data BIT(1),
+    json_data JSON
+);
+--replace_column 3 '固定值'
+show trace;
+
+### 插入数据
+INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-22 12:00:00', TRUE, b'1', '{"key": "value"}'),
+(2,'Bob', 25, 180.30, '1997-10-22', 'Consectetur adipiscing elit', '2024-03-22 12:00:00', FALSE, b'0', '{"name": "Bob", "age": 25}');
+--replace_column 3 '固定值'
+show trace;
+### 更新数据
+UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice';
+--replace_column 3 '固定值'
+show trace;
+### 删除数据
+DELETE FROM complex_table WHERE name = 'Bob';
+--replace_column 3 '固定值'
+show trace;
+### 查询数据
+SELECT * FROM complex_table;
+--replace_column 3 '固定值'
+show trace;
+#### 清空数据
+truncate table complex_table;
+--replace_column 3 '固定值'
+show trace;
+
+###事务级别测试,show trace只返回上一次运行SQL的结果集，与事务无关。
+
+### 开启事务
+begin;
+### 插入记录
+INSERT INTO complex_table (id,name, age, height, birthdate, profile_text, creation_timestamp, is_employed, bit_data, json_data) 
+VALUES 
+(1,'Alice', 30, 170.50, '1992-05-15', 'Lorem ipsum dolor sit amet', '2024-03-30 12:00:00', TRUE, b'1', '{"key": "value"}');
+--replace_column 3 '固定值'
+show trace;
+
+### 更新记录
+UPDATE complex_table SET height = 175.25, profile_text = 'New profile text', bit_data = b'0', json_data = '{"updated": true}' WHERE name = 'Alice';
+--replace_column 3 '固定值'
+show trace;
+
+### 删除记录
+DELETE FROM complex_table WHERE name = 'Alice';
+--replace_column 3 '固定值'
+show trace;
+
+### 提交事务
+COMMIT;
+--replace_column 3 '固定值'
+show trace;
+
+####hint方式，关闭DS、TS日志开关（默认关闭），show trace返回结果集（对应SS日志）。
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+ALTER SYSTEM SET enable_cache_trace_log=false server_type=yaodatasvr;
+ALTER SYSTEM SET enable_cache_trace_log=false server_type=yaotxnsvr;
+set yao_enable_trace_log=true;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+select /*+TRACE_LOG*/ * from complex_table;
+--replace_column 3 '固定值'
+show trace;
+
+
+####hint方式，关闭DS、TS日志打开，show trace返回结果集（对应SS+DS+TS日志）。
+ALTER SYSTEM SET slow_query_threshold='0ms' server_type=yaosqlsvr;
+ALTER SYSTEM SET enable_cache_trace_log=true server_type=yaodatasvr;
+ALTER SYSTEM SET enable_cache_trace_log=true server_type=yaotxnsvr;
+set yao_enable_trace_log=true;
+--sleep 5
+select svr_type,name,value from __all_sys_config_stat where name = 'slow_query_warn_time' or name='slow_query_threshold' or name='enable_cache_trace_log' order by name;
+show variables like '%yao_enable_trace_log%';
+select /*+TRACE_LOG*/ * from complex_table;
+--replace_column 3 '固定值'
+show trace;
+

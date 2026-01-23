@@ -1,0 +1,240 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 Test DML - UPDATE with ENUM and SET types
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+
+#Setup: Create tables for UPDATE testing
+CREATE TABLE t_update_parent (
+    parent_id INT PRIMARY KEY,
+    parent_status ENUM('valid', 'invalid')
+);
+
+CREATE TABLE t_update_enum_set (
+    id INT AUTO_INCREMENT,
+    category ENUM('cat_a', 'cat_b', 'cat_c') NOT NULL DEFAULT 'cat_a',
+    flags SET('flag1', 'flag2', 'flag3', 'flag4') NOT NULL,
+    level ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    description VARCHAR(100),
+    ref_id INT,
+    PRIMARY KEY (id),
+    KEY idx_category (category),
+    KEY idx_flags (flags),
+    CONSTRAINT fk_update_parent FOREIGN KEY (ref_id) REFERENCES t_update_parent(parent_id)
+);
+
+CREATE TABLE t_update_with_pk (
+    pk_enum ENUM('pk_val1', 'pk_val2') PRIMARY KEY,
+    pk_set SET('pk_s1', 'pk_s2') UNIQUE KEY,
+    data VARCHAR(50)
+);
+INSERT INTO t_update_parent VALUES (1, 'valid'), (2, 'invalid');
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+
+SELECT * FROM t_update_enum_set ORDER BY id;
+SELECT * FROM t_update_with_pk ORDER BY pk_enum;
+
+# 1. Basic UPDATE Operations
+#
+# 1.1. Single Row Update - Change ENUM and SET values
+UPDATE t_update_enum_set SET category = 'cat_c', flags = 'flag2,flag4', level = 'low', description = 'Updated record 1' WHERE id = 1;
+SELECT * FROM t_update_enum_set WHERE id = 1;
+
+# 1.2. Batch Update - Update multiple rows based on condition
+#mysql、ob执行成功，表现不一致-自增列不一样
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET level = 'high', description = CONCAT(description, ' - Upgraded') WHERE category = 'cat_b';
+SELECT * FROM t_update_enum_set WHERE category = 'cat_b';
+
+# 1.3. Update using numeric index for ENUM
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET category = 2 WHERE id = 3;
+SELECT * FROM t_update_enum_set WHERE id = 3;
+
+# 1.4. Update SET by adding a member
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET flags = CONCAT(flags, ',flag1') WHERE id = 2 AND NOT FIND_IN_SET('flag1', flags);
+UPDATE t_update_enum_set SET flags = 'flag1,flag2,flag3' WHERE id = 2;
+SELECT * FROM t_update_enum_set WHERE id = 2;
+
+# 1.5. Update SET by removing a member
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET flags = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', flags, ','), ',flag3,', ',')) WHERE id = 4;
+SELECT * FROM t_update_enum_set WHERE id = 4;
+
+# 2. Special Value Handling during UPDATE
+#
+# 2.1. Update ENUM to invalid string value (should result in error in strict mode)
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+--error 2
+UPDATE t_update_enum_set SET level = 'critical' WHERE id = 5;
+SELECT * FROM t_update_enum_set WHERE id = 5;
+# 2.2. Update SET with invalid member (should result in error or ignore)
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+--error 5337
+UPDATE t_update_enum_set SET flags = 'flag2,invalid_flag' WHERE id = 5;
+SELECT * FROM t_update_enum_set WHERE id = 5;
+
+# 2.3. Update to NULL for columns allowing NULL (ENUM/SET not null in this table, test FK)
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET ref_id = NULL, description = 'FK set to NULL' WHERE id = 1;
+SELECT id, ref_id, description FROM t_update_enum_set WHERE id = 1;
+
+# 2.4. Update omitting some columns (they should remain unchanged)
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'Only description changed' WHERE id = 3;
+SELECT * FROM t_update_enum_set WHERE id = 3;
+
+# 3. UPDATE with Complex WHERE Clauses (Involving ENUM/SET)
+#
+# 3.1. Update based on ENUM value
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'Category A processed' WHERE category = 'cat_a';
+SELECT * FROM t_update_enum_set WHERE category = 'cat_a';
+
+# 3.2. Update based on SET membership
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET level = 'medium' WHERE FIND_IN_SET('flag4', flags) > 0;
+SELECT * FROM t_update_enum_set WHERE FIND_IN_SET('flag4', flags) > 0;
+
+# 3.3. Update based on multiple ENUM/SET conditions
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'High priority flag1 item' WHERE level = 'high' AND FIND_IN_SET('flag1', flags) > 0;
+SELECT * FROM t_update_enum_set WHERE level = 'high' AND FIND_IN_SET('flag1', flags) > 0;
+
+# 4. Updates Involving Primary Key Changes (ENUM/SET as PK)
+#
+# 4.1. Update Primary Key ENUM column (should succeed if new value is unique)
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+SELECT * FROM t_update_with_pk WHERE pk_enum = 'pk_val1';
+--error 119
+UPDATE t_update_with_pk SET pk_enum = 'pk_val1_updated';
+SELECT * FROM t_update_with_pk WHERE pk_enum = 'pk_val1';
+
+# 4.2. Update row based on unique SET key
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+SELECT * FROM t_update_with_pk WHERE pk_set = 'pk_s2';
+UPDATE t_update_with_pk SET data = 'Data 2 Updated' WHERE pk_set = 'pk_s2';
+SELECT * FROM t_update_with_pk WHERE pk_set = 'pk_s2';
+
+# 4.3. Attempt to update PK ENUM to duplicate value (should fail)
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+--error 119
+UPDATE t_update_with_pk SET pk_enum = 'pk_val1' WHERE pk_enum = 'pk_val2';
+
+# 4.4. Attempt to update Unique SET to duplicate value (should fail)
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+--error 119
+UPDATE t_update_with_pk SET pk_set = 'pk_s1' WHERE pk_enum = 'pk_val2'; 
+
+# 5. Error Handling and Constraint Checks during UPDATE
+#
+# 5.1. Update violating FOREIGN KEY constraint
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+--error 5209
+UPDATE t_update_enum_set SET ref_id = 9999 WHERE id = 2;
+
+# 5.2. Update violating NOT NULL constraint (implicitly handled by CHECK or column definition)
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+--error 5501
+UPDATE t_update_enum_set SET flags = NULL  WHERE id = 1;
+
+# Final State Check
+SELECT * FROM t_update_enum_set ORDER BY id;
+SELECT * FROM t_update_with_pk ORDER BY pk_enum;
+
+# Cleanup
+DROP TABLE t_update_with_pk;
+DROP TABLE t_update_enum_set;
+DROP TABLE t_update_parent;
+############################################ end sql ###################################################

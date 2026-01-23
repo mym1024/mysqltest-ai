@@ -1,0 +1,630 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t2(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create table t3(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t3(c2) storing(c3);
+create index i2 on t3(c4);
+create table t4(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index i1 on t4(c2) storing(c3);
+create index i2 on t4(c4);
+"merge"
+major_freeze...
+insert into t1 values(10,10,30,40,50);
+insert into t2 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t4 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+insert into t1 values(10,10,30,40,50);
+insert into t3 values(10,10,30,40,50);
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1,t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+"merge"
+minor_freeze...
+"merge"
+minor_freeze...
+"merge"
+major_freeze...
+insert into t1 values(10,10,30,40,50);
+insert into t1 values(20,20,30,40,50);
+insert into t1 values(30,30,30,40,50);
+insert into t3 values(10,10,30,40,50);
+insert into t3 values(20,20,30,40,50);
+insert into t3 values(30,30,30,40,50);
+replace into t1 values(5,5,30,40,50);
+replace into t1 values(10,10,30,40,50);
+replace into t1 values(30,50,30,40,50);
+replace into t3 values(5,5,30,40,50);
+replace into t3 values(10,10,30,40,50);
+replace into t3 values(30,50,30,40,50);
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 5 and c2 = 5;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c1 = 100, c2 = 100 where c1 = 10 and c2 =10;
+update t1 set c1 = 10, c2 = 10 where c1 = 100 and c2 =100;
+update t1 set c3 = 20,c4 = 20,c5 = 20 where c1 = 5 and c2 = 5;
+delete from t1 where c1 = 5 and c2 = 5;
+delete from t3 where c1 = 5 and c2 = 5;
+select * from t1;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+select * from t1 where c1 = 5 and c2 = 5;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t1 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t1 where c1 = 30 and c2 = 30;
+c1	c2	c3	c4	c5
+30	30	30	40	50
+select * from t1 where c1 = 100 and c2 = 100;
+c1	c2	c3	c4	c5
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+select * from t3 where c1 = 5 and c2 = 5;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t3 where c1 = 30 and c2 = 30;
+c1	c2	c3	c4	c5
+30	30	30	40	50
+select * from t3 where c1 = 100 and c2 = 100;
+c1	c2	c3	c4	c5
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+"merge"
+minor_freeze...
+insert into t1 values(100,100,30,40,50);
+insert into t1 values(200,200,30,40,50);
+insert into t1 values(300,300,30,40,50);
+insert into t3 values(100,100,30,40,50);
+insert into t3 values(200,200,30,40,50);
+insert into t3 values(300,300,30,40,50);
+replace into t1 values(5,5,30,40,50);
+replace into t1 values(10,10,30,40,50);
+replace into t1 values(30,50,30,40,50);
+replace into t3 values(5,5,30,40,50);
+replace into t3 values(10,10,30,40,50);
+replace into t3 values(30,50,30,40,50);
+update t1 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t1 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t1 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t1 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t1 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t1 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t1 set c3 = 20, c4 = 20, c5 = 20 where c1 = 5 and c2 =5;
+update t3 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t3 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t3 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t3 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t3 set c1 = 11, c2 = 11 where c1 = 10 and c2 =10;
+update t3 set c3 = 10, c4 = 10 where c1 = 11 and c2 =11;
+update t3 set c3 = 20, c4 = 20, c5 = 20 where c1 = 5 and c2 =5;
+delete from t1 where c1 = 5 and c2 = 5;
+delete from t3 where c1 = 5 and c2 = 5;
+select * from t1;
+c1	c2	c3	c4	c5
+11	11	10	10	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+100	100	30	40	50
+200	200	30	40	50
+300	300	30	40	50
+select * from t1 where c1 = 5 and c2 = 5;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t1 where c1 = 30 and c2 = 30;
+c1	c2	c3	c4	c5
+30	30	30	40	50
+select * from t1 where c1 = 100 and c2 = 100;
+c1	c2	c3	c4	c5
+100	100	30	40	50
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+11	11	10	10	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+100	100	30	40	50
+200	200	30	40	50
+300	300	30	40	50
+select * from t3 where c1 = 5 and c2 = 5;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t3 where c1 = 30 and c2 = 30;
+c1	c2	c3	c4	c5
+30	30	30	40	50
+select * from t3 where c1 = 100 and c2 = 100;
+c1	c2	c3	c4	c5
+100	100	30	40	50
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+"merge"
+minor_freeze...
+select * from t1;
+c1	c2	c3	c4	c5
+11	11	10	10	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+100	100	30	40	50
+200	200	30	40	50
+300	300	30	40	50
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+11	11	10	10	50
+20	20	30	40	50
+30	30	30	40	50
+30	50	30	40	50
+100	100	30	40	50
+200	200	30	40	50
+300	300	30	40	50
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+20	20	30	40	50
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+truncate table t1, t3;
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+"merge"
+major_freeze...
+select * from t1;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t1 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+select * from t2;
+c1	c2	c3	c4	c5
+10	10	30	40	50
+select * from t3;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 10 and c2 = 10;
+c1	c2	c3	c4	c5
+select * from t3 where c1 = 20 and c2 = 20;
+c1	c2	c3	c4	c5
+select * from t4;
+c1	c2	c3	c4	c5
+10	10	30	40	50

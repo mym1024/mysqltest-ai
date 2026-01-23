@@ -1,0 +1,1997 @@
+set names utf8mb4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select cast(c1 as decimal(27,10)),cast(c2 as double),cast(c3 as varchar(100)) from t1;
+create view v2 as select cast(c4 as float),cast(c5 as decimal(11,3)),cast(c6 as varchar(100)),cast(c7 as bigint) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+cast(c1 as decimal(27,10))	decimal(27,10)	NO		NULL	
+cast(c2 as double)	double	NO		NULL	
+cast(c3 as varchar(100))	varchar(100)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+cast(c4 as float)	float	NO		NULL	
+cast(c5 as decimal(11,3))	decimal(11,3)	NO		NULL	
+cast(c6 as varchar(100))	varchar(100)	NO		NULL	
+cast(c7 as bigint)	bigint	NO		NULL	
+select * from v1;
+cast(c1 as decimal(27,10))	cast(c2 as double)	cast(c3 as varchar(100))
+-12321112147483647	-2	-3.150000
+12321112147483647	2	3.150000
+select cast(c1 as decimal(27,10)),cast(c2 as double),cast(c3 as varchar(100)) from t1;
+cast(c1 as decimal(27,10))	cast(c2 as double)	cast(c3 as varchar(100))
+-12321112147483647	-2	-3.150000
+12321112147483647	2	3.150000
+select * from v2;
+cast(c4 as float)	cast(c5 as decimal(11,3))	cast(c6 as varchar(100))	cast(c7 as bigint)
+-5.5656	-77777.777	-7878787.3569	0
+5.57	77777.976	12321321.123123	1
+select cast(c4 as float),cast(c5 as decimal(11,3)),cast(c6 as varchar(100)),cast(c7 as bigint) from t1;
+cast(c4 as float)	cast(c5 as decimal(11,3))	cast(c6 as varchar(100))	cast(c7 as bigint)
+-5.5656	-77777.777	-7878787.3569	0
+5.57	77777.976	12321321.123123	1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3002	0	0	select cast("test"."t1"."c1" as decimal(27, 10)) as "cast(c1 as decimal(27,10))", cast("test"."t1"."c2" as double) as "cast(c2 as double)", cast("test"."t1"."c3" as varchar(100)) as "cast(c3 as varchar(100))" from "test"."t1"
+3003	0	0	select cast("test"."t1"."c4" as float) as "cast(c4 as float)", cast("test"."t1"."c5" as decimal(11, 3)) as "cast(c5 as decimal(11,3))", cast("test"."t1"."c6" as varchar(100)) as "cast(c6 as varchar(100))", cast("test"."t1"."c7" as bigint) as "cast(c7 as bigint)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select cast("test"."t1"."c1" as decimal(27, 10)) as "cast(c1 as decimal(27,10))", cast("test"."t1"."c2" as double) as "cast(c2 as double)", cast("test"."t1"."c3" as varchar(100)) as "cast(c3 as varchar(100))" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select cast("test"."t1"."c4" as float) as "cast(c4 as float)", cast("test"."t1"."c5" as decimal(11, 3)) as "cast(c5 as decimal(11,3))", cast("test"."t1"."c6" as varchar(100)) as "cast(c6 as varchar(100))", cast("test"."t1"."c7" as bigint) as "cast(c7 as bigint)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 varchar(100) primary key,c2 decimal(10,5));
+insert into t1 values ('12321312.123123',77777.97687),('-7878787.3569',-77777.77777);
+create view v1 as select cast(c1 as decimal),cast(c2 as varchar(100)) from t1;
+create view v2 as select cast(1.23569*2.35678 as bool),cast(298.787878 as int),cast(5656 as decimal(10,5));
+create view v3 as select cast('11:00:45' as time),cast('2021-01-28' as date),cast('2021-01-28 11:11:52.236272' as timestamp);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+cast(c1 as decimal)	decimal(38,0)	NO		NULL	
+cast(c2 as varchar(100))	varchar(100)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+cast(1.23569*2.35678 as bool)	int(1)	NO		NULL	
+cast(298.787878 as int)	int	NO		NULL	
+cast(5656 as decimal(10,5))	decimal(10,5)	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+cast('11:00:45' as time)	time	NO		NULL	
+cast('2021-01-28' as date)	date	NO		NULL	
+cast('2021-01-28 11:11:52.236272' as timestamp)	timestamp	NO		NULL	
+select * from v1;
+cast(c1 as decimal)	cast(c2 as varchar(100))
+-7878787	-77777.77777
+12321312	77777.97687
+select cast(c1 as decimal),cast(c2 as varchar(100)) from t1;
+cast(c1 as decimal)	cast(c2 as varchar(100))
+-7878787	-77777.77777
+12321312	77777.97687
+select * from v2;
+cast(1.23569*2.35678 as bool)	cast(298.787878 as int)	cast(5656 as decimal(10,5))
+1	298	5656
+select cast(1.23569*2.35678 as bool),cast(298.787878 as int),cast(5656 as decimal(10,5));
+cast(1.23569*2.35678 as bool)	cast(298.787878 as int)	cast(5656 as decimal(10,5))
+1	298	5656
+select * from v3;
+cast('11:00:45' as time)	cast('2021-01-28' as date)	cast('2021-01-28 11:11:52.236272' as timestamp)
+11:00:45	2021-01-28	2021-01-28 11:11:52.236272
+select cast('11:00:45' as time),cast('2021-01-28' as date),cast('2021-01-28 11:11:52.236272' as timestamp);
+cast('11:00:45' as time)	cast('2021-01-28' as date)	cast('2021-01-28 11:11:52.236272' as timestamp)
+11:00:45	2021-01-28	2021-01-28 11:11:52.236272
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3005	0	0	select cast("test"."t1"."c1" as decimal(38, 0)) as "cast(c1 as decimal)", cast("test"."t1"."c2" as varchar(100)) as "cast(c2 as varchar(100))" from "test"."t1"
+3006	0	0	select cast((1.23569 * 2.35678) as boolean) as "cast(1.23569*2.35678 as bool)", cast(298.787878 as integer) as "cast(298.787878 as int)", cast(5656 as decimal(10, 5)) as "cast(5656 as decimal(10,5))" from dual
+3007	0	0	select cast('11:00:45' as time) as "cast('11:00:45' as time)", cast('2021-01-28' as date) as "cast('2021-01-28' as date)", cast('2021-01-28 11:11:52.236272' as timestamp) as "cast('2021-01-28 11:11:52.236272' as timestamp)" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select cast("test"."t1"."c1" as decimal(38, 0)) as "cast(c1 as decimal)", cast("test"."t1"."c2" as varchar(100)) as "cast(c2 as varchar(100))" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select cast((1.23569 * 2.35678) as boolean) as "cast(1.23569*2.35678 as bool)", cast(298.787878 as integer) as "cast(298.787878 as int)", cast(5656 as decimal(10, 5)) as "cast(5656 as decimal(10,5))" from dual	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select cast('11:00:45' as time) as "cast('11:00:45' as time)", cast('2021-01-28' as date) as "cast('2021-01-28' as date)", cast('2021-01-28 11:11:52.236272' as timestamp) as "cast('2021-01-28 11:11:52.236272' as timestamp)" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select concat(c1,c2),concat(c1,c1),concat(c1 ,concat(c3,c5)),concat(concat(c1,c2),2.56878 *2.65656) from t1;
+create view v2 as select concat(1.35656,concat('_','name')),concat(25.2577,999);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+concat(c1,c2)	varchar(31)	NO		NULL	
+concat(c1,c1)	varchar(40)	NO		NULL	
+concat(c1 ,concat(c3,c5))	varchar(42)	NO		NULL	
+concat(concat(c1,c2),2.56878 *2.65656)	varchar(43)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+concat(1.35656,concat('_','name'))	varchar(12)	NO		NULL	
+concat(25.2577,999)	varchar(10)	NO		NULL	
+select * from v1;
+concat(c1,c2)	concat(c1,c1)	concat(c1 ,concat(c3,c5))	concat(concat(c1,c2),2.56878 *2.65656)
+-12321112147483647-2	-12321112147483647-12321112147483647	-12321112147483647-3.150000-77777.77777	-12321112147483647-26.8241181968
+123211121474836472	1232111214748364712321112147483647	123211121474836473.15000077777.97687	1232111214748364726.8241181968
+select concat(c1,c2),concat(c1,c1),concat(c1 ,concat(c3,c5)),concat(concat(c1,c2),2.56878 *2.65656) from t1;
+concat(c1,c2)	concat(c1,c1)	concat(c1 ,concat(c3,c5))	concat(concat(c1,c2),2.56878 *2.65656)
+-12321112147483647-2	-12321112147483647-12321112147483647	-12321112147483647-3.150000-77777.77777	-12321112147483647-26.8241181968
+123211121474836472	1232111214748364712321112147483647	123211121474836473.15000077777.97687	1232111214748364726.8241181968
+select * from v2;
+concat(1.35656,concat('_','name'))	concat(25.2577,999)
+1.35656_name	25.2577999
+select concat(1.35656,concat('_','name')),concat(25.2577,999);
+concat(1.35656,concat('_','name'))	concat(25.2577,999)
+1.35656_name	25.2577999
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3009	0	0	select concat("test"."t1"."c1", "test"."t1"."c2") as "concat(c1,c2)", concat("test"."t1"."c1", "test"."t1"."c1") as "concat(c1,c1)", concat("test"."t1"."c1", concat("test"."t1"."c3", "test"."t1"."c5")) as "concat(c1 ,concat(c3,c5))", concat(concat("test"."t1"."c1", "test"."t1"."c2"), (2.56878 * 2.65656)) as "concat(concat(c1,c2),2.56878 *2.65656)" from "test"."t1"
+3010	0	0	select concat(1.35656, concat('_', 'name')) as "concat(1.35656,concat('_','name'))", concat(25.2577, 999) as "concat(25.2577,999)" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select concat("test"."t1"."c1", "test"."t1"."c2") as "concat(c1,c2)", concat("test"."t1"."c1", "test"."t1"."c1") as "concat(c1,c1)", concat("test"."t1"."c1", concat("test"."t1"."c3", "test"."t1"."c5")) as "concat(c1 ,concat(c3,c5))", concat(concat("test"."t1"."c1", "test"."t1"."c2"), (2.56878 * 2.65656)) as "concat(concat(c1,c2),2.56878 *2.65656)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select concat(1.35656, concat('_', 'name')) as "concat(1.35656,concat('_','name'))", concat(25.2577, 999) as "concat(25.2577,999)" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_date();
+create view v2 as select * from (select current_date());
+create view v3 as select * from (select current_date()) t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+current_date()	date	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+current_date()	date	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+current_date()	date	NO		NULL	
+select * from v1;
+current_date()
+2021-03-23
+select current_date();
+current_date()
+2021-03-23
+select * from v2;
+current_date()
+2021-03-23
+select * from (select current_date());
+current_date()
+2021-03-23
+select * from v3;
+current_date()
+2021-03-23
+select * from (select current_date()) t1;
+current_date()
+2021-03-23
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3011	0	0	select current_date() as "current_date()" from dual
+3012	0	0	select "current_date()" as "current_date()" from (select current_date() as "current_date()" from dual)
+3013	0	0	select "t1"."current_date()" as "current_date()" from (select current_date() as "current_date()" from dual) as "t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_time();
+create view v2 as select * from (select current_time());
+create view v3 as select * from (select current_time()) t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+current_time()	time	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+current_time()	time	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+current_time()	time	NO		NULL	
+select * from v1;
+current_time()
+16:01:29
+select current_time();
+current_time()
+16:01:29
+select * from v2;
+current_time()
+16:01:29
+select * from (select current_time());
+current_time()
+16:01:29
+select * from v3;
+current_time()
+16:01:29
+select * from (select current_time()) t1;
+current_time()
+16:01:29
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3014	0	0	select current_time() as "current_time()" from dual
+3015	0	0	select "current_time()" as "current_time()" from (select current_time() as "current_time()" from dual)
+3016	0	0	select "t1"."current_time()" as "current_time()" from (select current_time() as "current_time()" from dual) as "t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select current_time() as "current_time()" from dual	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "current_time()" as "current_time()" from (select current_time() as "current_time()" from dual)	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "t1"."current_time()" as "current_time()" from (select current_time() as "current_time()" from dual) as "t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select current_timestamp();
+create view v2 as select * from (select * from(select current_timestamp()));
+create view v3 as select * from (select *from(select current_timestamp() t1) t2);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+current_timestamp()	timestamp	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+current_timestamp()	timestamp	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+t1	timestamp	NO		NULL	
+select * from v1;
+current_timestamp()
+2021-03-23 17:22:19.561809
+select current_timestamp();
+current_timestamp()
+2021-03-23 17:22:19.561809
+select * from v2;
+current_timestamp()
+2021-03-23 17:22:19.561809
+select * from (select * from(select current_timestamp()));
+current_timestamp()
+2021-03-23 17:22:19.561809
+select * from v3;
+t1
+2021-03-23 17:22:19.561809
+select * from (select *from(select current_timestamp() t1) t2);
+t1
+2021-03-23 17:22:19.561809
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3017	0	0	select now() as "current_timestamp()" from dual
+3018	0	0	select "current_timestamp()" as "current_timestamp()" from (select "current_timestamp()" as "current_timestamp()" from (select now() as "current_timestamp()" from dual))
+3019	0	0	select "t1" as "t1" from (select "t2"."t1" as "t1" from (select now() as "t1" from dual) as "t2")
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select now() as "current_timestamp()" from dual	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "current_timestamp()" as "current_timestamp()" from (select "current_timestamp()" as "current_timestamp()" from (select now() as "current_timestamp()" from dual))	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select "t1" as "t1" from (select "t2"."t1" as "t1" from (select now() as "t1" from dual) as "t2")	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select year('2021-01-28 14:05:29.833895');
+create view v2 as select year('2021-01-28 14:05:29');
+create view v3 as select year('2021-01-28');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+year('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+year('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+year('2021-01-28')	int	NO		NULL	
+select * from v1;
+year('2021-01-28 14:05:29.833895')
+2021
+select year('2021-01-28 14:05:29.833895');
+year('2021-01-28 14:05:29.833895')
+2021
+select * from v2;
+year('2021-01-28 14:05:29')
+2021
+select year('2021-01-28 14:05:29');
+year('2021-01-28 14:05:29')
+2021
+select * from v3;
+year('2021-01-28')
+2021
+select year('2021-01-28');
+year('2021-01-28')
+2021
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3020	0	0	select year('2021-01-28 14:05:29.833895') as "year('2021-01-28 14:05:29.833895')" from dual
+3021	0	0	select year('2021-01-28 14:05:29') as "year('2021-01-28 14:05:29')" from dual
+3022	0	0	select year('2021-01-28') as "year('2021-01-28')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select month('2021-01-28 14:05:29.833895');
+create view v2 as select month('2021-01-28 14:05:29');
+create view v3 as select month('2021-01-28');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+month('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+month('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+month('2021-01-28')	int	NO		NULL	
+select * from v1;
+month('2021-01-28 14:05:29.833895')
+1
+select month('2021-01-28 14:05:29.833895');
+month('2021-01-28 14:05:29.833895')
+1
+select * from v2;
+month('2021-01-28 14:05:29')
+1
+select month('2021-01-28 14:05:29');
+month('2021-01-28 14:05:29')
+1
+select * from v3;
+month('2021-01-28')
+1
+select month('2021-01-28');
+month('2021-01-28')
+1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3023	0	0	select month('2021-01-28 14:05:29.833895') as "month('2021-01-28 14:05:29.833895')" from dual
+3024	0	0	select month('2021-01-28 14:05:29') as "month('2021-01-28 14:05:29')" from dual
+3025	0	0	select month('2021-01-28') as "month('2021-01-28')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select day('2021-01-28 14:05:29.833895');
+create view v2 as select day('2021-01-28 14:05:29');
+create view v3 as select day('2021-01-28');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+day('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+day('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+day('2021-01-28')	int	NO		NULL	
+select * from v1;
+day('2021-01-28 14:05:29.833895')
+28
+select day('2021-01-28 14:05:29.833895');
+day('2021-01-28 14:05:29.833895')
+28
+select * from v2;
+day('2021-01-28 14:05:29')
+28
+select day('2021-01-28 14:05:29');
+day('2021-01-28 14:05:29')
+28
+select * from v3;
+day('2021-01-28')
+28
+select day('2021-01-28');
+day('2021-01-28')
+28
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3026	0	0	select day('2021-01-28 14:05:29.833895') as "day('2021-01-28 14:05:29.833895')" from dual
+3027	0	0	select day('2021-01-28 14:05:29') as "day('2021-01-28 14:05:29')" from dual
+3028	0	0	select day('2021-01-28') as "day('2021-01-28')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select days('2021-01-28 14:05:29.833895');
+create view v2 as select days('2021-01-28 14:05:29');
+create view v3 as select days('2021-01-28');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+days('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+days('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+days('2021-01-28')	int	NO		NULL	
+select * from v1;
+days('2021-01-28 14:05:29.833895')
+737818
+select days('2021-01-28 14:05:29.833895');
+days('2021-01-28 14:05:29.833895')
+737818
+select * from v2;
+days('2021-01-28 14:05:29')
+737818
+select days('2021-01-28 14:05:29');
+days('2021-01-28 14:05:29')
+737818
+select * from v3;
+days('2021-01-28')
+737818
+select days('2021-01-28');
+days('2021-01-28')
+737818
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3029	0	0	select days('2021-01-28 14:05:29.833895') as "days('2021-01-28 14:05:29.833895')" from dual
+3030	0	0	select days('2021-01-28 14:05:29') as "days('2021-01-28 14:05:29')" from dual
+3031	0	0	select days('2021-01-28') as "days('2021-01-28')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select hour('2021-01-28 14:05:29.833895');
+create view v2 as select hour('2021-01-28 14:05:29');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+hour('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+hour('2021-01-28 14:05:29')	int	NO		NULL	
+select * from v1;
+hour('2021-01-28 14:05:29.833895')
+14
+select days('2021-01-28 14:05:29.833895');
+days('2021-01-28 14:05:29.833895')
+737818
+select * from v2;
+hour('2021-01-28 14:05:29')
+14
+select days('2021-01-28 14:05:29');
+days('2021-01-28 14:05:29')
+737818
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3032	0	0	select hour('2021-01-28 14:05:29.833895') as "hour('2021-01-28 14:05:29.833895')" from dual
+3033	0	0	select hour('2021-01-28 14:05:29') as "hour('2021-01-28 14:05:29')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select minute('2021-01-28 14:05:29.833895');
+create view v2 as select minute('2021-01-28 14:05:29');
+create view v3 as select minute('14:05:27');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+minute('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+minute('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+minute('14:05:27')	int	NO		NULL	
+select * from v1;
+minute('2021-01-28 14:05:29.833895')
+5
+select minute('2021-01-28 14:05:29.833895');
+minute('2021-01-28 14:05:29.833895')
+5
+select * from v2;
+minute('2021-01-28 14:05:29')
+5
+select minute('2021-01-28 14:05:29');
+minute('2021-01-28 14:05:29')
+5
+select * from v3;
+minute('14:05:27')
+5
+select minute('14:05:27');
+minute('14:05:27')
+5
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3034	0	0	select minute('2021-01-28 14:05:29.833895') as "minute('2021-01-28 14:05:29.833895')" from dual
+3035	0	0	select minute('2021-01-28 14:05:29') as "minute('2021-01-28 14:05:29')" from dual
+3036	0	0	select minute('14:05:27') as "minute('14:05:27')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select second('2021-01-28 14:05:29.833895');
+create view v2 as select second('2021-01-28 14:05:29');
+create view v3 as select second('14:05:27');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+second('2021-01-28 14:05:29.833895')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+second('2021-01-28 14:05:29')	int	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+second('14:05:27')	int	NO		NULL	
+select * from v1;
+second('2021-01-28 14:05:29.833895')
+29
+select second('2021-01-28 14:05:29.833895');
+second('2021-01-28 14:05:29.833895')
+29
+select * from v2;
+second('2021-01-28 14:05:29')
+29
+select second('2021-01-28 14:05:29');
+second('2021-01-28 14:05:29')
+29
+select * from v3;
+second('14:05:27')
+27
+select second('14:05:27');
+second('14:05:27')
+27
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3037	0	0	select second('2021-01-28 14:05:29.833895') as "second('2021-01-28 14:05:29.833895')" from dual
+3038	0	0	select second('2021-01-28 14:05:29') as "second('2021-01-28 14:05:29')" from dual
+3039	0	0	select second('14:05:27') as "second('14:05:27')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 int primary key,c2 createtime,c3 date,c4 time,c5 timestamp);
+insert into t1(c1,c3,c4,c5) values (1,'2021-01-28','14:05:29','2021-01-28 14:05:29.833895');
+create view v1 as select date_add(c3,interval 5566 years),date_add(c4,interval 5566 hours),date_add(c5,interval 5566 years) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+date_add(c3,interval 5566 years)	date	NO		NULL	
+date_add(c4,interval 5566 hours)	time	NO		NULL	
+date_add(c5,interval 5566 years)	timestamp	NO		NULL	
+select * from v1;
+date_add(c3,interval 5566 years)	date_add(c4,interval 5566 hours)	date_add(c5,interval 5566 years)
+7587-01-28	12:05:29	7587-01-28 14:05:29.833895
+select date_add(c3,interval 5566 years),date_add(c4,interval 5566 hours),date_add(c5,interval 5566 years) from t1;
+date_add(c3,interval 5566 years)	date_add(c4,interval 5566 hours)	date_add(c5,interval 5566 years)
+7587-01-28	12:05:29	7587-01-28 14:05:29.833895
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3041	0	0	select date_add("test"."t1"."c3", interval 5566 years) as "date_add(c3,interval 5566 years)", date_add("test"."t1"."c4", interval 5566 hours) as "date_add(c4,interval 5566 hours)", date_add("test"."t1"."c5", interval 5566 years) as "date_add(c5,interval 5566 years)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select date_add("test"."t1"."c3", interval 5566 years) as "date_add(c3,interval 5566 years)", date_add("test"."t1"."c4", interval 5566 hours) as "date_add(c4,interval 5566 hours)", date_add("test"."t1"."c5", interval 5566 years) as "date_add(c5,interval 5566 years)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select date_add(date '2021-01-28',interval 5566 years);
+create view v2 as select date_add (time '14:05:29',interval 5566 hours);
+create view v3 as select date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+date_add(date '2021-01-28',interval 5566 years)	date	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+date_add (time '14:05:29',interval 5566 hours)	time	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years)	timestamp	NO		NULL	
+select * from v1;
+date_add(date '2021-01-28',interval 5566 years)
+7587-01-28
+select date_add(date '2021-01-28',interval 5566 years);
+date_add(date '2021-01-28',interval 5566 years)
+7587-01-28
+select * from v2;
+date_add (time '14:05:29',interval 5566 hours)
+12:05:29
+select date_add (time '14:05:29',interval 5566 hours);
+date_add (time '14:05:29',interval 5566 hours)
+12:05:29
+select * from v3;
+date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years)
+7587-01-28 14:05:29.833895
+select date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years);
+date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years)
+7587-01-28 14:05:29.833895
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3042	0	0	select date_add(date '2021-01-28', interval 5566 years) as "date_add(date '2021-01-28',interval 5566 years)" from dual
+3043	0	0	select date_add(time '14:05:29', interval 5566 hours) as "date_add (time '14:05:29',interval 5566 hours)" from dual
+3044	0	0	select date_add(timestamp '2021-01-28 14:05:29.833895', interval 5566 years) as "date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years)" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select date_add(date '2021-01-28', interval 5566 years) as "date_add(date '2021-01-28',interval 5566 years)" from dual	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select date_add(time '14:05:29', interval 5566 hours) as "date_add (time '14:05:29',interval 5566 hours)" from dual	utf8mb4	utf8mb4_general_ci
+show create view v3;
+View	Create View	character_set_client	collation_connection
+test.v3	create view `test`.`v3` as select date_add(timestamp '2021-01-28 14:05:29.833895', interval 5566 years) as "date_add(timestamp '2021-01-28 14:05:29.833895',interval 5566 years)" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 int primary key,c2 createtime,c3 date,c4 time,c5 timestamp);
+insert into t1(c1,c3,c4,c5) values (1,'2021-01-28','14:05:29','2021-01-28 14:05:29.833895');
+create view v1 as select date_sub(c3,interval 556 years),date_sub(c4,interval 556 hours),date_sub(c5,interval 556 years) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+date_sub(c3,interval 556 years)	date	NO		NULL	
+date_sub(c4,interval 556 hours)	time	NO		NULL	
+date_sub(c5,interval 556 years)	timestamp	NO		NULL	
+select * from v1;
+date_sub(c3,interval 556 years)	date_sub(c4,interval 556 hours)	date_sub(c5,interval 556 years)
+1465-01-28	10:05:29	1465-01-28 14:05:29.833895
+select date_sub(c3,interval 556 years),date_sub(c4,interval 556 hours),date_sub(c5,interval 556 years) from t1;
+date_sub(c3,interval 556 years)	date_sub(c4,interval 556 hours)	date_sub(c5,interval 556 years)
+1465-01-28	10:05:29	1465-01-28 14:05:29.833895
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3046	0	0	select date_sub("test"."t1"."c3", interval 556 years) as "date_sub(c3,interval 556 years)", date_sub("test"."t1"."c4", interval 556 hours) as "date_sub(c4,interval 556 hours)", date_sub("test"."t1"."c5", interval 556 years) as "date_sub(c5,interval 556 years)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select date_sub("test"."t1"."c3", interval 556 years) as "date_sub(c3,interval 556 years)", date_sub("test"."t1"."c4", interval 556 hours) as "date_sub(c4,interval 556 hours)", date_sub("test"."t1"."c5", interval 556 years) as "date_sub(c5,interval 556 years)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select date_sub(date '2021-01-28',interval 556 years);
+create view v2 as select date_sub (time '14:05:29',interval 556 hours);
+create view v3 as select date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+date_sub(date '2021-01-28',interval 556 years)	date	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+date_sub (time '14:05:29',interval 556 hours)	time	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years)	timestamp	NO		NULL	
+select * from v1;
+date_sub(date '2021-01-28',interval 556 years)
+1465-01-28
+select date_sub(date '2021-01-28',interval 556 years);
+date_sub(date '2021-01-28',interval 556 years)
+1465-01-28
+select * from v2;
+date_sub (time '14:05:29',interval 556 hours)
+10:05:29
+select date_sub (time '14:05:29',interval 556 hours);
+date_sub (time '14:05:29',interval 556 hours)
+10:05:29
+select * from v3;
+date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years)
+1465-01-28 14:05:29.833895
+select date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years);
+date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years)
+1465-01-28 14:05:29.833895
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3047	0	0	select date_sub(date '2021-01-28', interval 556 years) as "date_sub(date '2021-01-28',interval 556 years)" from dual
+3048	0	0	select date_sub(time '14:05:29', interval 556 hours) as "date_sub (time '14:05:29',interval 556 hours)" from dual
+3049	0	0	select date_sub(timestamp '2021-01-28 14:05:29.833895', interval 556 years) as "date_sub(timestamp '2021-01-28 14:05:29.833895',interval 556 years)" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select hex(c1),hex(c2),hex(c3),hex(c4),hex(c5),hex(c6),hex(c7) from t1;
+create view v2 as select hex(c1*c2+c1),hex(length(c1)),hex(c2*c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+hex(c1)	varchar(16)	NO		NULL	
+hex(c2)	varchar(16)	NO		NULL	
+hex(c3)	varchar(16)	NO		NULL	
+hex(c4)	varchar(16)	NO		NULL	
+hex(c5)	varchar(16)	NO		NULL	
+hex(c6)	varchar(16)	NO		NULL	
+hex(c7)	varchar(16)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+hex(c1*c2+c1)	varchar(16)	NO		NULL	
+hex(length(c1))	varchar(16)	NO		NULL	
+hex(c2*c5)	varchar(16)	NO		NULL	
+select * from v1;
+hex(c1)	hex(c2)	hex(c3)	hex(c4)	hex(c5)	hex(c6)	hex(c7)
+ffd43a0387362401	fffffffffffffffe	fffffffffffffffd	fffffffffffffffb	fffffffffffed02f	2d373837383738372e33353639	0
+2bc5fc78c9dbff	2	3	5	12fd1	31323332313332312e313233313233	1
+select hex(c1),hex(c2),hex(c3),hex(c4),hex(c5),hex(c6),hex(c7) from t1;
+hex(c1)	hex(c2)	hex(c3)	hex(c4)	hex(c5)	hex(c6)	hex(c7)
+ffd43a0387362401	fffffffffffffffe	fffffffffffffffd	fffffffffffffffb	fffffffffffed02f	2d373837383738372e33353639	0
+2bc5fc78c9dbff	2	3	5	12fd1	31323332313332312e313233313233	1
+select * from v2;
+hex(c1*c2+c1)	hex(length(c1))	hex(c2*c5)
+2bc5fc78c9dbff	12	25fa3
+8351f56a5d93fd	11	25fa3
+select hex(c1*c2+c1),hex(length(c1)),hex(c2*c5) from t1;
+hex(c1*c2+c1)	hex(length(c1))	hex(c2*c5)
+2bc5fc78c9dbff	12	25fa3
+8351f56a5d93fd	11	25fa3
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3051	0	0	select hex("test"."t1"."c1") as "hex(c1)", hex("test"."t1"."c2") as "hex(c2)", hex("test"."t1"."c3") as "hex(c3)", hex("test"."t1"."c4") as "hex(c4)", hex("test"."t1"."c5") as "hex(c5)", hex("test"."t1"."c6") as "hex(c6)", hex("test"."t1"."c7") as "hex(c7)" from "test"."t1"
+3052	0	0	select hex((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "hex(c1*c2+c1)", hex(length("test"."t1"."c1")) as "hex(length(c1))", hex(("test"."t1"."c2" * "test"."t1"."c5")) as "hex(c2*c5)" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select hex('c1'),hex('create view test'),hex('3.1415926535897932384626'),hex(121212*35878),hex(1*3*5*7*11*13*15*17);
+create view v2 as select hex('c1*c2+c1'),hex('__length_(c1)'),hex('c++');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+hex('c1')	varchar(16)	NO		NULL	
+hex('create view test')	varchar(16)	NO		NULL	
+hex('3.1415926535897932384626')	varchar(16)	NO		NULL	
+hex(121212*35878)	varchar(16)	NO		NULL	
+hex(1*3*5*7*11*13*15*17)	varchar(16)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+hex('c1*c2+c1')	varchar(16)	NO		NULL	
+hex('__length_(c1)')	varchar(16)	NO		NULL	
+hex('c++')	varchar(16)	NO		NULL	
+select * from v1;
+hex('c1')	hex('create view test')	hex('3.1415926535897932384626')	hex(121212*35878)	hex(1*3*5*7*11*13*15*17)
+6331	63726561746520766965772074657374	332e31343135393236353335383937393332333834363236	103361868	3a6c59
+select hex('c1'),hex('create view test'),hex('3.1415926535897932384626'),hex(121212*35878),hex(1*3*5*7*11*13*15*17);
+hex('c1')	hex('create view test')	hex('3.1415926535897932384626')	hex(121212*35878)	hex(1*3*5*7*11*13*15*17)
+6331	63726561746520766965772074657374	332e31343135393236353335383937393332333834363236	103361868	3a6c59
+select * from v2;
+hex('c1*c2+c1')	hex('__length_(c1)')	hex('c++')
+63312a63322b6331	5f5f6c656e6774685f28633129	632b2b
+select hex('c1*c2+c1'),hex('__length_(c1)'),hex('c++');
+hex('c1*c2+c1')	hex('__length_(c1)')	hex('c++')
+63312a63322b6331	5f5f6c656e6774685f28633129	632b2b
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3053	0	0	select hex('c1') as "hex('c1')", hex('create view test') as "hex('create view test')", hex('3.1415926535897932384626') as "hex('3.1415926535897932384626')", hex((121212 * 35878)) as "hex(121212*35878)", hex((((((((1 * 3) * 5) * 7) * 11) * 13) * 15) * 17)) as "hex(1*3*5*7*11*13*15*17)" from dual
+3054	0	0	select hex('c1*c2+c1') as "hex('c1*c2+c1')", hex('__length_(c1)') as "hex('__length_(c1)')", hex('c++') as "hex('c++')" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select hex('c1') as "hex('c1')", hex('create view test') as "hex('create view test')", hex('3.1415926535897932384626') as "hex('3.1415926535897932384626')", hex((121212 * 35878)) as "hex(121212*35878)", hex((((((((1 * 3) * 5) * 7) * 11) * 13) * 15) * 17)) as "hex(1*3*5*7*11*13*15*17)" from dual	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select hex('c1*c2+c1') as "hex('c1*c2+c1')", hex('__length_(c1)') as "hex('__length_(c1)')", hex('c++') as "hex('c++')" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select int2ip(c1),int2ip(c2),int2ip(c3),int2ip(c4),int2ip(c5),int2ip(c6),int2ip(c7) from t1;
+create view v2 as select int2ip(c1*c2+c1),int2ip(length(c1)),int2ip(c2*c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+int2ip(c1)	varchar(15)	NO		NULL	
+int2ip(c2)	varchar(15)	NO		NULL	
+int2ip(c3)	varchar(15)	NO		NULL	
+int2ip(c4)	varchar(15)	NO		NULL	
+int2ip(c5)	varchar(15)	NO		NULL	
+int2ip(c6)	varchar(15)	NO		NULL	
+int2ip(c7)	varchar(15)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+int2ip(c1*c2+c1)	varchar(15)	NO		NULL	
+int2ip(length(c1))	varchar(15)	NO		NULL	
+int2ip(c2*c5)	varchar(15)	NO		NULL	
+select * from v1;
+int2ip(c1)	int2ip(c2)	int2ip(c3)	int2ip(c4)	int2ip(c5)	int2ip(c6)	int2ip(c7)
+NULL	NULL	NULL	NULL	NULL	NULL	0.0.0.0
+NULL	0.0.0.2	0.0.0.3	0.0.0.5	0.1.47.209	0.188.2.41	0.0.0.1
+select int2ip(c1),int2ip(c2),int2ip(c3),int2ip(c4),int2ip(c5),int2ip(c6),int2ip(c7) from t1;
+int2ip(c1)	int2ip(c2)	int2ip(c3)	int2ip(c4)	int2ip(c5)	int2ip(c6)	int2ip(c7)
+NULL	NULL	NULL	NULL	NULL	NULL	0.0.0.0
+NULL	0.0.0.2	0.0.0.3	0.0.0.5	0.1.47.209	0.188.2.41	0.0.0.1
+select * from v2;
+int2ip(c1*c2+c1)	int2ip(length(c1))	int2ip(c2*c5)
+NULL	0.0.0.18	0.2.95.163
+NULL	0.0.0.17	0.2.95.163
+select int2ip(c1*c2+c1),int2ip(length(c1)),int2ip(c2*c5) from t1;
+int2ip(c1*c2+c1)	int2ip(length(c1))	int2ip(c2*c5)
+NULL	0.0.0.18	0.2.95.163
+NULL	0.0.0.17	0.2.95.163
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3056	0	0	select int2ip("test"."t1"."c1") as "int2ip(c1)", int2ip("test"."t1"."c2") as "int2ip(c2)", int2ip("test"."t1"."c3") as "int2ip(c3)", int2ip("test"."t1"."c4") as "int2ip(c4)", int2ip("test"."t1"."c5") as "int2ip(c5)", int2ip("test"."t1"."c6") as "int2ip(c6)", int2ip("test"."t1"."c7") as "int2ip(c7)" from "test"."t1"
+3057	0	0	select int2ip((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "int2ip(c1*c2+c1)", int2ip(length("test"."t1"."c1")) as "int2ip(length(c1))", int2ip(("test"."t1"."c2" * "test"."t1"."c5")) as "int2ip(c2*c5)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select int2ip("test"."t1"."c1") as "int2ip(c1)", int2ip("test"."t1"."c2") as "int2ip(c2)", int2ip("test"."t1"."c3") as "int2ip(c3)", int2ip("test"."t1"."c4") as "int2ip(c4)", int2ip("test"."t1"."c5") as "int2ip(c5)", int2ip("test"."t1"."c6") as "int2ip(c6)", int2ip("test"."t1"."c7") as "int2ip(c7)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select int2ip((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "int2ip(c1*c2+c1)", int2ip(length("test"."t1"."c1")) as "int2ip(length(c1))", int2ip(("test"."t1"."c2" * "test"."t1"."c5")) as "int2ip(c2*c5)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select int2ip('1234597'),int2ip(1234597),int2ip(2555),int2ip(121212*35878),int2ip(1*3*5*7*11*13*15*17);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+int2ip('1234597')	varchar(15)	NO		NULL	
+int2ip(1234597)	varchar(15)	NO		NULL	
+int2ip(2555)	varchar(15)	NO		NULL	
+int2ip(121212*35878)	varchar(15)	NO		NULL	
+int2ip(1*3*5*7*11*13*15*17)	varchar(15)	NO		NULL	
+select * from v1;
+int2ip('1234597')	int2ip(1234597)	int2ip(2555)	int2ip(121212*35878)	int2ip(1*3*5*7*11*13*15*17)
+0.18.214.165	0.18.214.165	0.0.9.251	NULL	0.58.108.89
+select int2ip('1234597'),int2ip(1234597),int2ip(2555),int2ip(121212*35878),int2ip(1*3*5*7*11*13*15*17);
+int2ip('1234597')	int2ip(1234597)	int2ip(2555)	int2ip(121212*35878)	int2ip(1*3*5*7*11*13*15*17)
+0.18.214.165	0.18.214.165	0.0.9.251	NULL	0.58.108.89
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3058	0	0	select int2ip('1234597') as "int2ip('1234597')", int2ip(1234597) as "int2ip(1234597)", int2ip(2555) as "int2ip(2555)", int2ip((121212 * 35878)) as "int2ip(121212*35878)", int2ip((((((((1 * 3) * 5) * 7) * 11) * 13) * 15) * 17)) as "int2ip(1*3*5*7*11*13*15*17)" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select ip2int('0.0.0.0'),ip2int('255.255.255.255'),ip2int('196.128.0.130');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+ip2int('0.0.0.0')	bigint	NO		NULL	
+ip2int('255.255.255.255')	bigint	NO		NULL	
+ip2int('196.128.0.130')	bigint	NO		NULL	
+select * from v1;
+ip2int('0.0.0.0')	ip2int('255.255.255.255')	ip2int('196.128.0.130')
+0	4294967295	3296723074
+select ip2int('0.0.0.0'),ip2int('255.255.255.255'),ip2int('196.128.0.130');
+ip2int('0.0.0.0')	ip2int('255.255.255.255')	ip2int('196.128.0.130')
+0	4294967295	3296723074
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3059	0	0	select ip2int('0.0.0.0') as "ip2int('0.0.0.0')", ip2int('255.255.255.255') as "ip2int('255.255.255.255')", ip2int('196.128.0.130') as "ip2int('196.128.0.130')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select length(c1),length(c2),length(c3),length(c4),length(c5),length(c6),length(c7) from t1;
+create view v2 as select length(c1*c2+c1),length(length(c1)),length(c2*c5+c1+c2+c3) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+length(c1)	bigint	NO		NULL	
+length(c2)	bigint	NO		NULL	
+length(c3)	bigint	NO		NULL	
+length(c4)	bigint	NO		NULL	
+length(c5)	bigint	NO		NULL	
+length(c6)	bigint	NO		NULL	
+length(c7)	bigint	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+length(c1*c2+c1)	bigint	NO		NULL	
+length(length(c1))	bigint	NO		NULL	
+length(c2*c5+c1+c2+c3)	bigint	NO		NULL	
+select * from v1;
+length(c1)	length(c2)	length(c3)	length(c4)	length(c5)	length(c6)	length(c7)
+18	2	5	7	12	13	1
+17	1	4	4	11	15	1
+select length(c1),length(c2),length(c3),length(c4),length(c5),length(c6),length(c7) from t1;
+length(c1)	length(c2)	length(c3)	length(c4)	length(c5)	length(c6)	length(c7)
+18	2	5	7	12	13	1
+17	1	4	4	11	15	1
+select * from v2;
+length(c1*c2+c1)	length(length(c1))	length(c2*c5+c1+c2+c3)
+17	2	8
+17	2	7
+select length(c1*c2+c1),length(length(c1)),length(c2*c5+c1+c2+c3) from t1;
+length(c1*c2+c1)	length(length(c1))	length(c2*c5+c1+c2+c3)
+17	2	8
+17	2	7
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3061	0	0	select length("test"."t1"."c1") as "length(c1)", length("test"."t1"."c2") as "length(c2)", length("test"."t1"."c3") as "length(c3)", length("test"."t1"."c4") as "length(c4)", length("test"."t1"."c5") as "length(c5)", length("test"."t1"."c6") as "length(c6)", length("test"."t1"."c7") as "length(c7)" from "test"."t1"
+3062	0	0	select length((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "length(c1*c2+c1)", length(length("test"."t1"."c1")) as "length(length(c1))", length((((("test"."t1"."c2" * "test"."t1"."c5") + "test"."t1"."c1") + "test"."t1"."c2") + "test"."t1"."c3")) as "length(c2*c5+c1+c2+c3)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select length("test"."t1"."c1") as "length(c1)", length("test"."t1"."c2") as "length(c2)", length("test"."t1"."c3") as "length(c3)", length("test"."t1"."c4") as "length(c4)", length("test"."t1"."c5") as "length(c5)", length("test"."t1"."c6") as "length(c6)", length("test"."t1"."c7") as "length(c7)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select length((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "length(c1*c2+c1)", length(length("test"."t1"."c1")) as "length(length(c1))", length((((("test"."t1"."c2" * "test"."t1"."c5") + "test"."t1"."c1") + "test"."t1"."c2") + "test"."t1"."c3")) as "length(c2*c5+c1+c2+c3)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select length('0.0.0.0'),length(2*3*5*7*11*13*17*19*23*29*31);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+length('0.0.0.0')	bigint	NO		NULL	
+length(2*3*5*7*11*13*17*19*23*29*31)	bigint	NO		NULL	
+select * from v1;
+length('0.0.0.0')	length(2*3*5*7*11*13*17*19*23*29*31)
+7	12
+select length('0.0.0.0'),length(2*3*5*7*11*13*17*19*23*29*31);
+length('0.0.0.0')	length(2*3*5*7*11*13*17*19*23*29*31)
+7	12
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3063	0	0	select length('0.0.0.0') as "length('0.0.0.0')", length(((((((((((2 * 3) * 5) * 7) * 11) * 13) * 17) * 19) * 23) * 29) * 31)) as "length(2*3*5*7*11*13*17*19*23*29*31)" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select 'ab%' like 'ab%_','ab%' not like 'ab%_';
+desc v1;
+Field	Type	Null	Key	Default	Extra
+'ab%' like 'ab%_'	int(1)	NO		NULL	
+'ab%' not like 'ab%_'	int(1)	NO		NULL	
+select * from v1;
+'ab%' like 'ab%_'	'ab%' not like 'ab%_'
+1	0
+select 'ab%' like 'ab%_','ab%' not like 'ab%_';
+'ab%' like 'ab%_'	'ab%' not like 'ab%_'
+1	0
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3064	0	0	select ('ab%' like 'ab%_') as "'ab%' like 'ab%_'", ('ab%' not like 'ab%_') as "'ab%' not like 'ab%_'" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select ('ab%' like 'ab%_') as "'ab%' like 'ab%_'", ('ab%' not like 'ab%_') as "'ab%' not like 'ab%_'" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abcabc'),(2,'c','ccccccc'),(3,'ab%','abc+_');
+create view v1 as select 'ab%' like c2,'ab%' like c3,c2 like c3 from t1;
+create view v2 as select 'ab%' not like c2,'ab%' not like c3,c2 not like c3 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+'ab%' like c2	int(1)	NO		NULL	
+'ab%' like c3	int(1)	NO		NULL	
+c2 like c3	int(1)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+'ab%' not like c2	int(1)	NO		NULL	
+'ab%' not like c3	int(1)	NO		NULL	
+c2 not like c3	int(1)	NO		NULL	
+select * from v1;
+'ab%' like c2	'ab%' like c3	c2 like c3
+0	0	0
+0	0	0
+1	0	0
+select 'ab%' like c2,'ab%' like c3,c2 like c3 from t1;
+'ab%' like c2	'ab%' like c3	c2 like c3
+0	0	0
+0	0	0
+1	0	0
+select * from v2;
+'ab%' not like c2	'ab%' not like c3	c2 not like c3
+1	1	1
+1	1	1
+0	1	1
+select 'ab%' not like c2,'ab%' not like c3,c2 not like c3 from t1;
+'ab%' not like c2	'ab%' not like c3	c2 not like c3
+1	1	1
+1	1	1
+0	1	1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3066	0	0	select ('ab%' like "test"."t1"."c2") as "'ab%' like c2", ('ab%' like "test"."t1"."c3") as "'ab%' like c3", ("test"."t1"."c2" like "test"."t1"."c3") as "c2 like c3" from "test"."t1"
+3067	0	0	select ('ab%' not like "test"."t1"."c2") as "'ab%' not like c2", ('ab%' not like "test"."t1"."c3") as "'ab%' not like c3", ("test"."t1"."c2" not like "test"."t1"."c3") as "c2 not like c3" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select now();
+create view v2 as select * from (select now());
+create view v3 as select * from (select now())t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+now()	timestamp	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+now()	timestamp	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+now()	timestamp	NO		NULL	
+select * from v1;
+now()
+2021-03-23 17:24:32.120353
+select now();
+now()
+2021-03-23 17:24:32.120353
+select * from v2;
+now()
+2021-03-23 17:24:32.120353
+select * from (select now());
+now()
+2021-03-23 17:24:32.120353
+select * from v3;
+now()
+2021-03-23 17:24:32.120353
+select * from (select now())t1;
+now()
+2021-03-23 17:24:32.120353
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3068	0	0	select now() as "now()" from dual
+3069	0	0	select "now()" as "now()" from (select now() as "now()" from dual)
+3070	0	0	select "t1"."now()" as "now()" from (select now() as "now()" from dual) as "t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select nvl('ab%','ab%_'),nvl('ab%_','ab%_'),nvl('cc1','cc2');
+create view v2 as select nvl('ab%',null),nvl(null,'ab%_'),nvl(null,null);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+nvl('ab%','ab%_')	varchar(65536)	NO		NULL	
+nvl('ab%_','ab%_')	varchar(65536)	NO		NULL	
+nvl('cc1','cc2')	varchar(65536)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+nvl('ab%',null)	varchar(65536)	NO		NULL	
+nvl(null,'ab%_')	varchar(65536)	NO		NULL	
+nvl(null,null)	null	NO		NULL	
+select * from v1;
+nvl('ab%','ab%_')	nvl('ab%_','ab%_')	nvl('cc1','cc2')
+ab%	ab%_	cc1
+select nvl('ab%','ab%_'),nvl('ab%_','ab%_'),nvl('cc1','cc2');
+nvl('ab%','ab%_')	nvl('ab%_','ab%_')	nvl('cc1','cc2')
+ab%	ab%_	cc1
+select * from v2;
+nvl('ab%',null)	nvl(null,'ab%_')	nvl(null,null)
+ab%	ab%_	NULL
+select nvl('ab%',null),nvl(null,'ab%_'),nvl(null,null);
+nvl('ab%',null)	nvl(null,'ab%_')	nvl(null,null)
+ab%	ab%_	NULL
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3071	0	0	select coalesce('ab%', 'ab%_') as "nvl('ab%','ab%_')", coalesce('ab%_', 'ab%_') as "nvl('ab%_','ab%_')", coalesce('cc1', 'cc2') as "nvl('cc1','cc2')" from dual
+3072	0	0	select coalesce('ab%', null) as "nvl('ab%',null)", coalesce(null, 'ab%_') as "nvl(null,'ab%_')", coalesce(null, null) as "nvl(null,null)" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select coalesce('ab%', 'ab%_') as "nvl('ab%','ab%_')", coalesce('ab%_', 'ab%_') as "nvl('ab%_','ab%_')", coalesce('cc1', 'cc2') as "nvl('cc1','cc2')" from dual	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select coalesce('ab%', null) as "nvl('ab%',null)", coalesce(null, 'ab%_') as "nvl(null,'ab%_')", coalesce(null, null) as "nvl(null,null)" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abcabc'),(2,'c','ccccccc'),(3,'ab%','abc+_');
+create view v1 as select nvl('ab%',c2),nvl('ab%_',c3),nvl(c2,c3) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+nvl('ab%',c2)	varchar(65536)	NO		NULL	
+nvl('ab%_',c3)	varchar(65536)	NO		NULL	
+nvl(c2,c3)	varchar(65536)	NO		NULL	
+select * from v1;
+nvl('ab%',c2)	nvl('ab%_',c3)	nvl(c2,c3)
+ab%	ab%_	abc
+ab%	ab%_	c
+ab%	ab%_	ab%
+select nvl('ab%',c2),nvl('ab%_',c3),nvl(c2,c3) from t1;
+nvl('ab%',c2)	nvl('ab%_',c3)	nvl(c2,c3)
+ab%	ab%_	abc
+ab%	ab%_	c
+ab%	ab%_	ab%
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3074	0	0	select coalesce('ab%', "test"."t1"."c2") as "nvl('ab%',c2)", coalesce('ab%_', "test"."t1"."c3") as "nvl('ab%_',c3)", coalesce("test"."t1"."c2", "test"."t1"."c3") as "nvl(c2,c3)" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select round(c1,2),round(c1,0),round(c1,-1) from t1;
+create view v2 as select round(c2,2),round(c2,0),round(c2,-1) from t1;
+create view v3 as select round(c3,2),round(c3,0),round(c3,-1) from t1;
+create view v4 as select round(c4,2),round(c4,0),round(c4,-1) from t1;
+create view v5 as select round(c5,2),round(c5,0),round(c5,-1) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+round(c1,2)	decimal(38,0)	NO		NULL	
+round(c1,0)	decimal(38,0)	NO		NULL	
+round(c1,-1)	decimal(38,0)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+round(c2,2)	decimal(38,0)	NO		NULL	
+round(c2,0)	decimal(38,0)	NO		NULL	
+round(c2,-1)	decimal(38,0)	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+round(c3,2)	decimal(38,0)	NO		NULL	
+round(c3,0)	decimal(38,0)	NO		NULL	
+round(c3,-1)	decimal(38,0)	NO		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+round(c4,2)	decimal(38,0)	NO		NULL	
+round(c4,0)	decimal(38,0)	NO		NULL	
+round(c4,-1)	decimal(38,0)	NO		NULL	
+desc v5;
+Field	Type	Null	Key	Default	Extra
+round(c5,2)	decimal(8,2)	NO		NULL	
+round(c5,0)	decimal(6,0)	NO		NULL	
+round(c5,-1)	decimal(6,0)	NO		NULL	
+select * from v1;
+round(c1,2)	round(c1,0)	round(c1,-1)
+-12321112147483647	-12321112147483647	-12321112147483640
+12321112147483647	12321112147483647	12321112147483650
+select round(c1,2),round(c1,0),round(c1,-1) from t1;
+round(c1,2)	round(c1,0)	round(c1,-1)
+-12321112147483647	-12321112147483647	-12321112147483640
+12321112147483647	12321112147483647	12321112147483650
+select * from v2;
+round(c2,2)	round(c2,0)	round(c2,-1)
+-2	-2	0
+2	2	0
+select round(c2,2),round(c2,0),round(c2,-1) from t1;
+round(c2,2)	round(c2,0)	round(c2,-1)
+-2	-2	0
+2	2	0
+select * from v3;
+round(c3,2)	round(c3,0)	round(c3,-1)
+-3.15	-3	0
+3.15	3	0
+select round(c3,2),round(c3,0),round(c3,-1) from t1;
+round(c3,2)	round(c3,0)	round(c3,-1)
+-3.15	-3	0
+3.15	3	0
+select * from v4;
+round(c4,2)	round(c4,0)	round(c4,-1)
+-5.57	-6	0
+5.57	6	10
+select round(c4,2),round(c4,0),round(c4,-1) from t1;
+round(c4,2)	round(c4,0)	round(c4,-1)
+-5.57	-6	0
+5.57	6	10
+select * from v5;
+round(c5,2)	round(c5,0)	round(c5,-1)
+-77777.78	-77778	-77770
+77777.98	77778	77780
+select round(c5,2),round(c5,0),round(c5,-1) from t1;
+round(c5,2)	round(c5,0)	round(c5,-1)
+-77777.78	-77778	-77770
+77777.98	77778	77780
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3076	0	0	select round("test"."t1"."c1", 2) as "round(c1,2)", round("test"."t1"."c1", 0) as "round(c1,0)", round("test"."t1"."c1", -1) as "round(c1,-1)" from "test"."t1"
+3077	0	0	select round("test"."t1"."c2", 2) as "round(c2,2)", round("test"."t1"."c2", 0) as "round(c2,0)", round("test"."t1"."c2", -1) as "round(c2,-1)" from "test"."t1"
+3078	0	0	select round("test"."t1"."c3", 2) as "round(c3,2)", round("test"."t1"."c3", 0) as "round(c3,0)", round("test"."t1"."c3", -1) as "round(c3,-1)" from "test"."t1"
+3079	0	0	select round("test"."t1"."c4", 2) as "round(c4,2)", round("test"."t1"."c4", 0) as "round(c4,0)", round("test"."t1"."c4", -1) as "round(c4,-1)" from "test"."t1"
+3080	0	0	select round("test"."t1"."c5", 2) as "round(c5,2)", round("test"."t1"."c5", 0) as "round(c5,0)", round("test"."t1"."c5", -1) as "round(c5,-1)" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select round(79879879779789797.356897878,-10),round(123456789.36679798,2);
+create view v2 as select round(-10897898788888,0),round(-78789789798798,-2),round(-464678993123.2365,3);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+round(79879879779789797.356897878,-10)	decimal(18,0)	NO		NULL	
+round(123456789.36679798,2)	decimal(12,2)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+round(-10897898788888,0)	decimal(38,0)	NO		NULL	
+round(-78789789798798,-2)	decimal(38,0)	NO		NULL	
+round(-464678993123.2365,3)	decimal(16,3)	NO		NULL	
+select * from v1;
+round(79879879779789797.356897878,-10)	round(123456789.36679798,2)
+79879880000000000	123456789.37
+select round(79879879779789797.356897878,-10),round(123456789.36679798,2);
+round(79879879779789797.356897878,-10)	round(123456789.36679798,2)
+79879880000000000	123456789.37
+select * from v2;
+round(-10897898788888,0)	round(-78789789798798,-2)	round(-464678993123.2365,3)
+-10897898788888	-78789789798700	-464678993123.237
+select round(-10897898788888,0),round(-78789789798798,-2),round(-464678993123.2365,3);
+round(-10897898788888,0)	round(-78789789798798,-2)	round(-464678993123.2365,3)
+-10897898788888	-78789789798700	-464678993123.237
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3081	0	0	select round(79879879779789797.356897878, -10) as "round(79879879779789797.356897878,-10)", round(123456789.36679798, 2) as "round(123456789.36679798,2)" from dual
+3082	0	0	select round(-10897898788888, 0) as "round(-10897898788888,0)", round(-78789789798798, -2) as "round(-78789789798798,-2)", round(-464678993123.2365, 3) as "round(-464678993123.2365,3)" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4,v5;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select strict_current_timestamp();
+create view v2 as select * from (select strict_current_timestamp());
+create view v3 as select * from (select strict_current_timestamp())t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+strict_current_timestamp()	timestamp	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+strict_current_timestamp()	timestamp	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+strict_current_timestamp()	timestamp	NO		NULL	
+select * from v1;
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select strict_current_timestamp();
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select * from v2;
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select * from (select strict_current_timestamp());
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select * from v3;
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select * from (select strict_current_timestamp())t1;
+strict_current_timestamp()
+2021-03-23 17:25:09.814040
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3083	0	0	select now() as "strict_current_timestamp()" from dual
+3084	0	0	select "strict_current_timestamp()" as "strict_current_timestamp()" from (select now() as "strict_current_timestamp()" from dual)
+3085	0	0	select "t1"."strict_current_timestamp()" as "strict_current_timestamp()" from (select now() as "strict_current_timestamp()" from dual) as "t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select unhex(c1),unhex(c2),unhex(c3),unhex(c4),unhex(c5),unhex(c6),unhex(c7) from t1;
+create view v2 as select unhex(c1*c2+c1),unhex(length(c1)),unhex(c2*c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+unhex(c1)	varchar(65536)	NO		NULL	
+unhex(c2)	varchar(65536)	NO		NULL	
+unhex(c3)	varchar(65536)	NO		NULL	
+unhex(c4)	varchar(65536)	NO		NULL	
+unhex(c5)	varchar(65536)	NO		NULL	
+unhex(c6)	varchar(65536)	NO		NULL	
+unhex(c7)	varchar(65536)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+unhex(c1*c2+c1)	varchar(65536)	NO		NULL	
+unhex(length(c1))	varchar(65536)	NO		NULL	
+unhex(c2*c5)	varchar(65536)	NO		NULL	
+select * from v1;
+unhex(c1)	unhex(c2)	unhex(c3)	unhex(c4)	unhex(c5)	unhex(c6)	unhex(c7)
+NULL	NULL	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	NULL	NULL
+select unhex(c1),unhex(c2),unhex(c3),unhex(c4),unhex(c5),unhex(c6),unhex(c7) from t1;
+unhex(c1)	unhex(c2)	unhex(c3)	unhex(c4)	unhex(c5)	unhex(c6)	unhex(c7)
+NULL	NULL	NULL	NULL	NULL	NULL	NULL
+NULL	NULL	NULL	NULL	NULL	NULL	NULL
+select * from v2;
+unhex(c1*c2+c1)	unhex(length(c1))	unhex(c2*c5)
+NULL	NULL	NULL
+NULL	NULL	NULL
+select unhex(c1*c2+c1),unhex(length(c1)),unhex(c2*c5) from t1;
+unhex(c1*c2+c1)	unhex(length(c1))	unhex(c2*c5)
+NULL	NULL	NULL
+NULL	NULL	NULL
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3087	0	0	select unhex("test"."t1"."c1") as "unhex(c1)", unhex("test"."t1"."c2") as "unhex(c2)", unhex("test"."t1"."c3") as "unhex(c3)", unhex("test"."t1"."c4") as "unhex(c4)", unhex("test"."t1"."c5") as "unhex(c5)", unhex("test"."t1"."c6") as "unhex(c6)", unhex("test"."t1"."c7") as "unhex(c7)" from "test"."t1"
+3088	0	0	select unhex((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "unhex(c1*c2+c1)", unhex(length("test"."t1"."c1")) as "unhex(length(c1))", unhex(("test"."t1"."c2" * "test"."t1"."c5")) as "unhex(c2*c5)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select unhex("test"."t1"."c1") as "unhex(c1)", unhex("test"."t1"."c2") as "unhex(c2)", unhex("test"."t1"."c3") as "unhex(c3)", unhex("test"."t1"."c4") as "unhex(c4)", unhex("test"."t1"."c5") as "unhex(c5)", unhex("test"."t1"."c6") as "unhex(c6)", unhex("test"."t1"."c7") as "unhex(c7)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select unhex((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "unhex(c1*c2+c1)", unhex(length("test"."t1"."c1")) as "unhex(length(c1))", unhex(("test"."t1"."c2" * "test"."t1"."c5")) as "unhex(c2*c5)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select unhex('c1'),unhex('create view test'),unhex('3.1415926535897932384626'),unhex(121212*35878),unhex(1*3*5*7*11*13*15*17);
+create view v2 as select unhex('c1*c2+c1'),unhex('__length_(c1)'),unhex('c++');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+unhex('c1')	varchar(65536)	NO		NULL	
+unhex('create view test')	varchar(65536)	NO		NULL	
+unhex('3.1415926535897932384626')	varchar(65536)	NO		NULL	
+unhex(121212*35878)	varchar(65536)	NO		NULL	
+unhex(1*3*5*7*11*13*15*17)	varchar(65536)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+unhex('c1*c2+c1')	varchar(65536)	NO		NULL	
+unhex('__length_(c1)')	varchar(65536)	NO		NULL	
+unhex('c++')	varchar(65536)	NO		NULL	
+select * from v1;
+unhex('c1')	unhex('create view test')	unhex('3.1415926535897932384626')	unhex(121212*35878)	unhex(1*3*5*7*11*13*15*17)
+Á	NULL	NULL	NULL	NULL
+select unhex('c1'),unhex('create view test'),unhex('3.1415926535897932384626'),unhex(121212*35878),unhex(1*3*5*7*11*13*15*17);
+unhex('c1')	unhex('create view test')	unhex('3.1415926535897932384626')	unhex(121212*35878)	unhex(1*3*5*7*11*13*15*17)
+Á	NULL	NULL	NULL	NULL
+select * from v2;
+unhex('c1*c2+c1')	unhex('__length_(c1)')	unhex('c++')
+NULL	NULL	NULL
+select unhex('c1*c2+c1'),unhex('__length_(c1)'),unhex('c++');
+unhex('c1*c2+c1')	unhex('__length_(c1)')	unhex('c++')
+NULL	NULL	NULL
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3089	0	0	select unhex('c1') as "unhex('c1')", unhex('create view test') as "unhex('create view test')", unhex('3.1415926535897932384626') as "unhex('3.1415926535897932384626')", unhex((121212 * 35878)) as "unhex(121212*35878)", unhex((((((((1 * 3) * 5) * 7) * 11) * 13) * 15) * 17)) as "unhex(1*3*5*7*11*13*15*17)" from dual
+3090	0	0	select unhex('c1*c2+c1') as "unhex('c1*c2+c1')", unhex('__length_(c1)') as "unhex('__length_(c1)')", unhex('c++') as "unhex('c++')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'abc','abc_abc'),(2,'a_bc','abc_abc'),(3,'abc__','abc+_');
+create view v1 as select upper(c2),upper(c3),upper(c2||c3) from t1;
+create view v2 as select upper('abcbcbccbbb'),upper('cbase'),upper('cbase_su123');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+upper(c2)	varchar(32)	NO		NULL	
+upper(c3)	varchar(64)	NO		NULL	
+upper(c2||c3)	varchar(65536)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+upper('abcbcbccbbb')	varchar(11)	NO		NULL	
+upper('cbase')	varchar(5)	NO		NULL	
+upper('cbase_su123')	varchar(11)	NO		NULL	
+select * from v1;
+upper(c2)	upper(c3)	upper(c2||c3)
+ABC	ABC_ABC	0
+A_BC	ABC_ABC	0
+ABC__	ABC+_	0
+select upper(c2),upper(c3),upper(c2||c3) from t1;
+upper(c2)	upper(c3)	upper(c2||c3)
+ABC	ABC_ABC	0
+A_BC	ABC_ABC	0
+ABC__	ABC+_	0
+select * from v2;
+upper('abcbcbccbbb')	upper('cbase')	upper('cbase_su123')
+ABCBCBCCBBB	CBASE	CBASE_SU123
+select upper('abcbcbccbbb'),upper('cbase'),upper('cbase_su123');
+upper('abcbcbccbbb')	upper('cbase')	upper('cbase_su123')
+ABCBCBCCBBB	CBASE	CBASE_SU123
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3092	0	0	select upper("test"."t1"."c2") as "upper(c2)", upper("test"."t1"."c3") as "upper(c3)", upper(("test"."t1"."c2" or "test"."t1"."c3")) as "upper(c2||c3)" from "test"."t1"
+3093	0	0	select upper('abcbcbccbbb') as "upper('abcbcbccbbb')", upper('cbase') as "upper('cbase')", upper('cbase_su123') as "upper('cbase_su123')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(32),c3 varchar(64));
+insert into t1 values(1,'ABC','ABC_ABC'),(2,'A_BC','ABC_ABC'),(3,'ABC__','ABC+_');
+create view v1 as select lower(c2),lower(c3),lower(c2||c3) from t1;
+create view v2 as select lower('abcbcbccbbb'),lower('cbase'),lower('cbase_su123');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+lower(c2)	varchar(32)	NO		NULL	
+lower(c3)	varchar(64)	NO		NULL	
+lower(c2||c3)	varchar(65536)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+lower('abcbcbccbbb')	varchar(11)	NO		NULL	
+lower('cbase')	varchar(5)	NO		NULL	
+lower('cbase_su123')	varchar(11)	NO		NULL	
+select * from v1;
+lower(c2)	lower(c3)	lower(c2||c3)
+abc	abc_abc	0
+a_bc	abc_abc	0
+abc__	abc+_	0
+select lower(c2),lower(c3),lower(c2||c3) from t1;
+lower(c2)	lower(c3)	lower(c2||c3)
+abc	abc_abc	0
+a_bc	abc_abc	0
+abc__	abc+_	0
+select * from v2;
+lower('abcbcbccbbb')	lower('cbase')	lower('cbase_su123')
+abcbcbccbbb	cbase	cbase_su123
+select lower('abcbcbccbbb'),lower('cbase'),lower('cbase_su123');
+lower('abcbcbccbbb')	lower('cbase')	lower('cbase_su123')
+abcbcbccbbb	cbase	cbase_su123
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3095	0	0	select lower("test"."t1"."c2") as "lower(c2)", lower("test"."t1"."c3") as "lower(c3)", lower(("test"."t1"."c2" or "test"."t1"."c3")) as "lower(c2||c3)" from "test"."t1"
+3096	0	0	select lower('abcbcbccbbb') as "lower('abcbcbccbbb')", lower('cbase') as "lower('cbase')", lower('cbase_su123') as "lower('cbase_su123')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'ABCABC_ABC'),(2,'A_BC_ABC_ABC'),(3,'ABC__ABC+_');
+create view v1 as select substr(c2,3,5),substr(c2,3),substr(c2 from 3) from t1;
+create view v2 as select substr('123456789',2,3),substr('cbase',1),substr('cbase_123' from 1);
+desc v1;
+Field	Type	Null	Key	Default	Extra
+substr(c2,3,5)	varchar(5)	NO		NULL	
+substr(c2,3)	varchar(62)	NO		NULL	
+substr(c2 from 3)	varchar(62)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+substr('123456789',2,3)	varchar(3)	NO		NULL	
+substr('cbase',1)	varchar(5)	NO		NULL	
+substr('cbase_123' from 1)	varchar(9)	NO		NULL	
+select * from v1;
+substr(c2,3,5)	substr(c2,3)	substr(c2 from 3)
+CABC_	CABC_ABC	CABC_ABC
+BC_AB	BC_ABC_ABC	BC_ABC_ABC
+C__AB	C__ABC+_	C__ABC+_
+select substr(c2,3,5),substr(c2,3),substr(c2 from 3) from t1;
+substr(c2,3,5)	substr(c2,3)	substr(c2 from 3)
+CABC_	CABC_ABC	CABC_ABC
+BC_AB	BC_ABC_ABC	BC_ABC_ABC
+C__AB	C__ABC+_	C__ABC+_
+select * from v2;
+substr('123456789',2,3)	substr('cbase',1)	substr('cbase_123' from 1)
+234	cbase	cbase_123
+select substr('123456789',2,3),substr('cbase',1),substr('cbase_123' from 1);
+substr('123456789',2,3)	substr('cbase',1)	substr('cbase_123' from 1)
+234	cbase	cbase_123
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3098	0	0	select substr("test"."t1"."c2", 3, 5) as "substr(c2,3,5)", substr("test"."t1"."c2", 3) as "substr(c2,3)", substr("test"."t1"."c2", 3) as "substr(c2 from 3)" from "test"."t1"
+3099	0	0	select substr('123456789', 2, 3) as "substr('123456789',2,3)", substr('cbase', 1) as "substr('cbase',1)", substr('cbase_123', 1) as "substr('cbase_123' from 1)" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,' ABCABC_ABC  '),(2,'  A_BC_ABC_ABC  '),(3,'  ABC__ABC+_       ');
+create view v1 as select trim(both from c2),trim(leading from c2),trim(trailing from c2),trim(c2) from t1;
+create view v2 as select trim(both from ' 123567   '),trim(leading from ' 123567     '),trim(trailing from ' 123567     '),trim(' 123567    ');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+trim(both from c2)	varchar(64)	NO		NULL	
+trim(leading from c2)	varchar(64)	NO		NULL	
+trim(trailing from c2)	varchar(64)	NO		NULL	
+trim(c2)	varchar(64)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+trim(both from ' 123567   ')	varchar(10)	NO		NULL	
+trim(leading from ' 123567     ')	varchar(12)	NO		NULL	
+trim(trailing from ' 123567     ')	varchar(12)	NO		NULL	
+trim(' 123567    ')	varchar(11)	NO		NULL	
+select * from v1;
+trim(both from c2)	trim(leading from c2)	trim(trailing from c2)	trim(c2)
+ABCABC_ABC	ABCABC_ABC  	 ABCABC_ABC	ABCABC_ABC
+A_BC_ABC_ABC	A_BC_ABC_ABC  	  A_BC_ABC_ABC	A_BC_ABC_ABC
+ABC__ABC+_	ABC__ABC+_       	  ABC__ABC+_	ABC__ABC+_
+select trim(both from c2),trim(leading from c2),trim(trailing from c2),trim(c2) from t1;
+trim(both from c2)	trim(leading from c2)	trim(trailing from c2)	trim(c2)
+ABCABC_ABC	ABCABC_ABC  	 ABCABC_ABC	ABCABC_ABC
+A_BC_ABC_ABC	A_BC_ABC_ABC  	  A_BC_ABC_ABC	A_BC_ABC_ABC
+ABC__ABC+_	ABC__ABC+_       	  ABC__ABC+_	ABC__ABC+_
+select * from v2;
+trim(both from ' 123567   ')	trim(leading from ' 123567     ')	trim(trailing from ' 123567     ')	trim(' 123567    ')
+123567	123567     	 123567	123567
+select trim(both from ' 123567   '),trim(leading from ' 123567     '),trim(trailing from ' 123567     '),trim(' 123567    ');
+trim(both from ' 123567   ')	trim(leading from ' 123567     ')	trim(trailing from ' 123567     ')	trim(' 123567    ')
+123567	123567     	 123567	123567
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3101	0	0	select trim(both ' ' from "test"."t1"."c2") as "trim(both from c2)", trim(leading ' ' from "test"."t1"."c2") as "trim(leading from c2)", trim(trailing ' ' from "test"."t1"."c2") as "trim(trailing from c2)", trim(both ' ' from "test"."t1"."c2") as "trim(c2)" from "test"."t1"
+3102	0	0	select trim(both ' ' from ' 123567   ') as "trim(both from ' 123567   ')", trim(leading ' ' from ' 123567     ') as "trim(leading from ' 123567     ')", trim(trailing ' ' from ' 123567     ') as "trim(trailing from ' 123567     ')", trim(both ' ' from ' 123567    ') as "trim(' 123567    ')" from dual
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'__ABCABC_ABC____'),(2,'__A_BC_ABC_ABC______'),(3,'___ABC__ABC+___________');
+create view v1 as select trim(both '_' from c2),trim(leading '_' from c2),trim(trailing '_' from c2) from t1;
+create view v2 as select trim(both '_' from '__123567___'),trim(leading '_' from '__123567___'),trim(trailing '_' from '__123567___');
+desc v1;
+Field	Type	Null	Key	Default	Extra
+trim(both '_' from c2)	varchar(64)	NO		NULL	
+trim(leading '_' from c2)	varchar(64)	NO		NULL	
+trim(trailing '_' from c2)	varchar(64)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+trim(both '_' from '__123567___')	varchar(11)	NO		NULL	
+trim(leading '_' from '__123567___')	varchar(11)	NO		NULL	
+trim(trailing '_' from '__123567___')	varchar(11)	NO		NULL	
+select * from v1;
+trim(both '_' from c2)	trim(leading '_' from c2)	trim(trailing '_' from c2)
+ABCABC_ABC	ABCABC_ABC____	__ABCABC_ABC
+A_BC_ABC_ABC	A_BC_ABC_ABC______	__A_BC_ABC_ABC
+ABC__ABC+	ABC__ABC+___________	___ABC__ABC+
+select trim(both '_' from c2),trim(leading '_' from c2),trim(trailing '_' from c2) from t1;
+trim(both '_' from c2)	trim(leading '_' from c2)	trim(trailing '_' from c2)
+ABCABC_ABC	ABCABC_ABC____	__ABCABC_ABC
+A_BC_ABC_ABC	A_BC_ABC_ABC______	__A_BC_ABC_ABC
+ABC__ABC+	ABC__ABC+___________	___ABC__ABC+
+select * from v2;
+trim(both '_' from '__123567___')	trim(leading '_' from '__123567___')	trim(trailing '_' from '__123567___')
+123567	123567___	__123567
+select trim(both '_' from '__123567___'),trim(leading '_' from '__123567___'),trim(trailing '_' from '__123567___');
+trim(both '_' from '__123567___')	trim(leading '_' from '__123567___')	trim(trailing '_' from '__123567___')
+123567	123567___	__123567
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3104	0	0	select trim(both '_' from "test"."t1"."c2") as "trim(both '_' from c2)", trim(leading '_' from "test"."t1"."c2") as "trim(leading '_' from c2)", trim(trailing '_' from "test"."t1"."c2") as "trim(trailing '_' from c2)" from "test"."t1"
+3105	0	0	select trim(both '_' from '__123567___') as "trim(both '_' from '__123567___')", trim(leading '_' from '__123567___') as "trim(leading '_' from '__123567___')", trim(trailing '_' from '__123567___') as "trim(trailing '_' from '__123567___')" from dual
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select trim(both '_' from "test"."t1"."c2") as "trim(both '_' from c2)", trim(leading '_' from "test"."t1"."c2") as "trim(leading '_' from c2)", trim(trailing '_' from "test"."t1"."c2") as "trim(trailing '_' from c2)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select trim(both '_' from '__123567___') as "trim(both '_' from '__123567___')", trim(leading '_' from '__123567___') as "trim(leading '_' from '__123567___')", trim(trailing '_' from '__123567___') as "trim(trailing '_' from '__123567___')" from dual	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 varchar(64));
+insert into t1 values(1,'__ABCABC_ABC____'),(2,'__A_BC_ABC_ABC______'),(-1,'___ABC__ABC+___________');
+create view v1 as select c1,c2,decode(c1,c1>=1,'a',c1>=2,'b','c') from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	varchar(64)	YES		NULL	
+decode(c1,c1>=1,'a',c1>=2,'b','c')	decimal(38,0)	NO		NULL	
+select * from v1;
+c1	c2	decode(c1,c1>=1,'a',c1>=2,'b','c')
+-1	___ABC__ABC+___________	c
+1	__ABCABC_ABC____	a
+2	__A_BC_ABC_ABC______	a
+select c1,c2,decode(c1,c1>=1,'a',c1>=2,'b','c') from t1;
+c1	c2	decode(c1,c1>=1,'a',c1>=2,'b','c')
+-1	___ABC__ABC+___________	c
+1	__ABCABC_ABC____	a
+2	__A_BC_ABC_ABC______	a
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3107	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", decode("test"."t1"."c1", ("test"."t1"."c1" >= 1), 'a', ("test"."t1"."c1" >= 2), 'b', 'c') as "decode(c1,c1>=1,'a',c1>=2,'b','c')" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100));
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123'),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569');
+create view v1 as select floor(c1),floor(c2),floor(c3),floor(c4),floor(c5),floor(c6) from t1;
+create view v2 as select floor(c1*c2+c1),floor(length(c1)),floor(c2*c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+floor(c1)	decimal(38,0)	NO		NULL	
+floor(c2)	decimal(38,0)	NO		NULL	
+floor(c3)	decimal(38,0)	NO		NULL	
+floor(c4)	decimal(38,0)	NO		NULL	
+floor(c5)	decimal(38,0)	NO		NULL	
+floor(c6)	decimal(38,0)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+floor(c1*c2+c1)	decimal(38,0)	NO		NULL	
+floor(length(c1))	decimal(38,0)	NO		NULL	
+floor(c2*c5)	decimal(38,0)	NO		NULL	
+select * from v1;
+floor(c1)	floor(c2)	floor(c3)	floor(c4)	floor(c5)	floor(c6)
+-12321112147483647	-2	-4	-6	-77778	-7878788
+12321112147483647	2	3	5	77777	12321321
+select floor(c1),floor(c2),floor(c3),floor(c4),floor(c5),floor(c6) from t1;
+floor(c1)	floor(c2)	floor(c3)	floor(c4)	floor(c5)	floor(c6)
+-12321112147483647	-2	-4	-6	-77778	-7878788
+12321112147483647	2	3	5	77777	12321321
+select * from v2;
+floor(c1*c2+c1)	floor(length(c1))	floor(c2*c5)
+12321112147483647	18	155555
+36963336442450941	17	155555
+select floor(c1*c2+c1),floor(length(c1)),floor(c2*c5) from t1;
+floor(c1*c2+c1)	floor(length(c1))	floor(c2*c5)
+12321112147483647	18	155555
+36963336442450941	17	155555
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3109	0	0	select floor("test"."t1"."c1") as "floor(c1)", floor("test"."t1"."c2") as "floor(c2)", floor("test"."t1"."c3") as "floor(c3)", floor("test"."t1"."c4") as "floor(c4)", floor("test"."t1"."c5") as "floor(c5)", floor("test"."t1"."c6") as "floor(c6)" from "test"."t1"
+3110	0	0	select floor((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "floor(c1*c2+c1)", floor(length("test"."t1"."c1")) as "floor(length(c1))", floor(("test"."t1"."c2" * "test"."t1"."c5")) as "floor(c2*c5)" from "test"."t1"
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100));
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123'),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569');
+create view v1 as select ceil(c1),ceil(c2),ceil(c3),ceil(c4),ceil(c5),ceil(c6) from t1;
+create view v2 as select ceil(c1*c2+c1),ceil(length(c1)),ceil(c2*c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+ceil(c1)	decimal(38,0)	NO		NULL	
+ceil(c2)	decimal(38,0)	NO		NULL	
+ceil(c3)	decimal(38,0)	NO		NULL	
+ceil(c4)	decimal(38,0)	NO		NULL	
+ceil(c5)	decimal(38,0)	NO		NULL	
+ceil(c6)	decimal(38,0)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+ceil(c1*c2+c1)	decimal(38,0)	NO		NULL	
+ceil(length(c1))	decimal(38,0)	NO		NULL	
+ceil(c2*c5)	decimal(38,0)	NO		NULL	
+select * from v1;
+ceil(c1)	ceil(c2)	ceil(c3)	ceil(c4)	ceil(c5)	ceil(c6)
+-12321112147483647	-2	-3	-5	-77777	-7878787
+12321112147483647	2	4	6	77778	12321322
+select ceil(c1),ceil(c2),ceil(c3),ceil(c4),ceil(c5),ceil(c6) from t1;
+ceil(c1)	ceil(c2)	ceil(c3)	ceil(c4)	ceil(c5)	ceil(c6)
+-12321112147483647	-2	-3	-5	-77777	-7878787
+12321112147483647	2	4	6	77778	12321322
+select * from v2;
+ceil(c1*c2+c1)	ceil(length(c1))	ceil(c2*c5)
+12321112147483647	18	155556
+36963336442450941	17	155556
+select ceil(c1*c2+c1),ceil(length(c1)),ceil(c2*c5) from t1;
+ceil(c1*c2+c1)	ceil(length(c1))	ceil(c2*c5)
+12321112147483647	18	155556
+36963336442450941	17	155556
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3112	0	0	select ceil("test"."t1"."c1") as "ceil(c1)", ceil("test"."t1"."c2") as "ceil(c2)", ceil("test"."t1"."c3") as "ceil(c3)", ceil("test"."t1"."c4") as "ceil(c4)", ceil("test"."t1"."c5") as "ceil(c5)", ceil("test"."t1"."c6") as "ceil(c6)" from "test"."t1"
+3113	0	0	select ceil((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "ceil(c1*c2+c1)", ceil(length("test"."t1"."c1")) as "ceil(length(c1))", ceil(("test"."t1"."c2" * "test"."t1"."c5")) as "ceil(c2*c5)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select ceil("test"."t1"."c1") as "ceil(c1)", ceil("test"."t1"."c2") as "ceil(c2)", ceil("test"."t1"."c3") as "ceil(c3)", ceil("test"."t1"."c4") as "ceil(c4)", ceil("test"."t1"."c5") as "ceil(c5)", ceil("test"."t1"."c6") as "ceil(c6)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select ceil((("test"."t1"."c1" * "test"."t1"."c2") + "test"."t1"."c1")) as "ceil(c1*c2+c1)", ceil(length("test"."t1"."c1")) as "ceil(length(c1))", ceil(("test"."t1"."c2" * "test"."t1"."c5")) as "ceil(c2*c5)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+create table
+create table t1 (pid int primary key, name varchar(30), salary float, pdate date, c1 int, c2 int, c3 varchar(30), c4 int);
+create table t2 (pid int primary key, name varchar(30), salary float, pdate date, c1 int);
+create table t3(c1 int primary key,c2 bigint);
+insert data
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(1, 'xiaowang', 15498.26, '1998-01-01', 10, 1001, 'wang');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(2, 'xiaozeng', 16666.54, '1998-08-20', 12, 1002, 'zeng');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(3, 'xiaoming', 16267.86, '1997-03-12', 13, 1003, 'ming');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(4, 'xiaochen', 17566.78, '1998-09-03', 14, 1004, 'chen');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(5, 'xiaoli', 9751.85, '1999-11-11', 15, 1005, 'li');
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(6, 'xiaozhao', 14958.64, '2000-12-27', 16, 1006, 'zhao');
+insert into t2 (pid, name, salary, pdate, c1) values(1, 'xiaosun', 8654.67, '2000-06-21', 111);
+insert into t2 (pid, name, salary, pdate, c1) values(2, 'xiaoqian', 4653.82, '2000-11-08', 222);
+insert into t2 (pid, name, salary, pdate, c1) values(3, 'xiaohua', 6556.87, '1999-01-18', 333);
+insert into t2 (pid, name, salary, pdate, c1) values(4, 'xiaowu', 5959.07, '1999-07-14', 444);
+insert into t2 (pid, name, salary, pdate, c1) values(5, 'xiaopang', 8965.95, '2001-09-18', 555);
+insert into t2 (pid, name, salary, pdate, c1) values(6, 'xiaogao', 7653.59, '2000-05-25', 666);
+insert into t3 values(2147483647,9223372036854775807);
+insert into t3 values(-2147483648,-9223372036854775808);
+start nvl2
+select nvl2(c4,c1,c2) from t1 where pid=1;
+nvl2(c4,c1,c2)
+1001
+select nvl2(c4,c4,c1) from t1 where pid=1;
+nvl2(c4,c4,c1)
+10
+select nvl2(c1,c4,c4) from t1 where pid=1;
+nvl2(c1,c4,c4)
+NULL
+select nvl2(c4,c2,c4) from t1 where pid=1;
+nvl2(c4,c2,c4)
+NULL
+select nvl2(c1,c4,c2) from t1 where pid=1;
+nvl2(c1,c4,c2)
+NULL
+select nvl2(c4,c4,c4) from t1 where pid=1;
+nvl2(c4,c4,c4)
+NULL
+select nvl2(pid,c1,c2) from t1 where pid=1;
+nvl2(pid,c1,c2)
+10
+select nvl2('abc',name,c3) from t1 where pid=1;
+nvl2('abc',name,c3)
+xiaowang
+select nvl2('1998-09-03 ','1998-08-20',pdate) from t1 where pid=1;
+nvl2('1998-09-03 ','1998-08-20',pdate)
+1998-08-20
+select nvl2(cast(3.141 as float),cast(23.4687 as float),salary) from t1 where pid=1;
+nvl2(cast(3.141 as float),cast(23.4687 as float),salary)
+23.468700
+select nvl2(true,true,true) from t1 where pid=1;
+nvl2(true,true,true)
+1
+select nvl2(2.25,3.15,4.45) from t1 where pid=1;
+nvl2(2.25,3.15,4.45)
+3.15
+select nvl2(null,3.15,4.45) from t1 where pid=1;
+nvl2(null,3.15,4.45)
+4.45
+select nvl2(pid,name,pdate) from t1 where pid=1;
+nvl2(pid,name,pdate)
+xiaowang
+select nvl2(c4,name,salary) from t1 where pid=1;
+nvl2(c4,name,salary)
+15498.259766
+select nvl2(pid,name,pdate) from t1;
+nvl2(pid,name,pdate)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select nvl2(c4,name,pdate) from t1;
+nvl2(c4,name,pdate)
+1998-01-01
+1998-08-20
+1997-03-12
+1998-09-03
+1999-11-11
+2000-12-27
+select nvl2(name,c4,pdate) from t1;
+nvl2(name,c4,pdate)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select nvl2(pdate,pid,c4) from t1;
+nvl2(pdate,pid,c4)
+1
+2
+3
+4
+5
+6
+select nvl2(name,pdate,pid) from t1;
+nvl2(name,pdate,pid)
+1998-01-01
+1998-08-20
+1997-03-12
+1998-09-03
+1999-11-11
+2000-12-27
+select nvl2(c4,c4,pdate) from t1;
+nvl2(c4,c4,pdate)
+1998-01-01
+1998-08-20
+1997-03-12
+1998-09-03
+1999-11-11
+2000-12-27
+select nvl2(c4,name,c4) from t1;
+nvl2(c4,name,c4)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select nvl2(c4,name,name) from t1;
+nvl2(c4,name,name)
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhao
+select nvl2(pdate,c4,name) from t1;
+nvl2(pdate,c4,name)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select nvl2(pdate,c4,c4) from t1;
+nvl2(pdate,c4,c4)
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+select nvl2(c1,c1+c2,c2-c1) from t1;
+nvl2(c1,c1+c2,c2-c1)
+1011
+1014
+1016
+1018
+1020
+1022
+select nvl2(c4,c1+c2,c2-c1) from t1;
+nvl2(c4,c1+c2,c2-c1)
+991
+990
+990
+990
+990
+990
+select nvl2(c4,c1*c2,c2/c1) from t1;
+nvl2(c4,c1*c2,c2/c1)
+100.1
+83.5
+77.1538
+71.7143
+67
+62.875
+select nvl2(c1,c1*c2,c2/c1) from t1;
+nvl2(c1,c1*c2,c2/c1)
+10010
+12024
+13039
+14056
+15075
+16096
+select nvl2(c4,c4,c2/c1) from t1;
+nvl2(c4,c4,c2/c1)
+100.1
+83.5
+77.1538
+71.7143
+67
+62.875
+select nvl2(c1,(c2)mod(pid),(c2)mod(c1)) from t1;
+nvl2(c1,(c2)mod(pid),(c2)mod(c1))
+0
+0
+1
+0
+0
+4
+select nvl2(c4,(c2)mod(pid),(c2)mod(c1)) from t1;
+nvl2(c4,(c2)mod(pid),(c2)mod(c1))
+1
+6
+2
+10
+0
+14
+select nvl2(pid,max(c1),min(c2)) from t1;
+nvl2(pid,max(c1),min(c2))
+16
+select nvl2(c4,max(c1),min(c2)) from t1;
+nvl2(c4,max(c1),min(c2))
+1001
+select nvl2(c4,sum(c1),avg(c2)) from t1;
+nvl2(c4,sum(c1),avg(c2))
+1003.5000
+select nvl2(pid,sum(c1),avg(c2)) from t1;
+nvl2(pid,sum(c1),avg(c2))
+80
+select nvl2(max(c1),sum(c1),avg(c2)) from t1;
+nvl2(max(c1),sum(c1),avg(c2))
+80
+select nvl2(pid,count(c1),count(c2)) from t1;
+nvl2(pid,count(c1),count(c2))
+6
+select nvl2(null,3=3,4=4) from t1 where pid=1;
+nvl2(null,3=3,4=4)
+1
+select nvl2(pid,c1>c2,c1<c2) from t1 where pid=1;
+nvl2(pid,c1>c2,c1<c2)
+0
+select nvl2(c1>c2,c1>c2,c1<c2) from t1 where pid=1;
+nvl2(c1>c2,c1>c2,c1<c2)
+0
+select nvl2(c1<c2,c1>c2,c1<c2) from t1 where pid=1;
+nvl2(c1<c2,c1>c2,c1<c2)
+0
+select nvl2(null,c1||c2,pid||c1) from t1 where pid=1;
+nvl2(null,c1||c2,pid||c1)
+1
+update t1 set name='xiaozhou' where pid=nvl2(null,5,6);
+update t1 set salary=nvl2(pid,nvl2(1,cast(15463.98 as float),2),2) where pid=1;
+select name from t1 having nvl2(null,1,1)>0;
+name
+xiaowang
+xiaozeng
+xiaoming
+xiaochen
+xiaoli
+xiaozhou
+select name from t1 where pid=2 or pid=(2,nvl2(null,3,4),5) order by pid;
+name
+xiaozeng
+xiaoming
+insert into t1 (pid, name, salary, pdate, c1, c2, c3) values(7,nvl2(null,'xiaoliu','xiaoding'),13156.21,'1999-04-24',17,1007,'ding');
+delete from t1 where pid=nvl2(nvl2(pid,4,1),7,6);
+(select name from t1 where pid=nvl2(null,2,3)) union (select name from t1 where pid=4);
+name
+xiaochen
+xiaoming
+(select name from t1 where pid= nvl2(null,2,1)) intersect (select name from t1 where pid=2);
+name
+(select name from t1 where pid= nvl2(null,1,2)) except (select name from t1 where pid=3);
+name
+xiaozeng
+select pid from t1 where name = nvl2(c1,substr('xxxiaowanggg',3,8),c2);
+pid
+1
+select name from t1 where pid = nvl2(null,c1,nvl(3,4));
+name
+xiaoming
+select t1.pid,nvl2(t1.pid, t2.name, t2.pdate) from t1,t2;
+pid	nvl2(t1.pid, t2.name, t2.pdate)
+1	xiaosun
+1	xiaoqian
+1	xiaohua
+1	xiaowu
+1	xiaopang
+1	xiaogao
+2	xiaosun
+2	xiaoqian
+2	xiaohua
+2	xiaowu
+2	xiaopang
+2	xiaogao
+3	xiaosun
+3	xiaoqian
+3	xiaohua
+3	xiaowu
+3	xiaopang
+3	xiaogao
+4	xiaosun
+4	xiaoqian
+4	xiaohua
+4	xiaowu
+4	xiaopang
+4	xiaogao
+5	xiaosun
+5	xiaoqian
+5	xiaohua
+5	xiaowu
+5	xiaopang
+5	xiaogao
+6	xiaosun
+6	xiaoqian
+6	xiaohua
+6	xiaowu
+6	xiaopang
+6	xiaogao
+select t1.c1,nvl2(t1.c4, t1.name, t2.salary) from t1,t2;
+c1	nvl2(t1.c4, t1.name, t2.salary)
+10	8654.669922
+10	4653.819824
+10	6556.870117
+10	5959.069824
+10	8965.950195
+10	7653.589844
+12	8654.669922
+12	4653.819824
+12	6556.870117
+12	5959.069824
+12	8965.950195
+12	7653.589844
+13	8654.669922
+13	4653.819824
+13	6556.870117
+13	5959.069824
+13	8965.950195
+13	7653.589844
+14	8654.669922
+14	4653.819824
+14	6556.870117
+14	5959.069824
+14	8965.950195
+14	7653.589844
+15	8654.669922
+15	4653.819824
+15	6556.870117
+15	5959.069824
+15	8965.950195
+15	7653.589844
+16	8654.669922
+16	4653.819824
+16	6556.870117
+16	5959.069824
+16	8965.950195
+16	7653.589844
+select distinct t1.pid from t1,t2 where nvl2(t1.c1, t2.name, t1.name);
+pid
+1
+2
+3
+4
+5
+6
+select nvl2() from t1 where pid=1;
+ERROR HY000: YAO-5054: Param num of function 'nvl2' must be 3, ret=-5054
+select nvl2(c1) from t1 where pid=1;
+ERROR HY000: YAO-5054: Param num of function 'nvl2' must be 3, ret=-5054
+select nvl2(c1,pid,c2,c3) from t1 where pid=1;
+ERROR HY000: YAO-5054: Param num of function 'nvl2' must be 3, ret=-5054
+select nvl2(null,c1+c2,c1+c2) from t3;
+ERROR HY000: YAO-165: Arithmetic overflow or other arithmetic exception occurred
+select nvl2(c1,c1+c2,c1-c2) from t3;
+ERROR HY000: YAO-165: Arithmetic overflow or other arithmetic exception occurred
+select nvl2(99,98,97);
+nvl2(99,98,97)
+98
+select NVL2(99,98,97);
+NVL2(99,98,97)
+98
+select nvl2(99,98,97) AS test;
+test
+98
+select nvl2(nvl2(null,1,2),98,97);
+nvl2(nvl2(null,1,2),98,97)
+98
+drop table t1,t2,t3;

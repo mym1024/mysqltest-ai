@@ -1,0 +1,674 @@
+set yao_enable_query_optimizer=true;
+create table t1(id int primary key, col1 int, col2 int, col3 int);
+create table t2(id int primary key, col1 int);
+insert into t1 values(1, 2, 3, 4);
+insert into t1 values(2, 3, 4, 5);
+insert into t2 values(1, 2);
+insert into t2 values(2, 3);
+select * from t1 semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 left semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 right semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 merge join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 bloomfilter join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 hash join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 inner join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 left join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 right join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 full join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+explain select * from t1 join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":3001},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":3001},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":3001},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<3001,16>|],expr<NULL,65517>=[COL<3001,17>|],expr<NULL,65516>=[COL<3001,18>|],expr<NULL,65515>=[COL<3001,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|],expr<3001,18>=[COL<3001,18>|],expr<3001,19>=[COL<3001,19>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select * from t1 a join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"test.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":65533},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":65533},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":65533},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":65533},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<65533,16>|],expr<NULL,65517>=[COL<65533,17>|],expr<NULL,65516>=[COL<65533,18>|],expr<NULL,65515>=[COL<65533,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<65533,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,17>=[COL<65533,17>|],expr<65533,16>=[COL<65533,16>|],expr<65533,18>=[COL<65533,18>|],expr<65533,19>=[COL<65533,19>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select * from t1 a join t2 on a.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"test.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":65533},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":65533},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":65533},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":65533},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<65533,16>|],expr<NULL,65517>=[COL<65533,17>|],expr<NULL,65516>=[COL<65533,18>|],expr<NULL,65515>=[COL<65533,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<65533,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,17>=[COL<65533,17>|],expr<65533,16>=[COL<65533,16>|],expr<65533,18>=[COL<65533,18>|],expr<65533,19>=[COL<65533,19>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select a.* from t1 a join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"test.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":65533},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":65533},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":65533},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":65533}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<65533,16>|],expr<NULL,65517>=[COL<65533,17>|],expr<NULL,65516>=[COL<65533,18>|],expr<NULL,65515>=[COL<65533,19>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<65533,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,17>=[COL<65533,17>|],expr<65533,16>=[COL<65533,16>|],expr<65533,18>=[COL<65533,18>|],expr<65533,19>=[COL<65533,19>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|]])(sequence_values_=[])>)
+)
+select /*+ join(merge_join) */ * from t1 inner join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select /*+ join(bloomfilter_join) */ * from t1 full join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select /*+ join(hash_join_single) */ * from t1 right join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select /*+ join(si) */ * from t1 left join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+explain select /*+ join(merge_join) */ * from t1 inner join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":3001},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":3001},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":3001},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<3001,16>|],expr<NULL,65517>=[COL<3001,17>|],expr<NULL,65516>=[COL<3001,18>|],expr<NULL,65515>=[COL<3001,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+Merge Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|],expr<3001,18>=[COL<3001,18>|],expr<3001,19>=[COL<3001,19>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select /*+ join(bloomfilter_join) */ * from t1 full join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":3001},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":3001},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":3001},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<3001,16>|],expr<NULL,65517>=[COL<3001,17>|],expr<NULL,65516>=[COL<3001,18>|],expr<NULL,65515>=[COL<3001,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+Merge Join(Join Type: FULL OUTER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|],expr<3001,18>=[COL<3001,18>|],expr<3001,19>=[COL<3001,19>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select /*+ join(hash_join_single) */ * from t1 right join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":3001},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":3001},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":3001},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<3001,16>|],expr<NULL,65517>=[COL<3001,17>|],expr<NULL,65516>=[COL<3001,18>|],expr<NULL,65515>=[COL<3001,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: RIGHT OUTER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|],expr<3001,18>=[COL<3001,18>|],expr<3001,19>=[COL<3001,19>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select /*+ join(si) */ * from t1 left join t2 on t1.col1 = t2.col1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"col1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"col1","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"id","TableRef":3001},
+                    {"Num":3,"ColumnId":18,"ColumnName":"col2","TableRef":3001},
+                    {"Num":4,"ColumnId":19,"ColumnName":"col3","TableRef":3001},
+                    {"Num":5,"ColumnId":16,"ColumnName":"id","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":7,"TableId":"NULL","ColumnId":65513,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65518>=[COL<3001,16>|],expr<NULL,65517>=[COL<3001,17>|],expr<NULL,65516>=[COL<3001,18>|],expr<NULL,65515>=[COL<3001,19>|],expr<NULL,65514>=[COL<3002,16>|],expr<NULL,65513>=[COL<3002,17>|]])(sequence_values_=[])
+Semi Join(Join Type: LEFT OUTER JOIN: (equal_join_conds=[expr<NULL,65519>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|],expr<3001,18>=[COL<3001,18>|],expr<3001,19>=[COL<3001,19>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,17,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+drop table if exists t1;
+drop table if exists t2;

@@ -1,0 +1,540 @@
+select NULL into @s1;
+select @s1;
+@s1
+NULL
+select 6 into @s1;
+select @s1;
+@s1
+6
+select 1.2345 into @s1;
+select @s1;
+@s1
+1.2345
+select true into @s1;
+select @s1;
+@s1
+1
+select '2023-04-01' into @s1;
+select @s1;
+@s1
+2023-04-01
+select 'yaobase' into @s1;
+select @s1;
+@s1
+yaobase
+set @s1=0,@s2=7;
+select @s2 into @s1;
+select @s1;
+@s1
+7
+select length('test_string') into @s1;
+select @s1;
+@s1
+11
+select nvl(null, 'test_string') into @s1;
+select @s1;
+@s1
+test_string
+select upper('yaobase') into @s1;
+select @s1;
+@s1
+YAOBASE
+select 1+2 into @s1;
+select @s1;
+@s1
+3
+set @s1 = 5;
+select @s1+1 into @s1;
+select @s1;
+@s1
+6
+set @s1=5,@s2=6;
+select @s1+@s2 into @s1;
+select @s1;
+@s1
+11
+select 1,2,3 into @s1,@s1,@s1;
+select @s1;
+@s1
+3
+set @s1=3;
+select @s1+1,@s1+1 into @s1,@s1;
+select @s1;
+@s1
+5
+select NULL,2.34 into @s1,@s2;
+select @s1,@s2;
+@s1	@s2
+NULL	2.34
+select 3,5,'yb' into @s1,@s2,@s3;
+select @s1,@s2,@s3;
+@s1	@s2	@s3
+3	5	yb
+select 1+1,2+2 into @s1,@s2;
+select @s1,@s2;
+@s1	@s2
+2	4
+set @s1=1,@s2=2;
+select @s1+1,@s2+1 into @s1,@s2;
+select @s1,@s2;
+@s1	@s2
+2	3
+set @s1=1,@s2=1;
+select @s1+@s2,@s1 into @s1,@s2;
+select @s1,@s2;
+@s1	@s2
+2	2
+set @s1=7,@s2=7;
+select 1,2,3 into @s1,@s2;
+ERROR HY000: YAO-5007: variable size is not matched with column size, ret=-5007
+select @s1,@s2;
+@s1	@s2
+7	7
+set @s1=7,@s2=7,@s3=7;
+select 1,2 into @s1,@s2,@s3;
+ERROR HY000: YAO-5007: variable size is not matched with column size, ret=-5007
+select @s1,@s2,@s3;
+@s1	@s2	@s3
+7	7	7
+use test;
+create table t1 (c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3),(4,4),(5,NULL),(100,101),(102,103);
+create table t2 (c1 int primary key, c2 double);
+insert into t2 values (1,1.11),(2,2.22),(3,3.33),(15,23.45),(53,67.12),(182,0.133);
+create table t3 (c1 int primary key, c2 double);
+select c1 into @s1 from t1 limit 1;
+select @s1;
+@s1
+1
+select c2 into @s1 from t1 where c1=5;
+select @s1;
+@s1
+NULL
+set @s1=-1;
+select c1 into @s1 from t1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1 into @s1 from t1 where c1>3;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1 into @s1 from t1 where c1=200;
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1 into @s1 from t3;
+select @s1;
+@s1
+-1
+select max(c1) into @s1 from t1;
+select @s1;
+@s1
+102
+select count(1) into @s1 from t1;
+select @s1;
+@s1
+7
+select length(max(c1)) into @s1 from t1;
+select @s1;
+@s1
+3
+set @s1=-1;
+select ceil(c2) into @s1 from t2;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select nvl(c2, 999) into @s1  from t1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select nvl(c1, 'null') into @s1 from t1 where c1=200;
+select @s1;
+@s1
+-1
+set @s1=-1;
+select floor(c1) into @s1 from t1 where c1>150;
+select @s1;
+@s1
+-1
+select c1+10 into @s1 from t1 limit 1;
+select @s1;
+@s1
+11
+select max(c1+c2) into @s1 from t1;
+select @s1;
+@s1
+205
+set @s1=-1;
+select max(c1)+@s1 into @s1 from t1;
+select @s1;
+@s1
+101
+select c1+c2 into @s1 from t2 where c1>100;
+select @s1;
+@s1
+182.133
+set @s1=-1;
+select c1+50 into @s1 from t1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1+length(c2) into @s1 from t1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1+200 into @s1 from t3;
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c2%5 into @s1 from t2 where c2%5=4;
+select @s1;
+@s1
+-1
+set @s1=-1;
+select max(t1.c1) into @s1 from t1,t2 where t1.c1=t2.c1;
+select @s1;
+@s1
+3
+set @s1=-1;
+select avg(t1.c1)+@s1 into @s1 from t1,t2 where t1.c1=t2.c1;
+select @s1;
+@s1
+1
+set @s1=-1;
+select max(t1.c1+t2.c2) into @s1 from t1,t2 where t1.c1=floor(t2.c2);
+select @s1;
+@s1
+6.33
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 inner join t2 on t1.c1=t2.c1;
+select @s1;
+@s1
+2
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 left join t2 on t1.c1=t2.c1;
+select @s1;
+@s1
+31
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 right join t2 on t1.c1=t2.c1;
+select @s1;
+@s1
+2
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 full join t2 on t1.c1=t2.c1;
+select @s1;
+@s1
+31
+set @s1=-1;
+select t1.c1 into @s1 from t1 inner join t2 on t1.c1=t2.c1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select t1.c1+t2.c2 into @s1 from t1,t2 where t1.c1=t2.c1 and t1.c2=null;
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1 into @s1 from t1 where c1=(select min(c1) from t2);
+select @s1;
+@s1
+1
+set @s1=-1;
+select avg(c1)+avg(c2) into @s1 from t2 where c1 in (select c1 from t1);
+select @s1;
+@s1
+4.220000000000001
+set @s1=-1;
+select nvl(c2, 'null') into @s1 from t1 where t1.c1=(select avg(t1.c1) from t1 inner join t2 on t1.c1=t2.c1);
+select @s1;
+@s1
+2
+set @s1=-1;
+select c1 into @s1 from t1 where c1>(select avg(c1) from t2);
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1;
+@s1
+-1
+set @s1=-1;
+select c1 into @s1 from t1 where c1>(select c1 from t2);
+ERROR HY000: YAO-5601: sub-query more than one row ret=-5601
+select @s1;
+@s1
+-1
+select c1 from t1 where c1 in (select max(c2) into @s1 from t1);
+ERROR HY000: YAO-5212: Select into can not be used in subquery
+set @s1=-1;
+select c1 into @s1 from t1 where c1<(select min(c2) from t2);
+select @s1;
+@s1
+-1
+set @s1=-1;
+select nvl(c2, 'null') into @s1 from t1 where t1.c1=(select avg(c1) from t2);
+select @s1;
+@s1
+-1
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s2 from t2 limit 1;
+select @s1,@s2;
+@s1	@s2
+1	1.11
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s1 from t1 where c1=5;
+select @s1,@s2;
+@s1	@s2
+NULL	-1
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s2 from t1 where c1=5;
+select @s1,@s2;
+@s1	@s2
+5	NULL
+set @s1=-1,@s2=-1;
+select t2.c1,t2.c2 into @s1,@s2 from t1 full join t2 on t1.c1=t2.c1 where t1.c1=(select avg(c1) from t1 where c1<20);
+select @s1,@s2;
+@s1	@s2
+3	3.33
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s2 from t1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select @s1,@s2;
+@s1	@s2
+-1	-1
+set @s1=-1,@s2=-1;
+select c1,c2 from t1 where c1<(select avg(c1) from t1) and c2=null;
+c1	c2
+select @s1,@s2;
+@s1	@s2
+-1	-1
+CREATE TABLE test (id INT NOT NULL, fruit_id INT NOT NULL, fruit_name varchar(20)
+default NULL);
+INSERT INTO test VALUES (1,1,'ORANGE');
+INSERT INTO test VALUES (2,2,'APPLE');
+INSERT INTO test VALUES (3,2,'APPLE');
+INSERT INTO test VALUES (4,3,'PEAR');
+SELECT DISTINCT fruit_id, fruit_name INTO @v3, @v4 FROM test GROUP BY fruit_id, fruit_name HAVING fruit_name = 'APPLE';
+SELECT @v3, @v4;
+@v3	@v4
+2	APPLE
+SELECT DISTINCT @v5:= fruit_id, @v6:= fruit_name INTO @v7, @v8 FROM test WHERE fruit_name = 'APPLE';
+SELECT @v5, @v6, @v7, @v8;
+@v5	@v6	@v7	@v8
+2	APPLE	2	APPLE
+SELECT DISTINCT @v5 + fruit_id, CONCAT(@v6, fruit_name) INTO @v9, @v10 FROM test WHERE fruit_name = 'APPLE';
+SELECT @v5, @v6, @v7, @v8, @v9, @v10;
+@v5	@v6	@v7	@v8	@v9	@v10
+2	APPLE	2	APPLE	4	APPLEAPPLE
+create procedure p1() 
+begin 
+set @s1=-1; 
+select 1234 into @s1; 
+select @s1; 
+end//
+call p1()//
+@s1
+1234
+create procedure p2() 
+begin 
+set @s1=-1; 
+select upper('yaobase') into @s1; 
+select @s1; 
+end//
+call p2()//
+@s1
+YAOBASE
+create procedure p3() 
+begin declare a int default 0; 
+select 5123 into a; 
+select a; 
+end//
+call p3()//
+a
+5123
+create procedure p4() 
+begin 
+declare a char(16) default '';
+select upper('yaobase') into a;
+select a; 
+end//
+call p4()//
+a
+YAOBASE
+create procedure p5() 
+begin 
+declare a char(16) default ''; 
+select 100+25 into a; 
+select a; 
+end//
+call p5()//
+a
+125
+create procedure p6() 
+begin 
+declare a int default 0; 
+select 101.1234 into a; 
+select a; 
+end//
+call p6()//
+a
+101
+create procedure p7() 
+begin 
+declare a double default 0;
+set @s1=-1; 
+select 101.1234 into a; 
+select 202 into @s1; 
+select a,@s1; 
+end//
+call p7()//
+a	@s1
+101.1234	202
+create procedure p8() 
+begin 
+declare a double default 0;
+set @s1=-1; 
+select 101.1234,202 into a,@s1; 
+select a,@s1; 
+end//
+call p8()//
+a	@s1
+101.1234	202
+create procedure p9() 
+begin 
+set @s1=-1; 
+select avg(c1) into @s1 from t1; 
+select @s1; 
+end//
+call p9()//
+@s1
+31
+create procedure p10() 
+begin 
+set @s1=-1; 
+select c1 into @s1 from t1; 
+select @s1; 
+end//
+call p10()//
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+create procedure p11() 
+begin 
+set @s1=-1; 
+select c1 into @s1 from t1 where c1>(select max(c1) from t2); 
+select @s1; 
+end//
+call p11()//
+@s1
+-1
+create procedure p12() 
+begin 
+declare a int default 0; 
+select max(c1) into a from t1; 
+select a; 
+end//
+call p12()//
+a
+102
+create procedure p13() 
+begin 
+declare a int default 0; 
+select max(c2) into a from t2; 
+select a; 
+end//
+call p13()//
+a
+67
+create procedure p14() 
+begin 
+declare a int default 0; 
+select c1 into a from t1; 
+select a; 
+end//
+call p14()//
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+create procedure p15() 
+begin 
+declare a int default 0; 
+select c1 into a from t1 where c1>(select max(c1) from t2); 
+select a; 
+end//
+call p15()//
+a
+0
+create procedure p16() 
+begin 
+declare a double default 0;
+declare b int default 0;
+select avg(c1),avg(c2) into a,b from t2; 
+select a,b; 
+end//
+call p16()//
+a	b
+42.6667	16
+create procedure p17() 
+begin 
+declare a double default 0;
+declare b double default 0;
+select c1,c2 into a,b from t2; 
+select a,b; 
+end//
+call p17()//
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+drop table if exists t3//
+drop procedure if exists p18//
+create table t3 (c1 char(128))//
+insert into t3 values ('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')//
+create procedure p18(i int)
+begin
+declare tmp varchar(128);
+set @x = 0;
+repeat
+select c1 into tmp from t3
+where c1 = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+set @x = @x + 1;
+until @x >= i
+end repeat;
+end//
+call p18(10)//
+drop procedure p18//
+drop table t3//
+drop table if exists t3//
+create table t3 (s1 int)//
+drop procedure if exists p19_1//
+drop procedure if exists p19_2//
+create procedure p19_1()
+begin
+declare i int;
+select max(s1)+1 into i from t3;
+end//
+create procedure p19_2()
+begin
+insert into t3 (s1) select max(t4.s1)+1 from t3 as t4;end//
+call p19_1()//
+call p19_1()//
+call p19_2()//
+call p19_2()//
+SHOW CREATE PROCEDURE p19_1//
+Proceudre	sql_mode	Create Procedure	character_set_client	collation_connection	Database Collation
+p19_1	STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER	create procedure p19_1()
+begin
+declare i int;
+select max(s1)+1 into i from t3;
+end	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+drop procedure p19_1//
+drop procedure p19_2//
+drop table t3//

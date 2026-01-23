@@ -1,0 +1,297 @@
+####################################必填######################################################
+###1.测试功能点：load data 导入工具
+###
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-01-27
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1.1向一张空表进行不加任何条件的load
+set names utf8mb4;
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10), c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t01.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.2导入字符串列为非utf8字符集
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t02.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.3导入源文件不存在
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10), c5 json, c6 bool, c7 timestamp, c8 date, c9 time);		
+--error 27
+LOAD DATA INFILE '/home/yaotest/load_data_test/t000.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.4导入源文件为空
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t04.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.5导入目标表不存在
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5019
+LOAD DATA INFILE '/home/yaotest/load_data_test/t05.csv' INTO TABLE t2 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.6导入数据列数多于表中的列
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 82
+LOAD DATA INFILE '/home/yaotest/load_data_test/t06.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.7导入数据列数少于表中的列
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 82
+LOAD DATA INFILE '/home/yaotest/load_data_test/t07.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.8导入数据decimal不符合表定义
+drop table IF EXISTS t1;
+create table t1(c1 int primary key, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t08.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.9导入表为无主键表
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t09.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.10导入数据varchar长度超长
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(2) charset gbk, c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5611
+LOAD DATA INFILE '/home/yaotest/load_data_test/t10.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.11ignore不超过总行数的行，即1行
+drop table IF EXISTS t11;
+create table t11(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t11.csv' INTO TABLE t11 FIELDS TERMINATED BY ',' IGNORE 1 ROWS;
+select * from t11;
+
+#1.12ignore超过总行数的行，即4行
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t12.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' IGNORE 4 ROWS;
+select * from t1;
+
+#1.13ignore0行
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t13.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' IGNORE 0 ROWS;
+select * from t1;
+
+#1.14以逗号为分隔符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t14.csv' INTO TABLE t1 FIELDS TERMINATED BY ',';
+select * from t1;
+
+#1.15以多字节两个逗号为分隔符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t15.csv' INTO TABLE t1 FIELDS TERMINATED BY ',,';
+select * from t1;
+
+#1.16以中文为分隔符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t16.csv' INTO TABLE t1 FIELDS TERMINATED BY '分';
+select * from t1;
+
+#1.17以双引号为包裹符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t17.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"';
+select * from t1;
+
+#1.18以多字节两个单引号为包裹符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5871
+LOAD DATA INFILE '/home/yaotest/load_data_test/t18.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '\'\'';
+select * from t1;
+
+#1.19以中文为包裹符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5871
+LOAD DATA INFILE '/home/yaotest/load_data_test/t19.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '分';
+select * from t1;
+
+#1.20源数据部分被双引号包裹部分没有	
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t20.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"';
+select * from t1;
+
+#1.21以反斜杠为转义符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t21.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '\\';
+select * from t1;
+
+#1.22以多字符为转义符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5871
+LOAD DATA INFILE '/home/yaotest/load_data_test/t22.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY 'aa';
+select * from t1;
+
+#1.23以中文为转义符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(10) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5871
+LOAD DATA INFILE '/home/yaotest/load_data_test/t23.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '在';
+select * from t1;
+
+#1.24以反斜杠为转义符，且源数据包含连续的转义符
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t24.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ESCAPED BY '\\';
+select * from t1;
+
+#1.25分隔符、转义符、包裹符结合
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t25.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\';
+select * from t1;
+
+#1.26存在行分隔符\n
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t26.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n';
+select * from t1;
+
+#1.27存在行分隔符字符END
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t27.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY 'END';
+select * from t1;
+
+#1.28存在行分隔符中文字符结束
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t28.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '结束';
+select * from t1;
+
+#1.29存在行开始符S
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t29.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY 'S';
+select * from t1;
+
+#1.30存在行开始符Start
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t30.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY 'Start';
+select * from t1;
+
+#1.31存在行开始符中文开始
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t31.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始';
+select * from t1;
+
+#1.32存在行开始符中文开始，开始符前有脏数据
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t32.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始';
+select * from t1;
+
+#1.33存在全量的表中存在的列
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t33.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.34存在全量的表中存在的列，顺序c2和c3颠倒
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t34.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c3,c2,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.35指定的列数少于源数据的列数
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 7
+LOAD DATA INFILE '/home/yaotest/load_data_test/t35.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3);
+select * from t1;
+
+#1.36指定的列不存在
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5009
+LOAD DATA INFILE '/home/yaotest/load_data_test/t36.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c3,c2,c4,c5,c6,c7,c80,c9);
+select * from t1;
+
+#1.37指定PARALLEL hint，值大于0
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ PARALLEL(50) */ INFILE '/home/yaotest/load_data_test/t37.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.38指定PARALLEL hint，值小于0
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ PARALLEL(-1) */ INFILE '/home/yaotest/load_data_test/t38.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.39指定LOAD_BATCH_SIZE hint，值大于0
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ LOAD_BATCH_SIZE(50) */ INFILE '/home/yaotest/load_data_test/t39.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.40指定LOAD_BATCH_SIZE hint，值小于0
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(20) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA /*+ LOAD_BATCH_SIZE(-1) */ INFILE '/home/yaotest/load_data_test/t40.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' STARTING BY '开始' (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.41导入文件编码为UTF8，导入命令指定latin1字符集
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t41.csv' INTO TABLE t1 CHARACTER SET latin1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.42导入文件编码为非UTF8，且导入命令不指定字符集
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5103
+LOAD DATA INFILE '/home/yaotest/load_data_test/t42.csv' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.43导入文件编码为非UTF8，导入命令指定字符集为latin1
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+LOAD DATA INFILE '/home/yaotest/load_data_test/t43.csv' INTO TABLE t1 CHARACTER SET latin1 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+
+#1.44导入文件编码为非UTF8，导入命令指定不存在的字符集
+drop table IF EXISTS t1;
+create table t1(c1 int, c2 double, c3 decimal(3,2), c4 varchar(30) , c5 json, c6 bool, c7 timestamp, c8 date, c9 time);
+--error 5142
+LOAD DATA INFILE '/home/yaotest/load_data_test/t44.csv' INTO TABLE t1 CHARACTER SET latin2 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'  (c1,c2,c3,c4,c5,c6,c7,c8,c9);
+select * from t1;
+--disable_query_log
+drop table IF EXISTS t1;
+--enable_query_log

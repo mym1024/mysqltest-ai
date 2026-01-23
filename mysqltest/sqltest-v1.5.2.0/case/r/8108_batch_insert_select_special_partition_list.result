@@ -1,0 +1,248 @@
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7,8,9,10,11,12,13,15));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7,8,9,10,11,12,13,15));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0	__list@3001	c1
+3002	2	list2	1	list2#q0	__list@3002	c1
+insert into list2 values(1,1,'haha'),(2,1,'haha'),(3,1,'haha'),(4,1,'haha'),(5,1,'haha'),(6,1,'haha'),(7,1,'haha');
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into list1 select distinct c2,c1,c3 from list2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+insert into list2 values(8,4,'mkoe');
+insert into list1 select c1 as grimp,c2 as tendency,c2 from list2 where c1=8;
+insert into list2 values(9,4,'mkoe'),(10,4,'mkoe'),(11,4,'mkoe'),(12,4,'mkoe'),(13,4,'mkoe');
+insert into list1 select * from list2 where c1>8 limit 3;
+insert into list1 select * from list2 as tinsert where c1=13;
+insert into list1 select * from list2 where c1=15 for update;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from list1;
+c1	c2	c3
+8	4	4
+9	4	0
+10	4	0
+11	4	0
+13	4	0
+select * from list2;
+c1	c2	c3
+1	1	haha
+2	1	haha
+3	1	haha
+4	1	haha
+5	1	haha
+6	1	haha
+7	1	haha
+8	4	mkoe
+9	4	mkoe
+10	4	mkoe
+11	4	mkoe
+12	4	mkoe
+13	4	mkoe
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	list1	1	list1#q0	__list@3003	c1
+3004	2	list2	1	list2#q0	__list@3004	c1
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into list1 select c2,c1,c3 from list2 order by (c2);
+ERROR 25S03: YAO-119: Paxos id error, error code = -5702
+select * from list1;
+c1	c2	c3
+select * from list2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+drop table if exists list1,list2,list3;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list3(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	2	list1	1	list1#q0	__list@3005	c1
+3006	2	list2	1	list2#q0	__list@3006	c1
+3007	2	list3	1	list3#q0	__list@3007	c1
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list3 values(1,2,'mid'),(3,1,'rdetg');
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into list1 select list2.c1,list2.c2,list3.c2 from list2 inner join list3 on list2.c2=list3.c2;
+select * from list1;
+c1	c2	c3
+1	2	2
+3	1	1
+select * from list2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+select * from list3;
+c1	c2	c3
+1	2	mid
+3	1	rdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL
+drop table if exists list1,list2;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	2	list3	1	list3#q0	__list@3007	c1
+3008	2	list1	1	list1#q0	__list@3008	c1
+3009	2	list2	1	list2#q0	__list@3009	c1
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into list1(c1,c2) select list2.c1,list2.c2 from list2 left join list1 on list2.c2=list1.c2;
+select * from list1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+select * from list2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL
+drop table if exists list1,list2,list3;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list2(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+create table list3(c1 int primary key,c2 int,c3 varchar(30)) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3010	2	list1	1	list1#q0	__list@3010	c1
+3011	2	list2	1	list2#q0	__list@3011	c1
+3012	2	list3	1	list3#q0	__list@3012	c1
+insert into list2 values(1,2,'mdetg'),(2,4,'mdetg'),(3,1,'mdetg'),(4,7,'mdetg'),(5,8,'mdetg'),(6,6,'mdetg'),(7,3,'mdetg');
+insert into list3 values(1,2,'mid'),(3,1,'rdetg');
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into list1(c1,c2) select c1,c2 from list2 union select c1,c2 from list3;
+select * from list1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+select * from list2;
+c1	c2	c3
+1	2	mdetg
+2	4	mdetg
+3	1	mdetg
+4	7	mdetg
+5	8	mdetg
+6	6	mdetg
+7	3	mdetg
+select * from list3;
+c1	c2	c3
+1	2	mid
+3	1	rdetg
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL
+drop table if exists list1;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	list2	1	list2#q0	__list@3011	c1
+3012	2	list3	1	list3#q0	__list@3012	c1
+3013	2	list1	1	list1#q0	__list@3013	c1
+insert into list1(c1,c2) select c1,c2 from list2 except select c1,c2 from list3;
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from list1;
+c1	c2	c3
+2	4	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL
+drop table if exists list1;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	list2	1	list2#q0	__list@3011	c1
+3012	2	list3	1	list3#q0	__list@3012	c1
+3014	2	list1	1	list1#q0	__list@3014	c1
+insert into list1(c1,c2) select c1,c2 from list2 intersect select c1,c2 from list3;
+insert into list2 values(21,21,'haha');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from list1;
+c1	c2	c3
+1	2	NULL
+3	1	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL
+drop table if exists list1;
+create table list1(c1 int primary key,c2 int,c3 real) partition by list(c1) (partition q0 values in(1,2,3,4,5,6,7));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	list2	1	list2#q0	__list@3011	c1
+3012	2	list3	1	list3#q0	__list@3012	c1
+3015	2	list1	1	list1#q0	__list@3015	c1
+insert into list1(c1,c2) select c1,c2 from list2 where c1 in( select c1 from list3);
+insert into list1(c1,c2) select c1,c2 from list2 where c1 not in( select c1 from list1);
+select * from list1;
+c1	c2	c3
+1	2	NULL
+2	4	NULL
+3	1	NULL
+4	7	NULL
+5	8	NULL
+6	6	NULL
+7	3	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list2#q0	2	1	NULL
+list3#q0	2	0	NULL

@@ -1,0 +1,204 @@
+##############################################################################################
+###1.测试功能点：不指定分区规则下，测试group by 的使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-31
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+create table t1(
+spID int,
+userID int,
+score int,
+lsg char(40),
+date1 datetime,
+primary key(spID,userID)
+);
+
+insert into t1 values (1,1,1,'','0001-01-01');
+insert into t1 values (2,2,2,'','0001-01-01');
+insert into t1 values (2,1,1,'','0001-01-01');
+insert into t1 values (3,3,3,'','0001-01-01');
+
+
+create table t2 (
+userID int,
+niName char(15),
+passwd char(8),
+mail char(50),
+isAukt char(1),
+vName char(30),
+nName char(40),
+adr char(60),
+plz char(5),
+ort char(35),
+land char(20),
+primary key(userID)
+);
+
+insert into t2 values (1,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (2,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (3,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (4,'name','pass','mail','Y','v','n','adr','1','1','1');
+insert into t2 values (5,'name','pass','mail','Y','v','n','adr','1','1','1');
+
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID;
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID;
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID group by t2.userID order by NULL;
+select t2.userID,min(t1.score) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+select t2.userID,min(t1.score+0.0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+select t2.userID,min(t1.score+0.0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID order by NULL;
+
+select t2.userID,min(t1.score+0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID;
+select t2.userID,min(t1.score+0) from t1,t2 where t1.userID=t2.userID and t1.spID=2 group by t2.userID order by null;
+drop table t1,t2;
+
+create table t1 (One int,Two int,Three int,Four int,primary key(One,Two,Three));
+insert into t1 values (1,2,1,4),(1,2,2,4),(1,2,3,4),(1,2,4,4),(1,1,1,4),(1,1,2,4),(1,1,3,4),(1,1,4,4),(1,3,1,4),(1,3,2,4),(1,3,3,4),(1,3,4,4);
+select One,Two,sum(Four) from t1 group by One,Two;
+drop table t1;
+
+create table t1 (id int primary key,gender char(1));
+insert into t1 values (1,'M'),(2,'F'),(3,'F'),(4,'F');
+create table t2 (pk int primary key,user_id int not null,date1 datetime);
+insert into t2 values (1,1,'2002-06-09'),(2,2,'2002-06-09'),(3,1,'2002-06-09'),(4,3,'2002-06-09'),(5,4,'2002-06-09'),(6,4,'2002-06-09');
+select u.gender as gender,count(distinct u.id) as dist_count,(count(distinct u.id)/5*100) as percentage from t1 u,t2 l where l.user_id = u.id group by u.gender;
+select u.gender as gender,count(distinct u.id) as dist_count,(count(distinct u.id)/5*100) as percentage from t1 u,t2 l where l.user_id = u.id group by u.gender order by percentage;
+drop table t1,t2;
+
+create table t1 (ID1 int,ID2 int,ID int,primary key(ID));
+insert into t1 values (1,244,1),(2,243,2),(134,223,3),(185,186,4);
+drop table t1;
+
+create table t1(
+pid int,
+c1id int,
+c2id int,
+value int,
+primary key(value)
+);
+
+insert into t1 values (1,1,null,1),(1,2,null,2),(1,null,3,3),(1,4,null,4),(1,5,null,5);
+
+create table t2 (
+id int,
+active varchar(3),
+primary key(id)
+);
+
+insert into t2 values (1,'Yes'),(2,'No'),(4,'Yes'),(5,'No');
+
+create table t3 (
+id int,
+active varchar(3),
+primary key(id)
+);
+insert into t3 values (3,'Yes');
+drop table t1,t2,t3;
+
+create table t1 (a int,b int,primary key(a,b),c int);
+insert into t1(a,b) values(1,1),(1,2),(2,1),(2,2);
+select * from t1;
+drop table t1;
+
+create table t1 (pk int primary key,a int not null,b int not null);
+insert into t1 values(1,1,1),(2,1,2),(3,3,1),(4,3,2),(5,2,2),(6,2,1);
+create table t2 (pk int primary key,a int not null,b int not null);
+insert into t2 values(1,1,3),(2,3,1),(3,2,2),(4,1,1);
+select t1.a,t2.b from t1,t2 where t1.a=t2.a group by t1.a,t2.b;
+drop table t1,t2;
+
+create table t1 (pk int primary key,a int,b int);
+insert into t1 values(1,1,4),(2,10,40),(3,1,4),(4,10,43),(5,1,4),(6,10,41),(7,1,4),(8,10,43),(9,1,4);
+drop table t1;
+
+create table t1 (id int not null,qty int not null,primary key(id,qty),extra int);
+insert into t1(id,qty) values (1,2),(1,3),(2,4),(2,5);
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having sum(qty)>2 and cqty>1;
+select id,sum(qty) as sqty from t1 group by id having sqty>2 and count(qty)>1;
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having sqty>2 and cqty>1;
+select id,sum(qty) as sqty,count(qty) as cqty from t1 group by id having sum(qty)>2 and count(qty)>1;
+drop table t1;
+
+create table t1 (a integer,b integer,c integer,primary key(a,b));
+insert into t1(a,b) values (1,2),(1,3),(2,5);
+select a,0.1*0+1 r2,sum(1) r1 from t1 where a = 1 group by a having r1>1 and r2=1;
+select a,sum(b) from t1 where a=1 group by c;
+select a*sum(b) from t1 where a=1 group by c;
+select sum(a)*sum(b) from t1 where a=1 group by c;
+select a,sum(b) from t1 where a=1 group by c having a =1;
+select a as d,sum(b) from t1 where a=1 group by c having d=1;
+select sum(a)*sum(b) as d from t1 where a=1 group by c having d > 0;
+drop table t1;
+
+create table t1 (a int,b int,primary key(a,b),c int);
+insert into t1(a,b) values (1,2),(1,3);
+select a,b from t1 group by 'const';
+select distinct a,b from t1 group by 'const';
+drop table t1;
+
+
+create table t1 (n int primary key,m int);
+insert into t1(n) values (1);
+select n+1 as n from t1 group by n;
+drop table t1;
+
+create table t1 (c1 char(3),c2 char(3),primary key(c1,c2),c3 int);
+create table t2 (c3 char(3),c4 char(3),primary key(c3,c4),c1 int);
+insert into t1(c1,c2) values ('aaa','bb1'),('aaa','bb2');
+insert into t2(c3,c4) values ('aaa','bb1'),('aaa','bb2');
+select t1.c1 as c2 from t1,t2 where t1.c2 = t2.c4 group by c2;
+select t1.c1 as c2 from t1,t2 where t1.c2 = t2.c4 group by t1.c1;
+drop table t1,t2;
+
+create table t1 (id int primary key,c1 int not null,c2 int not null);
+insert into t1(id,c1,c2) values (1,5,1),(2,4,1),(3,3,5),(4,2,3),(5,1,3);
+select * from t1 order by c1;
+select * from t1  group by id order by c1;
+select * from t1 group by id order by id desc;
+select * from t1  group by c2,c1,id order by c2,c1;
+select * from t1  group by c2,c1,id order by c2 desc,c1;
+select * from t1  group by c2,c1,id order by c2 desc,c1 desc;
+select * from t1  group by c2 order by c2,c1;
+select * from t1  group by c2 order by c2 desc,c1;
+select * from t1  group by c2 order by c2 desc,c1 desc;
+drop table t1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

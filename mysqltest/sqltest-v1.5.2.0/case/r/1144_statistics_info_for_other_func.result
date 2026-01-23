@@ -1,0 +1,51 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+create database statistics_info;
+using database statistics_info;
+create table t1(c1 int,c2 datetime,c3 varchar(20),c4 int,c5 datetime,c6 varchar(20),c7 decimal(10, 1), c8 double, c9 float, primary key(c1,c2,c3));
+insert into t1 values (0,'1000-10-10 10:10:10', 'aaa', 3, '1000-10-10 10:10:10', 'bbb', 1.1, 2.2, 3.3);
+insert into t1 values (1,'1000-10-10 10:10:10', 'aaa', 4, '1000-10-10 10:10:11', 'ccc', 1.2, 2.3, 3.4);
+insert into t1 values (2,'1000-10-10 10:10:10', 'aaa', 5, '1000-10-10 10:10:12', 'ddd', 1.3, 2.4, 3.5);
+insert into t1 values (3,'1000-10-10 10:10:10', 'aaa', 6, '1000-10-10 10:10:13', 'eee', 1.4, 2.5, 3.6);
+insert into t1 values (4,'1000-10-10 10:10:10', 'aaa', 7, '1000-10-10 10:10:14', 'fff', 1.5, 2.6, 3.7);
+insert into t1 values (5,'1000-10-10 10:10:10', 'aaa', 8, '1000-10-10 10:10:15', 'ggg', 1.6, 2.7, 3.8);
+insert into t1 values (6,'1000-10-10 10:10:10', 'aaa', 9, '1000-10-10 10:10:16', 'hhh', 1.7, 2.8, 3.9);
+insert into t1 values (7,'1000-10-10 10:10:10', 'aaa', 10, '1000-10-10 10:10:17', 'iii', 1.8, 2.9, 4.0);
+insert into t1 values (8,'1000-10-10 10:10:10', 'aaa', 11, '1000-10-10 10:10:18', 'jjj', 1.9, 3.0, 4.1);
+insert into t1 values (9,'1000-10-10 10:10:10', 'aaa', 12, '1000-10-10 10:10:19', 'kkk', 2.0, 3.1, 4.2);
+insert into t1 values (10,'1000-10-10 10:10:10', 'aaa', 11, '1000-10-10 10:10:19', 'kkk', 2.0, 3.1, 4.2);
+“merge”
+major_freeze...
+merge: DONE
+“get statistics task...”
+OKay!
+select * from __all_udi_monitor_list;
+table_id	column_id	LOAD	UDI
+3001	16	0	0
+3001	17	0	0
+3001	18	0	0
+3001	19	0	0
+3001	20	0	0
+3001	21	0	0
+3001	22	0	0
+3001	23	0	0
+3001	24	0	0
+“alter gather_thread_num...”
+alter system set gather_thread_num='20' server_type=yaodatasvr;
+delete from __all_statistic_info;
+“execute range collection...”
+execute range collection successfully!
+select * from __all_statistic_info;
+table_id	column_id	start_key	version	type	row_count	different_num	size	info	min_max
+3001	16	MIN	2	16	11	11	159167	918171615141312111101	010
+3001	17	MIN	2	5	11	1	159167	-3058585173300000011	-30585851733000000-30585851733000000
+3001	18	MIN	2	6	11	1	159167	aaa11	aaaaaa
+“stop gathering statistics...”
+Okay
+“get gather state...”
+gather: DONE
+drop table if exists t1;
+drop database statistics_info;

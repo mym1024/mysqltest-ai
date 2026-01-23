@@ -1,0 +1,993 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create table t1(c1 int, c2 int, c3 int, c4 int, c5 int);
+insert into t1 values(1,2,3,4,5),(1,3,2,5,4),(2,1,3,4,5);
+create table t(c1 int);
+insert into t values(1),(2),(3),(4);
+CREATE TABLE `t3` (`c1` int NOT NULL, `c2` int DEFAULT NULL,`c3` int DEFAULT NULL, PRIMARY KEY (`c1`));
+CREATE TABLE `t4` (`c1` int NOT NULL, `c2` int DEFAULT NULL,`c3` int DEFAULT NULL,PRIMARY KEY (`c1`));
+insert into t3 values(1,1,2),(2,2,2),(3,6,8);
+insert into t4 values(1,2,3),(2,4,5),(3,6,8);
+CREATE TABLE products (
+productID int NOT NULL,
+productName varchar(255) DEFAULT NULL,
+categoryID int DEFAULT NULL,
+unitPrice int DEFAULT NULL,
+stockQuantity int DEFAULT NULL,
+PRIMARY KEY (productID)
+);
+INSERT INTO `products` VALUES (1, 'Laptop', 1, 800, 50);
+INSERT INTO `products` VALUES (2, 'Smartphone', 1, 500, 100);
+INSERT INTO `products` VALUES (3, 'T-shirt', 2, 20, 200);
+INSERT INTO `products` VALUES (4, 'Jeans', 2, 40, 150);
+INSERT INTO `products` VALUES (5, 'Headphones', 1, 100, 75);
+INSERT INTO `products` VALUES (6, 'Backpack', 1, 60, 80);
+INSERT INTO `products` VALUES (7, 'Sneakers', 2, 50, 120);
+INSERT INTO `products` VALUES (8, 'Watch', 3, 150, 30);
+INSERT INTO `products` VALUES (9, 'Sunglasses', 3, 40, 90);
+select CASE 'b' when 'a' then 1 when 'b' then 2 END;
+CASE 'b' when 'a' then 1 when 'b' then 2 END
+2
+select case when 1>0 then 'TRUE' else 'FALSE' END;
+case when 1>0 then 'TRUE' else 'FALSE' END
+TRUE
+select case when 1>2 then 'TRUE'  END;
+case when 1>2 then 'TRUE'  END
+NULL
+select case c1 when 'c' then '1' end from t1;
+case c1 when 'c' then '1' end
+NULL
+NULL
+NULL
+select 1 + (CASE 1 when 1 then 1+2 WHEN 2 then 2 END) + 2 as res;
+res
+6
+select 1 + (CASE 1 when 1 then 1-2 WHEN 2 then 2 END) + 2 as res;
+res
+2
+select 2 * (CASE 1 when 1 then 1*2 WHEN 2 then 2 END) * 2 as res;
+res
+8
+select 2 * (CASE 1 when 1 then 3/2 WHEN 2 then 2 END) * 2 as res;
+res
+6
+select * from t where c1 < case when c1%2=0 then c1*c1 else c1/c1 end;
+c1
+2
+4
+select * from t where c1 > case when c1%2=0 then c1*c1 else c1/c1 end;
+c1
+3
+select c1, case c1 when 1 then c1 * c1 when 2 then 2.321 + c1 end between -1 and 10 as res from t;
+c1	res
+1	1
+2	1
+3	NULL
+4	NULL
+select (CASE 'two' when 'one' then '1' WHEN 'two' then '2' END) | 0 as res;
+res
+2
+select * from t where case when c1>=3 and c1%2 != 0 then true else false end;
+c1
+3
+select * from t where case when c1>=3 or c1<2 then true else false end;
+c1
+1
+3
+4
+select * from t where case when c1 is not null then true else false end;
+c1
+1
+2
+3
+4
+select case c1 when 1 then c1 when 2 then 'yaobase' end || case c1 when 3 then c1+5 when 2 then 'YaoBase' end as res from t;
+res
+1
+0
+1
+NULL
+select 2.0 * (CASE 1 when 1 then 0.05+0.01 WHEN 2 then 2 END) -0.42 as res;
+res
+-0.3
+(SELECT 'case+union+test' from dual) UNION  (SELECT CASE '1' WHEN '2' THEN 'BUG' ELSE 'nobug' END from dual);
+'case+union+test'
+case+union+test
+nobug
+(select case c1 when 1 then c1+1 when 2 then c1+2 when 3 then 'c' end as res from t ) INTERSECT (select case c1 when 1 then c1+1 when 2 then c1+2 when 3 then 'c' end as res from t) ;
+res
+2
+4
+c
+NULL
+(select case c1 when 1 then c1+1 when 2 then c1+2 when 3 then 'c' end as res from t1 ) EXCEPT (select case c1 when 1 then c1*c1 when 2 then c1*c1*c1 when 3 then 'c' end as res from t1);
+res
+2
+4
+select CASE 1 when 1 then 9223372036854775807 WHEN 2 then '2' END as res;
+res
+9223372036854775807
+select CASE 1 when 1 then -9223372036854775807-1  WHEN 2 then '2'  END as res;
+res
+-9223372036854775808
+select case c1 when 1 then 'one' when 2 then 'two' else 'nothing' end as fcase, count(*) from t group by fcase;
+fcase	count(*)
+nothing	2
+one	1
+two	1
+SELECT ProductName,UnitPrice, CASE WHEN UnitPrice > 50 THEN 'Expensive' ELSE 'Affordable' END AS PriceCategory FROM Products ORDER BY UnitPrice DESC;
+ProductName	UnitPrice	PriceCategory
+Laptop	800	Expensive
+Smartphone	500	Expensive
+Watch	150	Expensive
+Headphones	100	Expensive
+Backpack	60	Expensive
+Sneakers	50	Affordable
+Jeans	40	Affordable
+Sunglasses	40	Affordable
+T-shirt	20	Affordable
+select t3.*,t4.c3 from t4 join t3 on t3.c2 = t4.c2 where case  when t3.c1 = 2 then t3.c3 in(3,6,8)  when t3.c1 = 3 then t4.c3 in(6,7,8) end;
+c1	c2	c3	c3
+3	6	8	8
+create table t5(c1 int, c2 int, c3 int, c4 int, c5 int);
+insert into t5 values(1,2,3,4,5), (1,3,2,5,4),(2,1,3,4,5);
+select case when c1=1 then (case when c2=2 then (case when c3=3 then (case when c4= 4 then (case when c5=5 then '12345' end)end) end )end) end from t5;
+case when c1=1 then (case when c2=2 then (case when c3=3 then (case when c4= 4 then (case when c5=5 then '12345' end)end) end )end) end
+12345
+NULL
+NULL
+select case when c2=1 then '1' when c2=2 then (case when c3=2 then '2' else '' end) when c2=3 then (case when c3=3 then '3' else '' end) else '' end as res from t5;
+res
+
+
+1
+create table t6(c1 int, c2 int , c3 int, c4 int);
+insert into t6 values (1,2,3,4), (1,2,4,5), (2,3,4,5),(2,3,5,6);
+select 
+case when c1 = 1 then 
+(case when c2=2 then (case when c3=3 then (case when c4=4 then '1234' else '123-' end)
+when c3=4 then (case when c4=5 then '1245' else '124-' end) end) END)
+when c1 = 2 then 
+(case when c2=3 then (case when c3=4 then (case when c4=5 then '2345' else '123-' end) when c3=5 then (case when c4=6 then '2356' else '124-' end) end)
+END) end  as res from t6;
+res
+1234
+1245
+2345
+2356
+drop table t1;
+create table t1 (`row` int not null, col int not null, val varchar(255) not null);
+insert into t1 values (1,1,'orange'),(1,2,'large'),(2,1,'yellow'),(2,2,'medium'),(3,1,'green'),(3,2,'small');
+select max(case col when 1 then val else null end) as color from t1 group by `row`;
+color
+orange
+yellow
+green
+drop table t1;
+create table t1(a float, b int default 3);
+insert into t1 (a) values (2), (11), (8);
+select min(a), min(case when 1=1 then a else NULL end) as res, min(case when 1!=1 then NULL else a end) as res from t1 where b=3 group by b;
+min(a)	res	res
+2	2	2
+SELECT CASE UPPER('c') WHEN 'C' THEN 'nobug' ELSE 'BUG' END AS res;
+res
+nobug
+SELECT CASE UPPER('c') WHEN 'C' THEN 'nobug' ELSE 'BUG' END AS res;
+res
+nobug
+select CASE concat('a','b') when concat('ab','') then 'a' when 'b' then 'b' end;
+CASE concat('a','b') when concat('ab','') then 'a' when 'b' then 'b' end
+a
+select concat((CASE 1 when 1 then 1 WHEN 2 then '2' END),'') + 2 as reult ;
+reult
+3
+create table bt(c int, b bit(4));
+insert into bt values(1,b'0101');
+insert into bt values(2,b'0101');
+select c,length(case c when 1 then 'b' when 2 then 'aa' end) from bt;
+c	length(case c when 1 then 'b' when 2 then 'aa' end)
+1	1
+2	2
+select c,case c when 1 then length('b') when 2 then length('aa') end as res from bt;
+c	res
+1	1
+2	2
+select (CASE 1 when 1 then 'abc' WHEN 2 then 'abcd' END) like '%ab_%' as res;
+res
+1
+select c1, substr(case c1 when 1 then substr('YaoBase',3) when 2 then substr('YaoBase',3,2) when 3 then substr('YaoBase',-3) when 4 then substr('YaoBase',3,-2) end, 1) as res from t;
+c1	res
+1	oBase
+2	oB
+3	ase
+4	
+select c1, case c1 when 1 then TRIM(' MySQL TRIM Function ') when 2 then 2.321 end as res from t;
+c1	res
+1	MySQL TRIM Function
+2	2.321
+3	NULL
+4	NULL
+select c1, instr(case c1 when 1 then instr(TRIM(' MySQL TRIM Function '),'Function',1) when 2 then 2.321 end,'1',1) as res from t;
+c1	res
+1	1
+2	5
+3	NULL
+4	NULL
+drop table if exists t1;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+select left(case when c7 then 'yaobase' else 'YAOBASE' end,3) as res from t1;
+res
+YAO
+yao
+select right(case when c7 then 'yaobase' else 'YAOBASE' end,2) as res from t1;
+res
+SE
+se
+select c1, nvl2(case c1 when 1 then instr(TRIM(' MySQL TRIM Function '),'Function',1) when 2 then 2.321 end,'no','nobug') as res from t;
+c1	res
+1	no
+2	no
+3	nobug
+4	nobug
+create view debug as select CASE sum(1+4) when 5 then sum(1+6) when 6 then 'b' end as res;
+desc debug;
+Field	Type	Null	Key	Default	Extra
+res	varchar(65536)	NO		NULL	
+select * from debug;
+res
+7
+SELECT categoryID,AVG( unitPrice ) AS AvgPrice,CASE WHEN AVG( unitPrice ) > 50 THEN 'High Price' ELSE 'Low Price'  END AS PriceCategory  FROM products GROUP BY categoryID;
+categoryID	AvgPrice	PriceCategory
+1	365	High Price
+2	36.6667	Low Price
+3	95	High Price
+SELECT categoryID,SUM( unitPrice ),COUNT(unitPrice),AVG( unitPrice ) AS AvgPrice,CASE WHEN SUM( unitPrice ) > 200 THEN 'High Price' ELSE 'Low Price' END AS PriceCategory FROM products GROUP BY categoryID;
+categoryID	SUM( unitPrice )	COUNT(unitPrice)	AvgPrice	PriceCategory
+1	1460	4	365	High Price
+2	110	3	36.6667	Low Price
+3	190	2	95	Low Price
+SELECT ProductName,UnitPrice,StockQuantity,CASE WHEN StockQuantity > rank() OVER () THEN 'Above Avg Stock' ELSE 'Below Avg Stock' END AS StockComparison FROM Products;
+ProductName	UnitPrice	StockQuantity	StockComparison
+Laptop	800	50	Above Avg Stock
+Smartphone	500	100	Above Avg Stock
+T-shirt	20	200	Above Avg Stock
+Jeans	40	150	Above Avg Stock
+Headphones	100	75	Above Avg Stock
+Backpack	60	80	Above Avg Stock
+Sneakers	50	120	Above Avg Stock
+Watch	150	30	Above Avg Stock
+Sunglasses	40	90	Above Avg Stock
+select case when c2 > 0 then round(c3,1) when c3 > 0 then 'abc' else round(c3,1) end as res from t1;
+res
+-3.2
+3.2
+select case when c2 > 0 then floor(c3) when c2<0 then  ceil(c3) else '0' end as res from t1;
+res
+-3.000000
+3.000000
+select case when c3 > 0 then format(c3,1) when c3<0 then  format(c5,-2) else '0' end as res from t1;
+res
+-77,700
+3.2
+create table timefunc(id int AUTO_INCREMENT,t timestamp, primary key(id));
+insert into timefunc(t) values(current_timestamp()),(current_timestamp()),(current_timestamp()),(current_timestamp()),(current_timestamp()),(current_timestamp()),(current_timestamp()),(current_timestamp());
+select * from timefunc;
+id	t
+1	2024-06-14 15:29:04.459980
+2	2024-06-14 15:29:04.459980
+3	2024-06-14 15:29:04.459980
+4	2024-06-14 15:29:04.459980
+5	2024-06-14 15:29:04.459980
+6	2024-06-14 15:29:04.459980
+7	2024-06-14 15:29:04.459980
+8	2024-06-14 15:29:04.459980
+create view timefuncT as select case id when 1 then year(t) when 2 then month(t) when 3 then day(t) when 4 then days(t) when 5 then hour(t) when 6 then minute(t) when 7 then second(t) end as res from timefunc;
+DROP TABLE if exists adt;
+CREATE TABLE adt(a int AUTO_INCREMENT,tint tinyint, it int, sint smallint, mint mediumint,bint Bigint, flo float, dou DOUBLE, deci decimal(3, 2),varc varchar(30),dt date, ti timestamp, js JSON,bt bit(4),PRIMARY KEY (a));
+INSERT INTO adt(tint, it , sint, mint, bint, flo, dou, deci, varc, dt , ti , js , bt)
+VALUES(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101')
+,(126, 2147483647, 32767, 8388607, 9223372036854775807, 2.1, 23.15, 2.31, 'yaobase', '2024-02-24', '2024-02-24 17:19:05.017917', '{}', b'0101');
+create view v1 as select a,case a when 1 then tint when 2 then it  when 3 then mint when 4 then bint  when 5 then flo when 6 then dou  when 7 then varc when 8 then dt  when 9 then ti when 10 then js when 11 then bt end as res from adt;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES		NULL	
+res	varchar(65536)	NO		NULL	
+select * from v1;
+a	res
+1	126
+2	2147483647
+3	8388607
+4	9223372036854775807
+5	2.100000
+6	23.150000
+7	yaobase
+8	2024-02-24
+9	2024-02-24 17:19:05.017917
+10	{}
+11	5
+12	NULL
+13	NULL
+14	NULL
+create view v2 as select case a when 1 then tint when 2 then it when 3 then sint when 4 then mint when 5 then bint end as res from adt;
+desc v2;
+Field	Type	Null	Key	Default	Extra
+res	bigint	NO		NULL	
+select * from v2;
+res
+126
+2147483647
+32767
+8388607
+9223372036854775807
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+drop table t3;
+create table t3 (c1 int);
+insert into t3 values(1),(2),(3);
+create view v3 as select case c1 when 1 then 1 when 2 then cast(2.2 as double) when 3 then 3 end as c1 from t3;
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	double	NO		NULL	
+select c1 from v3;
+c1
+1
+2.2
+3
+create view v4 as select case c1 when 1 then 1 when 2 then cast(2.2 as decimal(2,1)) when 3 then 3 end as c1 from t3;
+desc v4;
+Field	Type	Null	Key	Default	Extra
+c1	decimal(38,0)	NO		NULL	
+select c1 from v4;
+c1
+1
+2.2
+3
+create view v5 as select case c1 when 1 then 1 when 2 then cast(2.2 as decimal(2,1)) when 3 then cast(2.2 as double) end as c1 from t3;
+desc v5;
+Field	Type	Null	Key	Default	Extra
+c1	double	NO		NULL	
+select c1 from v5;
+c1
+1
+2.2
+2.2
+create view v6 as select case c1 when 1 then 'a' when 2 then 'aa' when 3 then 'aaa' end as c1 from t3;
+desc v6;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(65536)	NO		NULL	
+select c1 from v6;
+c1
+a
+aa
+aaa
+create view v7 as select case c1 when 1 then b'01011' when 2 then 'aaa' when 3 then b'01010101' end as c1 from t3;
+desc v7;
+Field	Type	Null	Key	Default	Extra
+c1	varchar(65536)	NO		NULL	
+select c1 from v7;
+c1
+11
+aaa
+85
+create view v8 as select case c1 when 1 then cast('{"1":"2"}' as json) when 2 then cast('{"1":"2"}' as json) when 3 then cast('{"1":"2"}' as json) end as c1 from t3;
+desc v8;
+Field	Type	Null	Key	Default	Extra
+c1	json	NO		NULL	
+select c1 from v8;
+c1
+{"1": "2"}
+{"1": "2"}
+{"1": "2"}
+drop table if exists t1;
+create table t1(c1 int,ti tinyint,b bit(2));
+insert into t1 values(1,1,1),(2,2,2);
+create view view1 as select case c1 when 1 then ti when 2 then b end  as res from t1;
+desc view1;
+Field	Type	Null	Key	Default	Extra
+res	decimal(38,0)	NO		NULL	
+select * from view1;
+res
+1
+2
+create view view2 as select a,case a when 1 then bt when 2 then 'aa' end from adt;
+desc view2;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES		NULL	
+case a when 1 then bt when 2 then 'aa' end	varchar(65536)	NO		NULL	
+select * from view2;
+a	case a when 1 then bt when 2 then 'aa' end
+1	5
+2	aa
+3	NULL
+4	NULL
+5	NULL
+6	NULL
+7	NULL
+8	NULL
+9	NULL
+10	NULL
+11	NULL
+12	NULL
+13	NULL
+14	NULL
+create view view3 as select a,case a when 1 then dt when 2 then ti when 3 then CURRENT_TIME() end as res from adt limit 4;
+select * from view3 where res is null;
+a	res
+4	NULL
+create view view4 as select case a when 1 then dt when 2 then CURRENT_date() when 3 then CURRENT_date() end as res from adt limit 4;
+desc view4;
+Field	Type	Null	Key	Default	Extra
+res	date	NO		NULL	
+select * from view4 where res is null;
+res
+NULL
+create view view5 as select case a when 1 then CURRENT_time() when 2 then CURRENT_time() when 3 then CURRENT_time() end as res from adt limit 4;
+desc view5 ;
+Field	Type	Null	Key	Default	Extra
+res	time	NO		NULL	
+select * from view5 where res is null;
+res
+NULL
+create view view6 as select case a when 1 then CURRENT_timestamp() when 2 then CURRENT_timestamp() when 3 then CURRENT_timestamp() end as res from adt limit 4;
+desc view6 ;
+Field	Type	Null	Key	Default	Extra
+res	timestamp	NO		NULL	
+select * from view6 where res is null;
+res
+NULL
+drop table if exists t1;
+create table t1(c1 int primary key,c2  int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+prepare stmt1 from select c1 , case when c1=1  then ? else ? end from t1 where c1 <?;
+set @a='AAA',@b='BBB',@c=3;
+execute stmt1 using @a,@b,@c;
+c1	case when c1=1  then ? else ? end
+1	BBB
+2	AAA
+create view test as select c1,case when c1=1 then 'AAA' when c1 = 2 then 'BBB' else 'CCC' end as c2 from t1;
+select c1,c2 from test;
+c1	c2
+1	AAA
+2	BBB
+3	CCC
+SELECT productName, unitPrice, ( CASE WHEN unitPrice > ( SELECT AVG( unitPrice ) FROM products ) THEN 'Above Avg' ELSE 'Below Avg' END ) AS PriceComparison FROM products;
+productName	unitPrice	PriceComparison
+Laptop	800	Above Avg
+Smartphone	500	Above Avg
+T-shirt	20	Below Avg
+Jeans	40	Below Avg
+Headphones	100	Below Avg
+Backpack	60	Below Avg
+Sneakers	50	Below Avg
+Watch	150	Below Avg
+Sunglasses	40	Below Avg
+SELECT  productName, unitPrice, stockQuantity,
+CASE  
+WHEN stockQuantity > 150 THEN  'High' 
+WHEN stockQuantity > 100 THEN  'Medium' ELSE 'Low' 
+END AS StockCategory,
+CASE  
+WHEN stockQuantity > 100 THEN  stockQuantity * 1.1 ELSE stockQuantity * 1.05 
+END AS AdjustedStock 
+FROM  products;
+productName	unitPrice	stockQuantity	StockCategory	AdjustedStock
+Laptop	800	50	Low	52.5
+Smartphone	500	100	Low	105
+T-shirt	20	200	High	220
+Jeans	40	150	Medium	165
+Headphones	100	75	Low	78.75
+Backpack	60	80	Low	84
+Sneakers	50	120	Medium	132
+Watch	150	30	Low	31.5
+Sunglasses	40	90	Low	94.5
+create table collt(id int,var1 varchar(10) charset utf8mb4, var2 varchar(10) charset gbk,var3 varchar(10) charset gb18030,var4 varchar(10) charset utf16, var5 varchar(10) charset utf8mb4,var6 varchar(10) charset latin1);
+insert into collt values(1,'yaob','yaob','yaob','yaob','yaob','yaob'),(2,'yaob','yaob','yaob','yaob','yaob','yaob'),(3,'yaob','yaob','yaob','yaob','yaob','yaob'),(4,'yaob','yaob','yaob','yaob','yaob','yaob'),(5,'yaob','yaob','yaob','yaob','yaob','yaob'),(6,'yaob','yaob','yaob','yaob','yaob','yaob');
+select case id when 1 then var1 when 2 then var2 when 3 then var3 when 4 then var4 when 5 then var5 when 6 then var6 else 123 end as res from collt;
+res
+yaob
+yaob
+yaob
+yaob
+yaob
+yaob
+select charset(case id when 1 then var1 when 2 then var2 when 3 then var3 when 4 then var4 when 5 then var5 when 6 then var6 else 123 end) as res from collt;
+res
+utf8mb4
+gbk
+gb18030
+utf16
+utf8mb4
+latin1
+create view vi1 as select charset(case id when 1 then var1 when 2 then var2 when 3 then var3 when 4 then var4 when 5 then var5 when 6 then var6 else 123 end) as res from collt;
+select * from vi1;
+res
+utf8mb4
+gbk
+gb18030
+utf16
+utf8mb4
+latin1
+drop table IF EXISTS kv;
+create table kv(k int, v int);
+insert into kv values(1,1), (2,2), (3,3);
+BEGIN;
+select * from kv where k = 1 for update;
+k	v
+1	1
+BEGIN;
+select * from kv where k = 1 for update;
+ERROR 25S03: YAO-119: Shared lock conflict, error code = -5049
+update kv set k = 4 where k = 1;
+commit;
+select * from kv where v = 1 for update;
+k	v
+4	1
+commit;
+non_primary_key_select_for_update_test
+drop table IF EXISTS kv;
+create table kv(k int, v int);
+insert into kv values(1,1), (2,2), (3,3);
+BEGIN;
+select * from kv where v = 1 for update;
+k	v
+1	1
+BEGIN;
+select * from kv where v = 1 for update;
+ERROR 25S03: YAO-119: Shared lock conflict, error code = -5049
+update kv set k = 4 where v = 1;
+commit;
+select * from kv where v = 1 for update;
+k	v
+4	1
+commit;
+subquery_for_update_test
+drop table IF EXISTS t2;
+create table t2(c1 int, c2 int);
+insert into t2 values(1,3);
+insert into t2 values(2,4);
+SELECT v+1 FROM kv WHERE v = (select c1 from t2 where c2 = 1 for update) for update;
+v+1
+single_table_for_update_test
+drop table IF EXISTS t2;
+drop table IF EXISTS t3;
+create table t2(c1 int, c2 int);
+create table t3(c1 int, c2 int);
+insert into t2 values(1,3);
+insert into t2 values(2,4);
+insert into t3 values(1,5);
+insert into t3 values(2,6);
+select * from t2 join t3 on t2.c1 = t3.c1 for update;
+ERROR HY000: YAO-5012: Select for update statement can not process more than one table
+drop table if exists t1,t2,t3,t4;
+show variables like '%query_optimizer%';
+variable_name	value
+yao_enable_query_optimizer	1
+create table t3(c1 decimal (10,0), c2 decimal (10,0), c3 decimal (10,0), c4 varchar (10), primary key(c1,c2)) compress_method = 'none',replica_num=3;
+create table t4(c1 decimal (10,0), c2 decimal (10,0), c3 decimal (10,0), c4 varchar (16), c5 varchar (192), primary key(c1,c2)) compress_method = 'none',replica_num=3;
+create index t3_c3 on t3 (c3,c1,c2) storing (c4);
+“merge”
+major_freeze...
+merge: DONE
+select /*+JOIN(SIB)*/ t3.c4 from t4 inner join t3 on t3.c4=t3.c4 where t3.c3=10;
+c4
+drop table if exists t1,t2;
+create table t1(c1 int, c2 int);
+create table t2(c1 int, c2 int);
+insert into t1 values(1,2),(1,2);
+insert into t2 values(1,2),(1,2);
+select * from t1,t2 where t2.c1 = t2.c1;
+c1	c2	c1	c2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+select * from t1 inner join t2 on t2.c1 = t2.c1;
+c1	c2	c1	c2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+insert into t1 values(3,2);
+select * from t1 left join t2 on t2.c1 = t2.c1;
+c1	c2	c1	c2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+1	2	1	2
+3	2	1	2
+3	2	1	2
+select * from t1 right join t2 on t2.c1 = t2.c1;
+c1	c2	c1	c2
+1	2	1	2
+1	2	1	2
+3	2	1	2
+1	2	1	2
+1	2	1	2
+3	2	1	2
+select /*+JOIN(SI)*/ t1.c2 from t1 inner join t2 on t2.c1 = t2.c1;
+c2
+2
+2
+2
+2
+2
+2
+select /*+JOIN(SIB)*/ t1.c2 from t1 inner join t2 on t2.c1 = t2.c1;
+c2
+2
+2
+2
+2
+2
+2
+select /*+JOIN(BLOOMFILTER_JOIN)*/ t1.c2 from t1 inner join t2 on t2.c1 = t2.c1;
+c2
+2
+2
+2
+2
+2
+2
+select /*+JOIN(HASH_JOIN_SINGLE)*/ t1.c2 from t1 inner join t2 on t2.c1 = t2.c1;
+c2
+2
+2
+2
+2
+2
+2
+drop table if exists t3;
+create table t3(c1 int, c2 int);
+insert into t3 values(1,2),(2,2);
+select * from t1 inner join t2 on t2.c1 = t2.c1 inner join t3 on t3.c2 = t3.c2;
+c1	c2	c1	c2	c1	c2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+select * from t1 left join t2 on t2.c1 = t2.c1 inner join t3 on t3.c2 = t3.c2;
+c1	c2	c1	c2	c1	c2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+select * from t1 right join t2 on t2.c1 = t2.c1 inner join t3 on t3.c2 = t3.c2;
+c1	c2	c1	c2	c1	c2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+1	2	1	2	1	2
+1	2	1	2	2	2
+3	2	1	2	1	2
+3	2	1	2	2	2
+drop table if exists t1,t2;
+create table t1(c1 int, c2 int);
+create table t2(c1 int, c2 int);
+insert into t1 values(1,2),(1,2);
+insert into t2 values(1,2),(1,3);
+select * from t1 inner join t2 on t2.c1 + 1 = t2.c1 + 1 and t2.c2 = 3;
+c1	c2	c1	c2
+1	2	1	3
+1	2	1	3
+select * from t1 inner join t2 on t2.c1 + 2 = t2.c1 + 3;
+c1	c2	c1	c2
+select /*+JOIN(SIB)*/ t1.c2 from t1 inner join t2 on t2.c1 + 1 = t2.c1 + 1;
+c2
+2
+2
+2
+2
+drop table if exists t1;
+create table t1(cl int primary key, c2 int, c3 int,c4 int);
+create index idx1 on t1(c4);
+“merge”
+major_freeze...
+merge: DONE
+explain select c4 cc from t1 a order by cc;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"yao.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3050}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":19,"ColumnName":"c4","TableRef":65533}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+Sort(columns=[<NULL,65519,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,19>=[COL<65533,19>|],expr<NULL,65519>=[COL<65533,19>|]])(sequence_values_=[])>)
+
+explain select c4 cc from t1 a group by cc;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"yao.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3050}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":19,"ColumnName":"c4","TableRef":65533}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+GroupBy(group_cols=[<18446744073709551615,65519>], aggr_cols=[], partition_cols=[], anal_cols=[])
+Sort(columns=[<NULL,65519,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,19>=[COL<65533,19>|],expr<NULL,65519>=[COL<65533,19>|]])(sequence_values_=[])>)
+
+explain select c4 cc from t1 a order by c4;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"yao.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3050}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":19,"ColumnName":"c4","TableRef":65533}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"65533","ColumnId":19,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+Sort(columns=[<65533,19,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,19>=[COL<65533,19>|],expr<NULL,65519>=[COL<65533,19>|]])(sequence_values_=[])>)
+
+explain select c4 cc from t1 a group by c4;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":65533,"TableName":"yao.t1","AliasName":"a","Type":"ALIAS_TABLE","RefId":3050}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":19,"ColumnName":"c4","TableRef":65533}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"65533","ColumnId":19,
+            "RawExprs":[
+               {"RefTableId":65533, "RefColumnId":19}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+GroupBy(group_cols=[<65533,19>], aggr_cols=[], partition_cols=[], anal_cols=[])
+Sort(columns=[<65533,19,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<65533,19>=[COL<65533,19>|],expr<NULL,65519>=[COL<65533,19>|]])(sequence_values_=[])>)
+
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 varchar(8)) ;
+create index idx_1 on t1(c2);
+create unique index idx_2 on t1(c2);
+show index on t1;
+index_name	status	index_type
+__3052__idx__idx_1	4	0
+__3052__idx__idx_2	1	1
+__3033__idx__idx_1
+__3033__idx__idx_2
+show index on t1;
+index_name	status	index_type
+__3052__idx__idx_1	4	0
+__3052__idx__idx_2	1	1
+"merge"
+major_freeze...
+merge: DONE
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(8)	YES	UNI	NULL	
+alter table  t1 rename c2 to cc2;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+cc2	varchar(8)	YES	UNI	NULL	
+select * from __all_server_session;
+id	username	host	db	command	timeelapse	state	info	yaosqlsvr	index
+固定id	admin	固定host	test	NULL	固定timeelapse	SLEEP	NULL	固定ss	固定index
+固定id	admin	固定host	yao	select * from __all_server_session	固定timeelapse	ACTIVE	NULL	固定ss	固定index
+select * from __all_server_session limit 1;
+id	username	host	db	command	timeelapse	state	info	yaosqlsvr	index
+固定id	admin	固定host	test	NULL	固定timeelapse	SLEEP	NULL	固定ss	固定index
+select * from __all_server_session where username='admin';
+id	username	host	db	command	timeelapse	state	info	yaosqlsvr	index
+固定id	admin	固定host	test	NULL	固定timeelapse	SLEEP	NULL	固定ss	固定index
+固定id	admin	固定host	yao	select * from __all_server_session where username='admin'	固定timeelapse	ACTIVE	NULL	固定ss	固定index
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 varchar(8),c3 int,c4 int) ;
+create index idx_1 on t1(c2);
+create index idx_2 on t1(c2);
+create index idx_3 on t1(c3);
+create index idx_4 on t1(c4);
+insert into t1 values(1,'aaa',1,1),(2,'bbb',2,2),(3,'ccc',3,3),(4,'ddd',4,4);
+“merge”
+major_freeze...
+merge: DONE
+explain extended select c2 from t1 where c2='aaa';
+Query Plan
+
+============================================================
+|ID|OPERATOR       |NAME     |POSSIBLE. KEYS|EST. ROWS|COST|
+------------------------------------------------------------
+|0 |PROJECT        |         |              |         |    |
+|1 | TABLE RPC SCAN|t1(idx_1)|idx_1,idx_2   |         |    |
+============================================================
+
+Details: 
+----------------------------------------------------
+  0 - Project(columns=[expr<NULL,65519>=[COL<t1,c2>|]])(sequence_values_=[])
+
+  1 - TableRpcScan(read_method=SCAN; is_index_back=false; is_indexed_group_=false;
+                   rpc_scan=<RpcScan(read_consistency=WEAK;
+                                     Filter(filters=[expr<NULL,65518>=[COL<idx_1,c2>|varchar:aaa|EQ<2>|],])
+                                     Project(columns=[expr<idx_1,c2>=[COL<idx_1,c2>|]])(sequence_values_=[]))>;
+
+
+CREATE TABLE table_left (id INT,name VARCHAR(50));
+CREATE TABLE table_right (id INT, age INT);
+INSERT INTO table_left (id, name) VALUES(1, 'Alice'),(2, 'Bob'),(3, 'Charlie');
+INSERT INTO table_right (id, age) VALUES(1, 25),(3, 30),(4, 35);
+SELECT * FROM table_left FULL JOIN table_right ON table_left.id = table_right.id OR table_right.age = 35;
+id	name	id	age
+1	Alice	1	25
+1	Alice	4	35
+2	Bob	4	35
+3	Charlie	3	30
+3	Charlie	4	35
+SELECT * FROM table_left LEFT JOIN table_right ON table_left.id = table_right.id OR table_right.age = 35;
+id	name	id	age
+1	Alice	1	25
+1	Alice	4	35
+2	Bob	4	35
+3	Charlie	3	30
+3	Charlie	4	35
+SELECT * FROM table_left RIGHT JOIN table_right ON table_left.id = table_right.id OR table_right.age = 35;
+id	name	id	age
+1	Alice	1	25
+3	Charlie	3	30
+1	Alice	4	35
+2	Bob	4	35
+3	Charlie	4	35
+drop table if exists employees;
+CREATE TABLE employees (employee_id INT PRIMARY KEY, first_name VARCHAR(50), last_name VARCHAR(50), is_manager BOOL);
+INSERT INTO employees (employee_id, first_name, last_name, is_manager) VALUES(1, 'John', 'Doe', 1),(2, 'Jane', 'Smith', 0),(3, 'Emily', 'Davis', 0),(4, 'Michael', 'Johnson', 1),(5, 'Sarah', 'Wilson', 0);
+SELECT
+employee_id,
+first_name,
+last_name,
+CASE 
+WHEN is_manager THEN 'Manager'
+        ELSE is_manager 
+END as c1
+FROM employees;
+employee_id	first_name	last_name	c1
+1	John	Doe	Manager
+2	Jane	Smith	0
+3	Emily	Davis	0
+4	Michael	Johnson	Manager
+5	Sarah	Wilson	0

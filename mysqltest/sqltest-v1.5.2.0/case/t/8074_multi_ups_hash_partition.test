@@ -1,0 +1,589 @@
+####################################必填######################################################
+###1.测试功能点：多ups哈希分区，主键列的类型为int,double,float,decimal
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：pantong
+###7.编写/修改日期：2019-11-5
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5;
+--enable_warnings
+
+--let $heah=hash_partition_
+--let $table=_
+--let $group=_group_
+--let $group_name=$heah$rowkey_type$group$func_num
+--let $func=func_
+
+
+###2-1：哈希分区主键为int,hash函数有一个参数
+replace into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('hash_partition_func_1',1,'x','x',0),
+('hash_partition_func_2',1,'x','x+1',0),
+('hash_partition_func_3',1,'x','x-2',0),
+('hash_partition_func_4',1,'x','x*2',0),
+('hash_partition_func_5',1,'x','x/3',0),
+('hash_partition_func_6',1,'x','x%4',0),
+('hash_partition_func_7',1,'x','(x+3)%5',0);
+
+--let $type_num=1
+if($type_num==1)
+{
+	--let $rowkey_type=int
+}
+--let $func_num=1
+while($func_num<8)
+{
+	
+	if($func_num>=1 and $func_num<8)
+	{
+		--let $func_name=$heah$func$func_num
+		--let $table_name=$heah$rowkey_type$table$func_num
+		--let $primary_key=c1
+		--let $err_primary_key=c7
+		--let $err_primary_key2=c4
+		--let $condition1=c1=1
+		--let $condition2=c1=2
+		--let $condition3=c1=3
+		--let $condition4=c1=4
+		--let $condition5=c1=5
+		--let $condition6=c1=6
+		--let $condition7=c1=7
+		--let $condition_not_key=c3=3
+		--let $condition_column_not_exist=c5=3
+	}
+	--disable_warnings
+	--let $drop_stmt=drop table if exists $table_name;
+	eval $drop_stmt;
+	--enable_warnings
+	
+	# create table when partition function name is not exist
+	--let $create_err_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,not_exist_func,$primary_key);
+	--error 5077
+	eval $create_err_stmt;
+	
+	# create table when column is not exist
+	--let $create_err_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,$func_name,$err_primary_key);
+	--error 5009
+	eval $create_err_stmt;
+	
+	# create table when table name is too long
+	--let $create_err_stmt=create table hash_int_part_table1_012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678900123456789123456789012345678901234567890123456789012345678901234567891234560(c1 int,c2 int,c3 int,c4 int,primary key($primary_key)) partition by($group_name,$func_name,c1);
+	--error 2
+	eval $create_err_stmt;
+
+	# create table when partition column is not the rowKey column
+	--let $create_err_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,$func_name,$err_primary_key2);
+	--error 5081
+	eval $create_err_stmt;
+	
+	# create table success
+	--let $create_err_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,$func_name,$primary_key);
+	eval $create_err_stmt;
+	
+	# create table when table_name is already exist
+	--error 5025
+	eval $create_err_stmt;
+
+--real_sleep 5
+# insert
+--let $insert_stmt = insert into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+eval $insert_stmt;
+
+# insert when primary key duplicate
+--let $insert_stmt = insert into $table_name values(1,1,1,1);
+--error 5024
+eval $insert_stmt;
+
+# insert when table name is not exist
+--let $insert_stmt = insert into $err_table_name values(1,6,6,6);
+--error 5001
+eval $insert_stmt;
+
+# insert when column is not exist
+--let $insert_stmt = insert into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $insert_stmt;
+
+# insert when column count doesn't match value count
+--let $insert_stmt = insert into $table_name values(6,6,6,6,6);
+--error 5007
+eval $insert_stmt;
+
+
+# replace
+--let $replace_stmt = replace into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+eval $replace_stmt;
+--let $replace_stmt = replace into $table_name values(11,1,1,1),(12,2,2,2),(13,3,3,3),(14,4,4,4),(15,5,5,5);
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name values(1,1,1,1);
+eval $replace_stmt;
+
+# replace when table name is not exist
+--let $replace_stmt = replace into $err_table_name values(1,6,6,6);
+--error 5001
+eval $replace_stmt;
+
+# replace when  column is not exist
+--let $replace_stmt = replace into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $replace_stmt;
+
+# replace when column count doesn't match value count
+--let $replace_stmt = replace into $table_name values(6,6,6,6,6);
+--error 5007
+eval $replace_stmt;
+--real_sleep 3
+
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3 and c4=7
+eval $select_stmt;
+
+
+# update
+--let $update_stmt = update $table_name set c4=c2+2 where $condition1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition2
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition3
+eval $update_stmt;
+
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_not_key
+eval $update_stmt;
+
+--let $update_stmt = update $err_table_name set c4=c2+2 where $condition5
+--error 5001
+eval $update_stmt;
+
+--let $update_stmt = update $table_name set c5=c2+2 where $condition4
+--error 5009
+eval $update_stmt;
+
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_column_not_exist
+--error 5009
+eval $update_stmt;
+
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=5
+eval $update_stmt;
+--real_sleep 3
+
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6 and c4=7
+eval $select_stmt;
+
+
+# delete
+--let $delete_stmt = delete from $table_name where $condition1
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition2
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition3
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition4
+eval $delete_stmt;
+
+--let $delete_stmt = delete from $err_table_name where condition5
+--error 5001
+eval $delete_stmt;
+
+--let $delete_stmt = delete from $table_name where $condition_not_key
+eval $delete_stmt;
+
+--let $delete_stmt = delete from $table_name where condition_column_not_exist
+--error 5009
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition5  and c4=3
+
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+
+inc $func_num;
+}
+
+
+###2-2：哈希分区主键为int,hash函数有三个参数
+replace into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('hash_partition_func_8',3,'x,y,z','(x*y+z)%5',0),
+('hash_partition_func_9',3,'x,y,z','(x*y-z)%5',0),
+('hash_partition_func_10',3,'x,y,z','((x+y)%z)%5',0),
+('hash_partition_func_11',2,'x,y','(x+y)%5',0),
+('hash_partition_func_12',2,'x,y','x*y/5%5',0);
+
+--let $func_num=8
+while($func_num<11)
+{
+	--let $group_name=$heah$rowkey_type$group$func_num
+	--let $func_name=$heah$func$func_num
+	--let $table_name=$heah$rowkey_type$table$func_num
+	--let $primary_key=c1,c2,c3
+	--let $err_primary_key=c1,c2,c7
+	--let $err_primary_key2=c1,c2,c4
+	--let $err_primary_key3=c1,c2
+	--let $condition1=c1=1 and c2=1 and c3=1
+	--let $condition2=c1=2 and c2=2 and c3=2
+	--let $condition3=c1=3 and c2=3 and c3=3
+	--let $condition4=c1=4 and c2=4 and c3=4
+	--let $condition5=c1=5 and c2=5 and c3=5
+	--let $condition6=c1=6 and c2=6 and c3=6
+	--let $condition7=c1=7 and c2=7 and c3=7
+	--let $condition_not_key=c1=7 and c2=7 and c4=7
+	--let $condition_column_not_exist=c1=7 and c2=7 and c5=7
+	
+	--let $create_table_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,$func_name,$primary_key);
+	eval $create_table_stmt;
+	--error 5025
+	eval $create_table_stmt;
+	
+	--real_sleep 5
+	
+	# insert
+	--let $insert_stmt = insert into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+    eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name values(1,1,1,1);
+--error 5024
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $err_table_name values(1,6,6,6);
+--error 5001
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name values(6,6,6,6,6);
+--error 5007
+eval $insert_stmt;
+
+
+# replace
+--let $replace_stmt = replace into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+eval $replace_stmt;
+--let $replace_stmt = replace into $table_name values(11,1,1,1),(12,2,2,2),(13,3,3,3),(14,4,4,4),(15,5,5,5);
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name values(1,1,1,1);
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $err_table_name values(1,6,6,6);
+--error 5001
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name values(6,6,6,6,6);
+--real_sleep 1
+--error 5007
+eval $replace_stmt;
+--real_sleep 5
+
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3 and c4=7
+eval $select_stmt;
+
+
+# update
+--let $update_stmt = update $table_name set c4=c2+2 where $condition1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition2
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition3
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_not_key
+eval $update_stmt;
+--let $update_stmt = update $err_table_name set c4=c2+2 where $condition5
+--error 5001
+eval $update_stmt;
+--let $update_stmt = update $table_name set c5=c2+2 where $condition4
+--error 5009
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_column_not_exist
+--error 5009
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=5
+eval $update_stmt;
+--real_sleep 3
+
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6 and c4=7
+eval $select_stmt;
+
+
+# delete
+--let $delete_stmt = delete from $table_name where $condition1
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition2
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition3
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition4
+eval $delete_stmt;
+--let $delete_stmt = delete from $err_table_name where $condition5
+--error 5001
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition_not_key
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where condition_column_not_exist
+--error 5009
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition5  and c4=3
+
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+
+inc $func_num;
+}
+
+
+###2-3：哈希分区主键为int,hash函数有个参数
+--let $func_num=11
+while($func_num<13)
+{
+--let $group_name=$heah$rowkey_type$group$func_num
+--let $func_name=$heah$func$func_num
+--let $table_name=$heah$rowkey_type$table$func_num
+--let $primary_key=c1,c2
+--let $err_primary_key=c1,c2,c7
+--let $err_primary_key2=c1,c2,c4
+--let $err_primary_key3=c1,c2
+--let $condition1=c1=1 and c2=1 and c3=1
+--let $condition2=c1=2 and c2=2 and c3=2
+--let $condition3=c1=3 and c2=3 and c3=3
+--let $condition4=c1=4 and c2=4 and c3=4
+--let $condition5=c1=5 and c2=5 and c3=5
+--let $condition6=c1=6 and c2=6 and c3=6
+--let $condition7=c1=7 and c2=7 and c3=7
+--let $condition_not_key=c1=7 and c2=7 and c4=7
+--let $condition_column_not_exist=c1=7 and c2=7 and c5=7
+
+--let $create_table_stmt=create table $table_name(c1 $rowkey_type,c2 $rowkey_type,c3 $rowkey_type,c4 $rowkey_type,primary key($primary_key)) partition by($group_name,$func_name,$primary_key);
+eval $create_table_stmt;
+--error 5025
+eval $create_table_stmt;
+
+--real_sleep 3
+
+# insert
+--let $insert_stmt = insert into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name values(1,1,1,1);
+--error 5024
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $err_table_name values(1,6,6,6);
+--error 5001
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $insert_stmt;
+
+--let $insert_stmt = insert into $table_name values(6,6,6,6,6);
+--error 5007
+eval $insert_stmt;
+--real_sleep 1
+
+# replace
+--let $replace_stmt = replace into $table_name values(1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4),(5,5,5,5);
+eval $replace_stmt;
+--let $replace_stmt = replace into $table_name values(11,1,1,1),(12,2,2,2),(13,3,3,3),(14,4,4,4),(15,5,5,5);
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name values(1,1,1,1);
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $err_table_name values(1,6,6,6);
+--error 5001
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name(c1,c2,c3,c5) values(1,6,6,6);
+--error 5009
+eval $replace_stmt;
+
+--let $replace_stmt = replace into $table_name values(6,6,6,6,6);
+--error 5007
+eval $replace_stmt;
+--real_sleep 2
+
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--real_sleep 2
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3 and c4=7
+eval $select_stmt;
+
+
+# update
+--let $update_stmt = update $table_name set c4=c2+2 where $condition1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition2
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition3
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_not_key
+eval $update_stmt;
+--let $update_stmt = update $err_table_name set c4=c2+2 where $condition5
+--error 5001
+eval $update_stmt;
+--let $update_stmt = update $table_name set c5=c2+2 where $condition4
+--error 5009
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition_column_not_exist
+--error 5009
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=1
+eval $update_stmt;
+--let $update_stmt = update $table_name set c4=c2+2 where $condition5 and c4=5
+eval $update_stmt;
+
+--real_sleep 3
+# select 
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition1
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition2
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition3
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition4
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition5
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition7
+eval $select_stmt;
+--let $select_stmt = select * from $table_name where $condition6 and c4=7
+eval $select_stmt;
+
+
+# delete
+--let $delete_stmt = delete from $table_name where $condition1
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition2
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition3
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition4
+eval $delete_stmt;
+--let $delete_stmt = delete from $err_table_name where condition5
+--error 5001
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition_not_key
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where condition_column_not_exist
+--error 5009
+eval $delete_stmt;
+--let $delete_stmt = delete from $table_name where $condition5  and c4=3
+
+--let $select_stmt = select * from $table_name
+eval $select_stmt;
+
+inc $func_num;
+}
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

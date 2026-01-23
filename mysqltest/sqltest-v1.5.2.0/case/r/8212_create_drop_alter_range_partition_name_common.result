@@ -1,0 +1,382 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create range partition function r1(x) '(\'d\'),(maxvalue)';
+create range partition function r2(x) '(\'d\')';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r2(x) '(d)';
+ERROR HY000: YAO--1: Range funtion definition is not correct.
+create range partition function r3(x) '(\'d\'),(\'g\'),(maxvalue)';
+create range partition function r4(x) '(\'d\'),(\'g\')';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r4(x) '(d),(g),(maxvalue)';
+ERROR HY000: YAO--1: Range funtion definition is not correct.
+create range partition function r5(x) '(\'d\'),(\'g\'),(\'q\'),(maxvalue)';
+create range partition function r6(x) '(\'d\'),(\'g\'),(\'q\')';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r6(x) '(\'f\'),(\'d\'),(\'z\'),(maxvalue)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r6(x) '(\'f\'),(\'r\'),(\'z\'),(maxvalue)';
+create range partition function r6(x) '(\'\\\'),(1)(maxvalue)';
+ERROR HY000: YAO-2: Range funtion definition is not correct.
+create range partition function r7(x,y) '(\'dd\',\'dd\'),(maxvalue,\'ff\')';
+create range partition function r8(x,y) '(\'dd\',\'dd\')';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r9(x,y) '(\'dd\',\'dd\'),(\'hh\',\'hh\'),(maxvalue,\'ff\')';
+create range partition function r10(x,y) '(\'dd\',\'dd\'),(\'hh\',\'hh\')';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r11(x) '(5),(maxvalue)';
+create range partition function r12(x) '(5)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r13(x) '(3),(6),(maxvalue)';
+create range partition function r14(x) '(3),(6)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r15(x,y) '(3,3),(6,6),(maxvalue,1)';
+create range partition function r16(x) '(3,3),(6,6)';
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partition function.
+create range partition function r17(x,y) '(3,\'dd\'),(maxvalue,\'aa\')';
+create range partition function r18(x,y) '(3,\'dd\'),(6,maxvalue)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r19(x,y) '(\'dd\',3),(\'ff\',6),(maxvalue,8)';
+create range partition function r20(x,y) '(\'dd\',3),(\'ff\',6),(\'zz\',maxvalue)';
+ERROR HY000: YAO--1: range value must be strictly increasing for each partition and the last value must be maxvalue.
+create range partition function r21(x,y) '(dd,3),(ff,6),(maxvalue,1)';
+ERROR HY000: YAO--1: Range funtion definition is not correct.
+create table t1 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4));
+create table t2 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg1,r1,c2);
+create table t3 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (,r1,c2);
+create table t4 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg0);
+create table t5 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by ();
+create table t6 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg3,r3,c2);
+create table t7 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg5,r5,c2);
+create table t8 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg6,r6,c2);
+create table t9 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg7,r7,c2,c4);
+create table t10 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg9,r9,c2,c4);
+create table t11 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg11,r11,c1);
+create table t12 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg13,r13,c1);
+create index il3 on t3(c2) storing(c5);
+create index il7 on t7(c2) storing(c6);
+"refesh_schema"
+Okay
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+rg0	2	1	NULL
+rg1#0	2	1	NULL
+rg1#1	2	0	NULL
+rg11#0	2	1	NULL
+rg11#1	2	0	NULL
+rg13#0	2	1	NULL
+rg13#1	2	0	NULL
+rg13#2	2	1	NULL
+rg3#0	2	1	NULL
+rg3#1	2	0	NULL
+rg3#2	2	1	NULL
+rg5#0	2	0	NULL
+rg5#1	2	1	NULL
+rg5#2	2	0	NULL
+rg5#3	2	1	NULL
+rg6#0	2	0	NULL
+rg6#1	2	1	NULL
+rg6#2	2	0	NULL
+rg6#3	2	1	NULL
+rg7#0	2	0	NULL
+rg7#1	2	1	NULL
+rg9#0	2	0	NULL
+rg9#1	2	1	NULL
+rg9#2	2	0	NULL
+t3#0	2	1	NULL
+t3#1	2	0	NULL
+__user_default_group	2	0	NULL
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	__user_default_group	NULL	NULL
+3002	2	t2	1	rg1	r1	c2
+3003	2	t3	1	t3	r1	c2
+3004	2	t4	0	rg0	NULL	NULL
+3005	2	t5	0	__user_default_group	NULL	NULL
+3006	2	t6	1	rg3	r3	c2
+3007	2	t7	1	rg5	r5	c2
+3008	2	t8	1	rg6	r6	c2
+3009	2	t9	1	rg7	r7	c2,c4
+3010	2	t10	1	rg9	r9	c2,c4
+3011	2	t11	1	rg11	r11	c1
+3012	2	t12	1	rg13	r13	c1
+insert into t1 values (1,'a',1,'a',1,'a'),(2,'b',2,'b',2,'b'),(3,'d',3,'d',3,'d');
+replace into t1 values (4,'g',4,'g',4,'g'),(5,'t',5,'t',5,'t'),(6,'cf',6,'cf',6,'cf');
+replace into t2 values (1,'a',1,'a',1,'a'),(3,'d',3,'d',3,'d'),(6,'cf',6,'cf',6,'cf');
+insert into t3 values (1,'a',1,'a',1,'a'),(2,'b',2,'b',2,'b'),(3,'d',3,'d',3,'d'),(6,'cf',6,'cf',6,'cf');
+insert into t4 values (1,'a',1,'a',1,'a'),(3,'d',3,'d',3,'d');
+replace into t4 values (4,'g',4,'g',4,'g'),(6,'cf',6,'cf',6,'cf');
+insert into t5 values (1,'a',1,'a',1,'a'),(3,'d',3,'d',3,'d');
+replace into t5 values (4,'g',4,'g',4,'g'),(6,'cf',6,'cf',6,'cf');
+insert into t6 values (1,'a',1,'a',1,'a'),(3,'d',3,'d',3,'d');
+replace into t6 values (4,'g',4,'g',4,'g'),(6,'cf',6,'cf',6,'cf');
+insert into t7 values (1,'aa',1,'aa',1,'aa'),(3,'dd',3,'dd',3,'dd');
+replace into t7 values (4,'gg',4,'gg',4,'gg'),(6,'cf',6,'cf',6,'cf');
+insert into t8 values (1,'aa',1,'aa',1,'aa'),(2,'bb',2,'bb',2,'bb'),(3,'dd',3,'dd',3,'dd');
+insert into t9 values (1,'aa',1,'aa',1,'aa'),(2,'bb',2,'bb',2,'bb'),(3,'dd',3,'dd',3,'dd');
+replace into t9 values (4,'gg',4,'gg',4,'gg'),(5,'tt',5,'tt',5,'tt'),(6,'cf',6,'cf',6,'cf');
+insert into t10 values (1,'aa',1,'aa',1,'aa'),(2,'bb',2,'bb',2,'bb'),(3,'dd',3,'dd',3,'dd');
+replace into t10 values (4,'gg',4,'gg',4,'gg'),(5,'tt',5,'tt',5,'tt'),(6,'cf',6,'cf',6,'cf');
+insert into t11 values (1,'aa',1,'aa',1,'aa'),(2,'bb',2,'bb',2,'bb'),(3,'dd',3,'dd',3,'dd');
+replace into t11 values (4,'gg',4,'gg',4,'gg'),(5,'tt',5,'tt',5,'tt'),(6,'cf',6,'cf',6,'cf');
+insert into t12 values (1,'aa',1,'aa',1,'aa'),(2,'bb',2,'bb',2,'bb'),(3,'dd',3,'dd',3,'dd');
+replace into t12 values (4,'gg',4,'gg',4,'gg'),(5,'tt',5,'tt',5,'tt'),(6,'cf',6,'cf',6,'cf');
+select count(*) from t3;
+count(*)
+4
+truncate table t3;
+select count(*) from t3;
+count(*)
+0
+select * from t3 where c1=2;
+c1	c2	c3	c4	c5	c6
+show index on t3;
+index_name	status	index_type
+__3003__idx__il3	4	0
+show index on t7;
+index_name	status	index_type
+__3007__idx__il7	4	0
+insert into t2 values(7,'c',7,'c',7,'c'),(8,'f',8,'f',8,'f');
+replace into t3 values (8,'f',8,'f',8,'f');
+insert into t4 values(7,'c',7,'c',7,'c'),(8,'f',8,'f',8,'f');
+replace into t5 values (8,'f',8,'f',8,'f');
+replace into t6 values (8,'f',8,'f',8,'f');
+replace into t7 values (8,'ff',8,'ff',8,'ff');
+replace into t9 values (8,'ff',8,'ff',8,'ff');
+replace into t12 values (8,'ff',8,'ff',8,'ff');
+select *from t1;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+2	b	2	b	2	b
+3	d	3	d	3	d
+4	g	4	g	4	g
+5	t	5	t	5	t
+6	cf	6	cf	6	cf
+select *from t2;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	d	3	d	3	d
+6	cf	6	cf	6	cf
+7	c	7	c	7	c
+8	f	8	f	8	f
+select *from t3;
+c1	c2	c3	c4	c5	c6
+8	f	8	f	8	f
+select *from t4;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	d	3	d	3	d
+4	g	4	g	4	g
+6	cf	6	cf	6	cf
+7	c	7	c	7	c
+8	f	8	f	8	f
+select *from t5;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	d	3	d	3	d
+4	g	4	g	4	g
+6	cf	6	cf	6	cf
+8	f	8	f	8	f
+select *from t6;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	d	3	d	3	d
+4	g	4	g	4	g
+6	cf	6	cf	6	cf
+8	f	8	f	8	f
+select *from t7;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+6	cf	6	cf	6	cf
+8	ff	8	ff	8	ff
+select *from t9;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+2	bb	2	bb	2	bb
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+5	tt	5	tt	5	tt
+6	cf	6	cf	6	cf
+8	ff	8	ff	8	ff
+select *from t10;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+2	bb	2	bb	2	bb
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+5	tt	5	tt	5	tt
+6	cf	6	cf	6	cf
+select *from t11;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+2	bb	2	bb	2	bb
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+5	tt	5	tt	5	tt
+6	cf	6	cf	6	cf
+select *from t12;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+2	bb	2	bb	2	bb
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+5	tt	5	tt	5	tt
+6	cf	6	cf	6	cf
+8	ff	8	ff	8	ff
+update t2 set c5=c1*10 where c1<4;
+update t3 set c6=c6 || '123' where c3>5;
+update t4 set c2=c2+10 where c3 between 2 and 5;
+update t5 set c4='abc'|| 'space',c5=c5*10 where c1 in(2,3,4);
+update t9 set c1=c1*10,c2=c2|| 'space',c5=c5+10 where c3%2>0;
+update t12 set c3=c1+c3+c5,c4=c4||c2 where c2=2 or c2=6;
+select *from t2;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	10	a
+3	d	3	d	30	d
+6	cf	6	cf	6	cf
+7	c	7	c	7	c
+8	f	8	f	8	f
+select *from t3;
+c1	c2	c3	c4	c5	c6
+8	f	8	f	8	1
+select *from t4;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	10.000000	3	d	3	d
+4	10.000000	4	g	4	g
+6	cf	6	cf	6	cf
+7	c	7	c	7	c
+8	f	8	f	8	f
+select *from t5;
+c1	c2	c3	c4	c5	c6
+1	a	1	a	1	a
+3	d	3	0	30	d
+4	g	4	0	40	g
+6	cf	6	cf	6	cf
+8	f	8	f	8	f
+select *from t9;
+c1	c2	c3	c4	c5	c6
+2	bb	2	bb	2	bb
+4	gg	4	gg	4	gg
+6	cf	6	cf	6	cf
+8	ff	8	ff	8	ff
+10	0	1	aa	11	aa
+30	0	3	dd	13	dd
+50	0	5	tt	15	tt
+select *from t12;
+c1	c2	c3	c4	c5	c6
+1	aa	1	aa	1	aa
+2	bb	2	bb	2	bb
+3	dd	3	dd	3	dd
+4	gg	4	gg	4	gg
+5	tt	5	tt	5	tt
+6	cf	6	cf	6	cf
+8	ff	8	ff	8	ff
+truncate table t5;
+select * from t5;
+c1	c2	c3	c4	c5	c6
+select * from t5 where c1 in(2,3,4);
+c1	c2	c3	c4	c5	c6
+create table t13 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg15,r15,c1,c3);
+create table t14 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg17,r17,c1,c2);
+create table t15 (c1 int not null,c2 varchar(10) default 'nullstr',c3 int,c4 varchar(30),c5 int,c6 varchar(30),primary key(c1,c2,c3,c4)) partition by (rg19,r19,c2,c1);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+rg0	2	1	NULL
+rg1#0	2	1	NULL
+rg1#1	2	0	NULL
+rg11#0	2	1	NULL
+rg11#1	2	0	NULL
+rg13#0	2	1	NULL
+rg13#1	2	0	NULL
+rg13#2	2	1	NULL
+rg15#0	2	0	NULL
+rg15#1	2	1	NULL
+rg15#2	2	0	NULL
+rg17#0	2	1	NULL
+rg17#1	2	0	NULL
+rg19#0	2	1	NULL
+rg19#1	2	0	NULL
+rg19#2	2	1	NULL
+rg3#0	2	1	NULL
+rg3#1	2	0	NULL
+rg3#2	2	1	NULL
+rg5#0	2	0	NULL
+rg5#1	2	1	NULL
+rg5#2	2	0	NULL
+rg5#3	2	1	NULL
+rg6#0	2	0	NULL
+rg6#1	2	1	NULL
+rg6#2	2	0	NULL
+rg6#3	2	1	NULL
+rg7#0	2	0	NULL
+rg7#1	2	1	NULL
+rg9#0	2	0	NULL
+rg9#1	2	1	NULL
+rg9#2	2	0	NULL
+t3#0	2	1	NULL
+t3#1	2	0	NULL
+__user_default_group	2	0	NULL
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	__user_default_group	NULL	NULL
+3002	2	t2	1	rg1	r1	c2
+3003	2	t3	1	t3	r1	c2
+3004	2	t4	0	rg0	NULL	NULL
+3005	2	t5	0	__user_default_group	NULL	NULL
+3006	2	t6	1	rg3	r3	c2
+3007	2	t7	1	rg5	r5	c2
+3008	2	t8	1	rg6	r6	c2
+3009	2	t9	1	rg7	r7	c2,c4
+3010	2	t10	1	rg9	r9	c2,c4
+3011	2	t11	1	rg11	r11	c1
+3012	2	t12	1	rg13	r13	c1
+3015	2	t13	1	rg15	r15	c1,c3
+3016	2	t14	1	rg17	r17	c1,c2
+3017	2	t15	1	rg19	r19	c2,c1
+create index il13 on t13(c4,c1) storing(c6);
+create index il14 on t14(c2,c1) storing(c5);
+create index il15 on t15(c2,c1) storing(c4);
+ERROR HY000: YAO-5031: Storing Columns c4 can not be rowkey!
+create index il15 on t15(c4,c6) storing(c5);
+"refesh_schema"
+Okay
+show index on t13;
+index_name	status	index_type
+__3015__idx__il13	4	0
+show index on t14;
+index_name	status	index_type
+__3016__idx__il14	4	0
+replace into t13 values (1,'cc',1,'cc',1,'cc');
+replace into t13 values (6,'tt',6,'tt',6,'tt');
+replace into t14 values (1,'cc',1,'cc',1,'cc');
+replace into t14 values (3,'ff',3,'ff',3,'ff');
+replace into t14 values (6,'tt',6,'tt',6,'tt');
+replace into t15 values (1,'cc',1,'cc',1,'cc');
+replace into t15 values (3,'ff',3,'ff',3,'ff');
+replace into t15 values (6,'tt',6,'tt',6,'tt');
+select * from t13;
+c1	c2	c3	c4	c5	c6
+1	cc	1	cc	1	cc
+6	tt	6	tt	6	tt
+select * from t14;
+c1	c2	c3	c4	c5	c6
+1	cc	1	cc	1	cc
+3	ff	3	ff	3	ff
+6	tt	6	tt	6	tt
+select * from t15;
+c1	c2	c3	c4	c5	c6
+1	cc	1	cc	1	cc
+3	ff	3	ff	3	ff
+6	tt	6	tt	6	tt
+create range partition function rge(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q) '(\'c\',\'d\',\'e\',\'f\',\'g\',\'h\',\'i\',\'j\',\'k\',\'l\',\'m\',\'n\',\'o\',\'p\',\'q\',\'w\',\'z\'),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)';

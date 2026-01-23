@@ -1,0 +1,114 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：插入varchar，拼接有空格
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/351
+###4.问题号：351
+###5.预计运行时间：1216.755970s
+###6.编写/修改人：pantong
+###7.编写/修改日期：2019-11-19
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+
+
+###2-1:非主键varchar列插入或更新时拼接空格
+create table t1(c1 varchar(5),c2 int,c3 varchar(4) primary key);
+--error 5611
+insert into t1 values('123456',1,'a');
+--error 5611
+insert into t1 values('12345      ',2,'b');
+insert into t1 values('12345',2,'b');
+select length(c1) from t1;
+insert into t1 values('q'||' '||'v',2,'c');
+select length(c1) from t1;
+insert into t1 values('q'||' '||'v',2,'d');
+select length(c1) from t1;
+replace into t1 values('q'||' '||'v',2,'d');
+select length(c1) from t1;
+--error 5611
+replace into t1 values('q'||' '||'v      ',3,'e');
+select length(c1) from t1;
+
+update t1 set c1='pt'||' '||'bn';
+select * from t1;
+select length(c1) from t1;
+
+insert into t1(c1,c3) values('rf','f');
+
+
+###2-2:主键varchar列插入或更新时拼接空格
+insert into t1 values('a',1,'1234');
+select length(c3) from t1;
+--error 5611
+insert into t1 values('a',1,'12       ');
+select length(c3) from t1;
+--error 5611
+insert into t1 values('a',1,'12345            ');
+--error 5611
+replace into t1 values('a',1,'12345            ');
+--error 119 
+update t1 set c3=c3||' '||'b ' where c2>1;
+select * from t1;
+select length(c3) from t1;
+
+
+###2-3:有关索引表的varchar列，空格拼接，及末尾长度
+create table t2(c1 int,c2 varchar(5),c3 varchar(6),c4 varchar(6), primary key(c1));
+create index idx_1 on t2(c2) storing(c4);
+create index idx_2 on t2(c3) storing(c4);
+let $t2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__idx_1
+--let $index2_end =__idx__idx_2
+--let $t2_idx1_name=$index_head$t2_tb_id$index1_end
+--let $t2_idx2_name=$index_head$t2_tb_id$index2_end
+echo $t2_idx1_name;
+echo $t2_idx2_name;
+
+
+insert into t2 values(1,'df','fg','de');
+insert into t2 values(2,'df'||' '||'v','fg','de');
+--error 5611
+insert into t2 values(2,'df'||' '||'v','fgdfsarrrrrr','de');
+--error 5611
+replace into t2 values(2,'df'||' '||'v','fgdfsarrrrrr','de');
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+
+--error 5611
+insert into t2 values(3,'f     ','b'||' '||' b','vb');
+select * from t2;
+select length(c2) from t2;
+select length(c3) from t2;
+select length(c4) from t2;
+eval select * from $t2_idx1_name;
+eval select * from $t2_idx2_name;
+
+--error 5611
+replace into t2 values(3,'f     ','b'||' '||' b','vb');
+select * from t2;
+select length(c2) from t2;
+select length(c3) from t2;
+select length(c4) from t2;
+eval select * from $t2_idx1_name;
+eval select * from $t2_idx2_name;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

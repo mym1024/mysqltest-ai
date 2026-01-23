@@ -1,0 +1,62 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+create table test1(c1 int primary key, c2 int, c3 modifytime);
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test1,ret=-1046
+create table test2(c1 int primary key, c2 int, c3 createtime);
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test2,ret=-1046
+create table test3(c1 int primary key, c2 int, c3 varchar(30));
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test3,ret=-1046
+create table test4(c1 int primary key, c2 int, c3 char(30));
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test4,ret=-1046
+create table test5(c1 int primary key, c2 int, c3 datetime);
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test5,ret=-1046
+create table test6(c1 int primary key, c2 int, c3 timestamp);
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can not add expire info,because there already has one,table_name=test6,ret=-1046
+create table test7(c1 int primary key, c2 int, c3 int);
+alter table test7 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+create table test8(c1 int primary key, c2 int, c3 float);
+alter table test8 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+create table test9(c1 int primary key, c2 int, c3 double);
+alter table test9 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+create table test10(c1 int primary key, c2 int, c3 decimal(30,2));
+alter table test10 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test1 drop current expire_info;
+alter table test1 add current expire_info='$SYS_DATE>1*1*1*60*1000000';
+ERROR HY000: YAO-1046: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-1046
+alter table test1 add current expire_info='$SYS_datE>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test1 add current expire_info='$SYS_E>c3+1*1*1*60*1000000';
+ERROR HY000: YAO-2: Can't add expire_info,wrong column_type or index table isn't satisfied,ret=-2
+alter table test1 add current expire_info;
+ERROR HY000: YAO-2: add expire condition must have arguments, ret=-2
+alter table test1 add current expire_info=;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 

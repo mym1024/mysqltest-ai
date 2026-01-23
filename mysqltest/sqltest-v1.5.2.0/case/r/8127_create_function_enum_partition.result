@@ -1,0 +1,184 @@
+drop table if exists t1;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x)'[(1)],[(3)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,e,c1);
+insert into t1 values(1,2,3,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function e;
+create enum partition function e(x,y) '[(1,2)],[(3,4)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,e,c1,c2);
+insert into t1 values(1,2,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop partition function em_func;
+ERROR HY000: YAO-5077: partition function 'em_func' doesn't exist
+drop table t1;
+create enum partition function em_func(x) '[(1)],[(3)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,em_func,c1);
+insert into t1 values(1,2,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function em_func;
+create enum partition function em_func(x,y) '[(1,2)],[(3,4)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,em_func,c1,c2);
+insert into t1 values(1,2,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function _emfunc;
+ERROR HY000: YAO-5077: partition function '_emfunc' doesn't exist
+create enum partition function _emfunc(x,y) '[(1,2)],[(3,4)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+insert into t1 values(1,2,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function em_func;
+create enum partition function em_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) '[(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)],[(-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15)]';
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 varchar(20),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by (em,em_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15);
+insert into t1 values(-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function em_func;
+create enum partition function em_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '[(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)],[(-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16)]';
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(20),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by (em,em_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+insert into t1 values(-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function _emfunc;
+create enum partition function _emfunc(x,y) '[(1,2)],[(3,4)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+insert into t1 values(1,2,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function _emfunc;
+create enum partition function _emfunc(x,y) '[(1.1,2.1)],[(3.1,4.1)]';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+insert into t1 values(1.1,2.1,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function _emfunc;
+create enum partition function _emfunc(x,y) '[(a,b)],[(c,d)]';
+create table t1(c1 varchar(20),c2 varchar(20),c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+insert into t1 values('a','b',1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+drop partition function _emfunc;
+create enum partition function _emfunc(x) '[(2014-01-01)],[(2015-01-01)]';
+create table t1(c1 datetime,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+ERROR HY000: YAO-5089: Field 'c1' is not an allowed type for this type of partitioning.
+insert into t1 values('2014-01-01',1,1,'a');
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop partition function _emfunc;
+create enum partition function _emfunc(x,y) '[(a,1)],[(c,1)]';
+create table t1(c1 varchar(20),c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(em,_emfunc,c1,c2);
+insert into t1 values('a',1,1,'a');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	0	NULL
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function 'emfunc'(x,y) '[(a,1)],[(c,1)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function __emfunc;
+ERROR HY000: YAO--1: Invalid partition function name.
+create enum partition function __emfunc(x,y) '[(a,1)],[(c,1)]';
+ERROR HY000: YAO--1: Invalid partition function name.
+drop partition function int;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create enum partition function int(x,y) '[(a,1)],[(c,1)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc() '[(a,1)],[(c,1)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,x) '[(a,1)],[(c,1)]';
+ERROR 42S01: YAO-5025: duplicate param 'x'
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc('x','y') '[(a,1)],[(c,1)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x) '';
+ERROR HY000: YAO--1: Enum or List funtion definition is not correct.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x) '[(a,1)],[(c,1)]';
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partition function.
+drop partition function e_func;
+ERROR HY000: YAO-5077: partition function 'e_func' doesn't exist
+create enum partition function e_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '[(a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d)]';
+ERROR HY000: YAO--1: Enum or List funtion definition is not correct.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,y) '[(a,1)],[(a,1)]';
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,y) '(a,1)],[(a,1)]';
+ERROR HY000: YAO--1: Enum or List funtion definition is not correct.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,y) '[(a,1)]';
+drop partition function emfunc;
+create enum partition function emfunc(x,y) '(a,1)';
+ERROR HY000: YAO--1: Enum or List funtion definition is not correct.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,y) ' [(a,1)]';
+ERROR HY000: YAO--1: Enum or List funtion definition is not correct.
+drop partition function emfunc;
+ERROR HY000: YAO-5077: partition function 'emfunc' doesn't exist
+create enum partition function emfunc(x,y) '[(a, 1)]';
+drop partition function emfunc;
+create enum partition function emfunc(x,y) '[(a,1+2*3)]';
+drop partition function emfunc;
+create enum partition function emfunc(x,y) '[(a,(1+2*3)%2)]';
+drop partition function emfunc;
+create enum partition function emfunc(x,y) '[(a,(1+2*3)/2)]';
+drop partition function emfunc;
+create enum partition function emfunc(x,y) '[(a,1+2*3)]';
+create enum partition function emfunc(x,y) '[(a,1+2*3)]';
+ERROR HY000: YAO-5076:  partition function 'emfunc' already exists
+drop partition function emfunc;
+create partition function emfunc(x,y) '[(a, 1)]';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 

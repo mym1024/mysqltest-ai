@@ -1,0 +1,433 @@
+##############################################################################################
+###1.测试功能点：测试select_into功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-02-19
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+
+
+#单变量赋值
+select NULL into @s1;
+select @s1;
+select 6 into @s1;
+select @s1;
+select 1.2345 into @s1;
+select @s1;
+select true into @s1;
+select @s1;
+select '2023-04-01' into @s1;
+select @s1;
+select 'yaobase' into @s1;
+select @s1;
+
+set @s1=0,@s2=7;
+select @s2 into @s1;
+select @s1;
+
+select length('test_string') into @s1;
+select @s1;
+select nvl(null, 'test_string') into @s1;
+select @s1;
+select upper('yaobase') into @s1;
+select @s1;
+
+select 1+2 into @s1;
+select @s1;
+set @s1 = 5;
+select @s1+1 into @s1;
+select @s1;
+set @s1=5,@s2=6;
+select @s1+@s2 into @s1;
+select @s1;
+select 1,2,3 into @s1,@s1,@s1;
+select @s1;
+set @s1=3;
+select @s1+1,@s1+1 into @s1,@s1;
+select @s1;
+
+#多变量赋值
+select NULL,2.34 into @s1,@s2;
+select @s1,@s2;
+select 3,5,'yb' into @s1,@s2,@s3;
+select @s1,@s2,@s3;
+select 1+1,2+2 into @s1,@s2;
+select @s1,@s2;
+set @s1=1,@s2=2;
+select @s1+1,@s2+1 into @s1,@s2;
+select @s1,@s2;
+set @s1=1,@s2=1;
+select @s1+@s2,@s1 into @s1,@s2;
+select @s1,@s2;
+set @s1=7,@s2=7;
+--error 5007
+select 1,2,3 into @s1,@s2;
+select @s1,@s2;
+set @s1=7,@s2=7,@s3=7;
+--error 5007
+select 1,2 into @s1,@s2,@s3;
+select @s1,@s2,@s3;
+
+#单列
+use test;
+create table t1 (c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3),(4,4),(5,NULL),(100,101),(102,103);
+create table t2 (c1 int primary key, c2 double);
+insert into t2 values (1,1.11),(2,2.22),(3,3.33),(15,23.45),(53,67.12),(182,0.133);
+create table t3 (c1 int primary key, c2 double);
+
+select c1 into @s1 from t1 limit 1;
+select @s1;
+select c2 into @s1 from t1 where c1=5;
+select @s1;
+set @s1=-1;
+--error 5601
+select c1 into @s1 from t1;
+select @s1;
+set @s1=-1;
+--error 5601
+select c1 into @s1 from t1 where c1>3;
+select @s1;
+set @s1=-1;
+select c1 into @s1 from t1 where c1=200;
+select @s1;
+set @s1=-1;
+select c1 into @s1 from t3;
+select @s1;
+
+#系统函数
+select max(c1) into @s1 from t1;
+select @s1;
+select count(1) into @s1 from t1;
+select @s1;
+select length(max(c1)) into @s1 from t1;
+select @s1;
+set @s1=-1;
+--error 5601
+select ceil(c2) into @s1 from t2;
+select @s1;
+set @s1=-1;
+--error 5601
+select nvl(c2, 999) into @s1  from t1;
+select @s1;
+set @s1=-1;
+select nvl(c1, 'null') into @s1 from t1 where c1=200;
+select @s1;
+set @s1=-1;
+select floor(c1) into @s1 from t1 where c1>150;
+select @s1;
+
+#表达式计算
+select c1+10 into @s1 from t1 limit 1;
+select @s1;
+select max(c1+c2) into @s1 from t1;
+select @s1;
+set @s1=-1;
+select max(c1)+@s1 into @s1 from t1;
+select @s1;
+select c1+c2 into @s1 from t2 where c1>100;
+select @s1;
+set @s1=-1;
+--error 5601
+select c1+50 into @s1 from t1;
+select @s1;
+set @s1=-1;
+--error 5601
+select c1+length(c2) into @s1 from t1;
+select @s1;
+set @s1=-1;
+select c1+200 into @s1 from t3;
+select @s1;
+set @s1=-1;
+select c2%5 into @s1 from t2 where c2%5=4;
+select @s1;
+
+#多表查询
+set @s1=-1;
+select max(t1.c1) into @s1 from t1,t2 where t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select avg(t1.c1)+@s1 into @s1 from t1,t2 where t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select max(t1.c1+t2.c2) into @s1 from t1,t2 where t1.c1=floor(t2.c2);
+select @s1;
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 inner join t2 on t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 left join t2 on t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 right join t2 on t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select avg(t1.c1) into @s1 from t1 full join t2 on t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+--error 5601
+select t1.c1 into @s1 from t1 inner join t2 on t1.c1=t2.c1;
+select @s1;
+set @s1=-1;
+select t1.c1+t2.c2 into @s1 from t1,t2 where t1.c1=t2.c1 and t1.c2=null;
+select @s1;
+
+#子查询
+set @s1=-1;
+select c1 into @s1 from t1 where c1=(select min(c1) from t2);
+select @s1;
+set @s1=-1;
+select avg(c1)+avg(c2) into @s1 from t2 where c1 in (select c1 from t1);
+select @s1;
+set @s1=-1;
+select nvl(c2, 'null') into @s1 from t1 where t1.c1=(select avg(t1.c1) from t1 inner join t2 on t1.c1=t2.c1);
+select @s1;
+set @s1=-1;
+--error 5601
+select c1 into @s1 from t1 where c1>(select avg(c1) from t2);
+select @s1;
+set @s1=-1;
+--error 5601
+select c1 into @s1 from t1 where c1>(select c1 from t2);
+select @s1;
+--error 5212
+select c1 from t1 where c1 in (select max(c2) into @s1 from t1);
+set @s1=-1;
+select c1 into @s1 from t1 where c1<(select min(c2) from t2);
+select @s1;
+set @s1=-1;
+select nvl(c2, 'null') into @s1 from t1 where t1.c1=(select avg(c1) from t2);
+select @s1;
+
+#多列
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s2 from t2 limit 1;
+select @s1,@s2;
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s1 from t1 where c1=5;
+select @s1,@s2;
+set @s1=-1,@s2=-1;
+select c1,c2 into @s1,@s2 from t1 where c1=5;
+select @s1,@s2;
+set @s1=-1,@s2=-1;
+select t2.c1,t2.c2 into @s1,@s2 from t1 full join t2 on t1.c1=t2.c1 where t1.c1=(select avg(c1) from t1 where c1<20);
+select @s1,@s2;
+set @s1=-1,@s2=-1;
+--error 5601
+select c1,c2 into @s1,@s2 from t1;
+select @s1,@s2;
+set @s1=-1,@s2=-1;
+select c1,c2 from t1 where c1<(select avg(c1) from t1) and c2=null;
+select @s1,@s2;
+#多列distinct使用
+CREATE TABLE test (id INT NOT NULL, fruit_id INT NOT NULL, fruit_name varchar(20)
+default NULL);
+INSERT INTO test VALUES (1,1,'ORANGE');
+INSERT INTO test VALUES (2,2,'APPLE');
+INSERT INTO test VALUES (3,2,'APPLE');
+INSERT INTO test VALUES (4,3,'PEAR');
+SELECT DISTINCT fruit_id, fruit_name INTO @v3, @v4 FROM test GROUP BY fruit_id, fruit_name HAVING fruit_name = 'APPLE';
+SELECT @v3, @v4;
+SELECT DISTINCT @v5:= fruit_id, @v6:= fruit_name INTO @v7, @v8 FROM test WHERE fruit_name = 'APPLE';
+SELECT @v5, @v6, @v7, @v8;
+SELECT DISTINCT @v5 + fruit_id, CONCAT(@v6, fruit_name) INTO @v9, @v10 FROM test WHERE fruit_name = 'APPLE';
+SELECT @v5, @v6, @v7, @v8, @v9, @v10;
+
+#存储过程
+delimiter //;
+create procedure p1() 
+begin 
+set @s1=-1; 
+select 1234 into @s1; 
+select @s1; 
+end//
+call p1()//
+
+create procedure p2() 
+begin 
+set @s1=-1; 
+select upper('yaobase') into @s1; 
+select @s1; 
+end//
+call p2()//
+
+create procedure p3() 
+begin declare a int default 0; 
+select 5123 into a; 
+select a; 
+end//
+call p3()//
+
+create procedure p4() 
+begin 
+declare a char(16) default '';
+select upper('yaobase') into a;
+select a; 
+end//
+call p4()//
+
+create procedure p5() 
+begin 
+declare a char(16) default ''; 
+select 100+25 into a; 
+select a; 
+end//
+call p5()//
+
+create procedure p6() 
+begin 
+declare a int default 0; 
+select 101.1234 into a; 
+select a; 
+end//
+call p6()//
+
+create procedure p7() 
+begin 
+declare a double default 0;
+set @s1=-1; 
+select 101.1234 into a; 
+select 202 into @s1; 
+select a,@s1; 
+end//
+call p7()//
+
+create procedure p8() 
+begin 
+declare a double default 0;
+set @s1=-1; 
+select 101.1234,202 into a,@s1; 
+select a,@s1; 
+end//
+call p8()//
+
+create procedure p9() 
+begin 
+set @s1=-1; 
+select avg(c1) into @s1 from t1; 
+select @s1; 
+end//
+call p9()//
+
+create procedure p10() 
+begin 
+set @s1=-1; 
+select c1 into @s1 from t1; 
+select @s1; 
+end//
+--error 5601
+call p10()//
+
+create procedure p11() 
+begin 
+set @s1=-1; 
+select c1 into @s1 from t1 where c1>(select max(c1) from t2); 
+select @s1; 
+end//
+call p11()//
+
+create procedure p12() 
+begin 
+declare a int default 0; 
+select max(c1) into a from t1; 
+select a; 
+end//
+call p12()//
+
+create procedure p13() 
+begin 
+declare a int default 0; 
+select max(c2) into a from t2; 
+select a; 
+end//
+call p13()//
+
+create procedure p14() 
+begin 
+declare a int default 0; 
+select c1 into a from t1; 
+select a; 
+end//
+--error 5601
+call p14()//
+
+create procedure p15() 
+begin 
+declare a int default 0; 
+select c1 into a from t1 where c1>(select max(c1) from t2); 
+select a; 
+end//
+call p15()//
+
+create procedure p16() 
+begin 
+declare a double default 0;
+declare b int default 0;
+select avg(c1),avg(c2) into a,b from t2; 
+select a,b; 
+end//
+call p16()//
+
+create procedure p17() 
+begin 
+declare a double default 0;
+declare b double default 0;
+select c1,c2 into a,b from t2; 
+select a,b; 
+end//
+--error 5601
+call p17()//
+
+#Stored Procedure: Memory blow up on repeated SELECT ... INTO query
+drop table if exists t3//
+drop procedure if exists p18//
+create table t3 (c1 char(128))//
+insert into t3 values ('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')//
+create procedure p18(i int)
+begin
+    declare tmp varchar(128);
+    set @x = 0;
+    repeat
+        select c1 into tmp from t3
+          where c1 = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        set @x = @x + 1;
+        until @x >= i
+    end repeat;
+end//
+call p18(10)//
+drop procedure p18//
+drop table t3//
+
+#SELECT .. INTO variable .. within Stored Procedure crashes
+drop table if exists t3//
+create table t3 (s1 int)//
+drop procedure if exists p19_1//
+drop procedure if exists p19_2//
+create procedure p19_1()
+begin
+  declare i int;
+  select max(s1)+1 into i from t3;
+end//
+create procedure p19_2()
+begin
+  insert into t3 (s1) select max(t4.s1)+1 from t3 as t4;end//
+call p19_1()//
+call p19_1()//
+call p19_2()//
+call p19_2()//
+SHOW CREATE PROCEDURE p19_1//
+drop procedure p19_1//
+drop procedure p19_2//
+drop table t3//

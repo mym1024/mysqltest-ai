@@ -1,0 +1,138 @@
+####################################必填######################################################
+###1.测试功能点：在不指定分区规则下，在同一事务中批量插入数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+
+
+###2-1：批量插入不同形式的数据
+#do sql
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+# --error 5047
+insert into t1 select * from t2;
+select * from t1;
+commit;
+select * from t1;
+set autocommit=1;
+select * from t2;
+
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from t2;
+# --error 5047
+insert into t1 select * from t2 where c1<4;
+insert into t1 select * from t2 where c1=4;
+select * from t1;
+rollback;
+select * from t1;
+set autocommit=1;
+
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from t2;
+# --error 5047
+insert into t1 select * from t2 where c1<4;
+insert into t1 select * from t2 where c1=4;
+select * from t1;
+rollback;
+select * from t1;
+set autocommit=1;
+
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+set autocommit=0;
+select * from t2;
+--error 5001
+insert into t1 select * from t2 where c1<4 multi_batch;
+--error 5001
+insert into t1 select * from t2 where c1=4 multi_batch;
+select * from t1;
+commit;
+select * from t1;
+set autocommit=1;
+
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+set autocommit=0;
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t1 select * from t2 multi_batch;
+insert into t2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+--error 5001
+insert into t1 select * from t2 where c1=4 multi_batch;
+select * from t1;
+rollback;
+select * from t1;
+set autocommit=1;
+select * from t2;
+
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+set autocommit=0;
+--real_sleep 3
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t1 select * from t2;
+insert into t2 values(4,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+--error 5001
+insert into t1 select * from t2 where c1=4 multi_batch;
+select * from t1;
+rollback;
+select * from t1;
+set autocommit=1;
+select * from t2;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

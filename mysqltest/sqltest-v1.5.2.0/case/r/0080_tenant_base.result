@@ -1,0 +1,52 @@
+SELECT * FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit	disk_size	connect_list
+	1	4	8589934592	137438953472	NULL
+create tenant t1 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+alter tenant t1 cpu=2;
+alter tenant t1 memory_size = '16GB';
+alter tenant t1 disk_size = '256GB';
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit_GB	disk_size_GB	connect_list
+	1	4	8	128	NULL
+t1	2	2	16	256	
+alter tenant t1 cpu = 8, memory_size= '16GB', disk_size = '256GB', connect_list = ('ANY');
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit_GB	disk_size_GB	connect_list
+	1	4	8	128	NULL
+t1	2	8	16	256	
+select tenant_id,name from __all_virtual_tenant_status;
+tenant_id	name
+1	tenant_cpu_usage
+1	tenant_cpu_last_rec_time
+1	tenant_cpu_curr_rec_time
+1	tenant_cpu_recent_use_rate
+1	tenant_cpu_throttled_time
+1	tenant_cpu_recent_throttled_rate
+1	tenant_memory_usage
+2	tenant_cpu_usage
+2	tenant_cpu_last_rec_time
+2	tenant_cpu_curr_rec_time
+2	tenant_cpu_recent_use_rate
+2	tenant_cpu_throttled_time
+2	tenant_cpu_recent_throttled_rate
+2	tenant_memory_usage
+select vts.tenant_id,tenant_name from __all_virtual_tenant_status vts join __all_tenant_config tc on vts.tenant_id = tc.tenant_id;
+tenant_id	tenant_name
+1	
+1	
+1	
+1	
+1	
+1	
+1	
+2	t1
+2	t1
+2	t1
+2	t1
+2	t1
+2	t1
+2	t1
+drop tenant t1;
+SELECT * FROM __all_tenant_config;
+tenant_name	tenant_id	cpu_limit	mem_limit	disk_size	connect_list
+	1	4	8589934592	137438953472	NULL

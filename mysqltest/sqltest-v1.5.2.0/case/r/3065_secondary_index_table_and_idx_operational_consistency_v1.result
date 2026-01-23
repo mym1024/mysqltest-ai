@@ -1,0 +1,381 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists test1;
+set yao_query_timeout=900000000;
+create table o_euif_fd_org_1(org_id varchar(11) not null,parent_org_id decimal(10,0),parent_org_code varchar(11),area_code varchar(3),org_code varchar(11),org_name varchar(128),org_en_name varchar(128),short_name varchar(10),org_level decimal(2,0),org_seq varchar(1000),org_type varchar(4),in_country varchar(20),org_catagory varchar(4),org_addr varchar(512),system_type_id decimal(10,0),is_reserve_code varchar(1),company_org_id decimal(10,0),pbc_no varchar(50),swift_no varchar(50),ehr_org_pk varchar(30),ehr_order varchar(30),omi_org_pk varchar(30),is_leaf varchar(1),is_online varchar(1),sort_no decimal(4,0),zipcode varchar(10),link_man varchar(32),link_tel varchar(20),email varchar(128),web_url varchar(512),status varchar(4),ehr_status varchar(4),omis_status varchar(4),org_effective_date varchar(10),org_expire_date varchar(10),memo varchar(512),create_time varchar(26),last_update varchar(26),updator decimal(10,0),org_creator varchar(10),enterprise_flag varchar(1),branch_flag varchar(1),other_place_flag varchar(1),hds_lupt varchar(10) not null,primary key(org_code,org_id)) compress_method='snappy_1.0';
+create table o_euif_fd_org_2(org_id decimal(10,0) not null,parent_org_id decimal(10,0),parent_org_code varchar(11),area_code varchar(3),org_code varchar(11),org_name varchar(128),org_en_name varchar(128),short_name varchar(10),org_level decimal(2,0),org_seq varchar(1000),org_type varchar(4),in_country varchar(20),org_catagory varchar(4),org_addr varchar(512),system_type_id decimal(10,0),is_reserve_code varchar(1),company_org_id decimal(10,0),pbc_no varchar(50),swift_no varchar(50),ehr_org_pk varchar(30),ehr_order varchar(30),omi_org_pk varchar(30),is_leaf varchar(1),is_online varchar(1),sort_no decimal(4,0),zipcode varchar(10),link_man varchar(32),link_tel varchar(20),email varchar(128),web_url varchar(512),status varchar(4),ehr_status varchar(4),omis_status varchar(4),org_effective_date varchar(10),org_expire_date varchar(10),memo varchar(512),create_time varchar(26),last_update varchar(26),updator decimal(10,0),org_creator varchar(10),enterprise_flag varchar(1),branch_flag varchar(1),other_place_flag varchar(1),hds_lupt varchar(10) not null,primary key(org_code,org_id)) compress_method='snappy_1.0';
+create index org_id on o_euif_fd_org_1(org_id,org_code);
+create index org_id2 on o_euif_fd_org_1(org_id,org_code) storing (swift_no);
+create index parent_org_code on o_euif_fd_org_1(parent_org_code,org_code,org_id);
+create index parent_org_code2 on o_euif_fd_org_1(parent_org_code,org_code,org_id) storing (swift_no);
+create index org_id on o_euif_fd_org_2(org_id,org_code);
+create index org_id2 on o_euif_fd_org_2(org_id,org_code) storing (swift_no);
+create index parent_org_code on o_euif_fd_org_2(parent_org_code,org_code,org_id);
+create index parent_org_code2 on o_euif_fd_org_2(parent_org_code,org_code,org_id) storing (swift_no);
+"merge"
+major_freeze...
+merge: DONE
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+insert into o_euif_fd_org_1(org_id,org_code,hds_lupt) values('1000003316','1000003316','2'),('666','666','2');
+insert into o_euif_fd_org_2(org_id,org_code,hds_lupt) values('1000003316','1000003316','2'),('666','666','2');
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+666	NULL	NULL	NULL	666	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+666	NULL	NULL	NULL	666	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+"merge"
+major_freeze...
+merge: DONE
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select count(*) from o_euif_fd_org_1;
+count(*)
+2
+select count(*) from __3001__idx__org_id;
+count(*)
+2
+select count(*) from __3001__idx__parent_org_code;
+count(*)
+2
+select count(*) from __3001__idx__org_id2;
+count(*)
+2
+select count(*) from __3001__idx__parent_org_code2;
+count(*)
+2
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+666	NULL	NULL	NULL	666	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1000003316	NULL
+666	666	NULL
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+666	NULL	666	NULL
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1000003316	NULL
+666	666	NULL
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+666	NULL	666	NULL
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+select count(*) from o_euif_fd_org_2;
+count(*)
+2
+select count(*) from __3002__idx__org_id;
+count(*)
+2
+select count(*) from __3002__idx__parent_org_code;
+count(*)
+2
+select count(*) from __3002__idx__org_id2;
+count(*)
+2
+select count(*) from __3002__idx__parent_org_code2;
+count(*)
+2
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+666	NULL	NULL	NULL	666	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+666	666	NULL
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+666	NULL	666	NULL
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+666	666	NULL
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+666	NULL	666	NULL
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+delete from o_euif_fd_org_1 where org_id='1000003316';
+delete from o_euif_fd_org_1 where org_id='666';
+delete from o_euif_fd_org_2 where org_id='1000003316';
+delete from o_euif_fd_org_2 where org_id='666';
+"merge"
+major_freeze...
+merge: DONE
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select count(*) from o_euif_fd_org_1;
+count(*)
+0
+select count(*) from __3001__idx__org_id;
+count(*)
+0
+select count(*) from __3001__idx__parent_org_code;
+count(*)
+0
+select count(*) from __3001__idx__org_id2;
+count(*)
+0
+select count(*) from __3001__idx__parent_org_code2;
+count(*)
+0
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+insert into o_euif_fd_org_1(org_id,org_code,hds_lupt) values('1000003316','1000003316','2');
+insert into o_euif_fd_org_2(org_id,org_code,hds_lupt) values('1000003316','1000003316','2');
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1000003316	NULL
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1000003316	NULL
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+"merge"
+major_freeze...
+merge: DONE
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1000003316	NULL
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1000003316	NULL
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1000003316	NULL
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1000003316	NULL
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1000003316	NULL
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+update o_euif_fd_org_1 set org_id='1234567890' where org_id ='1000003316';
+update o_euif_fd_org_2 set org_code='1234567890' where org_id ='1000003316';
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1234567890	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+1234567890	1000003316	NULL
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1234567890	NULL	1000003316	NULL
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+1234567890	1000003316	NULL
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1234567890	NULL	1000003316	NULL
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1234567890	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1234567890	NULL
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1234567890	NULL
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1234567890	NULL
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1234567890	NULL
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0
+"merge"
+major_freeze...
+merge: DONE
+select * from o_euif_fd_org_1;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1234567890	NULL	NULL	NULL	1000003316	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3001__idx__org_id;
+org_id	org_code	yao_virtual_col
+1234567890	1000003316	NULL
+select * from __3001__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1234567890	NULL	1000003316	NULL
+select * from __3001__idx__org_id2;
+org_id	org_code	swift_no
+1234567890	1000003316	NULL
+select * from __3001__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1234567890	NULL	1000003316	NULL
+show index on o_euif_fd_org_1;
+index_name	status	index_type
+__3001__idx__org_id	1	0
+__3001__idx__org_id2	1	0
+__3001__idx__parent_org_code	1	0
+__3001__idx__parent_org_code2	1	0
+select * from o_euif_fd_org_2;
+org_id	parent_org_id	parent_org_code	area_code	org_code	org_name	org_en_name	short_name	org_level	org_seq	org_type	in_country	org_catagory	org_addr	system_type_id	is_reserve_code	company_org_id	pbc_no	swift_no	ehr_org_pk	ehr_order	omi_org_pk	is_leaf	is_online	sort_no	zipcode	link_man	link_tel	email	web_url	status	ehr_status	omis_status	org_effective_date	org_expire_date	memo	create_time	last_update	updator	org_creator	enterprise_flag	branch_flag	other_place_flag	hds_lupt
+1000003316	NULL	NULL	NULL	1234567890	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	2
+select * from __3002__idx__org_id;
+org_id	org_code	yao_virtual_col
+1000003316	1234567890	NULL
+select * from __3002__idx__parent_org_code;
+org_id	parent_org_code	org_code	yao_virtual_col
+1000003316	NULL	1234567890	NULL
+select * from __3002__idx__org_id2;
+org_id	org_code	swift_no
+1000003316	1234567890	NULL
+select * from __3002__idx__parent_org_code2;
+org_id	parent_org_code	org_code	swift_no
+1000003316	NULL	1234567890	NULL
+show index on o_euif_fd_org_2;
+index_name	status	index_type
+__3002__idx__org_id	1	0
+__3002__idx__org_id2	1	0
+__3002__idx__parent_org_code	1	0
+__3002__idx__parent_org_code2	1	0

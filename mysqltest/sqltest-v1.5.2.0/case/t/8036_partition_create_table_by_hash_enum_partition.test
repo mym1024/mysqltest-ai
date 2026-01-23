@@ -1,0 +1,849 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：使用哈希与枚举分区函数的建表情况
+###   hash函数所指定的主键子集中，只能是BIGINT/INT(INTEGER, MEDIUMINT, SMALLINT, TINYINT)/VARCHAR类型
+###   最大主键数为16，枚举函数的参数最大数为15
+##
+#
+###2.测试项：（每新添一测试项，需在添加前注明测试项，注释填在新添sql前，不填在此处，如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：258 s
+###5.编写/修改人：hexiangsong
+###6.编写/修改日期：2019-12-05
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+###2-1：哈希函数，参数为int型
+drop table if exists t1;
+--enable_warnings
+--error 5077
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table t1 (c1 int primary key, c2 int) partition by (a,h1,c1);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+show table rules;
+--real_sleep 600
+insert into t1 values(1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+###2-2：哈希函数，参数为varchar型
+create hash partition function h1(x) 'x+1';
+create table t1 (c1 varchar(30) primary key, c2 int) partition by (a,h1,c1);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values('a',1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+###2-3：哈希函数，参数为double型
+create hash partition function h1(x) 'x+1';
+--error 5089
+create table t1 (c1 double primary key, c2 int) partition by (a,h1,c1);
+show table rules;
+--echo "refesh"
+
+--error 5019
+insert into t1 values(1.1,1);
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-4：哈希函数，参数为timestamp型
+create hash partition function h1(x) 'x+1';
+--error 5089
+create table t1 (c1 timestamp primary key, c2 int) partition by (a,h1,c1);
+--echo "refesh"
+
+--error 5019
+insert into t1 values('2010-01-01 08:00:00',1);
+show table rules;
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-5：哈希函数，参数为bool型
+create hash partition function h1(x) 'x+1';
+--error 5089
+create table t1 (c1 bool primary key, c2 int) partition by (a,h1,c1);
+--echo "refesh"
+
+--real_sleep 1
+show table rules;
+--error 5019
+insert into t1 values(1,1);
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-6：多参数哈希函数，参数全为int型
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+create table t1 (c1 int, c2 int, c3 int, c4 int, c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1,1,'a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+###2-7：多参数哈希函数，参数全为bool型
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+--error 5089
+create table t1 (c1 bool, c2 bool, c3 bool, c4 int, c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into t1 values(1,1,1,1,'a');
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-8：多参数哈希函数，参数全为varchar型
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+create table t1 (c1 varchar(20), c2 varchar(20), c3 varchar(20), c4 varchar(20), c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values('a','a','a','a','a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+###2-9：多参数哈希函数，参数全为timestamp型
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+--error 5089
+create table t1 (c1 timestamp, c2 timestamp, c3 timestamp, c4 int, c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into t1 values('0001-01-01','0001-01-01','0001-01-01',1,'a');
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-10：多参数哈希函数，参数全为float型
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+--error 5089
+create table t1 (c1 float, c2 float, c3 float, c4 int, c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into t1 values(1.1,1.1,1.1,1,'a');
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-11：多参数哈希函数，参数为int, varchar, bool
+create hash partition function h1(x,y,z) '(x+y+z)%3';
+--error 5089
+create table t1 (c1 int, c2 varchar(20), c3 bool, c4 int, c5 varchar(2), primary key(c1,c2,c3)) partition by (a,h1,c1,c2,c3);
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into t1 values(1,'a',1,1,'a');
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-12：多参数哈希函数，参数个数15
+--error 5077
+drop partition function h_func;
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) '(a1+a2)%a15';
+create table t1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 varchar(20), primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,'a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h_func;
+
+###2-13：多参数哈希函数，参数个数16
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) 'a1+a2';
+create table t1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 varchar(20), primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,'a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h_func;
+
+###2-14：多参数枚举函数，参数个数16
+--error 5077
+drop partition function e_func;
+--error 65535
+create enum partition function e_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '[(a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d,a,b,c,d)]';
+--error 5077
+create table t1 (c1 varchar(20), c2 varchar(20), c3 varchar(20), c4 varchar(20), c5 varchar(20), c6 varchar(20), c7 varchar(20), c8 varchar(20), c9 varchar(20), c10 varchar(20), c11 varchar(20), c12 varchar(20), c13 varchar(20), c14 varchar(20), c15 varchar(20), c16 varchar(20), c17 varchar(20), primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by (em,e_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show table rules;
+--error 5019
+insert into t1 values('a','b','c','d','a','b','c','d','a','b','c','d','a','b','c','d','a','b','c','d','a');
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+
+###2-15：多参数哈希函数，参数个数16，主键为int与varchar混合
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) 'a1+a2';
+create table t1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 varchar(20), c10 varchar(20), c11 varchar(20), c12 varchar(20), c13 varchar(20), c14 varchar(20), c15 varchar(20), c16 varchar(20), c17 varchar(20), primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1,1,1,1,1,1,'a','a','a','a','a','a','a','a','a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+###2-16：建表，无分区
+create table t1 (c1 int primary key,c2 int);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+create table t1 (c1 int primary key,c2 int) partition by();
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+create table t1 (c1 int,c2 int,c3 varchar(20),c4 varchar(20),primary key(c1,c2,c3)) partition by();
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,'a','a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+###2-17：建表，只指定组名前缀
+create table t1 (c1 int primary key,c2 int) partition by(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+create table t1 (c1 int,c2 int,c3 varchar(20),c4 varchar(20),primary key(c1,c2,c3)) partition by(b);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,'a','a');
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+###2-18：建表，不指定组名前缀
+create hash partition function h1(x) 'x+1';
+create table t1 (c1 int primary key,c2 int) partition by(,h1,c1);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+create hash partition function h1(x) 'x+1';
+create table t1 (c1 varchar(20) primary key,c2 int) partition by(,h1,c1);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values('a',1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+create hash partition function h1(x) 'x+1';
+--error 5089
+create table t1 (c1 timestamp primary key,c2 int) partition by(,h1,c1);
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into t1 values(timestamp '2010-10-10 09:00:00',1);
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t2;
+--error 5077
+drop partition function h2;
+
+create hash partition function h2(x,y) 'x+y+1';
+create table t2 (c1 int,c2 int,c3 int,c4 int, primary key(c1,c2,c3)) partition by(,h2,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t2 values(1,1,1,1);
+select * from t2;
+--replace_column 3 0
+show partition groups;
+drop table t2;
+drop partition function h2;
+
+create hash partition function h2(x,y) 'x+y+1';
+create table t2 (c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 int, primary key(c1,c2,c3)) partition by(,h2,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t2 values('a','a','a',1);
+select * from t2;
+--replace_column 3 0
+show partition groups;
+drop table t2;
+drop partition function h2;
+
+create hash partition function h2(x,y) 'x+y+1';
+create table t2 (c1 int,c2 varchar(20),c3 varchar(20),c4 int, primary key(c1,c2,c3)) partition by(,h2,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t2 values(1,'a','a',1);
+select * from t2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t3;
+--error 5077
+drop partition function h3;
+
+create hash partition function h3(x,y) 'x+y+1';
+create table t3 (c1 int,c2 int,c3 int, primary key(c1,c2)) partition by(,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values(1,1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create hash partition function h3(x,y) 'x+y+1';
+create table t3 (c1 varchar(20),c2 varchar(20),c3 varchar(20), primary key(c1,c2)) partition by(,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a','a','a');
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create hash partition function h3(x,y) 'x+y+1';
+create table t3 (c1 varchar(20),c2 int,c3 varchar(20), primary key(c1,c2)) partition by(,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a',1,'a');
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+###2-19：既指定组名，也指定哈希函数与分区列
+create hash partition function h3(x) 'x+1';
+create table t3 (c1 int primary key,c2 int) partition by(c,h3,c1);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values(1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create hash partition function h3(x) 'x+1';
+create table t3 (c1 varchar(20) primary key,c2 int) partition by(c,h3,c1);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a',1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create hash partition function h3(x,y) 'x+y+1';
+create table t3 (c1 int,c2 int,c3 int, c4 int, primary key(c1,c2,c3)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values(1,1,1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create hash partition function h3(x,y) 'x+y+1';
+create table t3 (c1 int,c2 int,c3 int, primary key(c1,c2)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values(1,1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create enum partition function h3(x,y) '[(a,a),(b,b)],[(c,c)]';
+create table t3 (c1 varchar(20),c2 varchar(20),c3 int,c4 int,primary key(c1,c2,c3)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a','a',1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t3 (c1 varchar(20),c2 int,c3 int,c4 int,primary key(c1,c2,c3)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a',1,1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create enum partition function h3(x,y) '[(a,a),(b,b)],[(c,c)]';
+create table t3 (c1 varchar(20),c2 varchar(20),c3 int,primary key(c1,c2)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a','a',1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(c,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a',1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t3;
+drop partition function h3;
+
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(h3,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t3 values('a',1,1);
+select * from t3;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop table t2;
+drop table t3;
+drop partition function h1,h2,h3;
+
+###2-20：不同的表，使用不同分区函数，相同的前缀
+create hash partition function h1(x,y) 'x+y';
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h3,h1,c1,c2);
+create table t2 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h3,h2,c1);
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(h3,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1);
+insert into t2 values(1,1,1);
+insert into t3 values('a',1,1);
+select * from t1;
+select * from t2;
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop table t2;
+drop table t3;
+drop partition function h1,h2,h3;
+
+###2-21：不同的表，使用相同分区函数，相同的前缀
+create hash partition function h1(x,y) 'x+y';
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h3,h1,c1,c2);
+create table t2 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h3,h2,c1);
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(h3,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1);
+insert into t2 values(1,1,1);
+insert into t3 values('a',1,1);
+select * from t1;
+select * from t2;
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop table t2;
+drop table t3;
+drop partition function h1,h2,h3;
+
+###2-22：不同的表，使用相同分区函数， 不同的组前缀
+create hash partition function h1(x,y) 'x+y';
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+create table t2 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h2,h1,c1,c2);
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(h3,h1,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1);
+insert into t2 values(1,1,1);
+insert into t3 values('a',1,1);
+select * from t1;
+select * from t2;
+select * from t3;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop table t2;
+drop table t3;
+drop partition function h1,h2,h3;
+
+###2-23：不同的表，使用不同分区函数， 不同的组前缀
+create hash partition function h1(x,y) 'x+y';
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+create enum partition function h3(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+create table t2 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h2,h2,c1);
+create table t3 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(h3,h3,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1);
+insert into t2 values(1,1,1);
+insert into t3 values('a',1,1);
+select * from t1;
+select * from t2;
+select * from t3;
+--replace_column 3 0
+show partition groups;
+
+drop table t1;
+drop table t2;
+drop table t3;
+drop partition function h1,h2,h3;
+
+###2-24：分区函数未定义
+--error 5077
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+show table rules;
+--error 5019
+drop table t1;
+--error 5077
+drop partition function h1;
+
+###2-25：不指定分区列
+create hash partition function h1(x,y) 'x+y';
+--error 5001
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+create hash partition function h1(x,y) 'x';
+--error 5001
+create table t1(c1 int,c2 int,c3 int,primary key(c1)) partition by(,c1);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-26：分区列为非主键列
+create hash partition function h1(x) 'x';
+--error 5081
+create table t1(c1 int,c2 int,c3 int,primary key(c1)) partition by(a,h1,c3);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+create hash partition function h1(x,y) 'x+y';
+--error 5081
+create table t1(c1 int,c2 int,c3 int,c4 int,primary key(c1)) partition by(a,h1,c3,c4);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-27：分区列含非主键列
+create hash partition function h1(x,y) 'x+y';
+--error 5081
+create table t1(c1 int,c2 int,c3 int,primary key(c1)) partition by(a,h1,c1,c3);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h_func;
+
+###2-28：主键数大于16
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) '(a1+a2)%a15';
+#--error 2
+create table t1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, c18 varchar(20), primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15);
+show table rules;
+#--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-29：重复指定分区列
+create hash partition function h1(x,y) 'x+y';
+--error 5025
+create table t1 (c1 int, c2 int, c3 int, primary key(c1)) partition by (a,h1,c1,c1);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-30：指定分区列为未定义的列
+create hash partition function h1(x) 'x';
+--error 5009
+create table t1 (c1 int, c2 int, c3 int, primary key(c1)) partition by (a,h1,c0);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-31：指定分区列含未定义的列
+create hash partition function h1(x,y) 'x+y';
+--error 5009
+create table t1 (c1 int, c2 int, c3 int, primary key(c1)) partition by (a,h1,c1,c0);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-32：指定分区列的个数少于分区函数的参数个数
+create hash partition function h1(x,y) 'x+y';
+--error 5054
+create table t1 (c1 int, c2 int, c3 int, primary key(c1)) partition by (a,h1,c1);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-33：指定分区列含非法类型列
+create hash partition function h1(x,y) 'x+y';
+--error 5089
+create table t1 (c1 varchar(20), c2 float, c3 int, primary key(c1,c2)) partition by (a,h1,c1,c2);
+show table rules;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-34：插入的值不是枚举函数的枚举值
+create enum partition function h1(x,y) '[(a,1),(b,2)],[(c,3)]';
+create table t1 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(c,h1,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+--error 5702
+insert into t1 values('d',1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+drop partition function h1;
+
+###2-35：分区函数名非下划线开头
+create hash partition function h1(x,y) 'x+y';
+create table t1 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(c,h1,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values('a',1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+###2-36：分区函数名以下划线开头
+--error 5077
+drop partition function _h1;
+create hash partition function _h1(x,y) 'x+y';
+create table t1 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(a,_h1,c1,c2);
+--echo "refesh"
+
+show table rules;
+--real_sleep 1
+insert into t1 values('a',1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+drop table t1;
+
+###2-37：分区函数名以两个连续下划线开头
+--error 65535
+drop partition function __h1;
+--error 65535
+create hash partition function __h1(x,y) 'x+y';
+--error 65535
+create table t1 (c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by(a,__h1,c1,c2);
+show table rules;
+--error 5019
+insert into t1 values('a',1,1);
+--error 5019
+select * from t1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table t1;
+drop partition function h1;
+
+###2-38：重命名已指定的分区列的列名
+create hash partition function h1(x,y) 'x+y';
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+--echo "refesh"
+
+show table rules;
+--error 5002
+alter table t1 rename c1 to id;
+show table rules;
+--real_sleep 1
+insert into t1 values(1,1,1);
+select * from t1;
+--replace_column 3 0
+show partition groups;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

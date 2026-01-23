@@ -1,0 +1,236 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210201
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:视图列为单独的列，不进行任何运算，列类型为所有数据类型
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int,c3 date,c4 bool,c5 createtime,c6 timestamp,c7 datetime,c8 time,c9 double,c10 real,c11 float,c12 modifytime,c13 binary);
+create view v1 as select * from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+###2-2:视图列为单独的列，不进行任何运算，列类型为varchar类型，长度为边界值和普通值
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 varchar(64),c3 varchar(65535));
+create view v1 as select * from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-3:视图列为单独的列，不进行任何运算，列类型为decimal类型，有效值和小数位为边界值和普通值
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 decimal(1,0),c3 decimal(38,0),c4 decimal(10,5));
+create view v1 as select * from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-4:视图列为多个列，使用逻辑运算符not,and,or
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select not c1,c1 and c2,c1 or c2 from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-5:视图列为多个列，使用算术运算符+,-,*,/,^,%
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1+c2,c1*c2 ,c1/ c2,c1^c2,c1%c2 from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+###2-6:视图列为多个列，使用比较运算符<,>,<=,>=,=,!=,in,between,is null/unknown
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1<c2,c1<=c2,c1>=c2,c1>c2,c1!=c2,c1 in(1,3,5,7,9) ,c1 between 1 and 7,c1 is null,c1 is unknown from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+###2-7:视图列为多个列，使用拼接运算符||
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1 || c2 from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-8:视图列为多个列，使用聚集函数
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select sum(c1), avg(c1),min(c1),max(c1),count(c1),listagg(c1,','),row_number() over (partition by c1) from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-9:视图列为多个列，使用系统函数
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 date);
+create view v1 as select cast(c1 as int),concat(c1,c2),current_date(),current_time(),year('2021-02-01'),month('2021-02-01'),day('2021-02-01'),days('2021-02-01'),hour('12:12:12'),minute('12:12:12'),second('12:12:12') from t1;
+create view v2 as select date_add(date '2021-02-01',interval 1 days),date_sub(date '2021-02-01',interval 1 days),hex(c1),unhex('65535') from t1;
+create view v3 as select int2ip(2555555555),ip2int('192.168.0.1'),length('cbase'),'ab' like 'ab_',now(),nvl(null,'cbase'),round(c1,0),strict_current_timestamp() from t1;
+create view v4 as select substr('cbase',1,2),trim(both ' ' from '  cbase  '),upper('cbase'),lower('CBASE'),decode(c1,1,'a',2,'b','c'),floor(c1),ceil(c1) from t1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4;
+
+###2-10:视图列为多个列，列类型为所有的数据类型，混合使用函数和运算符
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select length(sum(c1)), count(1.268*2.3569),hex(89+29*count(c1)) from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-11:视图列为join语句的列
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select a.c1 from t1 a join t1 as b on a.c1>0;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-12:视图列为虚拟表中的列
+drop table if exists t1;
+drop view if exists v1;
+create view v1 as select 15*13+27*3.159 from dual;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-13:视图列为集合操作的列[ERROR:OB-16:Oooooooooooops]
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select a.c1 from t1 a union select c2 from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-14:视图列为基本查询的列
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1 from t1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+
+###2-15:视图列为select语句含有子查询的列
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+desc v1;
+drop table if exists t1;
+drop view if exists v1;
+
+###2-16:视图列为select视图语句
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select * from (select * from (select * from v1));
+desc v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+
+
+###2-17:视图列为select视图和基本表join语句
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2(c1,c2,c3,c4) as select t1.c1,t1.c2,v1.c1,v1.c2 from t1 join v1 on v1.c1>=1;
+desc v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+
+###2-18:视图列为select视图与基本表集合操作的列[ERROR:OB-16:Oooooooooooops]
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select c1 from t1 union select c2 from v1;
+desc v1;
+drop table if exists t1;
+drop view if exists v1,v2;
+
+###2-19:视图列为select视图与视图join语句[ERROR:OB-16:Oooooooooooops]
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select c1 from t1 union select c2 from v1;
+create view v3 (c1,c2) as select v1.c1 ,v2.c1 from v1 join v2 on v2.c1>0;
+desc v3;
+drop table if exists t1;
+drop view if exists v1,v2;
+
+
+###2-20:视图列为select视图与视图集合操作语句
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2(c1) as select c1 from t1 union select c2 from v1;
+create view v3 (c1) as select c1 from v1 union select c1 from v2;
+desc v3;
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+
+###2-21:视图为其他数据库下的视图
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create database db;
+using database db;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+using database "yao";
+desc db.v1;
+drop table if exists db.t1;
+drop view if exists db.v1;
+drop database db;
+
+

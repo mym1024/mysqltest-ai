@@ -1,0 +1,382 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+create table t1 (c1 int primary key,c2 int) partition by (group_t1);
+create table t2 (c1 int primary key,c2 int) partition by (group_t2);
+create table t3 (c1 int primary key,c2 int) ;
+create table t4 (c1 int primary key,c2 int , c3 int, c4 int)partition by range(c1)(partition r0 values less than(20),partition r1 values less than (40),partition r2 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	group_t1	NULL	NULL
+3002	2	t2	0	group_t2	NULL	NULL
+3003	2	t3	0	__user_default_group	NULL	NULL
+3004	2	t4	1	t4#r0,t4#r1,t4#r2	__range@3004	c1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+group_t1	2	0	NULL
+group_t2	2	1	NULL
+t4#r0	2	1	NULL
+t4#r1	2	0	NULL
+t4#r2	2	1	NULL
+__user_default_group	2	0	NULL
+show current paxos_idx;
+paxos_id
+-1
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+insert into t3 values(1,1);
+insert into t4 values(1,2,3,4);
+show current paxos_idx;
+paxos_id
+-1
+update t1 set c2 = 10 where c1 = 1;
+delete from t2 where c1 = 1;
+show current paxos_idx;
+paxos_id
+-1
+replace into t1 values(1,100);
+show current paxos_idx;
+paxos_id
+-1
+select * from t1;
+c1	c2
+1	100
+select * from t2;
+c1	c2
+select * from t3;
+c1	c2
+1	1
+select * from t4;
+c1	c2	c3	c4
+1	2	3	4
+show current paxos_idx;
+paxos_id
+-1
+start transaction;
+select * from t1;
+c1	c2
+1	100
+show current paxos_idx;
+paxos_id
+-1
+commit;
+start transaction;
+select * from t2;
+c1	c2
+show current paxos_idx;
+paxos_id
+-1
+commit;
+start transaction;
+select * from t3;
+c1	c2
+1	1
+show current paxos_idx;
+paxos_id
+-1
+commit;
+start transaction;
+select * from t4;
+c1	c2	c3	c4
+1	2	3	4
+show current paxos_idx;
+paxos_id
+-1
+commit;
+start transaction;
+select * from t1;
+c1	c2
+1	100
+select * from t2;
+c1	c2
+select * from t3;
+c1	c2
+1	1
+select * from t4;
+c1	c2	c3	c4
+1	2	3	4
+show current paxos_idx;
+paxos_id
+-1
+commit;
+begin;
+replace into t1 values(2,2);
+show current paxos_idx;
+paxos_id
+0
+update t1 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t2 values(2,2);
+show current paxos_idx;
+paxos_id
+1
+update t2 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+1
+commit;
+begin;
+replace into t3 values(2,2);
+show current paxos_idx;
+paxos_id
+0
+update t3 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t4 values(20,21,22,23);
+show current paxos_idx;
+paxos_id
+0
+update t2 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+9
+commit;
+set autocommit = 0;
+insert into t1 values(3,3);
+show current paxos_idx;
+paxos_id
+0
+insert into t2 values(3,3);
+show current paxos_idx;
+paxos_id
+9
+commit;
+insert into t1 values(4,4);
+show current paxos_idx;
+paxos_id
+0
+insert into t3 values(3,3);
+show current paxos_idx;
+paxos_id
+0
+commit;
+delete from t2 where c1 = 3;
+show current paxos_idx;
+paxos_id
+1
+insert into t4 values(10,11,12,13);
+show current paxos_idx;
+paxos_id
+1
+commit;
+replace into t1 values(5,5);
+show current paxos_idx;
+paxos_id
+0
+insert into t4 values(30,31,32,33);
+show current paxos_idx;
+paxos_id
+0
+commit;
+replace into t1 values(4,40);
+show current paxos_idx;
+paxos_id
+0
+update t2 set c2 = 20 where c1 = 2;
+delete from t3 where c1 = 3;
+show current paxos_idx;
+paxos_id
+9
+insert into t4 values(40,41,42,43);
+insert into t4 values(100,101,102,103);
+show current paxos_idx;
+paxos_id
+9
+commit;
+select * from t1;
+c1	c2
+1	10
+2	2
+3	3
+4	40
+5	5
+show current paxos_idx;
+paxos_id
+-1
+replace into t2 values(6,6);
+show current paxos_idx;
+paxos_id
+1
+commit;
+select * from t2;
+c1	c2
+2	20
+6	6
+show current paxos_idx;
+paxos_id
+-1
+replace into t1 values(6,6);
+show current paxos_idx;
+paxos_id
+0
+commit;
+replace into t4 values(1,2,3,4);
+replace into t4 values(21,2,3,4);
+replace into t4 values(41,2,3,4);
+show current paxos_idx;
+paxos_id
+9
+select * from t1;
+c1	c2
+1	10
+2	2
+3	3
+4	40
+5	5
+6	6
+show current paxos_idx;
+paxos_id
+9
+select * from t2;
+c1	c2
+2	20
+6	6
+show current paxos_idx;
+paxos_id
+9
+select * from t4;
+c1	c2	c3	c4
+1	2	3	4
+10	11	12	13
+20	21	22	23
+21	2	3	4
+30	31	32	33
+40	41	42	43
+41	2	3	4
+100	101	102	103
+show current paxos_idx;
+paxos_id
+9
+commit;
+set autocommit = 1;
+begin;
+replace into t1 values(100,100);
+replace into t2 values(100,100);
+show current paxos_idx;
+paxos_id
+9
+commit;
+show current paxos_idx;
+paxos_id
+-1
+start transaction;
+replace into t1 values(10,10);
+replace into t2 values(10,10);
+show current paxos_idx;
+paxos_id
+9
+rollback;
+show current paxos_idx;
+paxos_id
+-1
+create hash partition function h(x) 'x%2';
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h	1	x	x%2
+__range@3004	1	c1	(20),(40),(maxvalue)
+alter table t1 partition rule to (hh,h,c1);
+alter group "group_t2" move to paxos_idx=0;
+alter table t4 partition rule to (__user_default_group);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	group_t1	NULL	NULL
+3001	3	t1	1	hh	h	c1
+3002	2	t2	0	group_t2	NULL	NULL
+3003	2	t3	0	__user_default_group	NULL	NULL
+3004	2	t4	1	t4#r0,t4#r1,t4#r2	__range@3004	c1
+3004	3	t4	0	__user_default_group	NULL	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+group_t1	2	0	NULL
+group_t2	2	1	NULL
+group_t2	3	0	NULL
+hh#0	2	0	NULL
+hh#1	2	1	NULL
+hh#10	2	0	NULL
+hh#11	2	1	NULL
+hh#12	2	0	NULL
+hh#2	2	0	NULL
+hh#3	2	1	NULL
+hh#4	2	0	NULL
+hh#5	2	1	NULL
+hh#6	2	0	NULL
+hh#7	2	1	NULL
+hh#8	2	0	NULL
+hh#9	2	1	NULL
+t4#r0	2	1	NULL
+t4#r1	2	0	NULL
+t4#r2	2	1	NULL
+__user_default_group	2	0	NULL
+merge
+major_freeze...
+merge: DONE
+begin;
+replace into t1 values(1,100);
+show current paxos_idx;
+paxos_id
+1
+commit;
+begin;
+replace into t1 values(2,100);
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t2 values(100,100);
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t3 values(100,100);
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t4 values(1,2,3,4);
+show current paxos_idx;
+paxos_id
+0
+replace into t4 values(21,2,3,4);
+show current paxos_idx;
+paxos_id
+0
+replace into t4 values(41,2,3,4);
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t1 values(1,100);
+replace into t1 values(2,100);
+replace into t1 values(3,100);
+show current paxos_idx;
+paxos_id
+9
+commit;
+begin;
+replace into t1 values(1,100);
+replace into t2 values(2,100);
+replace into t3 values(3,100);
+show current paxos_idx;
+paxos_id
+9
+commit;

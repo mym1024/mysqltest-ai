@@ -1,0 +1,102 @@
+##############################################################################################
+###1.测试功能点：在指定分区规则表中对null值得操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--error 5077
+drop partition function h1;
+--enable_warnings
+
+create hash partition function h1(x)'x+4';
+create table t1(pk int primary key,extra int) partition by (ta1,h1,pk);
+--real_sleep 1 
+insert into t1(pk) values(1),(2);
+--real_sleep 1
+select * from t1;
+###2-1：插入null
+--real_sleep 1
+insert into t1(pk,extra) values(3,null),(4,null);
+--real_sleep 1
+select * from t1;
+--real_sleep 1
+insert into t1(pk,extra) values(null,null);
+select * from t1;
+
+###2-2:null条件查询
+select * from t1 where extra =null;
+select * from t1 where extra !=null;
+select * from t1 where extra is null;
+select * from t1 where extra is not null;
+select * from t1 where pk is null;
+select * from t1 where pk =null;
+select * from t1 where pk !=null;
+select * from t1 where pk is not null;
+select * from t1 where pk in (null);
+select * from t1 where pk in (null,1);
+
+select * from t1 where null > null;
+select * from t1 where null < null;
+select * from t1 where null = null;
+select * from t1 where null > 1;
+select * from t1 where null < 1;
+select * from t1 where null is null;
+
+###2-3:null值的delete与update
+update t1 set extra=1 where pk =null;
+select * from t1;
+update t1 set extra=1 where pk !=null;
+update t1 set extra=1 where pk is null;
+update t1 set extra=1 where pk is not null;
+
+
+delete from t1 where pk =null;
+--real_sleep 1
+select * from t1;
+--real_sleep 1
+delete from t1 where pk is null;
+delete from t1 where pk is not null;
+delete from t1 where pk !=null;
+--real_sleep 1
+###2-4:多session中查询操作
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set autocommit=0;
+select * from t1;
+--real_sleep 1
+insert into t1 values (5,null);
+insert into t1 values (null,null);
+
+connection conn2;
+--error 5049
+select * from t1 where extra is null and pk=5 for update;
+#--error 5049
+select * from t1 where extra is null and pk is null for update;
+
+connection conn1;
+commit;
+real_sleep 1;
+select * from t1 where extra is null and pk=5 for update;
+select * from t1 where extra is not null and pk=5 for update;
+select * from t1 where extra is null and pk is null for update;
+#--error 5047
+select * from t1 where extra is not null and pk is not null for update;
+set autocommit=1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

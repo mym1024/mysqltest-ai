@@ -1,0 +1,18 @@
+drop table if exists t1,t2;
+drop partition function h1,e1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create table t1(id int primary key,value int) partition by range(id)(partition z1 values less than(2),partition z2 values less than(5),partition z3 values less than maxvalue);
+create table t2(id int primary key,value int) partition by list(id)(partition s1 values in(1,3),partition s2 values in(2,4));
+insert into t1 values (1,null);
+insert into t2 values (1,null);
+select t1.*,t2.*,t1.value=t2.value from t1,t2 where t1.id=t2.id and t1.id=1;
+id	value	id	value	t1.value=t2.value
+1	NULL	1	NULL	NULL
+select * from t1 where id=id;
+id	value
+1	NULL
+select * from t1 where value=value;
+id	value
+select * from t1 where id=value or value=id;
+id	value
+drop table t1,t2;

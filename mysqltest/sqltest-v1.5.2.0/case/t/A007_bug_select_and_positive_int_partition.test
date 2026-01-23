@@ -1,0 +1,61 @@
+##############################################################################################
+###1.测试功能点：bug测试
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+
+###2-1:bug229955_positive_int_partition
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+--error 5077
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5),(6),(7),(8),(9),(10),(11)]';
+
+create table t1(a int primary key,b int) partition by(h1,h1,a);
+insert into t1 values(1,+1);
+insert into t1 values(2,-1);
+insert into t1 values(3,-(-1));
+insert into t1 values(4,-(+1));
+insert into t1 values(5,+(-1));
+insert into t1 values(6,-(-(-1)));
+insert into t1 values(7,-(-(+1)));
+insert into t1 values(8,-(+(+1)));
+insert into t1 values(9,+(+(+1)));
+insert into t1 values(10,-(+(-1)));
+insert into t1 values(11,+(+(-1)));
+
+--error 5702
+insert into t1 values(12,--1);
+
+select * from t1;
+drop table t1;
+
+###2-2:bug210026
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+--error 5024
+create table t1(a int primary key,b int primary key); 
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

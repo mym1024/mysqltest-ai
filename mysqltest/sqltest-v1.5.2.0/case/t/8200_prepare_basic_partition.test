@@ -1,0 +1,130 @@
+##############################################################################################
+###1.测试功能点：在指定不同分区表中使用prepare语句执行dml操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+--enable_warnings
+
+###2-1:hash分区规则下的prepare操作
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(pk int primary key,b int)partition by(hs,h,pk);
+--real_sleep 5
+insert into t1 values(1,1);
+prepare stmt1 from select * from t1 where pk=? and b=?;
+prepare stmt2 from select pk,b from t1 where pk=? and b=?;
+prepare stmt3 from select j1.pk from t1 as j1,t1 as j2 where j1.pk=j2.pk and j1.pk=?;
+set @a=1;
+set @b=1;
+execute stmt1 using @a,@b;
+execute stmt2 using @a,@b;
+execute stmt3 using @a;
+drop table t1;
+
+###2-2:enum分区规则下的prepare操作
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(1)],[(2)],[(3)]';
+create table t2(pk int primary key,b int)partition by(em,e,pk);
+--real_sleep 1
+insert into t2 values(1,0),(2,0),(3,0);
+--real_sleep 2
+prepare stmt1 from select * from t2 where pk=?;
+prepare stmt2 from select pk from t2 where pk=?;
+prepare stmt3 from select j1.pk from t2 as j1,t2 as j2 where j1.pk=j2.pk and j1.pk=?;
+set @a=1;
+--real_sleep 1
+execute stmt1 using @a;
+execute stmt2 using @a;
+execute stmt3 using @a;
+drop table t2;
+
+###2-3:range分区规则下的prepare操作
+create table t4(pk int primary key,a int)partition by range(pk) (partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+--real_sleep 1
+prepare stmt1 from replace into t4 values(1,?);
+prepare stmt2 from replace into t4 values(1,?),(2,?);
+prepare stmt3 from replace into t4 values(1,?),(?,?);
+set @a=1;
+set @b=2;
+--real_sleep 1
+execute stmt1 using @a;
+execute stmt1 using @b;
+execute stmt2 using @b,@a;
+execute stmt3 using @a,@b,@b;
+
+select * from t4;
+drop table t4;
+
+create table t5(pk int primary key,a int)partition by range(pk) (partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+--real_sleep 1
+prepare stmt1 from replace into t5 values(1,?);
+prepare stmt2 from replace into t5 values(1,?),(2,?);
+prepare stmt3 from replace into t5 values(1,?),(?,?);
+set @a=1;
+set @b=2;
+--real_sleep 1
+execute stmt1 using @a;
+execute stmt1 using @b;
+execute stmt2 using @b,@b;
+execute stmt3 using @b,@b,@b;
+select * from t5;
+drop table t5;
+
+###2-4:list分区规则下的prepare操作
+create table t6(pk int primary key, a int) partition by list(pk) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+--real_sleep 1
+insert into t6 values(1,1),(2,2);
+--real_sleep 1
+prepare stmt1 from update t6 set a=? where pk=?;
+prepare stmt2 from update t6 set a=a+? where pk=?;
+set @a=1;
+set @b=2;
+execute stmt1 using @a,@b;
+execute stmt1 using @b,@a;
+execute stmt2 using @a,@b;
+select * from t6;
+drop table t6;
+
+###2-5:不指定分区规则下的prepare操作
+create table t8(pk int primary key, a int);
+--real_sleep 1
+insert into t8 values(1,1),(2,2);
+prepare stmt1 from delete from t8 where pk=?;
+set @a=1;
+set @b=2;
+execute stmt1 using @a;
+select * from t8;
+
+execute stmt1 using @b;
+select * from t8;
+insert into t8 values(1,1),(2,2);
+prepare stmt1 from delete from t8 where pk=?;
+set @a=1;
+set @b=2;
+execute stmt1 using @b;
+select * from t8;
+
+execute stmt1 using @a;
+select * from t8;
+
+drop table t8;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

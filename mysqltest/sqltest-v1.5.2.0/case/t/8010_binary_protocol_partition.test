@@ -1,0 +1,48 @@
+##############################################################################################
+###1.测试功能点：带分区时的二进制协议支持
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：5 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+
+###2-1 有分区时的二进制协议的支持
+# --disable_abort_on_error
+
+##
+## Test of binary protocol
+##
+#
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+##
+## fix_fields problem
+##
+create table t1 (mat_id INT NOT NULL  PRIMARY KEY, matintnum CHAR(6) NOT NULL)partition by list(mat_id)(partition a1 values in(1,3),partition a2 values in(2,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+insert into t1 values (1, 'hello');
+#--error 5071
+SELECT mat_id, matintnum FROM t1 union SELECT 0, 0 from t1;
+
+# it is a bug.
+#SELECT mat_id, matintnum FROM t1 union SELECT 10, 0x410041 from t1;
+SELECT mat_id, matintnum FROM t1 union SELECT 10, 0x4141 from t1;
+drop table t1;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

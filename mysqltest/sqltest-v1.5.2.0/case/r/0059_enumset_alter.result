@@ -1,0 +1,386 @@
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+existing_col VARCHAR(50)
+);
+INSERT INTO t_base_for_alter VALUES (1, 'Initial Data');
+ALTER TABLE t_base_for_alter ADD COLUMN new_enum_col ENUM('option1', 'option2', 'option3');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+existing_col VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+new_enum_col enum ('option1','option2','option3') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+existing_col	varchar(50)	YES		NULL	
+new_enum_col	enum('option1','option2','option3')	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	existing_col	new_enum_col
+1	Initial Data	NULL
+ALTER TABLE t_base_for_alter DROP COLUMN new_enum_col;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+existing_col VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+existing_col	varchar(50)	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	existing_col
+1	Initial Data
+ALTER TABLE t_base_for_alter ADD COLUMN new_set_col SET('flag_a', 'flag_b', 'flag_c');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+existing_col VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+new_set_col set ('flag_a','flag_b','flag_c') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+existing_col	varchar(50)	YES		NULL	
+new_set_col	set('flag_a','flag_b','flag_c')	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	existing_col	new_set_col
+1	Initial Data	NULL
+ALTER TABLE t_base_for_alter DROP COLUMN new_set_col;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+existing_col VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+existing_col	varchar(50)	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	existing_col
+1	Initial Data
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+INSERT INTO t_base_for_alter VALUES (2, NULL, 'bit_y');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') NOT NULL;
+UPDATE t_base_for_alter SET mod_enum_col = 'val_b' WHERE mod_enum_col IS NULL;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') NOT NULL;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+mod_enum_col	enum('val_a','val_b')	YES		NULL	
+mod_set_col	set('bit_x','bit_y')	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	mod_enum_col	mod_set_col
+1	val_a	bit_x
+2	val_b	bit_y
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter ALTER COLUMN mod_enum_col SET DEFAULT 'val_a';
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci' DEFAULT 'val_a',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_base_for_alter (id, mod_set_col) VALUES (3, 'bit_x,bit_y');
+SELECT * FROM t_base_for_alter WHERE id = 3;
+id	mod_enum_col	mod_set_col
+3	val_a	bit_x,bit_y
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_enum_col ENUM('val_a', 'val_b') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_bin',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (4, 'val_a', NULL);
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') NOT NULL;
+UPDATE t_base_for_alter SET mod_set_col = '' WHERE mod_set_col IS NULL;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') NOT NULL;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+DESC t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+mod_enum_col	enum('val_a','val_b')	YES		NULL	
+mod_set_col	set('bit_x','bit_y')	YES		NULL	
+SELECT * FROM t_base_for_alter;
+id	mod_enum_col	mod_set_col
+4	val_a	
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter ALTER COLUMN mod_set_col SET DEFAULT 'bit_x';
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci' DEFAULT 'bit_x',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+desc t_base_for_alter;
+Field	Type	Null	Key	Default	Extra
+id	int(10)	YES	PRI	NULL	
+mod_enum_col	enum('val_a','val_b')	YES		NULL	
+mod_set_col	set('bit_x','bit_y')	YES		bit_x	
+INSERT INTO t_base_for_alter (id, mod_enum_col) VALUES (5, 'val_b');
+SELECT * FROM t_base_for_alter WHERE id = 5;
+id	mod_enum_col	mod_set_col
+5	val_b	bit_x
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+mod_enum_col ENUM('val_a', 'val_b'),
+mod_set_col SET('bit_x', 'bit_y')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'val_a', 'bit_x');
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ALTER TABLE t_base_for_alter MODIFY COLUMN mod_set_col SET('bit_x', 'bit_y') CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+mod_enum_col enum ('val_a','val_b') COLLATE 'utf8mb4_general_ci',
+mod_set_col set ('bit_x','bit_y') COLLATE 'utf8mb4_bin',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+SELECT * FROM t_base_for_alter;
+id	mod_enum_col	mod_set_col
+1	val_a	bit_x
+DROP TABLE t_base_for_alter;
+CREATE TABLE t_enum_set_parent (
+parent_id INT PRIMARY KEY,
+parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_enum CHECK (alter_enum_col IN ('ref_val_1', 'local_val'));
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+alter_enum_col enum ('ref_val_1','ref_val_2','local_val') COLLATE 'utf8mb4_general_ci',
+alter_set_col set ('ref_val_1','ref_val_2','local_set_val') COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id),
+ CONSTRAINT chk_enum CHECK (alter_enum_col IN ('ref_val_1', 'local_val')) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_base_for_alter VALUES (2, 'local_val', '');
+INSERT INTO t_base_for_alter VALUES (3, 'ref_val_2', '');
+ERROR HY000: YAO-5689: Check constraint 'chk_enum' is violated
+SELECT * FROM t_base_for_alter;
+id	alter_enum_col	alter_set_col
+1	ref_val_1	ref_val_1,local_set_val
+2	local_val	
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+CREATE TABLE t_enum_set_parent (
+parent_id INT PRIMARY KEY,
+parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+ALTER TABLE t_base_for_alter ADD COLUMN fk_helper_col VARCHAR(20);
+UPDATE t_base_for_alter SET fk_helper_col = alter_enum_col WHERE id = 1;
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_enum_to_parent FOREIGN KEY (fk_helper_col) REFERENCES t_enum_set_parent(parent_val);
+ERROR HY000: YAO-16: cannot add foreign key in a table which has data before!
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+alter_enum_col enum ('ref_val_1','ref_val_2','local_val') COLLATE 'utf8mb4_general_ci',
+alter_set_col set ('ref_val_1','ref_val_2','local_set_val') COLLATE 'utf8mb4_general_ci',
+fk_helper_col VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_base_for_alter VALUES (4, 'local_val', '', 'ref_val_2');
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (5, 'local_val', '', 'nonexistent');
+SELECT * FROM t_base_for_alter;
+id	alter_enum_col	alter_set_col	fk_helper_col
+1	ref_val_1	ref_val_1,local_set_val	ref_val_1
+4	local_val		ref_val_2
+5	local_val		nonexistent
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+CREATE TABLE t_enum_set_parent (
+parent_id INT PRIMARY KEY,
+parent_val VARCHAR(20) UNIQUE
+);
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+ALTER TABLE t_base_for_alter ADD COLUMN fk_helper_col VARCHAR(20);
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_set CHECK (CHAR_LENGTH(alter_set_col) > 0 OR alter_set_col = '');
+ALTER TABLE t_base_for_alter DROP CONSTRAINT chk_set;
+ALTER TABLE t_base_for_alter ADD CONSTRAINT chk_set_meaningful CHECK (NOT(FIND_IN_SET('ref_val_1', alter_set_col) > 0 AND FIND_IN_SET('local_set_val', alter_set_col) > 0));
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_enum_to_parent FOREIGN KEY (fk_helper_col) REFERENCES t_enum_set_parent(parent_val);
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+alter_enum_col enum ('ref_val_1','ref_val_2','local_val') COLLATE 'utf8mb4_general_ci',
+alter_set_col set ('ref_val_1','ref_val_2','local_set_val') COLLATE 'utf8mb4_general_ci',
+fk_helper_col VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(id),
+ CONSTRAINT fk_enum_to_parent FOREIGN KEY (fk_helper_col) REFERENCES test.t_enum_set_parent(parent_val) ON UPDATE RESTRICT ON DELETE RESTRICT,
+ CONSTRAINT chk_set_meaningful CHECK (NOT(FIND_IN_SET('ref_val_1', alter_set_col) > 0 AND FIND_IN_SET('local_set_val', alter_set_col) > 0)) ENFORCED
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (6, 'local_val', 'ref_val_1', NULL);
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (7, 'local_val', 'local_set_val', NULL);
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_helper_col) VALUES (8, 'local_val', 'ref_val_1,local_set_val', NULL);
+SELECT * FROM t_base_for_alter;
+id	alter_enum_col	alter_set_col	fk_helper_col
+6	local_val	ref_val_1	NULL
+7	local_val	local_set_val	NULL
+8	local_val	ref_val_1,local_set_val	NULL
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;
+CREATE TABLE t_enum_set_parent (
+parent_id INT PRIMARY KEY,
+parent_val VARCHAR(20) UNIQUE
+);
+INSERT INTO t_enum_set_parent VALUES (1, 'ref_val_1'), (2, 'ref_val_2');
+CREATE TABLE t_base_for_alter (
+id INT PRIMARY KEY,
+alter_enum_col ENUM('ref_val_1', 'ref_val_2', 'local_val'),
+alter_set_col SET('ref_val_1', 'ref_val_2', 'local_set_val')
+);
+INSERT INTO t_base_for_alter VALUES (1, 'ref_val_1', 'ref_val_1,local_set_val');
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_set_to_parent FOREIGN KEY (alter_set_col) REFERENCES t_enum_set_parent(parent_val);
+ERROR HY000: YAO-16: foreign key type do not match
+ALTER TABLE t_base_for_alter ADD COLUMN fk_int_helper INT;
+UPDATE t_base_for_alter SET fk_int_helper = 999 WHERE id = 1;
+UPDATE t_base_for_alter SET fk_int_helper = 1 WHERE id = 1;
+ALTER TABLE t_base_for_alter ADD CONSTRAINT fk_int_to_parent FOREIGN KEY (fk_int_helper) REFERENCES t_enum_set_parent(parent_id);
+ERROR HY000: YAO-16: cannot add foreign key in a table which has data before!
+SHOW CREATE TABLE t_base_for_alter;
+Table	Create Table
+test.t_base_for_alter	CREATE TABLE t_base_for_alter (
+id INT(10),
+alter_enum_col enum ('ref_val_1','ref_val_2','local_val') COLLATE 'utf8mb4_general_ci',
+alter_set_col set ('ref_val_1','ref_val_2','local_set_val') COLLATE 'utf8mb4_general_ci',
+fk_int_helper INT(10),
+ PRIMARY KEY(id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_int_helper) VALUES (9, 'local_val', '', 2);
+INSERT INTO t_base_for_alter (id, alter_enum_col, alter_set_col, fk_int_helper) VALUES (10, 'local_val', '', 999);
+SELECT * FROM t_base_for_alter;
+id	alter_enum_col	alter_set_col	fk_int_helper
+1	ref_val_1	ref_val_1,local_set_val	1
+9	local_val		2
+10	local_val		999
+DROP TABLE t_base_for_alter;
+DROP TABLE t_enum_set_parent;

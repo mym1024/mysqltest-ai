@@ -1,0 +1,161 @@
+##############################################################################################
+###1.测试功能点：指定不同的分区规则，测试hex,unhex,int2ip,ip2int的使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-31
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists table1;
+drop table if exists t;
+--enable_warnings
+
+###2-1：hex,unhex,in2ip,ip2int函数的使用
+create enum partition function e1(x)'[(1)],[(2)],[(3)],[(4)],[(100)],[(255)],[(256)],[(4294967295)],[(4294967296)],[(9223372036854775807)]';
+create table table1(id bigint,name varchar(20),d double,f float,primary key(id)) partition by(et1,e1,id);
+create hash partition function h1(x)'(x+2)*4%3';
+create table t(c1 int primary key,c2 int) partition by(ht1,h1,c1);
+--real_sleep 3
+insert into table1(id,name,d,f) values(1,'1G',1.8,1.8);
+insert into table1(id,name,d,f) values(100,'4D7953514C',2,16);
+insert into table1(id,name,d,f) values(256,'0.0.1.0',0.5,0.5);
+insert into table1(id,name,d,f) values(9223372036854775807,'abc',16.1,16.1);
+insert into table1(id,name,d,f) values(255,'c_d',255.0,255.0);
+insert into table1(id,name,d,f) values(2,'256.0.0.0',0.1,0.1);
+insert into table1(id,name,d,f) values(3,'1.0.0',0.1,0.1);
+insert into table1(id,name,d,f) values(4294967295,'255.255.255.255',0.1,0.1);
+insert into table1(id,name,d,f) values(4294967296,'0.0.0.0',0.1,0.1);
+insert into t values(1,2),(3,5),(4,2),(5,8);
+
+select hex(id) from table1 where id=1;
+select hex(id) from table1 where id=100;
+select hex(id) from table1 where id=256;
+select hex(id) from table1 where id=9223372036854775807;
+select hex(id) from table1 where id=255;
+
+select hex(name) from table1 where id=1;
+select hex(name) from table1 where id=100;
+select hex(name) from table1 where id=256;
+select hex(name) from table1 where id=9223372036854775807;
+select hex(name) from table1 where id=255;
+
+select hex(d) from table1 where id=1;
+select hex(d) from table1 where id=100;
+select hex(f) from table1 where id=1;
+select hex(f) from table1 where id=100;
+
+select unhex(id) from table1 where id=1;
+select unhex(name) from table1 where id=1;
+select unhex(name) from table1 where id=100;
+select unhex(name) from table1 where id=256;
+select unhex(name) from table1 where id=9223372036854775807;
+select unhex(name) from table1 where id=255;
+
+select unhex(d) from table1 where id=1;
+select unhex(f) from table1 where id=1;
+
+select hex(unhex(id)) from table1 where id=1;
+
+select hex(unhex(name)) from table1 where id=1;
+select hex(unhex(name)) from table1 where id=100;
+select hex(unhex(name)) from table1 where id=256;
+select hex(unhex(name)) from table1 where id=9223372036854775807;
+select hex(unhex(name)) from table1 where id=255;
+
+select hex(unhex(d)) from table1 where id=1;
+select hex(unhex(f)) from table1 where id=1;
+
+select unhex(hex(id)) from table1 where id=1;
+select unhex(hex(id)) from table1 where id=100;
+select unhex(hex(id)) from table1 where id=256;
+
+select unhex(hex(name)) from table1 where id=1;
+select unhex(hex(name)) from table1 where id=100;
+select unhex(hex(name)) from table1 where id=256;
+select unhex(hex(name)) from table1 where id=9223372036854775807;
+select unhex(hex(name)) from table1 where id=255;
+
+select unhex(hex(d)) from table1 where id=1;
+select unhex(hex(f)) from table1 where id=1;
+
+select int2ip(id) from table1 where id=256;
+select int2ip(id) from table1 where id=4294967295;
+select int2ip(id) from table1 where id=4294967296;
+select ip2int(name) from table1 where id=256;
+select ip2int(name) from table1 where id=2;
+select ip2int(name) from table1 where id=3;
+select ip2int(name) from table1 where id=4294967296;
+
+###2-2:unhex to test
+select unhex(2);
+select unhex(cast(1.2 as double));
+select unhex('cbase');
+select unhex('2014/01/01 00:00:00');
+select unhex(null);
+select unhex(0);
+select unhex(1);
+select unhex(-1);
+select unhex(2+3-4);
+select unhex(2*6/3);
+select unhex(cast('cbase' as varchar));
+select unhex(current_timestamp());
+select unhex(length('wangy'));
+select unhex(concat('cbase',''));
+select unhex('ab%' like 'abc%');
+select unhex(int2ip(126666666));
+select unhex(lower('CBASE'));
+select unhex(now());
+select unhex(nvl(null,23));
+select unhex(substr('anbsf',2,3));
+select unhex(hex('6362617365'));
+select unhex(upper('cbase'));
+select unhex(count(c1)) from t;
+select unhex(avg(c1)) from t;
+select unhex(max(c1)) from t;
+select unhex(sum(c1)) from t;
+
+
+###2-3:int2ip to test
+select int2ip(2);
+select int2ip(cast(1.2 as double));
+select int2ip('cbase');
+select int2ip(1.2);
+select int2ip('2014/01/01 ');
+select int2ip('2014/01/01 00:00:00');
+select int2ip(null);
+select int2ip(2+3-4);
+select int2ip(2*6/3);
+select int2ip(cast('cbase' as varchar));
+select int2ip(current_timestamp());
+select int2ip(length('wangy'));
+select int2ip(concat('cbase',''));
+select int2ip('ab%' like 'abc%');
+select int2ip(lower(126666666));
+select int2ip(hex('CBASE'));
+select int2ip(now());
+select int2ip(nvl(null,23));
+select int2ip(substr('anbsf',2,3));
+select int2ip(hex('6362617365'));
+select int2ip(upper('cbase'));
+select int2ip(count(c1)) from t;
+select int2ip(avg(c1)) from t;
+select int2ip(max(c1)) from t;
+select int2ip(sum(c1)) from t;
+
+drop table table1;
+drop table t;
+drop partition function h1,e1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

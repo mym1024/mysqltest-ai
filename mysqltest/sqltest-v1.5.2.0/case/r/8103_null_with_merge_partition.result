@@ -1,0 +1,60 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+create table t1(pk int primary key,extra int)partition by range(pk)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+insert into t1(pk) values (NULL);
+insert into t1(pk) values(0);
+insert into t1(pk) values(1);
+insert into t1(pk) values(2);
+insert into t1(pk) values(3);
+insert into t1(pk) values(4);
+insert into t1(pk) values(5);
+insert into t1(pk) values(6);
+insert into t1(pk) values(7);
+insert into t1(pk) values(8);
+insert into t1(pk) values(9);
+delete from t1 where pk is null;
+delete from t1 where pk=0;
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+6	NULL
+7	NULL
+8	NULL
+9	NULL
+insert into t1(pk) values (NULL);
+major_freeze...
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+6	NULL
+7	NULL
+8	NULL
+9	NULL
+NULL	NULL
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+6	NULL
+7	NULL
+8	NULL
+9	NULL
+NULL	NULL
+drop table t1;

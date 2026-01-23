@@ -1,0 +1,131 @@
+create database rowkey_database;
+using database rowkey_database;
+drop table if exists t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+update t set id1=9,id2=9,col1=9,col2=9 where id1=0 and id2=0;
+select * from t;
+id1	id2	col1	col2
+9	9	9	9
+commit;
+select * from t;
+id1	id2	col1	col2
+9	9	9	9
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id1=0;
+select * from t;
+id1	id2	col1	col2
+1	0	0	0
+2	0	0	0
+9	0	10	0
+commit;
+select * from t;
+id1	id2	col1	col2
+1	0	0	0
+2	0	0	0
+9	0	10	0
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id2=0;
+select * from t;
+id1	id2	col1	col2
+9	0	10	0
+10	0	10	0
+11	0	10	0
+commit;
+select * from t;
+id1	id2	col1	col2
+9	0	10	0
+10	0	10	0
+11	0	10	0
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=id1+9,col1=10 where id1>0;
+select * from t;
+id1	id2	col1	col2
+0	0	0	0
+10	0	10	0
+11	0	10	0
+commit;
+select * from t;
+id1	id2	col1	col2
+0	0	0	0
+10	0	10	0
+11	0	10	0
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+start transaction;
+update t set id1=9,col1=10 where id1>0;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t;
+id1	id2	col1	col2
+0	0	0	0
+1	0	0	0
+2	0	0	0
+commit;
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=1,col1=10 where id1=0;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t;
+id1	id2	col1	col2
+commit;
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=1,col1=10 where id1=0 and id2=0;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t;
+id1	id2	col1	col2
+commit;
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+start transaction;
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+replace into t values(2,0,0,0);
+update t set id1=1,id1=2 where id1=0;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+commit;
+select * from t;
+id1	id2	col1	col2
+drop table t;
+create table  t(id1 int,id2 int,col1 int,col2 int,primary key(id1,id2));
+replace into t values(0,0,0,0);
+replace into t values(1,0,0,0);
+create sequence seq;
+start transaction;
+replace into t values(2,0,0,0);
+update t set id1=nextval for seq where id1>=0;
+ERROR HY000: YAO-163: The function is NOT support for update rowkey
+commit;
+select * from t;
+id1	id2	col1	col2
+0	0	0	0
+1	0	0	0
+2	0	0	0
+drop table t;

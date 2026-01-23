@@ -1,0 +1,136 @@
+####################################必填######################################################
+###1.测试功能点：创建不同数据库用户，授予不同权限，撤销权限等场景下对表进行操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+# admin user has all rights
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+create table t1(a int primary key, b int)partition by range(a)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+create table t2(a int primary key, b int)partition by range(a)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+
+create user 'u1' identified by 'password1*';
+create user 'u2' identified by 'password1*';
+GRANT SELECT ON test.t1 TO 'u1';
+--real_sleep 15
+connect (conn2,$OBMYSQL_MS0,u1,password1*,test,$OBMYSQL_PORT);
+
+connection conn2;
+# user u1 don't have grant privilege
+--error 5036
+grant SELECT, CREATE USER on * to 'nexist_user';
+
+
+# user u1 don't have grant privilege
+--error 5036
+grant SELECT, CREATE USER on * to 'nexist_user', 'u1';
+
+
+# normal grant
+connection conn1;
+
+# table not exist
+--error 5019
+grant ALL PRIVILEGES on t_nexist to 'u1';
+grant ALL PRIVILEGES on t1 to 'u1';
+show grants for 'u1';
+connection conn2;
+
+--real_sleep 15
+# no privilege
+--error 5036
+create table t3(a int primary key);
+--error 5036
+drop table t2;
+--error 5036
+select * from t2;
+--error 5036
+insert into t2 values(1,1);
+--error 5036
+update t2 set b=2 where a=1;
+--error 5036
+delete from t2 where a=1;
+--error 5036
+grant SELECT, CREATE USER on * to 'u2';
+--error 5036
+revoke ALL PRIVILEGES, GRANT OPTION from 'u2';
+--error 5036
+create user 'u1_cant' identified by 'password1*';
+--error 5036
+drop user 'u2';
+
+
+#have privilege
+select * from t1;
+insert into t1 values(1,1),(2,2);
+delete from t1 where a=1;
+update t1 set b=2 where a=1;
+
+# revoke all rights from u1
+connection conn1;
+revoke ALL PRIVILEGES,GRANT OPTION from 'u1';
+--real_sleep 15
+show grants for 'u1';
+--real_sleep 15
+connection conn2;
+--error 5036
+create user 'u1_cant' identified by 'password1*';
+--error 5036
+drop user 'u2';
+--error 5036
+select * from t1;
+--error 5036
+insert into t1 values(1,1),(2,2);
+--error 5036
+delete from t1 where a=1;
+--error 5036
+update t2 set b=2 where a=1;
+
+
+
+connection conn1;
+grant CREATE on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant DROP on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant CREATE USER on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant DELETE on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant INSERT on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant SELECT on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant UPDATE on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+grant GRANT OPTION on t1 to 'u1';
+--real_sleep 15
+show grants for 'u1';
+
+drop table t1,t2;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

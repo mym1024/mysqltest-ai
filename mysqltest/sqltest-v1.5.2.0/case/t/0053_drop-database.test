@@ -1,0 +1,186 @@
+##############################################################################################
+###1.测试功能点：在回收站关闭开启时，drop database的功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：xxx
+###7.编写/修改日期：xxx
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists tl,t2,t3,t4 purge;
+--enable_warnings
+
+###2-1:回收站关闭时，测试drop database
+--echo -- close trash
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set global trash_bin_switch = false;
+
+#CASE1:drop no table database
+--echo drop no table database
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn2;
+create database test1;
+drop database test1;
+show databases;
+select drop_name,object_name,type from __all_trash;
+
+#CASE2:use purge drop no table database
+--echo use purge drop no table database
+connection conn2;
+create database test1;
+drop database test1 purge;
+select drop_name,object_name,type from __all_trash;
+show databases;
+
+###2-2:回收站开启时，测试drop database
+--echo open trash
+connect (conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn3;
+set global trash_bin_switch = true;
+
+#CASE1:drop no table database
+--echo drop no table database
+connect (conn4,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn4;
+create database test1;
+drop database test1;
+show databases;
+select drop_name,object_name,type from __all_trash;
+purge recyclebin;
+
+#CASE2:drop has table database
+--echo drop has table database
+connection conn4;
+create database test1;
+using database test1;
+create table t1(cl int primary key,c2 int);
+insert into t1 values(1,1);
+drop database test1;
+show databases;
+select drop_name,object_name,type from __all_trash;
+let $drop_name = query_get_value(select drop_name from __all_trash where object_name = 'test1',drop_name,1);
+eval flashback database $drop_name to before drop;
+show recyclebin;
+using database test1;
+show tables;
+drop table if exists t1 purge;
+show recyclebin;
+drop database test1 purge;
+
+#CASE3:use purge drop no table database
+--echo use purge drop no table database
+connection conn4;
+create database test1;
+drop database test1 purge;
+show databases;
+select drop_name,object_name,type from __all_trash;
+purge recyclebin;
+
+###2-3:回收站关闭时，测试drop database异常系
+--echo -- close trash
+connect (conn5,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn5;
+set global trash_bin_switch = false;
+
+#CASE1:drop sys database
+connect (conn6,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn6;
+--error 65535
+drop database "trash";
+
+#CASE2:drop not existed database
+connection conn6;
+--error 5602
+drop database test100;
+
+###2-3:回收站开启时，测试drop database异常系
+--echo -- open trash
+connect (conn7,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn7;
+set global trash_bin_switch = true;
+
+#CASE1:drop sys database purge
+connect (conn8,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn8;
+--error 65535
+drop database "trash" purge;
+
+#CASE2:drop has table in trash database purge
+connection conn8;
+create database test1;
+using database test1;
+create table t1(c1 int,c2 int primary key);
+drop table t1;
+select drop_name,object_name,type from __all_trash;
+show tables;
+--error 5095
+drop database test1 purge;
+
+flashback t1 to before drop;
+show recyclebin;
+show tables;
+drop table if exists t1 purge;
+drop database test1 purge;
+show recyclebin;
+purge recyclebin;
+
+#CASE3:drop not existed database purge
+connection conn8;
+--error 5602
+drop database test100 purge;
+
+###2-4:测试drop database权限
+#do sq1
+##############################################################################################
+connection conn8;
+create database test1;
+create database test2;
+create user 'u1' identified by 'pass-12345';
+grant drop on * to 'u1';
+connect (conn9,$OBMYSQL_MS0,u1,pass-12345,test,$OBMYSQL_PORT);
+connection conn9;
+drop database test1 purge;
+
+connection conn8;
+revoke drop on * from 'u1';
+
+connection conn9;
+--error 5036
+drop database test2 purge;
+
+connection conn8;
+drop database test2 purge;
+drop user 'u1';
+
+###2-5:测试create database新增命名规范
+#do sq1
+##############################################################################################
+connection conn8;
+--error 5036
+create database __trash_a;
+
+###2-6:测试drop database时库中表长度过大情况
+connection conn8;
+create database testtt;
+using database testtt;
+create table
+t_255_1_10_asdsad_20_asdsad_30_asdsad_40_asdsad_50_asdsad_60_asdsad_70_asdsad_80_asdsad_90_asdsa_100_asdsa_110_asdsa_120_asdsa_130_asdsa_140_asdsa_150asdsa_160_asdsa_170_asdsa_180_asdsa_190_asdsa_200_asdsa_210_asdsa_220_asdsa_230_asdsa_240_asdsa_250_s255(id int primary key,c2 varchar(10),c3 decimal(10));
+--error 5108
+drop database testtt;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

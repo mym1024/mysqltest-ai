@@ -1,0 +1,321 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：prepare语句，分区，inser语句，事务
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：106.94 s
+###6.编写/修改人：pantong
+###7.编写/修改日期：2019-11-8
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2; 
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--real_sleep 1
+
+
+###2-1:range分区，prepare语句
+create table t1(a int primary key,b varchar(255),c int)partition by range(a)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+# insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4
+create index idx1 on t1(a);
+create index idx2 on t1(b);
+show index on t1;
+--real_sleep 2
+
+#---------------transaction prepare -------------------------
+#add a new column
+--real_sleep 1
+prepare stmt1 from insert into t1 values(?,'d',3),(?,'f',6);
+set @x=1;
+set @y=2;
+execute stmt1 using @x,@y;
+alter table t1 add d int;
+--real_sleep 3
+set autocommit=0;
+set @x=3;
+set @y=4;
+--error 5007
+execute stmt1 using @x,@y;
+commit;
+set autocommit=1;
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+deallocate prepare stmt1;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int)partition by range(a)(partition r0 values less than(5),partition r1 values less than(10),partition r3 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3);
+
+prepare stmt1 from insert into t1 values(?,'d',3),(?,'f',6);
+set @x=3;
+set @y=4;
+execute stmt1 using @x,@y;
+alter table t1 drop c;
+set autocommit=0;
+--real_sleep 1
+set @x=5;
+set @y=6;
+--error 5007
+execute stmt1 using @x,@y;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt1;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int)partition by range(a)(partition r0 values less than(5),partition r1 values less than(10),partition r3 values less than maxvalue);
+--real_sleep 1
+
+prepare stmt10 from insert into t1(a,b,c) values(?,'d',2),(?,'f',6);
+set @x=1;
+set @y=2;
+execute stmt10 using @x,@y;
+alter table t1 add d int;
+set autocommit=0;
+set @x=3;
+set @y=4;
+execute stmt10 using @x,@y;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt10;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int,d int)partition by range(a)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,'a',2,2);
+
+prepare stmt11 from insert into t1(a,b,c) values(?,'d',2);
+set @x=2;
+execute stmt11 using @x;
+alter table t1 drop d;
+set autocommit=0;
+set @x=3;
+execute stmt11 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt11;
+
+drop table t1;
+
+###2-2:list分区，prepare语句
+create table t1(a int primary key,b varchar(255),c int)partition by list(a)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+--real_sleep 1
+create index idx1 on t1(a);
+create index idx2 on t1(b);
+show index on t1;
+--real_sleep 2
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+#add a new column and drop it
+
+prepare stmt4 from insert into t1 values(?,'d',2),(?,'a',2);
+set @x=11;
+set @y=12;
+--error 5702
+execute stmt4 using @x,@y;
+alter table t1 add d int;
+alter table t1 drop d;
+set autocommit=0;
+set @x=13;
+set @y=14;
+--error 5702
+execute stmt4 using @x,@y;
+commit;
+set autocommit=1;
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+deallocate prepare stmt4;
+drop table t1;
+
+create table t1(a int primary key,b varchar(255),c int)partition by list(a)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+prepare stmt6 from insert into t1 values(?,'d',2),(?,'a',2);
+set @x=8;
+set @y=9;
+--error 5702
+execute stmt6 using @x,@y;
+alter table t1 drop b;
+alter table t1 add b int;
+set autocommit=0;
+set @x=10;
+set @y=11;
+--error 7
+execute stmt6 using @x,@y;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt6;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int)partition by list(a)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+alter table t1 add d int;
+
+prepare stmt12 from insert into t1(a,b,c) values(?,'d',4);
+set @x=4;
+execute stmt12 using @x;
+alter table t1 drop c;
+set autocommit=0;
+set @x=5;
+--error 5009
+execute stmt12 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt12;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int);
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+prepare stmt13 from insert into t1(a,b) values(?,'d');
+set @x=4;
+execute stmt13 using @x;
+alter table t1 drop c;
+set autocommit=0;
+set @x=5;
+execute stmt13 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt13;
+
+drop table t1;
+
+###2-3:哈希分区，prepare语句
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(a int primary key,b varchar(255),c int)partition by(hs,h,a);
+--real_sleep 1
+create index idx1 on t1(a);
+create index idx2 on t1(b);
+show index on t1;
+--real_sleep 2
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+prepare stmt7 from insert into t1 values(?,2,1);
+set @x=4;
+set autocommit=0;
+execute stmt7 using @x;
+commit;
+set autocommit=1;
+--real_sleep 2
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+deallocate prepare stmt7;
+
+drop table t1;
+
+###2-4:枚举分区，prepare语句
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)]';
+create table t1(a int primary key,b varchar(255),c int)partition by(em,e,a);
+--real_sleep 1
+create index idx1 on t1(a);
+create index idx2 on t1(b);
+show index on t1;
+--real_sleep 2
+
+prepare stmt8 from insert into t1 values(?,2,2);
+set @x=4;
+execute stmt8 using @x;
+drop table t1;
+
+create table t1(a int primary key,b int,c int)partition by(em,e,a);
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+prepare stmt9 from insert into t1 values(?,2,1),(?,5,1);
+set @x=8;
+set @y=9;
+execute stmt9 using @x,@y;
+drop table t1;
+
+
+###2-5:无分区，prepare语句
+create table t1(a int primary key,b varchar(255),c int);
+--real_sleep 1
+
+prepare stmt14 from insert into t1(a,b,c) values(?,'d',1);
+set @x=1;
+execute stmt14 using @x;
+alter table t1 drop c;
+alter table t1 add c int;
+set autocommit=0;
+set @x=2;
+#--error 18
+execute stmt14 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 600
+deallocate prepare stmt14;
+--real_sleep 30
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int);
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+prepare stmt15 from insert into t1(a,b,c) values(?,'d',1);
+set @x=5;
+execute stmt15 using @x;
+alter table t1 drop b;
+alter table t1 add b int;
+set autocommit=0;
+set @x=6;
+--error 7
+execute stmt15 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt15;
+
+drop table t1;
+create table t1(a int primary key,b varchar(255),c int);
+--real_sleep 1
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+
+prepare stmt16 from insert into t1(a,b,c) values(?,'d',1);
+set @x=4;
+execute stmt16 using @x;
+alter table t1 add d int;
+alter table t1 drop d;
+set autocommit=0;
+set @x=5;
+execute stmt16 using @x;
+commit;
+set autocommit=1;
+select * from t1;
+deallocate prepare stmt16;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

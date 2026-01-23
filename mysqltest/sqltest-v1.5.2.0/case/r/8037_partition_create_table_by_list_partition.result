@@ -1,0 +1,1120 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+drop table if exists list1;
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+"refesh"
+major_freeze...
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	list1	1	list1#q0,list1#q1	__list@3001	c1
+insert into list1 values(1,'a',1);
+select * from list1;
+c1	c2	c3
+1	a	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+drop table list1;
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	3	list1	1	list1#q0,list1#q1	__list@3002	c1
+insert into list1 values(1,'a',1);
+select * from list1;
+c1	c2	c3
+1	a	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+drop table list1;
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5)) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	3	list1	1	a#q0,a#q1	__list@3003	c1
+insert into list1 values(1,'a',1);
+select * from list1;
+c1	c2	c3
+1	a	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+drop table list1;
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in(1));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3004	3	list1	1	list1#q0	__list@3004	c1
+insert into list1 values(1,'a',1);
+select * from list1;
+c1	c2	c3
+1	a	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+drop table list1;
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in('a','b'),partition q1 values in(1,2));
+ERROR HY000: YAO-5089: Partition column values of incorrect type.
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list1 values(1,'a',1);
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+select * from list1;
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	3	list2	1	list2#qq0,list2#qq1	__list@3005	c1,c2
+insert into list2 values(1,1,1),(3,3,3);
+select * from list2;
+c1	c2	c3
+1	1	1
+3	3	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 varchar(20),c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c'),('d','d')));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3006	3	list2	1	list2#qq0,list2#qq1	__list@3006	c1,c2
+insert into list2 values('a','a',1),('c','c',3);
+select * from list2;
+c1	c2	c3
+a	a	1
+c	c	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,'a'),(2,'b')),partition qq1 values in((3,'c'),(4,'d')));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	3	list2	1	list2#qq0,list2#qq1	__list@3007	c1,c2
+insert into list2 values(1,'a',1),(3,'c',3);
+select * from list2;
+c1	c2	c3
+1	a	1
+3	c	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,'1'),(2,'2')),partition qq1 values in((3,'3'),(4,'4'))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3008	3	list2	1	a#qq0,a#qq1	__list@3008	c1,c2
+insert into list2 values(1,'1',1),(3,'3',3);
+select * from list2;
+c1	c2	c3
+1	1	1
+3	3	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1','1'),('2','2')),partition qq1 values in((3,'3'),(4,'4')));
+ERROR HY000: YAO-5089: Partition column values of incorrect type.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(20),c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+ERROR HY000: YAO-5089: Partition column values of incorrect type.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1','1'),('2','2')),partition qq1 values in(('3','3'),('4','4')));
+ERROR HY000: YAO-5089: Partition column values of incorrect type.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1.1),('2',2.1)),partition qq1 values in(('3',3.1),('4','4')));
+ERROR HY000: YAO-5089: Partition column values of incorrect type.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1.1),('2',2.1)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3009	3	list2	1	list2#qq0,list2#qq1	__list@3009	c1,c2
+insert into list2 values('1',1,1),('2',2,3);
+select * from list2;
+c1	c2	c3
+1	1	1
+2	2	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3010	3	list1	1	a#r0,a#r1	__list@3010	c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17
+5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	3	list1	1	a#r0,a#r1	__list@3011	c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17
+5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3012	3	list1	1	a#r0,a#r1	__list@3012	c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+c1	c2	c3	c4	c5	c6	c7	c8	c9	c10	c11	c12	c13	c14	c15	c16	c17
+5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1*3-2,'1'),(2*2-1,'2')),partition qq1 values in(((3+1)/2,'3'),(4,'4'))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3013	3	list2	1	a#qq0,a#qq1	__list@3013	c1,c2
+insert into list2 values(1,'1',1),(3,'3',3);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from list2;
+c1	c2	c3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((3/5,'1'),(2*2-1,'2')),partition qq1 values in((4%5/2,'3'),(4,'4'))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3014	3	list2	1	a#qq0,a#qq1	__list@3014	c1,c2
+insert into list2 values(1,'1',1),(3,'3',3);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from list2;
+c1	c2	c3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((3 MOD 5,'1'),(2*2-1,'2')),partition qq1 values in((4%5/2,'3'),(4,'4'))) with prefix(a);
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3015	3	list2	1	a#qq0,a#qq1	__list@3015	c1,c2
+insert into list2 values(1,'1',1),(3,'3',3);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from list2;
+c1	c2	c3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c'),('d','d')));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3016	3	list2	1	list2#qq0,list2#qq1	__list@3016	c1,c2
+insert into list2 values('A','A',1),('C','C',3);
+select * from list2;
+c1	c2	c3
+A	A	1
+C	C	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+create table list3(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('A','A'),('B','B')));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3016	3	list2	1	list2#qq0,list2#qq1	__list@3016	c1,c2
+insert into list2 values('A','A',1),('C','C',3);
+ERROR 23000: YAO-5024: Duplicate entry ' <3016.16>=varchar:A <3016.17>=varchar:A' for key 'PRIMARY'
+select * from list2;
+c1	c2	c3
+A	A	1
+C	C	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('b','b'),('a','a')));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('a','a',1),('c','c',3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',30,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',10),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c',1),('a','a')));
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('a','a',1),('c','c',3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list(c2) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3017	3	list1	1	list1#q0,list1#q1	__list@3017	c2
+insert into list1 values(1,'2',1);
+select * from list1;
+c1	c2	c3
+1	2	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3018	3	list1	1	list1#q0,list1#q1	__list@3018	c1
+insert into list1 values(1,'2',1);
+select * from list1;
+c1	c2	c3
+1	2	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list1(c1 int,c2 varchar(20),c3 varchar(30),primary key(c1,c2)) partition by list(c2) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3019	3	list1	1	list1#q0,list1#q1	__list@3019	c2
+insert into list1 values(1,'2','1');
+select * from list1;
+c1	c2	c3
+1	2	1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1,'1'),('2',2,'2')),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1'+1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1'+(1,1)),('2',2)),partition qq1 values in(('3',3),('4',4)));
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+ERROR HY000: YAO-5088: Inconsistency num in usage of column lists for partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 float,c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+ERROR HY000: YAO-5089: Field 'c1' is not an allowed type for this type of partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+ERROR HY000: YAO-5089: Field 'c2' is not an allowed type for this type of partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+create table list2(c1 int,c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+ERROR HY000: YAO-5089: Field 'c2' is not an allowed type for this type of partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 float,c2 float,c3 int,primary key(c3)) partition by list columns(c1,c2) (partition qq0 values in((1.1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+ERROR HY000: YAO-5089: Field 'c1' is not an allowed type for this type of partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c3) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+ERROR HY000: YAO-5081: parameter[c3] is not rowkey
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values(1,1,1),(3,3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c3) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+ERROR HY000: YAO-5081: parameter[c3] is not rowkey
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2,c3) (partition qq0 values in(('1',1,1),('2',2,1)),partition qq1 values in(('3',3,3),('4',4,4)));
+ERROR HY000: YAO-5081: parameter[c3] is not rowkey
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c9) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+ERROR 42S22: YAO-5009: partition column 'c9' does not exist in table
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list1 values(1,'2',1);
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+select * from list1;
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c9) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+ERROR 42S22: YAO-5009: partition column 'c9' does not exist in table
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2,c1) (partition qq0 values in(('1',1,'1'),('2',2,'2')),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+ERROR 42S01: YAO-5025: duplicate partition column 'c1' 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('3',3,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+set @a=1;
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',@a),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR 0A000: YAO-7: Not supported feature or function.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',2>1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq0 values in(('1',1),('2',2)));
+ERROR HY000: YAO--1:  Duplicate partition name qq0
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list1;
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int,c18 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+ERROR HY000: YAO--1: Parameter num should less than 17.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1,1);
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+select * from list1;
+ERROR 42S02: YAO-5019: table 'test.list1' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1-1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1) (partition qq0 values in('1','2'),partition qq1 values in('3','4'));
+"refesh"
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3020	3	list2	1	list2#qq0,list2#qq1	__list@3020	c1
+insert into list2 values('1',1,1),('2',2,3);
+select * from list2;
+c1	c2	c3
+1	1	1
+2	2	3
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns() (partition qq0 values in(),partition qq1 values in());
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL
+drop table list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((('1'),1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+ERROR HY000: YAO-5084: Multiple definition of same constant in Enum or List partitioning.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+insert into list2 values('1',1,1),('2',2,3);
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+select * from list2;
+ERROR 42S02: YAO-5019: table 'test.list2' does not exist
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+a#q0	3	0	NULL
+a#q1	3	0	NULL
+a#qq0	3	0	NULL
+a#qq1	3	0	NULL
+a#r0	3	0	NULL
+a#r1	3	0	NULL
+list1#q0	2	0	NULL
+list1#q1	2	0	NULL
+list2#qq0	3	0	NULL
+list2#qq1	3	0	NULL

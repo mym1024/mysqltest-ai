@@ -1,0 +1,115 @@
+##############################################################################################
+###1.测试功能点：group by在不同分区下的使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-31
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+###2-1：group by在不同分区下的使用
+create table t1(
+bug_id int,
+groupset int,
+assigned_to int,
+bug_file_loc varchar(256),
+bug_severity varchar(50),
+bug_status varchar(50),
+creation_ts datetime,
+delta_ts timestamp,
+short_desc varchar(256),
+long_desc varchar(256),
+op_sys varchar(50),
+priority varchar(2),
+product varchar(64),
+rep_platform varchar(10),
+reporter int,
+version varchar(16),
+component varchar(50),
+resolution varchar(20),
+target_milestone varchar(20),
+qa_contact int,
+status_whiteboard varchar(256),
+votes int,
+primary key(bug_id)
+)partition by range(bug_id)(partition a1 values less than(10),partition a2 values less than (20),partition a3 values less than(30),partition a4 values less than maxvalue);
+--real_sleep 6
+insert into t1 values (1,0,0,'','normal','','2000-02-10 09:25:12',20000321114747,'','','Linux','P1','TestProduct','PC',3,'other','TestComponent','','M1',0,'',0);
+insert into t1 values (9,0,0,'','enhancement','','2000-03-10 11:49:36',20000321114747,'','','All','P5','AAAAA','PC',3,'2.00 CD - Pre','BBBBBBBBBBBBB - conversion','','',0,'',0);
+insert into t1 values (10,0,0,'','enhancement','','2000-03-10 18:10:16',20000321114747,'','','All','P4','AAAAA','PC',3,'2.00 CD - Pre','BBBBBBBBBBBBB - conversion','','',0,'',0);
+insert into t1 values (7,0,0,'','critical','','2000-03-09 10:50:21',20000321114747,'','','All','P1','AAAAA','PC',3,'2.00 CD - Pre','BBBBBBBBBBBBB - generic','','',0,'',0);
+insert into t1 values (6,0,0,'','normal','','2000-03-09 10:42:44',20000321114747,'','','All','P2','AAAAA','PC',3,'2.00 CD - Pre','kkkkkkkkkkk lllllllllll','','',0,'',0);
+insert into t1 values (8,0,0,'','major','','2000-03-09 11:32:14',20000321114747,'','','All','P3','AAAAA','PC',3,'2.00 CD - Pre','kkkkkkkkkkk lllllllllll','','',0,'',0);
+insert into t1 values (5,0,0,'','enhancement','','2000-03-09 10:38:59',20000321114747,'','','All','P5','CCC/CCCCCC','PC',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (4,0,0,'','normal','','2000-03-08 18:32:14',20000321114747,'','','other','P2','TestProduct','Other',3,'other','TestComponent2','','',0,'',0);
+insert into t1 values (3,0,0,'','normal','','2000-03-08 18:32:52',20000321114747,'','','other','P2','TestProduct','Other',3,'other','TestComponent','','',0,'',0);
+insert into t1 values (2,0,0,'','enhancement','','2000-03-08 18:24:51',20000321114747,'','','All','P2','TestProduct','Other',4,'other','TestComponent2','','',0,'',0);
+insert into t1 values (11,0,0,'','blocker','','2000-03-13 09:43:41',20000321114747,'','','All','P2','CCC/CCCCCC','PC',5,'7.00','DDDDDDDDD','','',0,'',0);
+insert into t1 values (12,0,0,'','normal','','2000-03-13 16:14:31',20000321114747,'','','All','P2','AAAAA','PC',3,'2.00 CD - Pre','kkkkkkkkkkk lllllllllll','','',0,'',0);
+insert into t1 values (13,0,0,'','normal','','2000-03-15 16:20:44',20000321114747,'','','other','P2','TestProduct','Other',3,'other','TestComponent','','',0,'',0);
+insert into t1 values (14,0,0,'','blocker','','2000-03-15 18:13:47',20000321114747,'','','All','P1','AAAAA','PC',3,'2.00 CD - Pre','BBBBBBBBBBBBB - generic','','',0,'',0);
+insert into t1 values (15,0,0,'','minor','','2000-03-16 18:03:28',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','DDDDDDDDD','','',0,'',0);
+insert into t1 values (16,0,0,'','normal','','2000-03-16 18:33:41',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (17,0,0,'','normal','','2000-03-16 18:34:18',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (18,0,0,'','normal','','2000-03-16 18:34:56',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (19,0,0,'','enhancement','','2000-03-16 18:35:34',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (20,0,0,'','enhancement','','2000-03-16 18:36:23',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (21,0,0,'','enhancement','','2000-03-16 18:37:23',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (22,0,0,'','enhancement','','2000-03-16 18:38:16',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','Administration','','',0,'',0);
+insert into t1 values (23,0,0,'','normal','','2000-03-16 18:58:12',20000321114747,'','','All','P2','CCC/CCCCCC','Other',5,'7.00','DDDDDDDDD','','',0,'',0);
+insert into t1 values (24,0,0,'','normal','','2000-03-17 11:08:10',20000321114747,'','','All','P2','AAAAAAAA-AAA','PC',3,'2.8','Web Interface','','',0,'',0);
+insert into t1 values (25,0,0,'','normal','','2000-03-17 11:10:45',20000321114747,'','','All','P2','AAAAAAAA-AAA','PC',3,'2.8','Web Interface','','',0,'',0);
+insert into t1 values (26,0,0,'','normal','','2000-03-17 11:15:47',20000321114747,'','','All','P2','AAAAAAAA-AAA','PC',3,'2.8','Web Interface','','',0,'',0);
+insert into t1 values (27,0,0,'','normal','','2000-03-17 17:45:41',20000321114747,'','','All','P2','CCC/CCCCCC','PC',5,'7.00','DDDDDDDDD','','',0,'',0);
+insert into t1 values (28,0,0,'','normal','','2000-03-20 09:51:45',20000321114747,'','','Windows NT','P2','TestProduct','PC',8,'other','TestComponent','','',0,'',0);
+insert into t1 values (29,0,0,'','normal','','2000-03-20 11:15:09',20000321114747,'','','All','P5','AAAAAAAA-AAA','PC',3,'2.8','Web Interface','','',0,'',0);
+
+create enum partition function e1(x)'[(TestComponent)],[(BBBBBBBBBBBBB - conversion)],[(BBBBBBBBBBBBB - generic)],[(TestComponent2)],[(BBBBBBBBBBBBB - eeeeeeeee)],[(kkkkkkkkkkk lllllllllll)],[(Test Procedures)],[(Documentation)],[(DDDDDDDDD)],[(Eeeeeeee Lite)],[(Eeeeeeee Full)],[(Administration)],[(Distribution)],[(Setup)],[(Unspecified)],[(Web Interface)],[(Host communication)]';
+create table t2(
+value varchar(32) primary key,
+program varchar(64),
+initialowner varchar(64) not null,
+initialqacontact varchar(64) not null,
+description varchar(64) not null
+)partition by (ta2,e1,value);
+--real_sleep 6
+insert into t2 values('TestComponent','TestProduct','id0001','','');
+insert into t2 values('BBBBBBBBBBBBB - conversion','AAAAA','id0001','','');
+insert into t2 values('BBBBBBBBBBBBB - generic','AAAAA','id0001','','');
+insert into t2 values('TestComponent2','TestProduct','id0001','','');
+insert into t2 values('BBBBBBBBBBBBB - eeeeeeeee','AAAAA','id0001','','');
+insert into t2 values('kkkkkkkkkkk lllllllllll','AAAAA','id0001','','');
+insert into t2 values('Test Procedures','AAAAA','id0001','','');
+insert into t2 values('Documentation','AAAAA','id0003','','');
+insert into t2 values('DDDDDDDDD','CCC/CCCCCC','id0002','','');
+insert into t2 values('Eeeeeeee Lite','CCC/CCCCCC','id0002','','');
+insert into t2 values('Eeeeeeee Full','CCC/CCCCCC','id0002','','');
+insert into t2 values('Administration','CCC/CCCCCC','id0002','','');
+insert into t2 values('Distribution','CCC/CCCCCC','id0002','','');
+insert into t2 values('Setup','CCC/CCCCCC','id0002','','');
+insert into t2 values('Unspecified','CCC/CCCCCC','id0002','','');
+insert into t2 values('Web Interface','AAAAAAAA-AAA','id0001','','');
+insert into t2 values('Host communication','AAAAA','id0001','','');
+
+select value,description,bug_id from t2 left join t1 on t2.program=t1.product where program='AAAAA' order by value,bug_id desc;
+
+select value,description,count(bug_id) from t2 left join t1 on t2.program=t1.product where program='AAAAA' group by value;
+select value,description,count(bug_id) from t2 left join t1 on t2.program=t1.product where program='AAAAA' group by value having count(bug_id) IN (0,2);
+drop table t1,t2;
+drop partition function e1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

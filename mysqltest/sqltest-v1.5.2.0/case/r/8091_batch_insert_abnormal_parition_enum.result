@@ -1,0 +1,97 @@
+drop table if exists t1,t2;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x)'[(1)],[(3)]';
+create table t1 (c1 int primary key,c2 int not null) partition by(em,e,c1);
+create table t2 (c1 int primary key,c2 int) partition by(em,e,c1);
+insert into t2 values (1,3);
+insert into t2 values (2,2);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t2 values (3,6);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+select * from t2;
+c1	c2
+1	3
+3	6
+insert into t1(c1) select c1 from t2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from t1;
+c1	c2
+insert into t1(c2) select c1 from t2;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from t1;
+c1	c2
+insert into t1 select * from t2;
+select * from t1;
+c1	c2
+1	3
+3	6
+insert into t1 select * from t1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	3
+3	6
+insert into t1 select * from t2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from t1;
+c1	c2
+1	3
+3	6
+drop table if exists t1,t2,t3;
+drop partition function r;
+ERROR HY000: YAO-5077: partition function 'r' doesn't exist
+create enum partition function r(x)'[(1)],[(2)]';
+create table t1 (c1 int primary key,c2 int ) partition by(em,r,c1);
+create table t2 (c1 int primary key,c2 int ) partition by(em,r,c1);
+create table t3 (c1 int primary key,c2 varchar(30)) partition by(em,r,c1);
+insert into t3 values(10,2);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t3 values(2,2);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+select * from t3;
+c1	c2
+2	2
+insert into t1 select * from t3;
+select * from t1;
+c1	c2
+2	2
+insert into t1(c1) select * from t3;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2
+2	2
+insert into t2(c2) select c1 from t3;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from t2;
+c1	c2
+drop table if exists t1,t2,t3;
+drop partition function t;
+ERROR HY000: YAO-5077: partition function 't' doesn't exist
+create enum partition function t(x)'[(1)]';
+create table t1 (c1 int,c2 real,c3 varchar(30),primary key(c1,c2)) partition by(em,t,c1);
+create table t2 (c1 int primary key,c2 real);
+insert into t2 values(1,1.2);
+select * from t2;
+c1	c2
+1	1.2
+insert into t1(c1,c2) select * from t2;
+select * from t1;
+c1	c2	c3
+1	1.2	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+__user_default_group	2	1	NULL
+insert into t1 select * from t2;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from t1;
+c1	c2	c3
+1	1.2	NULL

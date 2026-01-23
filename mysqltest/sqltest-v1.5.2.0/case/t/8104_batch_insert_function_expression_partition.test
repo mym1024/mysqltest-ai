@@ -1,0 +1,117 @@
+##############################################################################################
+###1.测试功能点：在不同分区规则下，插入不同类型的数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+###2-1:在range分区规则下，insert不同类型的数据
+--disable_warnings
+drop table if exists trange1;
+--enable_warnings
+
+create table trange1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by range(c1) (partition r0 values less than(200),partition r1 values less than maxvalue);
+show table rules;
+insert into trange1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+--real_sleep 5
+select * from trange1;
+show partition groups;
+
+
+###2-2:在list分区规则下，insert不同类型的数据
+--disable_warnings
+drop table if exists list1;
+--enable_warnings
+
+create table list1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by list(c1) (partition q0 values in(123));
+show table rules;
+--real_sleep 5
+insert into list1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from list1;
+show partition groups;
+
+###2-3:在enum分区规则下，insert不同类型的数据
+--disable_warnings
+drop table if exists t11;
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(123)]';
+--enable_warnings
+
+create table t11(c1 int primary key,c2 datetime,c3 varchar(30)) partition by (em,e,c1);
+--real_sleep 5
+insert into t11 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from t11;
+show partition groups;
+
+
+###2-4:在hash分区规则下，insert不同类型的数据
+--disable_warnings
+drop table if exists t1,t2;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+--enable_warnings
+
+create table t1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by (hs,h,c1);
+--real_sleep 5
+insert into t1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from t11;
+show partition groups;
+
+insert into t1(c1,c2) select 2,current_timestamp();
+select c1,c3 from t1;
+--real_sleep 5
+insert into t1(c1,c3) select length('hash'),substr('123456789',2,4);
+select c1,c3 from t1;
+
+###2-5:在不指定分区规则的情况下，insert不同类型的数据
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int,c2 int,c3 datetime,c4 varchar(30),primary key(c1,c2));
+create table t2(c1 int primary key,c2 int);
+--real_sleep 5
+insert into t2 values(1,1),(2,2),(3,3),(4,4);
+select * from t2;
+insert into t1(c1,c2) select avg(c1),count(*) from t2;
+insert into t1(c1,c2) select sum(c2),max(c1) from t2;
+select * from t1;
+insert into t1(c1,c2) select max(c1),min(c1) from t2;
+select * from t1;
+
+###2-6:在不指定分区规则的情况下，insert不同形式的数据
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+create table t1(c1 int primary key,c2 decimal(5,4),c3 varchar(30));
+--real_sleep 5
+insert into t1 select 1+1+5,5.06*1.02,'maosi'||'yu';
+insert into t1(c1,c2) select 1*89,8.9205/2.0314;
+insert into t1(c1,c2) select 1*89 % 7,8.697*54.25 mod 7;
+insert into t1(c1,c2) select 1>=2,3 between 1 and 5;
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+create table t1(c1 int primary key,c2 decimal(5,4),c3 varchar(30),c4 bool);
+create table t2(c1 int primary key,c2 decimal(5,4),c3 varchar(30),c4 bool);
+--real_sleep 5
+--real_sleep 3
+insert into t2 values (1,1.256,'maosy',0),(2,8.256,'si',1);
+insert into t1 select c1+45,avg(c2),c3||'yu',c4 from t2;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

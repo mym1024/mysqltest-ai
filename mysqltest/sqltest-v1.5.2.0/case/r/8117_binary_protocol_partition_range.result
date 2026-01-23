@@ -1,0 +1,12 @@
+drop table if exists t1;
+create table t1(mat_id int not null primary key,matintnum char(6) not null) partition by range(mat_id) (partition q1 values less than (1),partition q2 values less than (3),partition q3 values less than maxvalue);
+insert into t1 values(1,'hello');
+select mat_id,matintnum from t1 union select 0, 0 from t1;
+mat_id	matintnum
+0	0
+1	hello
+select mat_id,matintnum from t1 union select 10, 0x4141 from t1;
+mat_id	matintnum
+1	hello
+10	AA
+drop table t1;

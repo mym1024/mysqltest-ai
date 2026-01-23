@@ -1,0 +1,412 @@
+CREATE TABLE t_delete_parent (
+parent_id INT PRIMARY KEY,
+parent_group ENUM('group1', 'group2', 'group3')
+);
+CREATE TABLE t_delete_enum_set (
+id INT AUTO_INCREMENT,
+category ENUM('cat_x', 'cat_y', 'cat_z') NOT NULL,
+status_flags SET('active', 'verified', 'premium', 'deleted') NOT NULL,
+priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
+data VARCHAR(100),
+group_id INT,
+PRIMARY KEY (id),
+KEY idx_category (category),
+KEY idx_status_flags (status_flags),
+KEY idx_priority (priority),
+KEY idx_group_id (group_id),
+KEY idx_cat_status (category, status_flags),
+CONSTRAINT fk_delete_group FOREIGN KEY (group_id) REFERENCES t_delete_parent(parent_id)
+);
+CREATE TABLE t_delete_audit (
+audit_id INT AUTO_INCREMENT PRIMARY KEY,
+deleted_record_id INT,
+deleted_category ENUM('cat_x', 'cat_y', 'cat_z'),
+KEY idx_deleted_id (deleted_record_id)
+);
+INSERT INTO t_delete_parent VALUES (1, 'group1'), (2, 'group2'), (3, 'group3');
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE id = 1;
+SELECT 'After deleting id=1:' AS msg;
+msg
+After deleting id=1:
+SELECT * FROM t_delete_enum_set WHERE id = 1;
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+9
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE category = 'cat_y';
+SELECT 'After deleting category=''cat_y'':' AS msg;
+msg
+After deleting category='cat_y':
+SELECT * FROM t_delete_enum_set WHERE category = 'cat_y';
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+7
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE FIND_IN_SET('deleted', status_flags) > 0;
+SELECT 'After deleting rows with ''deleted'' flag:' AS msg;
+msg
+After deleting rows with 'deleted' flag:
+SELECT * FROM t_delete_enum_set WHERE FIND_IN_SET('deleted', status_flags) > 0;
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+8
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_y', 'active', 'normal', 'Re-added Record A', 2),
+('cat_y', 'premium,deleted', 'low', 'Re-added Record B', 2);
+SELECT 'State after re-inserting cat_y records:' AS msg;
+msg
+State after re-inserting cat_y records:
+SELECT * FROM t_delete_enum_set ORDER BY id;
+id	category	status_flags	priority	data	group_id
+1	cat_x	active,verified	high	Record 1	1
+2	cat_y	premium	normal	Record 2	2
+3	cat_x	active,deleted	low	Record 3	1
+4	cat_z	verified,premium	high	Record 4	3
+5	cat_y	active	normal	Record 5	2
+6	cat_x		low	Record 6	1
+7	cat_z	active,verified,premium	high	Record 7	3
+8	cat_y	deleted	low	Record 8	2
+9	cat_x	verified,premium	normal	Record 9	1
+10	cat_z	active	high	Record 10	3
+11	cat_y	active	normal	Re-added Record A	2
+12	cat_y	premium,deleted	low	Re-added Record B	2
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE priority = 'high' AND category = 'cat_z';
+SELECT 'After deleting high priority cat_z:' AS msg;
+msg
+After deleting high priority cat_z:
+SELECT * FROM t_delete_enum_set WHERE priority = 'high' AND category = 'cat_z';
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+7
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE priority IN ('low', 'normal');
+SELECT 'After deleting low/normal priority:' AS msg;
+msg
+After deleting low/normal priority:
+SELECT * FROM t_delete_enum_set WHERE priority IN ('low', 'normal');
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+4
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set
+WHERE category = 'cat_x'
+  AND (
+(FIND_IN_SET('premium', status_flags) > 0 AND FIND_IN_SET('verified', status_flags) = 0) OR
+(FIND_IN_SET('premium', status_flags) = 0 AND FIND_IN_SET('verified', status_flags) > 0)
+);
+SELECT 'After deleting specific cat_x with premium XOR verified:' AS msg;
+msg
+After deleting specific cat_x with premium XOR verified:
+SELECT * FROM t_delete_enum_set WHERE category = 'cat_x';
+id	category	status_flags	priority	data	group_id
+3	cat_x	active,deleted	low	Record 3	1
+6	cat_x		low	Record 6	1
+9	cat_x	verified,premium	normal	Record 9	1
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+9
+DELETE FROM t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1),
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2);
+INSERT INTO t_delete_audit (deleted_record_id, deleted_category) VALUES (3, 'cat_x'), (5, 'cat_y');
+SELECT 'State before JOIN DELETE:' AS msg;
+msg
+State before JOIN DELETE:
+SELECT * FROM t_delete_enum_set ORDER BY id;
+id	category	status_flags	priority	data	group_id
+11	cat_x	active,verified	high	Record 1	1
+12	cat_y	premium	normal	Record 2	2
+13	cat_x	active	low	Record 3	1
+14	cat_z	verified,premium	high	Record 4	3
+15	cat_y	active	normal	Record 5	2
+16	cat_x		low	Record 6	1
+17	cat_z	active,verified,premium	high	Record 7	3
+18	cat_y	deleted	low	Record 8	2
+SELECT * FROM t_delete_audit ORDER BY audit_id;
+audit_id	deleted_record_id	deleted_category
+1	3	cat_x
+2	5	cat_y
+TRUNCATE TABLE t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+TRUNCATE TABLE t_delete_audit;
+INSERT INTO t_delete_audit (deleted_record_id, deleted_category) VALUES (3, 'cat_x'), (5, 'cat_y');
+DELETE dm FROM t_delete_enum_set dm JOIN t_delete_audit da ON dm.id = da.deleted_record_id WHERE da.deleted_category = 'cat_x';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+SELECT 'After JOIN DELETE of audited cat_x records:' AS msg;
+msg
+After JOIN DELETE of audited cat_x records:
+SELECT * FROM t_delete_enum_set WHERE id = 3;
+id	category	status_flags	priority	data	group_id
+3	cat_x	active,deleted	low	Record 3	1
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+10
+TRUNCATE TABLE t_delete_enum_set;
+delete from t_delete_parent;
+INSERT INTO t_delete_parent VALUES (1, 'group1'), (2, 'group2'), (3, 'group3');
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE dm FROM t_delete_enum_set dm JOIN t_delete_parent dp ON dm.group_id = dp.parent_id WHERE dp.parent_group = 'group2';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+SELECT 'After JOIN DELETE related to parent group2:' AS msg;
+msg
+After JOIN DELETE related to parent group2:
+SELECT * FROM t_delete_enum_set WHERE group_id = 2;
+id	category	status_flags	priority	data	group_id
+2	cat_y	premium	normal	Record 2	2
+5	cat_y	active	normal	Record 5	2
+8	cat_y	deleted	low	Record 8	2
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+10
+DELETE FROM t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1),
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2);
+SELECT 'State before Subquery DELETE:' AS msg;
+msg
+State before Subquery DELETE:
+SELECT * FROM t_delete_enum_set ORDER BY id;
+id	category	status_flags	priority	data	group_id
+11	cat_x	active,verified	high	Record 1	1
+12	cat_y	premium	normal	Record 2	2
+13	cat_x	active	low	Record 3	1
+14	cat_z	verified,premium	high	Record 4	3
+15	cat_y	active	normal	Record 5	2
+16	cat_x		low	Record 6	1
+17	cat_z	active,verified,premium	high	Record 7	3
+18	cat_y	deleted	low	Record 8	2
+TRUNCATE TABLE t_delete_enum_set;
+delete from t_delete_parent;
+INSERT INTO t_delete_parent VALUES (1, 'group1'), (2, 'group2'), (3, 'group3');
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set WHERE category = (SELECT parent_group FROM t_delete_parent WHERE parent_id = 3);
+SELECT 'After DELETE where category = (subquery result ''cat_z''):' AS msg;
+msg
+After DELETE where category = (subquery result 'cat_z'):
+SELECT * FROM t_delete_enum_set WHERE category = 'cat_z';
+id	category	status_flags	priority	data	group_id
+4	cat_z	verified,premium	high	Record 4	3
+7	cat_z	active,verified,premium	high	Record 7	3
+10	cat_z	active	high	Record 10	3
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+10
+TRUNCATE TABLE t_delete_enum_set;
+delete from t_delete_parent;
+INSERT INTO t_delete_parent VALUES (1, 'group1'), (2, 'group2'), (3, 'group3');
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+DELETE FROM t_delete_enum_set
+WHERE id IN (
+SELECT temp_id FROM (
+SELECT id AS temp_id FROM t_delete_enum_set WHERE FIND_IN_SET('premium', status_flags) > 0
+) AS subq
+);
+SELECT 'After DELETE where id IN (subquery of premium records):' AS msg;
+msg
+After DELETE where id IN (subquery of premium records):
+SELECT * FROM t_delete_enum_set WHERE FIND_IN_SET('premium', status_flags) > 0;
+id	category	status_flags	priority	data	group_id
+SELECT COUNT(*) AS remaining_count FROM t_delete_enum_set;
+remaining_count
+6
+DELETE FROM t_delete_enum_set;
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active', 'high', 'Record FK Test', 1);
+DELETE FROM t_delete_audit;
+INSERT INTO t_delete_audit (deleted_record_id, deleted_category) VALUES (LAST_INSERT_ID(), 'cat_x');
+SELECT 'State before FK DELETE test:' AS msg;
+msg
+State before FK DELETE test:
+SELECT * FROM t_delete_enum_set WHERE id = (SELECT MAX(deleted_record_id) FROM t_delete_audit);
+id	category	status_flags	priority	data	group_id
+SELECT * FROM t_delete_audit WHERE deleted_record_id = (SELECT MAX(deleted_record_id) FROM t_delete_audit);
+audit_id	deleted_record_id	deleted_category
+3	3	cat_x
+TRUNCATE TABLE t_delete_enum_set;
+delete from t_delete_parent;
+INSERT INTO t_delete_parent VALUES (1, 'group1'), (2, 'group2'), (3, 'group3');
+INSERT INTO t_delete_enum_set (category, status_flags, priority, data, group_id) VALUES
+('cat_x', 'active,verified', 'high', 'Record 1', 1),
+('cat_y', 'premium', 'normal', 'Record 2', 2),
+('cat_x', 'active,deleted', 'low', 'Record 3', 1),
+('cat_z', 'verified,premium', 'high', 'Record 4', 3),
+('cat_y', 'active', 'normal', 'Record 5', 2),
+('cat_x', '', 'low', 'Record 6', 1), 
+('cat_z', 'active,verified,premium', 'high', 'Record 7', 3),
+('cat_y', 'deleted', 'low', 'Record 8', 2),
+('cat_x', 'premium,verified', 'normal', 'Record 9', 1),
+('cat_z', 'active', 'high', 'Record 10', 3);
+INSERT INTO t_delete_audit (deleted_record_id, deleted_category) VALUES (3, 'cat_x'), (5, 'cat_y');
+ALTER TABLE t_delete_parent ADD CONSTRAINT chk_no_delete CHECK (parent_id > 10);
+DELETE FROM t_delete_parent WHERE parent_id = 1;
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+ALTER TABLE t_delete_parent DROP CONSTRAINT chk_no_delete;
+SELECT 'Final state of t_delete_enum_set:' AS msg;
+msg
+Final state of t_delete_enum_set:
+SELECT * FROM t_delete_enum_set ORDER BY id;
+id	category	status_flags	priority	data	group_id
+1	cat_x	active,verified	high	Record 1	1
+2	cat_y	premium	normal	Record 2	2
+3	cat_x	active,deleted	low	Record 3	1
+4	cat_z	verified,premium	high	Record 4	3
+5	cat_y	active	normal	Record 5	2
+6	cat_x		low	Record 6	1
+7	cat_z	active,verified,premium	high	Record 7	3
+8	cat_y	deleted	low	Record 8	2
+9	cat_x	verified,premium	normal	Record 9	1
+10	cat_z	active	high	Record 10	3
+SELECT 'Final count in t_delete_enum_set:' AS msg;
+msg
+Final count in t_delete_enum_set:
+SELECT COUNT(*) AS final_count FROM t_delete_enum_set;
+final_count
+10
+SELECT 'Final state of t_delete_audit:' AS msg;
+msg
+Final state of t_delete_audit:
+SELECT * FROM t_delete_audit ORDER BY audit_id;
+audit_id	deleted_record_id	deleted_category
+3	3	cat_x
+4	3	cat_x
+5	5	cat_y
+DROP TABLE t_delete_audit;
+DROP TABLE t_delete_enum_set;
+DROP TABLE t_delete_parent;

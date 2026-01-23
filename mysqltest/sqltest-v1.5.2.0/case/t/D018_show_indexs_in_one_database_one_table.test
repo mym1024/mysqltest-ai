@@ -1,0 +1,117 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：在单数据库中单表测试 show indexs：显示当前系统所有的索引信息
+#                show [invalid/valid/init] indexs [like 'pattern' /where expr] 都会在下列case中测试到
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：429
+###5.预计运行时间：1222 s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-03-30
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+drop table if exists t5;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='1s' server_type=yaodatasvr;
+
+#建表（单表单索引）
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+show indexs;
+create index i1 on t1(c2);
+show indexs;
+show init indexs;
+show invalid indexs;
+show valid indexs;
+
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show indexs;
+show indexs where status = 1;
+show valid indexs;
+show init indexs;
+
+update __first_tablet_entry set index_status = 2 where table_id = 3002;
+update __index_process_info set status = 2 where index_id = 3002;
+show indexs;
+
+#刷新schema
+--echo refresh_schema
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+show indexs;
+show invalid indexs;
+show valid indexs;
+
+#删表
+drop table t1;
+--real_sleep 3
+
+show indexs;
+
+#建表（单表多索引）
+create table t1 (c1 int primary key, c2 int, c3 varchar(20), c4 varchar(10), c5 int, c6 timestamp, c7 bool);
+show indexs;
+create index i1 on t1(c2);
+create index i2 on t1(c3);
+create index i3 on t1(c4);
+show init indexs;
+
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show indexs like '%3003%';
+show valid indexs;
+show init indexs;
+
+insert into t1 values(1,1,'a','b',12,'2019-09-07',0);
+create index i4 on t1(c5);
+create index i5 on t1(c7);
+
+update __first_tablet_entry set index_status = 2 where table_id = 3004;
+update __first_tablet_entry set index_status = 2 where table_id = 3006;
+update __index_process_info set status = 2 where index_id = 3004;
+update __index_process_info set status = 2 where index_id = 3006;
+
+show indexs;
+
+#刷新schema
+--echo refresh_schema
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+show invalid indexs;
+show valid indexs;
+show init indexs;
+
+#删表
+drop table t1;
+--real_sleep 3
+
+show indexs;
+show invalid indexs;
+show valid indexs;
+show init indexs;

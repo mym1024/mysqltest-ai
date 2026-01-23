@@ -1,0 +1,95 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：hash分区表合并后replace、delete
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：707s
+###6.编写/修改人： huangpeng
+###7.编写/修改日期：2019-11-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--error 5077
+drop partition function h;
+--enable_warnings
+--real_sleep 5
+
+create hash partition function h(x)'x+1';
+create table t1(c1 int ,c2 varchar(20),c3 decimal(10,5),c4 int,primary key(c1)) partition by(th1,h,c1);
+--real_sleep 5
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+create index idx1 on t1(c1);
+create index idx2 on t1(c2);
+create index idx3 on t1(c3);
+--real_sleep 5
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+
+
+let $t1_tb_id = query_get_value(select table_id from __first_tablet_entry where table_name = 't1',table_id, 1);
+
+--let $index_head =__
+--let $index1_end =__idx__idx1
+--let $index2_end =__idx__idx2
+--let $index3_end =__idx__idx3
+
+--let $t1_idx1_name=$index_head$t1_tb_id$index1_end
+--let $t1_idx2_name=$index_head$t1_tb_id$index2_end
+--let $t1_idx3_name=$index_head$t1_tb_id$index3_end
+
+echo $t1_idx1_name;
+echo $t1_idx2_name;
+echo $t1_idx3_name;
+
+show index on t1;
+
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+delete from t1 where c1 > 1;
+--real_sleep 5
+select * from t1;
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+
+
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+delete from t1 where c1 = 1;
+--real_sleep 5
+select * from t1;
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+delete from t1 where c1 = 1 or c1 = 2 or c1 = 3 or c1 = 4;
+--real_sleep 5
+select * from t1;
+replace into t1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 5
+select * from t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

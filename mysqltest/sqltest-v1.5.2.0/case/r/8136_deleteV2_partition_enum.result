@@ -1,0 +1,91 @@
+can't determine a row 
+drop table if exists t1;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create enum partition function h(x) '[(1)],[(2)],[(3)]';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(em,h,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t1 values(4,4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+delete from t1 where c1 in(1);
+delete from t1 where c1 in(1,2);
+delete from t1 where c1 >=3;
+delete from t1 where c1 <=1;
+delete from t1 where 1>=c1;
+delete from t1 where 3<=c1;
+delete from t1 where c1<1 or c1<2;
+delete from t1 where c1=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+delete from t1 where c1>1 and c1=2;
+select * from t1;
+c1	c2
+drop table if exists t1;
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create enum partition function h2(x) '[(1)],[(2)],[(3)]';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(em,h2,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t1 values(4,4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+delete from t1 where c2 in(1);
+delete from t1 where c2 in(1,2);
+delete from t1 where c2 >=3;
+delete from t1 where c2 <=1;
+delete from t1 where 1>=c2;
+delete from t1 where 3<=c2;
+delete from t1 where c2<1 or c2<2;
+delete from t1 where c2=1 and c2=2;
+delete from t1 where c2>1 and c2=2;
+drop table if exists t1;
+drop partition function h3;
+ERROR HY000: YAO-5077: partition function 'h3' doesn't exist
+create enum partition function h3(x) '[(1)],[(2)],[(3)]';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(em,h3,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t1 values(4,4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+delete from t1 where (c1,c2) in((1,1));
+delete from t1 where (c1,c2) in((1,1),(2,2));
+delete from t1 where (c2,c1) in((1,1));
+delete from t1 where (c2,c1) in((1,1),(2,2));
+delete from t1 where c1>1 and c2>10 and c1=1;
+select * from t1;
+c1	c2
+3	3
+delete from t1 where c1>1 and c2>10 and c1=1;
+drop table if exists t1;
+drop partition function h4;
+ERROR HY000: YAO-5077: partition function 'h4' doesn't exist
+create enum partition function h4(x) '[(1)],[(2)],[(3)]';
+create table t1(c1 int,c2 int,primary key(c1)) partition by(em,h4,c1);
+insert into t1 values(1,1),(2,2),(3,3);
+insert into t1 values(4,4);
+ERROR HY000: YAO-5702: Table has no partition for given value.
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+delete from t1 where c2 <=1;
+delete from t1 where 1>=c2;
+delete from t1 where 3<=c2;
+delete from t1 where c2>1 and c2<3;
+delete from t1 where c2=1 or c2=2;
+delete from t1 where c2<1 or c2<2;
+delete from t1 where c2=1 and c2=2;
+delete from t1 where c2>1 and c2=2;

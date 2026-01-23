@@ -1,0 +1,63 @@
+###1.测试功能点：分区删除功能
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：20 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：与drop_partition_function_range_1001的区别在于该测试例有创建分区在建表时使用后再删除的测试
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+
+--disable_warnings
+--error 5077
+drop partition function fh,r1,r2;
+show partition functions;
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create range partition function r2(x)  '(1),(2),(maxvalue)';
+--error 5077
+drop partition function r1,r2,h3;
+show partition functions;
+--error 5001
+drop partition function 'r1';
+show partition functions;
+--error 65535
+drop partition function __r1;
+show partition functions;
+--error 5019
+drop table t1;
+--real_sleep 3
+drop partition function r1;
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create table t1(c1 int primary key,c2 int) partition by (a,r1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+--error 5077
+drop partition function h1;
+show partition functions;
+drop table t1;
+--real_sleep 3
+drop partition function r1,r2;
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create range partition function r2(x)  '(1),(2),(maxvalue)';
+create table t1(c1 int primary key,c2 int) partition by (a,r1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+--error 65535
+drop partition function r1,r2;
+show partition functions;
+drop table t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+drop partition function r1,r2;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

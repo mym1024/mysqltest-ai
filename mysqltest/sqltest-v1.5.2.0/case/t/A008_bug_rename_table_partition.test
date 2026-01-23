@@ -1,0 +1,64 @@
+##############################################################################################
+###1.测试功能点：rename table
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+
+drop table if exists t1;
+
+###2-1：hash 
+
+create hash partition function h2(x) 'x+1';
+--real_sleep 1
+create table t1(c1 int primary key,c2 int) partition by(h2,h2,c1);
+--real_sleep 1
+
+insert into t1 values(1,1),(2,2),(3,3);
+
+let $cnt=30;
+while($cnt)
+{
+select * from t1 as t2 where c1=1;
+dec $cnt;
+}
+
+drop table t1;
+--real_sleep 3
+
+###2-1：不指定分区规则
+drop table if exists t1;
+
+create table t1(c1 int primary key,c2 int);
+--real_sleep 5
+
+insert into t1 values(1,1),(2,2),(3,3);
+
+let $cnt=30;
+while($cnt)
+{
+select * from t1 as t2 where c1=1;
+dec $cnt;
+}
+
+drop table t1;
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

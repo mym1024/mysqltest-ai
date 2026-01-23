@@ -1,0 +1,55 @@
+drop table if exists t1,t2;
+use default connection
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+show processlist 100;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show processlist abc;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show process list;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+kill abc;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+kill 123;
+ERROR HY000: YAO-5067: Unknown thread id
+kill query abc;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+kill query 123;
+ERROR HY000: YAO-5067: Unknown thread id
+a new connection named by conn1
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	NULL	time	SLEEP	NULL	ms	idx
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+a new connection named by conn 2
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	NULL	time	SLEEP	NULL	ms	idx
+id	admin	client	test	NULL	time	SLEEP	NULL	ms	idx
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+kill the default connection
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	NULL	time	SLEEP	NULL	ms	idx
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+use conn1
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+id	admin	client	test	NULL	time	SLEEP	NULL	ms	idx
+kill conn2
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+try to kill conn2,which has been killed
+ERROR HY000: YAO-5067: Unknown thread id
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+try to use conn2,which has been killed
+use conn1,check conn2 disapear
+show processlist;
+Id	User	Host	db	Command	Time	State	Info	YaosqlSvr	Index
+id	admin	client	test	show processlist	time	ACTIVE	NULL	ms	idx
+kill self,conn1

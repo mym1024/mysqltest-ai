@@ -1,0 +1,30 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+case 1: int + 1 row
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+case 3: varchar
+drop table if exists t1;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table  t1(c0 int primary key,c1 varchar(30)) EXPIRE_INFO='c1 = ''d''' partition by(hs,h,c0);
+insert into t1 values(1,'i'),(2,'s'),(3,'D');
+merge happens
+major_freeze...
+delete from t1 where c0=1;
+delete from t1 where c0=2;
+delete from t1 where c0=3;
+merge happens
+major_freeze...
+insert into t1 values(1,'i'),(2,'s'),(3,'D');
+merge happens
+major_freeze...
+delete from t1 where c0=1;
+delete from t1 where c0=2;
+delete from t1 where c0=3;
+merge happens
+major_freeze...
+insert into t1 values(1,'i'),(2,'s'),(3,'D');

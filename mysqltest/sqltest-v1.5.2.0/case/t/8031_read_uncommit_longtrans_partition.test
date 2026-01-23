@@ -1,0 +1,47 @@
+##############################################################################################
+###1.测试功能点：在绑定range或list分区表下建立另一个连接查询未提交的数据
+###                       
+#
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：6.390803 s
+###5.编写/修改人：chenshibo
+###6.编写/修改日期：2019-11-20
+###
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+drop table if exists c,d;
+
+create table c (c1 int primary key, c2 varchar(8)) partition by range(c1)(partition a1 values less than(3),partition a2 values less than(5),partition a3 values less than maxvalue);
+create table d (d1 int primary key, d2 varchar(8)) partition by list(d1)(partition b1 values in(1,2),partition b2 values in(3,4));
+sleep 5;
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+begin;
+insert into c values(1,1);
+insert into d values(1,1);
+
+connection conn2;
+begin;
+--real_sleep 5
+select * from c,d where c.c1 = d.d1;
+select * from c
+left join d on c.c1 = d.d1;
+select * from c
+right join d on c.c1 = d.d1;
+select * from c
+inner join d on c.c1 = d.d1;
+select/*+join(si)*/ * from c
+left join d on c.c1 = d.d1;
+select/*+join(bloomfilter_join)*/ * from c
+left join d on c.c1 = d.d1;
+commit;
+
+connection conn1;
+commit;

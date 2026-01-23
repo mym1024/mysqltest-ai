@@ -1,0 +1,73 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int,c3 int);
+create index il0 on t1(c2) storing (c3);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c2);
+create index il3 on t1(c2,c3);
+create index il4 on t1(c2,c1);
+create index il5 on t1(c1) storing (c1);
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	4	0
+__3001__idx__il1	4	0
+__3001__idx__il2	4	0
+__3001__idx__il3	4	0
+__3001__idx__il4	4	0
+drop table t1;
+drop table if exists t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+create index il on t1(c1) storing (c2);
+create index il on t2(c1) storing (c2);
+create index il1 on t1(c2) storing (c2);
+ERROR HY000: YAO--1: There is same column in storing columns and index_columns: 'c2'
+create index il1 on t2(c2) storing (c2);
+ERROR HY000: YAO--1: There is same column in storing columns and index_columns: 'c2'
+create index il2 on t1(c2) storing (c1);
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+create index il2 on t2(c2) storing (c1);
+ERROR HY000: YAO-5031: Storing Columns c1 can not be rowkey!
+create index il3 on t1(c2);
+create index il3 on t2(c2);
+drop table t1,t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int,c3 int);
+create index it1 on t1(c1) storing (c2);
+create index it2 on t2(c2) storing (c3);
+drop table t1,t2;
+create table t1 (c1 int,c2 int,c3 int,primary key(c1,c2));
+create index i1 on t1(c2) storing (c3);
+drop table t1;
+create table t1(c1 int primary key,c2 int,c3 int,c4 int);
+create index il1 on t1(c2) storing (c3);
+create index il2 on t1(c2) storing (c3);
+create index il3 on t1(c1) storing (c2);
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int,c3 int,c4 int);
+insert into t1 values(1,1,1,1),(2,2,2,2);
+create index il on t1(c2) storing (c3);
+"merge"
+major_freeze...
+merge: DONE
+3023
+select * from __3023__idx__il;
+select * from __3023__idx__il;;
+c1	c2	c3
+1	1	1
+2	2	2
+insert into t1 values(3,3,3,3);
+select * from __3023__idx__il;;
+c1	c2	c3
+1	1	1
+2	2	2
+3	3	3

@@ -1,0 +1,2040 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+create table tbl(a int); 
+end;|
+insert into a values(0);
+desc tbl;
+ERROR 42S02: YAO-5019: Unknown table "test.tbl"
+call p();
+desc tbl;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES		NULL	
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+1
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1);
+insert into b values(2); 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+1
+2
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+delete from b where a=33; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+44
+55
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+delete from b where a>33;
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+delete from b; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+update b set a=8 where a=33; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+8
+44
+55
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+update b set a=8 where a>33; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+8
+8
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+update b set a=8; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+8
+8
+8
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+update b set a=66; 
+insert into b values(row_count()); 
+end|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+66
+66
+66
+-1
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+while @a<10 do set @a=@a+1;
+end while;
+insert into b values(@a);
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+10
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+while @a<10 do insert into b values(@a);
+set @a=@a+1;
+end while; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+1
+2
+3
+4
+5
+6
+7
+8
+9
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=33;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+while @a<50 do update b set a=@a-2 where a=@a;
+set @a=@a+1;
+end while; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+31
+42
+55
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=33;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+while @a<50 do delete from b where a=@a;
+set @a=@a+1;
+end while; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+55
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+b:while @a < 10 do if @a > 5 then leave b;
+end if;
+set @a=@a+1;
+end while;
+end|
+insert into a values(0);
+select @a;
+@a
+1
+call p();
+select @a;
+@a
+6
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+repeat set @a=@a+1;
+until @a>10 end repeat;
+insert into b values(@a); 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+11
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p()
+begin 
+if @a>60 then insert into b values(@a);
+end if; 
+end;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+80
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+if @a>80 then insert into b values(81);
+else insert into b values(1);
+end if; 
+end;|
+set @a=90;
+insert into a values(0);
+set @a=70;
+insert into a values(1);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+1
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin 
+update b set a=66 where a=55;
+if row_count()=0 then insert into b values(row_count());
+end if; 
+end|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+66
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @str='hello';
+set @a=1,@b=1;
+create procedure p() 
+begin 
+if char_length(@str) = 5 then insert into b values(5); 
+else insert into b values(88); 
+end if;
+end|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+5
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin if @a>40 then delete from b where a=@a;
+end if; 
+end;|
+set @a=33;
+insert into a values(0);
+set @a=44;
+insert into a values(1);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+55
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin case @a when 1 then insert into b values(1); 
+when 2 then insert into b values(2);
+else insert into b values(8);
+end case;	
+end;|
+set @a=1;
+insert into a values(0);
+set @a=2;
+insert into a values(1);
+set @a=3;
+insert into a values(2);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create procedure p() 
+begin case (select count(1) from a) 
+when 1 then insert into b values(1);
+when 2 then insert into b values(2); 
+else insert into b values(8);
+end case; 
+end;|
+insert into a values(0);
+insert into a values(1);
+insert into a values(2);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+label1: LOOP set @a=@a+1;
+if @a<10 then iterate label1;
+end if;
+leave label1;
+end loop label1;
+insert into b values(@a);	
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+10
+drop procedure if exists p;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+repeat set @a=@a+1;
+until @a>10 end repeat;
+insert into b values(@a);	
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+call p();
+select * from b;
+a
+33
+44
+55
+11
+drop procedure if exists p;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+call p(78);
+end|
+create procedure p(in i int) 
+begin 
+insert into b values(i);
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+78
+drop procedure if exists p;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+if @a>60 then call p();
+end if; 
+end;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+a
+33
+44
+55
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+call p();
+call pp();
+end|
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+insert into b values(2); 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+1
+2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+call p();
+insert into b values(2);
+call pp();
+end|
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+insert into b values(3); 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+1
+2
+3
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+insert into b values(2); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+if @a>60 then call p(); 
+else call pp();
+end if; 
+end;|
+set @a=2;
+insert into a values(0);
+set @a=80;
+insert into a values(1);
+select * from b;
+a
+33
+44
+55
+2
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1); 
+end;|
+create procedure pp() 
+begin 
+insert into b values(2); 
+end;|
+create trigger a after insert on a for each row 
+begin 
+case @a when 1 then call p(); 
+when 2 then call pp(); 
+else insert into b values(8);
+end case;
+end;|
+set @a=1;
+insert into a values(0);
+set @a=2;
+insert into a values(1);
+set @a=3;
+insert into a values(2);
+select * from b;
+a
+33
+44
+55
+1
+2
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+label1: LOOP set @a=@a+1;
+call p();
+if @a<5 then iterate label1;
+end if;
+leave label1;
+end loop label1;
+end;|
+set @a=1;
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+1
+1
+1
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+repeat set @a=@a+1;
+call p();
+until @a>5 end repeat; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+1
+1
+1
+1
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create procedure p() 
+begin 
+insert into b values(1);
+end;|
+create trigger a after insert on a for each row 
+begin 
+while @a<5 do set @a=@a+1;
+call p();
+end while; 
+end;|
+insert into a values(0);
+select * from b;
+a
+33
+44
+55
+1
+1
+1
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before insert on b for each row 
+begin 
+set new.a=8;
+end|
+create procedure p() 
+begin 
+insert into b values(7);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before insert on b for each row 
+begin 
+if new.a=7 then set new.a=8;
+end if;
+end|
+create procedure p() 
+begin 
+insert into b values(7);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before insert on b for each row 
+begin 
+if new.a=7 then set new.a=8;
+end if;
+end|
+create procedure p() 
+begin 
+insert into b values(9);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a after insert on a for each row 
+begin 
+set @a=new.a; 
+while @a >0 do set @a=@a-1;
+insert into b values(new.a);
+end while;
+end|
+create procedure p() 
+begin 
+insert into a values(7);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+7
+7
+7
+7
+7
+7
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+case when new.a=1 then insert into b values(1+2);
+when new.a=2 then insert into b values(2*3);
+end case; 
+end|
+create procedure p() 
+begin 
+insert into a values(1);
+end|
+create procedure pp() 
+begin 
+insert into a values(2);
+end|
+call p();
+call pp();
+select * from b;
+a
+33
+44
+55
+3
+6
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+case when new.a=1 then insert into b values(1+2);
+else insert into b values(2*3);
+end case;
+end|
+create procedure p() 
+begin 
+insert into a values(1);
+end|
+create procedure pp() 
+begin 
+insert into a values(2);
+end|
+call p();
+call pp();
+select * from b;
+a
+33
+44
+55
+3
+6
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+set @a=new.a;
+label1: LOOP set @a=@a+1;
+if @a<10 then insert into b values(new.a); 
+iterate label1;
+end if;
+leave label1;
+end loop label1; 
+end|
+create procedure p() 
+begin 
+insert into a values(7);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+7
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+set @a=new.a;
+repeat set @a=@a+1; 
+insert into b values(new.a); 
+until @a>10 end repeat;
+end|
+create procedure p() 
+begin 
+insert into a values(7);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+7
+7
+7
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+insert into b values(new.a);
+end|
+create procedure p() 
+begin 
+insert into a values(7);
+insert into a values(8);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+7
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after insert on a for each row 
+begin 
+case when new.a=1 
+then insert into b values(1+2);
+else insert into b values(2*3);
+end case; 
+end|
+create procedure p() 
+begin 
+insert into a values(1);
+insert into a values(2);
+end|
+call p();
+select * from b;
+a
+33
+44
+55
+3
+6
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+insert into b values(old.a);
+end|
+create procedure p() 
+begin 
+update a set a=9;
+end|
+insert into a values(8);
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+insert into b values(old.a);
+end|
+create procedure p() 
+begin 
+update a set a=9 where a <9;
+end|
+insert into a values(7);
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from b;
+a
+33
+44
+55
+7
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+set @a = (old.a);
+end|
+create procedure p() 
+begin 
+update a set a=9;
+end|
+insert into a values(8);
+call p();
+select @a;
+@a
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+set @a = (new.a);
+end|
+create procedure p() 
+begin 
+update a set a=9;
+end|
+insert into a values(8);
+call p();
+select @a;
+@a
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+set @a = (new.a);
+end|
+create procedure p() begin update a set a=9;end|
+insert into a values(8);
+call p();
+select @a;
+@a
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row begin set new.a = (new.a)+1;end|
+create procedure p() begin update a set a=9;end|
+insert into a values(8);
+call p();
+select * from a;
+a
+10
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row begin set new.a = (new.a)*2;end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from a;
+a
+18
+20
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+if new.a=7 then set new.a=8;
+end if;
+end|
+create procedure p() begin update a set a=7;end|
+insert into a values(5);
+call p();
+select * from a;
+a
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+if new.a=7 then set new.a=8;
+end if;
+end|
+create procedure p() begin update a set a=9;end|
+insert into a values(5);
+call p();
+select * from a;
+a
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a after update on a for each row
+begin 
+set @a=new.a; 
+while @a >0 do set @a=@a-1;
+insert into b values(@a);
+end while;
+end|
+create procedure p() begin update a set a=8;end|
+insert into a values(7);
+call p();
+select * from b;
+a
+33
+44
+55
+7
+6
+5
+4
+3
+2
+1
+0
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a after update on a for each row 
+begin 
+set @a=old.a; 
+while @a >3 do set @a=@a-1;
+insert into b values(@a);
+end while;
+end|
+create procedure p() begin update a set a=8;end|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from b;
+a
+33
+44
+55
+5
+4
+3
+6
+5
+4
+3
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a before update on a for each row 
+begin 
+set @a=new.a; 
+while @a >3 do set @a=@a-1;
+end while;
+set new.a=@a;
+end|
+create procedure p() begin update a set a=8;end|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from a;
+a
+3
+3
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+case when new.a=1 then set @a=1+1;
+when new.a=2 then set @a=(2*3);
+end case;		
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(0);
+call p();
+select @a;
+@a
+2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+case when new.a=1 then set @a=1+1;
+when new.a=2 then set @a=(2*3);
+end case;
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(0);
+call p();
+select @a;
+@a
+2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+set @a=new.a;
+label1: LOOP set @a=@a+1;
+if @a<10 then insert into b values(new.a); 
+iterate label1;
+end if;
+leave label1;
+end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(6);
+call p();
+select * from b;
+a
+33
+44
+55
+7
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+set @a=new.a;
+label1: LOOP set @a=@a+1;
+if @a<10 then set new.a=@a; 
+iterate label1;
+end if;
+leave label1;
+end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(6);
+call p();
+select * from a;
+a
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+drop trigger if exists a;
+set @a=1,@b=1;
+create procedure p() begin update a set a=a+1;end;|
+create trigger a before update on a for each row 
+begin 
+set @a=new.a; 
+repeat set @a=@a+1;set new.a=@a;
+until @a>5 end repeat; 
+end;|
+insert into a values(0);
+call p();
+select * from a;
+a
+6
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after delete on a for each row 
+begin 
+insert into b values(old.a);
+end|
+create procedure p() begin delete from a where a=8;end|
+insert into a values(8);
+call p();
+select * from b;
+a
+33
+44
+55
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after delete on a for each row 
+begin 
+insert into b values(old.a);
+end|
+create procedure p() begin delete from a where a <9;end|
+insert into a values(7);
+insert into a values(8);
+insert into a values(9);
+call p();
+select * from b;
+a
+33
+44
+55
+7
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before delete on a for each row 
+begin 
+set @a = (old.a);
+end|
+create procedure p() begin delete from a;end|
+insert into a values(8);
+call p();
+select @a;
+@a
+8
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create trigger a before delete on a for each row 
+begin 
+set @a = @a + (old.a);
+end|
+create procedure p() begin delete from a;end|
+insert into a values(8);
+insert into a values(9);
+insert into a values(10);
+call p();
+select @a;
+@a
+28
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create trigger a before delete on a for each row 
+begin 
+if old.a=7 then set @a=old.a;
+end if;
+end|
+create procedure p() begin delete from a;end|
+insert into a values(7);
+call p();
+select @a;
+@a
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=0;
+set @a=1,@b=1;
+create trigger a before delete on a for each row 
+begin 
+if old.a=7 then set @a=old.a;
+end if;
+end|
+create procedure p() begin delete from a;end|
+insert into a values(8);
+call p();
+select @a;
+@a
+1
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a after delete on a for each row 
+begin 
+set @a=old.a;
+while @a >0 do set @a=@a-1;
+insert into b values(@a);
+end while;
+end|
+create procedure p() begin delete from a;end|
+insert into a values(7);
+call p();
+select * from b;
+a
+33
+44
+55
+6
+5
+4
+3
+2
+1
+0
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a after delete on a for each row 
+begin 
+set @a=old.a; 
+while @a >3 do set @a=@a-1;
+insert into b values(@a);
+end while;
+end|
+create procedure p() begin delete from a;end|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from b;
+a
+33
+44
+55
+5
+4
+3
+6
+5
+4
+3
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+set @a=1|
+create trigger a before update on a for each row 
+begin 
+set @a=new.a; 
+while @a >3 do set @a=@a-1;
+end while;
+set new.a=@a;
+end|
+create procedure p() begin update a set a=8;end|
+insert into a values(6);
+insert into a values(7);
+call p();
+select * from a;
+a
+3
+3
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+case when new.a=1 then set @a=1+1;
+when new.a=2 then set @a=(2*3);
+end case; end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(0);
+call p();
+select @a;
+@a
+2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+case when new.a=1 then set @a=1+1;
+when new.a=2 then set @a=(2*3);
+end case; 
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(0);
+call p();
+select @a;
+@a
+2
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a after update on a for each row 
+begin 
+set @a=new.a;
+label1: LOOP set @a=@a+1;
+if @a<10 then insert into b values(new.a); 
+iterate label1;
+end if;
+leave label1;
+end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(6);
+call p();
+select * from b;
+a
+33
+44
+55
+7
+7
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1,@b=1;
+create trigger a before update on a for each row 
+begin 
+set @a=new.a;
+label1: LOOP set @a=@a+1;
+if @a<10 then set new.a=@a; 
+iterate label1;
+end if;
+leave label1;
+end loop label1; 
+end|
+create procedure p() begin update a set a=a+1;end|
+insert into a values(6);
+call p();
+select * from a;
+a
+9
+drop procedure if exists p;
+drop procedure if exists pp;
+drop trigger if exists a;
+drop table if exists a,b;
+create table a(a int);
+create table b(a int);
+insert into b values(33);
+insert into b values(44);
+insert into b values(55);
+set @a=1;
+drop trigger if exists a;
+set @a=1,@b=1;
+create procedure p() begin update a set a=a+1;end;|
+create trigger a before update on a for each row 
+begin 
+set @a=new.a; 
+repeat set @a=@a+1;
+set new.a=@a;
+until @a>5 end repeat; 
+end;|
+insert into a values(0);
+call p();
+select * from a;
+a
+6

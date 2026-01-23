@@ -1,0 +1,184 @@
+##############################################################################################
+###1.测试功能点：在分区表上测试系统函数floor 和 ceil
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：21s
+###6.编写/修改人： huangpeng
+###7.编写/修改日期：2019-11-08
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database d1;
+using database d1;
+sleep 5;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8,t9;
+--enable_warnings
+
+
+#创建不同数据类型的不同分区类型的表
+--echo creat table
+create table t1(c1 int primary key,c2 float) partition by list(c1)(partition p11 values in(1,3,5,7),partition p12 values in(2,4,6,8));
+create table t2(c1 int primary key,c2 double) partition by range(c1)(partition p21 values less than(5), partition p22 values less than(10),partition p23 values less than maxvalue);
+create table t3(c1 int primary key,c2 int) partition by list(c1)(partition p31 values in(1,2,3),partition p32 values in(4,5,6));
+create table t4(c1 int primary key,c2 bigint) partition by range(c1)(partition p41 values less than(3), partition p42 values less than(7),partition p43 values less than maxvalue);
+create table t5(c1 int primary key,c2 varchar(20)) partition by range(c1)(partition p51 values less than(4), partition p52 values less than(10),partition p53 values less than maxvalue);
+create table t6(c1 int primary key,c2 decimal(38,5)) partition by list(c1)(partition p61 values in(1,3,5),partition p62 values in(2,4,6));
+--error 5077
+drop partition function h1;
+create hash partition function h1(x) 'x + 4';
+create table t7(c1 int primary key,c2 bigint,c3 float,c4 double,c5 varchar(30),c6 decimal(38,5)) partition by(t71,h1,c1);
+--error 5077
+drop partition function e1;
+create enum partition function e1(x) '[(1)],[(2)]';
+create table t8(c1 int primary key,c2 bigint,c3 float,c4 double,c5 varchar(30),c6 decimal(38,5)) partition by(t81,e1,c1);
+create table t9(c1 int primary key,c2 date) partition by list(c1)(partition p91 values in(1,2),partition p92 values in(3,4));
+
+#初始化各个表
+--real_sleep 5
+--echo insert data
+insert into t7 values(1,20,1.23,12.345678900123456,'-12.456','15.888');
+insert into t7 values(2147483647,9223372036854775807,3.4e38,1.7e308,'1234.5678','987654321001234567890123456789012.12345');
+insert into t7 values(-2147483648,-9223372036854775808,-3.4e38,-1.7e308,'1234.45565','-987654321001234567890123456789012.12345');
+insert into t7 values(123,3456,0.123456,0.7894561230123456,'-456789','1258746');
+insert into t7 values(68,656,1.33,7.8945613456,'+6789','+1258746.89878');
+insert into t7 values(2,33,34.0,7.0,'-67.1','746.0');
+insert into t7 values(5,23,4.125,8.5,'55.5','46.66');
+insert into t8 values(1,2,4.15,8.5,'55.5','46.66');
+insert into t8 values(2,3,5.13,4.5555555,'-5.489','123.478');
+insert into t2 values(1,123.456789);
+insert into t2 values(2,0.123456789);
+insert into t2 values(3,0.1234567890123456789123456);
+insert into t2 values(4,0);
+insert into t2 values(5,2.3e-308);
+insert into t2 values(6,1.7e308);
+insert into t2 values(7,-1.7e308);
+insert into t2 values(8,-2.3e-308);
+insert into t1 values(1,0);
+insert into t1 values(2,1.2e-38);
+insert into t1 values(3,3.4e38);
+insert into t1 values(4,-1.2e-38);
+insert into t1 values(5,-3.4e38);
+insert into t1 values(6,1.23456);
+insert into t1 values(7,123456);
+insert into t1 values(8,123456.0);
+insert into t3 values(1,0);
+insert into t3 values(2,2147483647);
+insert into t3 values(3,-2147483648);
+insert into t3 values(4,-112);
+insert into t3 values(5,112);
+insert into t4 values(1,0);
+insert into t4 values(2,9223372036854775807);
+insert into t4 values(3,-9223372036854775807);
+insert into t4 values(4,2233);
+insert into t4 values(5,-2233);
+insert into t6 values(1,0);
+insert into t6 values(2,'987654321001234567890123456789012');
+insert into t6 values(3,'-987654321001234567890123456789012');
+insert into t6 values(4,'-987654321001234567890123456789012.12345');
+insert into t6 values(5,'987654321001234567890123456789012.12345');
+insert into t6 values(6,12.33);
+insert into t5 values(1,'123');
+insert into t5 values(2,'-123');
+insert into t5 values(3,'-123.0');
+insert into t5 values(4,'123.0');
+insert into t5 values(5,'123.123');
+insert into t5 values(6,'-123.123');
+insert into t9 values(1,'2015-12-12');
+
+##2-1:测试floor函数
+--echo start floor
+select floor(c2) from t3;
+select floor(c2) from t4;
+select floor(c2) from t1;
+select floor(c2) from t2;
+select floor(c2) from t5;
+select floor(c2) from t6;
+
+#数值溢出情况
+--error 165
+select floor(c1 + c2) from t7;
+select floor(c1 + c3) from t7;
+select floor(c1 + c4) from t7;
+#--error 165
+select floor(c1 + c5) from t7;
+select floor(c1 + c6) from t7;
+select floor(c2 + c3) from t7;
+select floor(c2 + c4) from t7;
+#--error 165
+select floor(c2 + c5) from t7;
+select floor(c2 + c6) from t7;
+select floor(c3 + c4) from t7;
+select floor(c3 + c5) from t8;
+select floor(c3 + c6) from t7;
+select floor(c4 + c5) from t8;
+select floor(c4 + c6) from t7;
+select floor(c5 + c6) from t7;
+select floor(c1 + c2 * c3 + c4 + c5 + c6 / 2.3) from t8;
+select floor(c1 + (c2 * c3 + c4) * c5 + c6 / 2.3) from t8;
+
+#非法数值
+#--error 153
+select floor('-1.2a');
+#非法类型
+--error 2
+select floor(c2) from t9;
+select floor(NULL);
+
+
+###2-2：测试ceil函数
+
+--echo start ceil
+select ceil(c2) from t3;
+select ceil(c2) from t4;
+select ceil(c2) from t1;
+select ceil(c2) from t2;
+select ceil(c2) from t5;
+select ceil(c2) from t6;
+#数值溢出情况
+--error 165
+select ceil(c1 + c2) from t7;
+select ceil(c1 + c3) from t7;
+select ceil(c1 + c4) from t7;
+#--error 165
+select ceil(c1 + c5) from t7;
+select ceil(c1 + c6) from t7;
+select ceil(c2 + c3) from t7;
+select ceil(c2 + c4) from t7;
+#--error 165
+select ceil(c2 + c5) from t7;
+select ceil(c2 + c6) from t7;
+select ceil(c3 + c4) from t7;
+select ceil(c3 + c5) from t8;
+select ceil(c3 + c6) from t7;
+select ceil(c4 + c5) from t8;
+select ceil(c4 + c6) from t7;
+select ceil(c5 + c6) from t7;
+select ceil(c1 + c2 * c3 + c4 + c5 + c6 / 2.3) from t8;
+select ceil(c1 + (c2 * c3 + c4) * c5 + c6 / 2.3) from t8;
+
+#非法数值
+#--error 153
+select ceil('-1.2a');
+#非法类型
+--error 2
+select ceil(c2) from t9;
+select ceil(NULL);
+
+drop table t1,t2,t3,t4,t5,t6,t7,t8,t9;
+drop partition function h1,e1;
+drop database d1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

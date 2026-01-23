@@ -1,0 +1,89 @@
+##############################################################################################
+###1.测试功能点：不指定分区规则表中对null值得操作
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+create table t1(pk int primary key,extra int);
+insert into t1(pk) values(1),(2);
+select * from t1;
+
+insert into t1(pk,extra) values (3,NULL),(4,NULL);
+select * from t1;
+insert into t1(pk,extra) values (NULL,NULL);
+select * from t1;
+
+select * from t1 where extra = NULL;
+select * from t1 where extra != NULL;
+select * from t1 where extra is NULL;
+select * from t1 where extra is not NULL;
+select * from t1 where pk is NULL;
+select * from t1 where pk = NULL;
+select * from t1 where pk != NULL;
+select * from t1 where pk is not NULL;
+select * from t1 where pk in (NULL);
+select * from t1 where pk in (NULL,1);
+
+select * from t1 where NULL > NULL;
+select * from t1 where NULL < NULL;
+select * from t1 where NULL = NULL;
+select * from t1 where NULL > 1;
+select * from t1 where NULL < 1;
+select * from t1 where NULL is NULL;
+
+update t1 set extra=1 where pk = null;
+select * from t1;
+update t1 set extra=1 where pk != null;
+update t1 set extra=1 where pk is null;
+update t1 set extra=1 where pk is not null;
+
+delete from t1 where pk = null;
+select * from t1;
+delete from t1 where pk is null;
+delete from t1 where pk is not null;
+delete from t1 where pk != null;
+
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+set autocommit=0;
+select * from t1;
+insert into t1 values(5,NULL);
+insert into t1 values(null,NULL);
+
+connection conn2;
+--error 5049
+select * from t1 where extra is NULL and pk=5 for update;
+#--error 5049
+select * from t1 where extra is NULL and pk is null for update;
+
+connection conn1;
+commit;
+real_sleep 10;
+select * from t1 where extra is NULL and pk=5 for update;
+select * from t1 where extra is not NULL and pk=5 for update;
+select * from t1 where extra is NULL and pk is null for update;
+#--error 5047
+select * from t1 where extra is not NULL and pk is not null for update;
+set autocommit=1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

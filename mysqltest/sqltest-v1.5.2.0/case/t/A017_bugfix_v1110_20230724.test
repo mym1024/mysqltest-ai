@@ -1,0 +1,122 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+####################################必填######################################################
+###1.测试功能点：HotRelease-V1.1.1.0-202307分支合并相关issue
+###（参考：svn://192.168.16.200/YaoBaseDoc/10-运维测试管理/BugList/YaoBase分布式数据库确认测试-1.1.1.0.xlsx）
+###根据内核提供的文档：1.1.1.0版本合并对应issue94：
+###二级issue 1,2,3,4,5,7,8,9,11,12,14,18,19,20,22,23
+###未形成case：2个：issue20、issue23 需要java程序去验证。
+###
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：950 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2023-07-24
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+	
+
+#####################################Do sql###################################################
+
+###issue1:创建库时需要库名长度不超过64。
+create database tttttttttttttttttttttttttttttttttttttttttttttttttttttt;
+use tttttttttttttttttttttttttttttttttttttttttttttttttttttt;
+show tables;
+--error 2
+create database testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest;
+
+
+###issue2：切库语法新增use库名方式。
+using database trash;
+use `trash`;
+use "trash";
+use trash;
+
+using database yao;
+use `yao`;
+use "yao";
+use yao;
+
+###issue3：视图名：tables，columns，statistics为关键字不能创建
+###issue5：创建视图后，查询视图报错。
+use test;
+create table test(c1 int primary key,c2 int);
+
+create view test.tables as select a.table_name,b.table_id FROM  __first_tablet_entry as a,__all_all_column as b where a.table_id=b.table_id and a.table_id>=3001;
+
+create view test.columns as select a.table_name,b.table_id FROM  __first_tablet_entry as a,__all_all_column as b where a.table_id=b.table_id and a.table_id>=3001;
+
+create view test.statistics as select a.table_name,b.table_id FROM  __first_tablet_entry as a,__all_all_column as b where a.table_id=b.table_id and a.table_id>=3001;
+
+select * from test.tables;
+
+ 
+###issue4：创建表时，列名称含 PRIVILEGES 、 comment
+###issue12：创建表结构varchar类型后有属性：binary
+###issue19：建表语句含关键字：DATETIME ,TIME 
+
+CREATE table test.ddtj ( 
+PRIVILEGES int,
+comment varchar(10),
+SOURCE varchar(100) binary, 
+DATETIME varchar(20) binary, 
+H varchar(2) binary, 
+TIME timestamp NULL default null,  
+COUNT bigint);
+show create table test.ddtj;
+
+###issue7：查询表名/视图语法show full tables
+###issue11：查询列信息
+
+SHOW FULL TABLES FROM `test` LIKE '%';
+SHOW FULL COLUMNS FROM `ddtj` FROM `test`;
+SHOW FULL COLUMNS FROM `ddtj` FROM `test` LIKE '%';
+
+###issue8：运算符查询不支持<=>
+
+CREATE TABLE employees (
+  emp_id INT PRIMARY KEY,
+  emp_name VARCHAR(50),
+  emp_salary INT,
+  emp_department VARCHAR(50)
+);
+INSERT INTO employees (emp_id, emp_name, emp_salary, emp_department) VALUES
+  (1, 'John Smith', 50000, 'HR'),
+  (2, 'Jane Doe', NULL, 'IT'),
+  (3, 'Bob Johnson', 75000, 'Sales'),
+  (4, 'Alice Lee', 60000, 'HR'),
+  (5, 'Tom Brown', NULL, 'IT');
+SELECT * FROM employees WHERE emp_name <=> 'Bob Johnson' and emp_name like '%';
+
+###issue9：schema()返回当前数据库名称
+
+select schema();
+
+###issue14：运算符查询 差集：minus, 交集：intersect
+
+create table issue14_1(c1 int primary key,c2 int);
+create table issue14_2(c1 int primary key,c2 int);
+insert into issue14_1 values(1,1),(2,2),(3,3);
+insert into issue14_2 values(1,1),(2,2);
+select c1 from issue14_1 MINUS select c1 from issue14_2;
+select c1 from issue14_1 intersect select c1 from issue14_2;
+
+###issue18：ifnull函数查询
+
+CREATE TABLE employee_phone (
+  emp_id INT PRIMARY KEY,
+  phone_number VARCHAR(15)
+);
+INSERT INTO employee_phone (emp_id, phone_number) VALUES(1, '1234567890'),(2, NULL),(3, '9876543210'),(4, '4567890123'),(5, NULL);
+###查询员工的姓名和电话号码，将NULL电话号码替换为空字符串，并将结果串联为“姓名 - 电话号码”格式
+SELECT emp_name,CONCAT(emp_name, ' - ', IFNULL(phone_number, '')) AS emp_info FROM employees e LEFT JOIN employee_phone p ON e.emp_id = p.emp_id;
+
+###issue22:str_to_date函数查询 
+select str_to_date('20230724','%Y%m%d');
+
+############################################ end sql ###################################################

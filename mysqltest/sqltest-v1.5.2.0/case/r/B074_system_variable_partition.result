@@ -1,0 +1,6 @@
+select @@tx_isolation limit 1;
+@@tx_isolation
+READ-COMMITTED
+select @@session.tx_isolation;
+@@session.tx_isolation
+READ-COMMITTED

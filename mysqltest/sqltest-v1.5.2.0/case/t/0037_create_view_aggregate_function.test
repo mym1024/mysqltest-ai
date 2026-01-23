@@ -1,0 +1,136 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210120
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:基于基本表/视图的多个列，列进行复合运算,使用聚集函数count()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select count(c1),count(c1+c2),count(c2+c1*c3),count(length(c3)),count(concat(c1,c2)) from t1;
+desc v1;
+select * from v1;
+select count(c1),count(c1+c2),count(c2+c1*c3),count(length(c3)),count(concat(c1,c2)) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-2:基于基本表/视图的多个列，列进行复合运算,使用聚集函数sum()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select sum(c1),sum(c1+c2),sum(c2+c1*c3),sum(length(c3)),sum(concat(c1,c2)) from t1;
+desc v1;
+select * from v1;
+select sum(c1),sum(c1+c2),sum(c2+c1*c3),sum(length(c3)),sum(concat(c1,c2)) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-3:基于基本表/视图的多个列，列进行复合运算,使用聚集函数avg()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select avg(c5),avg(c1+c2),avg(c2+c1*c3),avg(c1*165+c2) from t1;
+desc v1;
+select * from v1;
+select avg(c5),avg(c1+c2),avg(c2+c1*c3),avg(c1*165+c2) from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-4:基于基本表/视图的多个列，列进行复合运算,使用聚集函数max()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select max(c1),max(c2),max(c3),max(c4),max(c5),max(c6),max(c7) from t1;
+create view v2 as select max(c1*c2),max(c1+c2/3.12),max(c1*c2+c3/c4-c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select max(c1),max(c2),max(c3),max(c4),max(c5),max(c6),max(c7) from t1;
+select * from v2;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-5:基于基本表/视图的多个列，列进行复合运算,使用聚集函数min()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select min(c1),min(c2),min(c3),min(c4),min(c5),min(c6),min(c7) from t1;
+create view v2 as select min(c1*c2),min(c1+c2/3.12),min(c1*c2+c3/c4-c5) from t1;
+desc v1;
+desc v2;
+select * from v1;
+select min(c1),min(c2),min(c3),min(c4),min(c5),min(c6),min(c7) from t1;
+select * from v2;
+select min(c1*c2),min(c1+c2/3.12),min(c1*c2+c3/c4-c5) from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:基于基本表/视图的多个列，列进行复合运算,使用聚集函数row_number()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1(c1,c2,r1,r2,r3,r4) as select c1,c2,row_number() over (partition by c2 order by c3),row_number() over (partition by c2),row_number() over (order by c3),row_number() over () from t1;
+create view v2(c1,c2,r1,r2,r3,r4) as select c1,c2,row_number() over (partition by c2,c3 order by c5,c6,c7),row_number() over (partition by c2,c3),row_number() over (order by c3,c5 desc),row_number() over () from t1;
+desc v1;
+desc v2;
+select * from v1;
+select c1,c2,row_number() over (partition by c2 order by c3),row_number() over (partition by c2),row_number() over (order by c3),row_number() over () from t1;
+select * from v2;
+select c1,c2,row_number() over (partition by c2,c3 order by c5,c6,c7),row_number() over (partition by c2,c3),row_number() over (order by c3,c5 desc),row_number() over () from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-7:基于基本表/视图的多个列，列进行复合运算,使用聚集函数listagg()
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select c1,c2,listagg(c1,',') within group (order by c2),listagg(c1,',') within group (order by c4,c5),listagg(c1,',') from t1;
+desc v1;
+select * from v1;
+select c1,c2,listagg(c1,',') within group (order by c2),listagg(c1,',') within group (order by c4,c5),listagg(c1,',') from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+

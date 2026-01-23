@@ -1,0 +1,357 @@
+set yao_query_timeout=2147483647;
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int); 
+end;//
+call p()//
+drop procedure p//
+DROP PROCEDURE IF EXISTS test.p//
+create procedure p() 
+begin 
+alter table proc_test add column name varchar(20); 
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin 
+create index proc_test_index on proc_test(age,name);
+end;//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create procedure p() 
+begin 
+drop table proc_test; 
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int);
+create view proc_view as select * from proc_test; 
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin 
+drop view proc_view; 
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin 
+create table proc_nopk(id int,age int); 
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin 
+create table proc_pk(id int primary key);
+end//
+call p()//
+drop procedure p//
+create procedure p() 
+begin
+create hash partition function h(x) 'x%4'; 
+create table bmsql_new_order ( no_w_id integer not null,no_d_id integer not null,no_o_id integer not null,redundancy varchar(4),primary key (no_w_id, no_d_id, no_o_id)) use_block_cache=true partition by (hs, h, no_w_id);
+desc bmsql_new_order; 
+show table rules;
+end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int); 
+end;//
+create procedure p1() 
+begin 
+create table proc_test1(id int  primary key, age int); 
+end;//
+show procedure status like 'p'//
+Db	Name	Type	Definer	Modified	Created	Security_type	Comment	character_set_client	collation_connection	Database Collation
+test	p	PROCEDURE	admin@%	2024-03-01 15:47:46.943088	2024-03-01 15:47:46.943088	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+show procedure status like 'd'//
+Db	Name	Type	Definer	Modified	Created	Security_type	Comment	character_set_client	collation_connection	Database Collation
+show procedure status //
+Db	Name	Type	Definer	Modified	Created	Security_type	Comment	character_set_client	collation_connection	Database Collation
+test	p	PROCEDURE	admin@%	2024-03-01 15:47:46.943088	2024-03-01 15:47:46.943088	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	p1	PROCEDURE	admin@%	2024-03-01 15:47:46.943088	2024-03-01 15:47:46.943088	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+show create procedure //
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show create procedure d//
+Proceudre	sql_mode	Create Procedure	character_set_client	collation_connection	Database Collation
+show create procedure p//
+Proceudre	sql_mode	Create Procedure	character_set_client	collation_connection	Database Collation
+p	STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER	create procedure p() 
+begin 
+create table proc_test(id int  primary key, age int); 
+end;	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+show create procedure p1//
+Proceudre	sql_mode	Create Procedure	character_set_client	collation_connection	Database Collation
+p1	STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER	create procedure p1() 
+begin 
+create table proc_test1(id int  primary key, age int); 
+end;	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+show create procedure test.p1//
+Proceudre	sql_mode	Create Procedure	character_set_client	collation_connection	Database Collation
+p1	STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER	create procedure p1() 
+begin 
+create table proc_test1(id int  primary key, age int); 
+end;	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+select db,name from __all_procedure//
+db	name
+test	p
+test	p1
+drop procedure d//
+ERROR HY000: YAO-5727: procedure d does not exist 
+drop procedure p//
+drop procedure  //
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+delete from __all_procedure where name='p1'//
+select * from __all_procedure//
+created	modified	db	name	definers	param_count	security_type	comments	definition
+create procedure p() 
+begin 
+alter table proc_test add column name varchar(20); 
+insert into proc_test(id,age) values(1,1);
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+1	1	NULL
+drop procedure test.p//
+create procedure p() 
+begin 
+insert into proc_test values(2,2,'a');
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+1	1	NULL
+2	2	a
+drop procedure p//
+create procedure p() 
+begin 
+insert into proc_test values(3,3,'a'),(4,4,'a');
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+1	1	NULL
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+update proc_test set age = 18 where id = 1; 
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+1	18	NULL
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+update proc_test set id = a where id = a-8; 
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+9	18	NULL
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+delete from proc_test where id = a; 
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 10;
+select * from proc_test where id < a;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where id = (select age from proc_test where id = 2);
+end;//
+call p()//
+id	age	name
+2	2	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age = a-6 and id in (select age from proc_test where id < 5);
+end;//
+call p()//
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from (select * from proc_test where id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+id	age	name
+2	2	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+end;//
+call p()//
+id	age	name
+2	2	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id;
+end;//
+call p()//
+id	sum(age)
+2	2
+3	3
+4	4
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc;
+end;//
+call p()//
+id	sum(age)
+4	4
+3	3
+2	2
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 2 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+end;//
+call p()//
+id	sum(age)
+4	4
+3	3
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+select * from proc_test union select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 10;
+select * from proc_test union all select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+2	2	a
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin
+create table test (id int primary key ,bit_1 bit(1),bit_3 bit(3) default b'001',bit_7 bit(7));
+insert into test (id,bit_1,bit_7) values(1,b'0',b'1111111');
+end;//
+call p()//
+drop procedure p//
+create procedure p1()
+begin
+insert into test values(2,b'1',b'001',b'1000001');
+end;//
+call p1()//
+drop procedure p1//
+create procedure p2()
+begin
+select * from test;
+end;//
+call p2()//
+id	bit_1	bit_3	bit_7
+1	 		
+2			A
+drop procedure p2//
+create procedure p3() 
+begin
+create table lc(b json);
+insert into lc values('1'),('null'),('true'),('false'),('"abc"'),('1.1');
+select * from lc;
+end;//
+call p3()//
+b
+1
+null
+true
+false
+"abc"
+1.1
+drop procedure p3//
+create procedure p4() 
+begin
+insert into lc values('[true,{"array":[1,null,[1,2,3]],"object":{"abc":{"true":1}}}]');
+end;//
+call p4()//
+drop procedure p4//
+create procedure p5() 
+begin
+select * from lc;
+end;//
+call p5()//
+b
+1
+null
+true
+false
+"abc"
+1.1
+[true, {"array": [1, null, [1, 2, 3]], "object": {"abc": {"true": 1}}}]
+drop procedure p5//

@@ -1,0 +1,37 @@
+create table test1 (c1 int primary key, c2 varchar);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; Check the length of varchar type
+create table test2 (c1 int primary key, c2 varchar, c2 varchar(255));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; Check the length of varchar type
+create table test3 (c1 int primary key, c2 varchar(255));
+desc test3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(255)	YES		NULL	
+create table test4 (c1 int primary key, c2 char);
+desc test4;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(1)	YES		NULL	
+alter table test3 add c3 varchar;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; Check the length of varchar type
+alter table test3 add c3 varchar(255);
+desc test3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(255)	YES		NULL	
+c3	varchar(255)	YES		NULL	
+alter table test3 add c4 char;
+desc test3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(255)	YES		NULL	
+c3	varchar(255)	YES		NULL	
+c4	varchar(1)	YES		NULL	
+alter table test3 add c5 char(25);
+desc test3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	varchar(255)	YES		NULL	
+c3	varchar(255)	YES		NULL	
+c4	varchar(1)	YES		NULL	
+c5	varchar(25)	YES		NULL	

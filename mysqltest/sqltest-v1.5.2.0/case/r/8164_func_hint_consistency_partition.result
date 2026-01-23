@@ -1,0 +1,125 @@
+drop table if exists t;
+create enum partition function e1(x)'[(1)],[(3)],[(5)]';
+create table t(c1 int primary key,c2 int) partition by(em,e1,c1);
+insert into t values(1,2),(3,4),(5,6);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#2	2	0	NULL
+select /*+ read_consistency(weak)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ read_consistency(weak)*/ * from t where c1=1;
+c1	c2
+1	2
+select /*+ read_consistency(strong)*/ * from t where c1=1;
+c1	c2
+1	2
+select /*+ READ_CONSISTENCY(STATIC)*/ * from t;
+c1	c2
+select /*+ READ_CONSISTENCY(STRONG)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(WEAK)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from t;
+c1	c2
+update /*+ hotspot */ t set c2=1 where c1=1;
+drop table t;
+create hash partition function h1(x)'x+1';
+create table t(c1 int primary key,c2 int) partition by(hs,h1,c1);
+insert into t values(1,2),(3,4),(5,6);
+select /*+ read_consistency(weak)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ read_consistency(weak)*/ * from t where c1=1;
+c1	c2
+1	2
+select /*+ read_consistency(strong)*/ * from t where c1=1;
+c1	c2
+1	2
+select /*+ READ_CONSISTENCY(STATIC)*/ * from t;
+c1	c2
+select /*+ READ_CONSISTENCY(STRONG)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(WEAK)*/ * from t;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from t;
+c1	c2
+update /*+ hotspot */ t set c2=1 where c1=1;
+drop table t;
+create table list1(c1 int primary key,c2 int) partition by list(c1) (partition q0 values in(1,3,5));
+insert into list1 values(1,2),(3,4),(5,6);
+select /*+ read_consistency(weak)*/ * from list1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ read_consistency(weak)*/ * from list1 where c1=1;
+c1	c2
+1	2
+select /*+ read_consistency(strong)*/ * from list1 where c1=1;
+c1	c2
+1	2
+select /*+ READ_CONSISTENCY(STATIC)*/ * from list1;
+c1	c2
+select /*+ READ_CONSISTENCY(STRONG)*/ * from list1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(WEAK)*/ * from list1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from list1;
+c1	c2
+update /*+ hotspot */ list1 set c2=1 where c1=1;
+drop table list1;
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 int) partition by range columns(c1)(partition r0 values less than(10),partition r1 values less than maxvalue);
+insert into trange1 values(1,2),(3,4),(5,6);
+select /*+ read_consistency(weak)*/ * from trange1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ read_consistency(weak)*/ * from trange1 where c1=1;
+c1	c2
+1	2
+select /*+ read_consistency(strong)*/ * from trange1 where c1=1;
+c1	c2
+1	2
+select /*+ READ_CONSISTENCY(STATIC)*/ * from trange1;
+c1	c2
+select /*+ READ_CONSISTENCY(STRONG)*/ * from trange1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(WEAK)*/ * from trange1;
+c1	c2
+1	2
+3	4
+5	6
+select /*+ READ_CONSISTENCY(FROZEN)*/ * from trange1;
+c1	c2
+update /*+ hotspot */ trange1 set c2=1 where c1=1;
+drop table trange1;

@@ -1,0 +1,2343 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists test1,test2;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+create table test1(c1 int, c2 varchar(20), c3 decimal(10,5), c4 int, primary key(c1)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	1	test1#r0,test1#r1	__range@3001	c1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+test1#r0	2	0	NULL
+test1#r1	2	1	NULL
+create index idx1 on test1(c1);
+create index idx2 on test1(c2);
+create index idx3 on test1(c3);
+create index idx4 on test1(c4);
+create table test2(c1 int, c2 decimal(10,5), c3 varchar(20), c4 int, c5 int, c6 int, c7 decimal(10,5), c8 varchar(20), primary key(c1,c2,c3)) partition by range columns(c1)(partition r0 values less than(6),partition r1 values less than maxvalue);
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+create index idx2 on test2(c5) storing(c6,c4);
+create index idx3 on test2(c2,c3) storing(c4,c5);
+merge
+major_freeze...
+merge: DONE
+__3001__idx__idx1
+__3001__idx__idx2
+__3001__idx__idx3
+__3001__idx__idx4
+__3006__idx__idx2
+__3006__idx__idx3
+show index on test1;
+index_name	status	index_type
+__3001__idx__idx1	1	0
+__3001__idx__idx2	1	0
+__3001__idx__idx3	1	0
+__3001__idx__idx4	1	0
+show index on test2;
+index_name	status	index_type
+__3006__idx__idx2	1	0
+__3006__idx__idx3	1	0
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c1=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c1=1 where c1>100;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c4=5 where c1<100;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	5
+3	c	3	5
+4	d	4	5
+5	a	1	5
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	5	NULL
+3	5	NULL
+4	5	NULL
+5	5	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 OR c1=1 OR c1=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c1=1 where c1=10 OR c1=11 OR c1=5;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c4=111 where c1=1 OR c1=1 OR c1=1;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	111
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	2	NULL
+3	3	NULL
+4	4	NULL
+1	111	NULL
+update test1 set c4=1 where c1=1 OR c1=2 OR c1=3 OR c1=4 OR c1=5;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	1
+3	c	3	1
+4	d	4	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	1	NULL
+3	1	NULL
+4	1	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c4=111 where c1=5 and c1=5 and c1=5 and c1=5 and c1=5;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c1=1 where c1=5 and c1=5 and c1=5 and c1=4 and c1=3 and c1=5;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=1 where c1=5 and c1=5 and c1=5 and c1=3;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=1 where c1=3 and c1=5 and c1=5 and c1=3;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c4=1 where c1=5 and c1=5 and c1=5 and c1=5 and c1=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c4=1 where c1=5 and c1=5 and c1=2 and c1=5;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c4=1 where c1=2 and c1=5 and c1=5 and c1=5;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 or c1=2 and c1=3 or c1=4 and c1=5;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1=1 or c1=2 and c1=3 or c1=4 and c1=5;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 between 1 and 1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 between 111 and 111;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 between 0 and 1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 between 1 and 4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	111	NULL
+3	111	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 IN(1);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c1=5 where c1 IN(10,11,12,13,14,15);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 IN(10,11,12,13,14,15);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c4=111 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 * 1 + 1 <= 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 * 2 + 1 > 3;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 / 2 - 1 < 0;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 / 2 - 1 >= 0;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 * 1 % 5 + 1 <= 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 * 2 / 2 * 5 % 4 + 1 < 8;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 MOD 5 + 1 <= 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where (c1 * 2 / 2 * 5) MOD 4 + 1 < 8;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3>100;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c3=3;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+4	d	4	4
+5	c	3	3
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+4	NULL
+5	NULL
+update test1 set c4=5 where c3=3;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+4	d	4	4
+5	c	3	5
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+4	4	NULL
+5	5	NULL
+update test1 set c4=111 where c3>1;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	111
+4	d	4	111
+5	c	3	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3=2 OR c3=2;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+3	c	3	3
+4	d	4	4
+5	b	2	2
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3=1 OR c3=2 OR c3=3 OR c3=4 OR c3=5;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	111
+3	c	3	111
+4	d	4	111
+5	b	2	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3=1 and c3=1 and c3=1 and c3=1 and c3=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c1=5 where c3=1 and c3=2 and c3=3 and c3=4 and c3=5;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3=1 and c3=1 and c3=1 and c3=1 and c3=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	2	NULL
+3	3	NULL
+4	4	NULL
+5	111	NULL
+update test1 set c4=111 where c3=1 and c3=2 and c3=3 and c3=4 and c3=5;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	2	NULL
+3	3	NULL
+4	4	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 between 1 and 1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 between 1 and 1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	2	NULL
+3	3	NULL
+4	4	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 between 3 and 3;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+4	d	4	4
+5	c	3	3
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 between 3 and 4;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+4	d	4	111
+5	c	3	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 IN(10,11,12,13,14,15);
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c4=111 where c3 IN(10,11,12,13,14,15);
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c1=5 where c3 IN(1);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 IN(1,2,3,4,5,6);
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 * 2 + 1 < 4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 * 2 + 1 > 4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	111	NULL
+3	111	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 / 2 - 1 < 0;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 / 2 - 1 > 0;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	111
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	111	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 % 5 + 1 <= 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c3 * 2 / 2 * 5 % 4 + 1 >= 3;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+4	4	NULL
+2	111	NULL
+3	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 MOD 5 + 1 <= 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where (c3 * 2 / 2 * 5) MOD 4 + 1 >= 3;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+4	4	NULL
+2	111	NULL
+3	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 OR c2='a' OR c3=1 OR c4=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1=1 OR c2='2' OR c3=3 OR c4=4 OR c2='5';
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	111
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	111	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 and c2='a' and c3=1 and c4=1 and c5=1;
+ERROR 42S22: YAO-5009: Unkown column name c5
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c1=2 and c2='a' and c3=1 and c4=1;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c1=2 and c2='a' and c3=1 and c4=1 and c1=1;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c1=1 and c2='a' and c3=1 and c4=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+4	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+update test1 set c1=5 where c1=1 and c2='a' and c3=1 and c4=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	4	NULL
+update test1 set c4=111 where c1=5 and c2='a' and c3=1 and c4=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	2	NULL
+3	3	NULL
+4	4	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1=1 or c2='e' and c4=1 or c3=1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1=1 or c2='b' and c4=2 or c2='d' and c3=4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	3
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+3	3	NULL
+2	111	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c3 between 4 and 5 and c4 between 4 and 5;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	3
+5	d	4	4
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+1	NULL
+2	NULL
+3	NULL
+5	NULL
+update test1 set c4=111 where c3 between 1 and 4 and c4 between 3 and 4 ;
+select * from test1;
+c1	c2	c3	c4
+1	a	1	1
+2	b	2	2
+3	c	3	111
+5	d	4	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+1	1	NULL
+2	2	NULL
+3	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where c1 * 2 + c3 < 4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 * 2 + c3 > 4;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+update test1 set c4=111 where c2 * c3 - 1 > 1;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	111
+3	c	3	111
+4	d	4	111
+5	a	1	111
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+2	111	NULL
+3	111	NULL
+4	111	NULL
+5	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where (c1 + c3) % 10 + 1 <= 3;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where c1 * 2 /c3 * 5 % c3 + 1 > 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	111	NULL
+delete from test1 where c1>0;
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+update test1 set c1=5 where (c1 + c3) MOD 10 + 1 <= 3;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	4
+5	a	1	1
+select * from __3001__idx__idx1;
+c1	yao_virtual_col
+2	NULL
+3	NULL
+4	NULL
+5	NULL
+update test1 set c4=111 where (c1 * 2 / c3 * 5) MOD c3 + 1 > 2;
+select * from test1;
+c1	c2	c3	c4
+2	b	2	2
+3	c	3	3
+4	d	4	111
+5	a	1	1
+select * from __3001__idx__idx4;
+c1	c4	yao_virtual_col
+5	1	NULL
+2	2	NULL
+3	3	NULL
+4	111	NULL
+update test2 set c5=11,c6=12 where c1=1 and c2=1.11 and c3='a' and c1=5;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c5=11,c6=12 where c1=5 and c2=1.11 and c3='a' and c1=1;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c5=5,c6=12 where c1=1 and c2=1.11 and c3='a';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	5	12	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+1	1.11	a	1	5	12
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+delete from test2 where c1>0;
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c2=12.12,c4=11 where c1>3 and c2>4 and c3>'a';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	12.12	b	11	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	12.12	b	11	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	12.12	b	11	4
+update test2 set c1=5,c4=12 where c1>3 and c2>4 and c3>'a';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+5	12.12	b	12	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+5	12.12	b	12	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+5	12.12	b	12	4
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c4=12,c5=12 where c1=1 OR c2=2 OR c3='a';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	12	12	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+1	1.11	a	12	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	12	12
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c1=5,c4=13 where c1=1 OR c2=2 OR c3='a';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	1.11	a	13	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	1.11	a	13	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+5	1.11	a	13	12
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c1 between 1 and 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c2 between 3 and 4;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+3	3.33	c	12	13	3
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	12	13
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=14,c5=14 where c3 between 'a' and 'd';
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	14	14	2	2	2
+3	3.33	c	14	14	3	3	3
+4	4.44	b	14	14	4	4	4
+5	10.11	a	14	14	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	14	14	2
+3	3.33	c	14	14	3
+4	4.44	b	14	14	4
+5	10.11	a	14	14	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	14	14
+3	3.33	c	14	14
+4	4.44	b	14	14
+5	10.11	a	14	14
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=13 where c1 IN(1,10,11,12,13,14,15);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	13
+update test2 set c4=12,c5=13 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=13 where c1 * c2 + 1 < 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	13
+update test2 set c4=12,c5=13 where c1 * c2 + 1 > 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=13 where (c2 + 1) / c1 >= 2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	13
+update test2 set c4=12,c5=13 where (c2 + 1) / c1 < 2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	1	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c1 * c2 * 100 % 10000 + 1 < 200;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c1 * c2 % 4 + 1 > 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where (c1 * c2 * 100) MOD 10000 + 1 < 200;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where (c1 * c2) MOD 4 + 1 > 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c4=1 and c5=1 and c6<2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c5=11,c6=12 where c5>1 and c6>=1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	11	12	2	2
+3	3.33	c	3	11	12	3	3
+4	4.44	b	4	11	12	4	4
+5	10.11	a	1	11	12	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	11	12
+3	3.33	c	3	11	12
+4	4.44	b	4	11	12
+5	10.11	a	1	11	12
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	11
+3	3.33	c	3	11
+4	4.44	b	4	11
+5	10.11	a	1	11
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11 where c4=1 OR c5=10 OR c6=10;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	1	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+5	10.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	1
+update test2 set c4=12,c5=12 where c4=1 OR c5=2 OR c6=3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	12	2	2	2
+3	3.33	c	12	12	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	12	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+4	4.44	b	4	4	4
+2	2.22	b	12	12	2
+3	3.33	c	12	12	3
+5	10.11	a	12	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	12
+3	3.33	c	12	12
+4	4.44	b	4	4
+5	10.11	a	12	12
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c4 between 1 and 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=13,c5=13 where c5 between 3 and 4;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	13	13	3	3	3
+4	4.44	b	13	13	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+5	10.11	a	1	12	1
+3	3.33	c	13	13	3
+4	4.44	b	13	13	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	13	13
+4	4.44	b	13	13
+5	10.11	a	1	12
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c4 IN(1,10,11,12,13,14,15);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c5 IN(1,2,3,4,5,6,7,8,9,10);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+5	10.11	a	1	12	1
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	1	12
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c5 * c6 + 1 < 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c5 * c6 + 1 > 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where (c5 + 1) / c6 >= 2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c6 / c5 > 0;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where (c5 + c6) % 10 + 1 <= 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c5 * 2 / c6 *5 % 4 + 1 < 8;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where (c5 + c6) MOD 10 + 1 <= 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where (c5 * 2 / c6 * 5) MOD 4 + 1 <8;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=13 where c1<2 and c2<=3 and c3<'b' and c6<=3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	13
+update test2 set c4=12,c5=13 where c1>=1 and c2>2 and c3>'a' and c6>=1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	1	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c3='e',c5=13 where c1=1 OR c2=10 OR c4=11 OR c5=15 OR c6=16;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	1.11	e	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	1.11	e	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+5	1.11	e	1	13
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c4=12,c5=13 where c1=1 OR c2=2 OR c4=3 OR c5=4 OR c6=5;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	1.11	e	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	1.11	e	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+5	1.11	e	1	13
+2	2.22	b	2	2
+3	3.33	c	12	13
+4	4.44	b	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=2;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c1=12,c5=13 where c1=2 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=1;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c1=12,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=2 and c1=1;
+ERROR HY000: YAO-145: Failed to add column desc, err=-145
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c1=12,c2=10.11,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+12	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+12	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+12	10.11	a	1	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c3='e',c5=13 where c2=1.11 or c4=1 and c5=1 or c6=1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	1.11	e	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	1.11	e	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+5	1.11	e	1	13
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+update test2 set c4=12,c5=13 where c2=1 or c4=2 and c5=3 or c6=5;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	1.11	e	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	1.11	e	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+5	1.11	e	1	13
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=13 where c4 between 1 and 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	13
+update test2 set c4=12,c5=13 where c4 between 1 and 4;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=10 where c1 IN(1,10,11,12,13,14,15);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	10	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	10	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	10
+update test2 set c4=12,c5=13 where c6 IN(10,11,12,13,14,15);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	10	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	10	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	10
+update test2 set c4=12,c5=13 where c5 IN(1,2,3,4,5,6,7,8,9,10);
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c1 * 2 + 1 <= 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c4 * 2 + 1 > 3;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+5	10.11	a	1	12	1
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	1	12
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c5 / 2 - 1 >= 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+5	10.11	b	4	12	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+5	10.11	b	4	12	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+5	10.11	b	4	12
+update test2 set c4=12,c5=13 where c5 / 2 - 1 > 1;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+1	1.11	a	1	1	1	1	1
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+5	10.11	b	12	13	4	4	4
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+1	1.11	a	1	1	1
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+5	10.11	b	12	13	4
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+1	1.11	a	1	1
+2	2.22	b	2	2
+3	3.33	c	3	3
+5	10.11	b	12	13
+delete from test2 where c1>0;
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where c1 * 2 / 2 * c6 % 10 + 1 <= 2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where c1 * 2 / 3 * c6 % 4 + 1 < 8;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13
+delete from test2 where c1>0;
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+update test2 set c1=5,c2=10.11,c5=12 where (c1 * c4 / c5 * 1) MOD 10 + 1 <= 2;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	2	2	2	2	2
+3	3.33	c	3	3	3	3	3
+4	4.44	b	4	4	4	4	4
+5	10.11	a	1	12	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	2	2	2
+3	3.33	c	3	3	3
+4	4.44	b	4	4	4
+5	10.11	a	1	12	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	2	2
+3	3.33	c	3	3
+4	4.44	b	4	4
+5	10.11	a	1	12
+update test2 set c4=12,c5=13 where (c1 * c4 / 3 * 5) MOD 3 + 1 <8;
+select * from test2;
+c1	c2	c3	c4	c5	c6	c7	c8
+2	2.22	b	12	13	2	2	2
+3	3.33	c	12	13	3	3	3
+4	4.44	b	12	13	4	4	4
+5	10.11	a	12	13	1	1	1
+select * from __3006__idx__idx2;
+c1	c2	c3	c4	c5	c6
+2	2.22	b	12	13	2
+3	3.33	c	12	13	3
+4	4.44	b	12	13	4
+5	10.11	a	12	13	1
+select * from __3006__idx__idx3;
+c1	c2	c3	c4	c5
+2	2.22	b	12	13
+3	3.33	c	12	13
+4	4.44	b	12	13
+5	10.11	a	12	13

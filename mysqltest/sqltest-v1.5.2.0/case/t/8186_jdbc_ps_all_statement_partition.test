@@ -1,0 +1,45 @@
+##############################################################################################
+###1.测试功能点：执行prepare语句，查询_all_statment表
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-02
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+###2-1：执行prepare语句，查询_all_statment表
+
+create table t1(c1 int ,c2 varchar(30),primary key(c1),c3 int) partition by range(c1) (partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than (15),partition r3 values less than maxvalue);
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4),(4,'a',2);
+prepare stmt1 from delete from t1 where c1=?;
+set @a=1;
+execute stmt1 using @a;
+execute stmt1 using @a;
+deallocate prepare stmt1;
+
+prepare stmt2 from replace into t1 values(4,?,5);
+set @a='xxxx';
+execute stmt2 using @a;
+execute stmt2 using @a;
+execute stmt2 using @a;
+
+deallocate prepare stmt2;
+
+select S.statement,S.id,S.prepare_count,S.execute_count,S.slow_count from (select * from __all_statement) as S;
+drop table t1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

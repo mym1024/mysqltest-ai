@@ -1,0 +1,12 @@
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8)) partition by list(c1) (partition q0 values in (1,3), partition q1 values in(2,4,5));
+set autocommit=0;
+insert into c values(1,1);
+update c set c2='2' where c1=1;
+set autocommit=0;
+select * from c where c1=1 for update;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+select * from c where c1=2 for update;
+c1	c2
+commit;
+commit;

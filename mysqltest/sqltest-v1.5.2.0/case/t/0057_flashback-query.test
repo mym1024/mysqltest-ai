@@ -1,0 +1,288 @@
+##############################################################################################
+###1.测试功能点：闪回查询功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：xxx
+###7.编写/修改日期：xxx
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2,t3,t4 purge;
+--enable_warnings
+alter system set major_freeze_wait_time='6s' server_type=yaoadminsvr;
+alter system set merge_delay_interval='5s' server_type=yaodatasvr;
+alter system set min_major_freeze_interval='5s' server_type=yaotxnsvr;
+
+###2-1:测试未大版本合并时的闪回查询
+#CASE1:select table after time of merge
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+let $timestamp = query_get_value(select current_date(),current_date(),1);
+--echo select * from t1 as_of timestamp to timestamp ('timestamp','yyyy-mm-dd');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp' ,'yyyy-mm-dd');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+#CASE2:select table before time of merge
+connection conn1;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+select * from t1 as_of timestamp to timestamp ('2021-05-20' ,'yyyy-mm-dd');
+drop table t1 purge;
+--real_sleep 1
+
+#CASE3:select table before dml
+connection conn1;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+let $timestamp = query_get_value (select now(),now(),1);
+--real_sleep 1
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+--echo select * from t1 as_of timestamp to timestamp ('timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+#CASE4:select table after dml
+connection conn1;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+let $timestamp = query_get_value(select now(),now(),1);
+--echo select * from t1 as_of timestamp to timestamp ('timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+###2-2:测试大版本合并前后的闪回查询
+connect (conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn2;
+let $timestamp1 = query_get_value(select now(),now(),1);
+--real_sleep 30
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+--real_sleep 60
+connection conn2;
+let $timestamp2 = query_get_value(select now(),now(),1);
+
+#CASE1:select table before dml
+connection conn2;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+let $timestamp3 = query_get_value(select now(),now(),1);
+--real_sleep 10
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+--echo select * from t1 as_of timestamp to timestamp ('timestamp1' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+--error 5099
+eval select * from t1 as_of timestamp to timestamp ('$timestamp1' ,'yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+#eval select * from t1 as_of timestamp to timestamp ('$timestamp2','yyyy-mm-dd hh24:mi:ss');
+--echo select * from t1 as_of timestamp to timestamp ('timestamp3' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp3' ,'yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+#CASE2:select table after dml
+connection conn2;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+let $timestamp4 = query_get_value(select now(),now(),1);
+--echo select * from t1 as_of timestamp to timestamp ('timestamp4' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp4' ,'yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+###2-3:测试小版本合并前后的闪回查询
+connect (conn3,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn3;
+let $timestamp1 = query_get_value(select now(),now(),1);
+--real_sleep 10
+#合并
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT minor_freeze | tail -1;
+--real_sleep 10
+connection conn2;
+let $timestamp2 = query_get_value(select now(),now(),1);
+--real_sleep 10
+
+#CASE1:select table before dml
+connection conn3;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+let $timestamp3 = query_get_value(select now(),now(),1);
+--real_sleep 10 
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+--echo select * from t1 as_of timestamp to timestamp ('timestamp1' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp1','yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+--echo select * from t1 as_of timestamp to timestamp ('timestamp2' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp2','yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+--echo select * from t1 as_of timestamp to timestamp ('timestamp3' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp3','yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+#CASE2:select table after dml
+connection conn3;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+--real_sleep 3
+let $timestamp4 = query_get_value(select now(),now(),1);
+--echo select * from t1 as_of timestamp to timestamp ('timestamp4' ,'yyyy-mm-dd hh24:mi:ss');
+--disable_query_log
+eval select * from t1 as_of timestamp to timestamp ('$timestamp4','yyyy-mm-dd hh24:mi:ss');
+--enable_query_log
+drop table t1 purge;
+--real_sleep 1
+
+###2-4:测试闪回查询输入时间格式
+connect (conn4,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+#CASEl:select table with timestamp ms
+connection conn4;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+select * from t1 as_of timestamp to timestamp ('2032-05-25 00:00:00.123131','yyyy-mm-dd hh24:mi:ss');
+drop table t1 purge;
+--real_sleep 1
+
+#CASE2:select table with timestamp s
+connection conn4;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+select * from t1 as_of timestamp to timestamp ('2032-05-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+## month > 12
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-13-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+
+## day >31
+--error 5097
+select * from t1 as_of timestamp to timestamp('2021-05-33 00:00:00' , 'yyyy-mm-dd hh24:mi:ss');
+
+## hour>=24
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-05-25 25:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+
+## min>=60
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-05-25 00:61:00' ,'yyyy-mm-dd hh24:mi:ss');
+
+## ss>=60
+--error 5097
+select * from t1 as_of timestamp to timestamp('2021-05-25 00:00:61' , 'yyyy-mm-dd hh24:mi:ss');
+
+## format not match
+--error 5097
+#--error 5099
+select * from t1 as_of timestamp to timestamp ('2021-05-25 00:00:00' ,'yyyy-mm-dd');
+
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-5-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-5-25 -00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+
+#CASE2:select table with timestamp day
+connection conn4;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+select * from t1 as_of timestamp to timestamp ('2032-05-25','yyyy-mm-dd');
+
+##format not match
+--error 5097
+select * from t1 as_of timestamp to timestamp('2021-05-25','yyyy-mm-dd hh24:mi:ss');
+
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-5-25' ,'yyyy-mm-dd');
+
+##CASE3:timstamp format not existed
+connection conn4;
+drop table if exists t1;
+--real_sleep 1
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+--real_sleep 3
+--error 5097
+select * from t1 as_of timestamp to timestamp ('2021-05' ,'yyyy-mm');
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

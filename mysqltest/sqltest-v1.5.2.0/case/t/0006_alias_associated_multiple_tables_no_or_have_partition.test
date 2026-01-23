@@ -1,0 +1,145 @@
+####################################必填######################################################
+###1.测试功能点：在join情况下，测试别名的使用
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+# test alias with join or other
+
+###2-1：在无分区规则，且有join的情况下，测试别名的使用
+#do sql
+drop table if exists student,score;
+create table student(id varchar(20) primary key, name varchar(50), gender varchar(2));
+create table score(id varchar(20) primary key, score int);
+insert into student values('2002001', 'lilei', 'm'), ('2002002', 'hanmeimei', 'f'), ('2002003', 'jim', 'm'), ('2002004', 'lucy', 'f'), ('2002005', 'linfeng', 'm');
+insert into score values('2002001',90),('2002002',95),('2002003',80);
+# table name
+select st_boys.name, score.score from (select * from student as st where st.gender='m') as st_boys,score sc where st_boys.id = score.id;
+select st.name,sc.score from student as st,score as sc where st.gender='m' and st.id=sc.id;
+(select * from student as ST1 where gender='f') union (select ST1.id, ST1.name, ST1.gender from (select * from student where gender='m') as ST1, score where ST1.id=score.id);
+# --error 5020应该报错 但没有报错
+select st1.id from student as st1,student as st2 where student.id=st2.id;
+select st1.id from student as st1,student as st2 where st1.id=st2.id;
+--error 5020
+select student.id from student, student as st2 where student.id=st2.id;
+select score.name, score.id, score.gender, sc.score from student as score, score as sc where score.id=sc.id;
+--error S42S22
+select score.name, score.id, score.gender, score.score from student as score, score where student.id=score.id;
+# column name
+select student.name as Name, score.score as Score from student,score where student.id=score.id;
+select avg(score.score) as boy_avg_score from score,student where student.id=score.id and student.gender='m';
+select avg(score.score) as girl_avg_score from score,student where student.id=score.id and student.gender='f';
+select avg(score_boy.score) as boy_avg_score from (select score.score from score,student where student.id=score.id and student.gender='m') as score_boy;
+select student.name as top_boy from score,student where student.id =score.id and student.gender ='m' order by score.score desc limit 1;
+select student.name as top_stu from score,student where student.id=score.id order by score.score desc limit 1;
+select st_boys.n, score.score from (select id as i, name as n, gender as g from student as st where st.gender='m') as st_boys,score sc where st_boys.i=score.id;
+--error 5009
+select st.name as Name, st.score as Score from student as st,score as sc where st.gender ='m' and st.id=sc.id;
+--error 5019
+select st_boys.n,score.score from (select id as i, name as i, gender as g from student where st.gender='m') as st_boys, score sc where st_boys.i=score.id;
+--error 5009
+select st.g from (select id,name,gender as g from student) as st where st.gender in ('m','f');
+select st.g from (select id,name,gender as g from student) as st where st.g in ('m','f');
+select id as abc from student union select id from student;
+drop table student,score;
+
+###2-2：在enum分区规则，且有join的情况下，测试别名的使用
+#do sql
+drop table if exists student,score;
+--error 5077
+drop partition function e1;
+create enum partition function e1(x)'[(2002001)],[(2002002)],[(2002003)],[(2002004)],[(2002005)]';
+create table student(id varchar(20) primary key, name varchar(50), gender varchar(2)) partition by (stu1,e1,id);
+--error 5077
+drop partition function e2;
+create enum partition function e2(x)'[(2002001)],[(2002002)],[(2002003)]';
+create table score(id varchar(20) primary key, score int);
+insert into student values('2002001', 'lilei', 'm'), ('2002002', 'hanmeimei', 'f'), ('2002003', 'jim', 'm'), ('2002004', 'lucy', 'f'), ('2002005', 'linfeng', 'm');
+insert into score values('2002001',90),('2002002',95),('2002003',80);
+# table name
+select st_boys.name, score.score from (select * from student as st where st.gender='m') as st_boys,score sc where st_boys.id = score.id;
+select st.name,sc.score from student as st,score as sc where st.gender='m' and st.id=sc.id;(select * from student as ST1 where gender='f') union (select ST1.id, ST1.name, ST1.gender from (select * from student where gender='m') as ST1, score where ST1.id=score.id);
+# --error 5020应该报错 但没有报错
+select st1.id from student as st1,student as st2 where student.id=st2.id;
+select st1.id from student as st1,student as st2 where st1.id=st2.id;
+--error 5020
+select student.id from student, student as st2 where student.id=st2.id;
+select score.name, score.id, score.gender, sc.score from student as score, score as sc where score.id=sc.id;
+--error S42S22
+select score.name, score.id, score.gender, score.score from student as score, score where student.id=score.id;
+# column name
+select student.name as Name, score.score as Score from student,score where student.id=score.id;
+select avg(score.score) as boy_avg_score from score,student where student.id=score.id and student.gender='m';
+select avg(score.score) as girl_avg_score from score,student where student.id=score.id and student.gender='f';select avg(score_boy.score) as boy_avg_score from (select score.score from score,student where student.id=score.id and student.gender ='m') as score_boy;
+select student.name as top_boy from score,student where student.id =score.id and student.gender ='m' order by score.score desc limit 1;select student.name as top_stu from score,student where student.id=score.id order by score.score desc limit 1;
+select st_boys.n, score.score from (select id as i, name as n, gender as g from student as st where st.gender='m') as st_boys,score sc where st_boys.i=score.id;
+--error 5009
+select st.name as Name, st.score as Score from student as st,score as sc where st.gender ='m' and st.id=sc.id;
+--error 5019
+select st_boys.n,score.score from (select id as i, name as n, gender as g from student where st.gender='m') as st_boys, score sc where st_boys.i=score.id;
+--error 5009
+select st.g from (select id,name,gender as g from student) as st where st.gender in ('m','f');
+select st.g from (select id,name,gender as g from student) as st where st.g in ('m','f');
+select id as abc from student union select id from student;
+drop table student,score;
+drop partition function e1,e2;
+
+###2-3：在hash分区规则，且有多表关联操作下，测试别名的使用
+#do sql
+drop table if exists student,score;
+--error 5077
+drop partition function h1;
+create hash partition function h1(x)'x+1';
+create table student(id varchar(20) primary key, name varchar(50), gender varchar(2)) partition by (stu1,h1,id);
+--error 5077
+drop partition function e2;
+create enum partition function e2(x)'[(2002001)],[(2002002)],[(2002003)]';
+create table score(id varchar(20) primary key, score int);
+insert into student values('2002001', 'lilei', 'm'), ('2002002', 'hanmeimei', 'f'), ('2002003', 'jim', 'm'), ('2002004', 'lucy', 'f'), ('2002005', 'linfeng', 'm');
+insert into score values('2002001',90),('2002002',95),('2002003',80);
+# table name
+select st_boys.name, score.score from (select * from student as st where st.gender='m') as st_boys,score sc where st_boys.id = score.id;
+select st.name,sc.score from student as st,score as sc where st.gender='m' and st.id=sc.id;
+(select * from student as ST1 where gender='f') union (select ST1.id, ST1.name, ST1.gender from (select * from student where gender='m') as ST1, score where ST1.id=score.id);
+# --error 5020应该报错 但没有报错
+select st1.id from student as st1,student as st2 where student.id=st2.id;
+select st1.id from student as st1,student as st2 where st1.id=st2.id;
+--error 5020
+select student.id from student, student as st2 where student.id=st2.id;
+select score.name, score.id, score.gender, sc.score from student as score, score as sc where score.id=sc.id;
+--error S42S22
+select score.name, score.id, score.gender, score.score from student as score, score where student.id=score.id;
+# column name
+select student.name as Name, score.score as Score from student,score where student.id=score.id;
+select avg(score.score) as boy_avg_score from score,student where student.id=score.id and student.gender='m';
+select avg(score.score) as girl_avg_score from score,student where student.id=score.id and student.gender='f';
+select avg(score_boy.score) as boy_avg_score from (select score.score from score,student where student.id=score.id and student.gender='m') as score_boy;
+select student.name as top_boy from score,student where student.id =score.id and student.gender ='m' order by score.score desc limit 1;
+select student.name as top_stu from score,student where student.id=score.id order by score.score desc limit 1;
+select st_boys.n, score.score from (select id as i, name as n, gender as g from student as st where st.gender='m') as st_boys,score sc where st_boys.i=score.id;
+--error 5009
+select st.name as Name, st.score as Score from student as st,score as sc where st.gender ='m' and st.id=sc.id;
+--error 5019
+select st_boys.n,score.score from (select id as i, name as i, gender as g from student where st.gender='m') as st_boys, score sc where st_boys.i=score.id;
+--error 5009
+select st.g from (select id,name,gender as g from student) as st where st.gender in ('m','f');
+select st.g from (select id,name,gender as g from student) as st where st.g in ('m','f');
+select id as abc from student union select id from student;
+drop table student,score;
+drop partition function h1;
+drop partition function e2;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

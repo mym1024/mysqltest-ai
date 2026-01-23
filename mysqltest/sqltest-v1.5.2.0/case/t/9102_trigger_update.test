@@ -1,0 +1,866 @@
+####################################必填######################################################
+###1.测试功能点：触发器功能
+###1.1-before update 触发器
+###1.2-after update 触发器
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：45.844757 s
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-01-23
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+--source merge.sql
+#####################################Do sql###################################################
+
+#1.1执行体中为case语句，case语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row 
+begin case 
+when new.c1=3 
+ then set new.c1=5;
+end case;
+end|
+
+delimiter ;|	
+update t1 set c2=4 where c1=3;
+select * from t1;
+
+
+#1.2执行体中为case语句，case语句中没有用到referencing
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row 
+begin case 
+when @a=5
+ then set @a=1;
+end case;
+end|
+
+delimiter ;|	
+set @a=5;
+update t1 set c1=4 where c1=1;
+select @a;
+select * from t1;
+
+#1.3执行体中为leave语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test
+ before update on t1 
+for each row
+begin add_num:LOOP 
+SET new.c1=new.c1+1 ;
+IF new.c1>10 THEN LEAVE add_num;
+END IF;
+END LOOP add_num ;
+ end|
+ 
+delimiter ;|	
+update t1 set c2=4 where c1=1;
+select * from t1;
+
+#1.4执行体中为variable_set语句,variable_set语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+before update on t1 
+for each row
+begin 
+set new.c1=new.c1+1;
+ end|
+delimiter ;|	
+update t1 set c2=5 where c1=3;
+select * from t1;
+
+#1.5执行体中为variable_set语句,variable_set语句中没有用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create TRIGGER test 
+before update on t1 
+for each row
+begin 
+set @a=@a+1;
+end|
+delimiter ;|	
+update t1 set c2=5 where c1=1;
+select @a;
+
+#1.6执行体中为if语句,if语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create TRIGGER test
+ before update on t1
+ for each row 
+begin 
+IF new.c1=7 THEN 
+set new.c1=new.c1+1;
+ END IF;
+end|
+delimiter ;|	
+update t1 set c2=4 where c1=2;
+select * from t1;
+
+#1.7执行体中为LOOP语句,loop语句中用到referencing
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1  
+for each row 
+begin  
+	add_num:LOOP  
+	SET new.c1=new.c1+1; 
+	IF new.c1>10 THEN LEAVE add_num; 
+	END IF; 
+	END LOOP add_num ;  
+end|
+delimiter ;|
+update t1 set c2=5 where c1=2;
+select * from t1;
+
+#1.8执行体中为REPEAT语句,repeat语句中用到referencing
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+before update on t1 
+ for each row 
+ begin REPEAT 
+set new.c1=new.c1+1; 
+UNTIL new.c1=20  
+ end repeat; 
+end|
+delimiter ;|	
+update t1 set c2=6 where c1=1;
+select * from t1;
+
+#1.9执行体中为REPEAT语句,repeat语句中没有用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test
+ before update on t1 
+ for each row  begin REPEAT 
+set @a=@a+1;
+UNTIL @a=30 
+end repeat; 
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=7 where c1=2;
+select @a;
+
+#1.10执行体中为WHILE语句,WHILE语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row 
+begin WHILE new.c1=3 
+DO 
+set new.c1=new.c1+1;
+ end while; 
+end|
+delimiter ;|	
+update t1 set c2=6 where c1=3;
+select * from t1;
+
+#1.11执行体中为WHILE语句,WHILE语句中没有用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+before update on t1 
+ for each row 
+begin WHILE @a=11
+ DO set @a=@a+1;
+ end while;
+ end|
+delimiter ;|	
+set @a=11;
+update t1 set c2=5 where c1=2;
+select @a;
+
+#1.12执行体中为iterate语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test
+ before update on t1 
+for each row  begin add_num:LOOP
+ SET @a=@a+1 ;
+IF(@a<new.c1)
+ THEN iterate add_num;
+end if;set @b=@b+1; 
+IF(@a=new.c1) 
+THEN leave add_num;
+END IF;
+END LOOP add_num; 
+end|
+delimiter ;|	
+set @a=1,@b=1;
+insert into t1 values (20,20);
+update t1 set c2=5 where c1=20;
+select @a, @b;
+
+#1.13执行体为空	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create TRIGGER test
+ before update on t1
+for each row
+ begin 
+ end|
+delimiter ;|	
+update t1 set c2=6 where c1=2;
+select * from t1;
+
+#1.14执行体为prepare语句，prepare语句中用到referencing new	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger test before update on t1 for each row begin prepare stmt from select c2 from t1 ;end|
+delimiter ;|	
+
+
+#1.15上述语句两两组合，用到referencing old	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row 
+begin
+ WHILE @a<70 DO 
+ if @a<30 then set @a=old.c1+@a;
+	else  set @a=old.c1+@a+10;
+	end if; 
+ end while;
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=5 where c1=2;
+select @a;
+
+#1.16上述语句两两组合，没有用到referencing old
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);	
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1  for each row begin WHILE @a<70 DO if @a<30 then set @a=10+@a;else  set @a=@a+2;end if; end while;end|
+delimiter ;|
+set @a=1;
+update t1 set c2=5 where c1=2;
+select @a;
+
+#1.17上述语句任意个组合，用到referencing old	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row  
+begin 
+	add_num:LOOP 
+	case when @a<10 then set @a=old.c1+@a;
+	when @a>9 then set @a=old.c1+@a+10; 
+	end case; 
+	IF @a>15 THEN LEAVE add_num;
+	END IF;
+	END LOOP add_num ;	
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=31 where c1=1;
+select @a;
+
+#1.18上述语句任意个组合，没有用到referencing old	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test before update on t1 for each row 
+begin 
+	add_num:LOOP 
+	case when @a<10 then set @a=@a+1;
+	end case; 
+	IF @a>5 THEN LEAVE add_num;
+	END IF;
+	END LOOP add_num ;
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=31 where c1=1;
+select @a;
+
+
+
+#2.1执行体中为case语句，case语句中没有用到referencing （114-169）
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update on t1 
+for each row  
+begin case when @a=1 then set @a=5; 
+end case; 
+end|
+delimiter ;|	
+update t1 set c2=5 where c1=2;
+select @a;
+
+#2.2执行体中为leave语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update on t1 
+for each row 
+begin add_num:LOOP SET @a=@a+1 ;
+IF @a>10 THEN LEAVE add_num;
+END IF;
+END LOOP add_num ; 
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=5 where c1=2;
+select @a;
+
+#2.3执行体中为variable_set语句，variable_set语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update on t1 
+for each row 
+begin 
+set @a=@a+1; 
+end|
+delimiter ;|	
+set @a=11;
+update t1 set c2=5 where c1=2;
+select @a;
+
+#2.4执行体中为if语句，if语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create TRIGGER test 
+after update on t1 
+for each row  
+begin IF new.c1>0 
+THEN set @a=new.c1+1; 
+END IF;
+end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=10 where c1=2;
+select @a;
+
+
+#2.5执行体中为repeat语句，repeat语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row  begin REPEAT set @a=@a+1; UNTIL @a>30   end repeat; end|
+delimiter ;|	
+set @a=21;
+update t1 set c2=5 where c1=2;
+select @a;
+
+
+#2.6执行体中为iterate语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row  
+begin 
+	add_num:LOOP SET @a=@a+1 ;
+	IF(@a<30) THEN iterate add_num;end if;set @b=@b+1; IF(@a=30) THEN leave add_num;
+	END IF;END LOOP add_num; end|
+delimiter ;|	
+set @a=20;
+set @b=0;
+update t1 set c2=5 where c1=1;
+select @a, @b;
+
+#2.7执行体中为select语句
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row  begin set @a=1+(select c1 from t1 where c1=old.c1); end|
+delimiter ;|	
+set @a=5;
+update t1 set c2=5 where c1=1;
+select @a;
+drop trigger test;
+
+#2.8执行体中为update语句，update语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row  begin  update t2 set c1=20 where c1=old.c1; end|
+delimiter ;|
+update t1 set c2=8 where c1=1;
+select * from t2;
+
+
+#2.9执行体中为insert语句，insert语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1  for each row begin insert into t2 values(new.c2,3); end|
+delimiter ;|	
+update t1 set c2=5 where c1=2;
+select * from t2;
+
+#2.10执行体中为delete语句，delete语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1  for each row begin delete from t2 where c2=new.c1; end|
+delimiter ;|	
+update t1 set c2=1 where c1=3;
+select * from t2;
+
+
+#2.11上述语句任意两两组合，用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1  for each row begin set @a=20;insert into t2 values(new.c2,2); end|
+delimiter ;|	
+update t1 set c2=4 where c1=1;
+select * from t2;
+
+#2.12上述语句任意个组合，用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1  for each row 
+begin 
+	set @a=20;
+	delete from t1 where c2=new.c2;
+	repeat set @a=@a+1;
+	until @a>30 end repeat; 
+end|
+delimiter ;|	
+update t1 set c2=2 where c1=5;
+select c1, c2, @a from t2;
+
+#2.13上述语句任意个组合，没用referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1  for each row 
+begin 
+	set @a=20;
+	insert into t2 values(5,5);
+	repeat set @a=@a+1; 
+	until @a>35 
+	end repeat; 
+end|
+delimiter ;|	
+update t1 set c2=1 where c1=1;
+select c1, c2, @a from t2;
+
+
+#2.14执行体中为prepare语句，prepare语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger test 
+after update on t1
+for each row
+begin
+prepare stmt from select c2 from t1 where c1=n.c1;
+update t1 set n.c2=n.c1 where c1=n.c1;
+end|
+delimiter ;|	
+
+#2.15执行体中为prepare语句，prepare语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger test 
+after update on t1
+for each row
+begin
+prepare stmt from select c2 from t1 where c1=b;
+end|
+delimiter ;|	
+
+
+#2.16执行体中为case语句，case语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test  after update on t1 
+for each row 
+begin case when @a=5 then set @a=5+old.c1; 
+end case; 
+end|
+delimiter ;|	
+set @a=5;
+update t1 set c2=2 where c1=3;
+select @a;
+
+#2.17执行体中为case语句，case语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin case 
+	when @a=1 then set @a=5; 
+	end case; 
+end|
+delimiter ;|
+set @a=1;
+update t1 set c2=2 where c1=3;
+select @a;
+
+
+#2.18执行体中为if语句，if语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create TRIGGER test after update on t1 for each row begin IF @a<10 THEN set @a=old.c1+1; END IF;end|
+delimiter ;|	
+set @a=1;
+update t1 set c2=10 where c1=2;
+select @a;
+
+
+#2.19执行体中为loop语句，loop语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin 
+	add_num:LOOP SET @a=old.c1+@a ;
+	IF @a>20 THEN LEAVE add_num;
+	END IF;
+	END LOOP add_num ; 
+end|
+delimiter ;|	
+set @a=8;
+update t1 set c2=10 where c1=2;
+select @a;
+
+#2.20执行体中为loop语句，loop语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin 
+	add_num:LOOP SET @a=2+@a ;
+	IF @a>30 THEN LEAVE add_num;
+	END IF;
+	END LOOP add_num ; 
+end|
+delimiter ;|	
+set @a=26;
+update t1 set c2=10 where c1=2;
+select @a;
+
+
+#2.21执行体中为 REPEAT 语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin 
+	REPEAT set @a=@a+old.c1; 
+	UNTIL @a>20   end repeat; 
+end|
+delimiter ;|
+set @a=1;
+update t1 set c2=10 where c1=2;
+select @a;
+
+
+#2.22执行体中为 iterate 语句	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin 
+	add_num:LOOP SET @a=@a+1 ;
+	IF(@a<40) THEN iterate add_num;
+	end if;
+	set @b=@b+1; 
+	IF(@a=40) THEN leave add_num;
+	END IF;
+	END LOOP add_num; 
+end|
+delimiter ;|	
+set @a=36;
+set @b=0;
+update t1 set c2=3 where c1=3;
+select @a, @b;
+
+#2.23执行体中为update语句，update语句中用到referencing	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row begin update t2 set c2=5 where c1=old.c2; end|
+delimiter ;|	
+update t1 set c2=15 where c1=1;
+select * from t2;
+
+#2.24执行体中为update语句，update语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @c=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update on t1
+for each row
+begin
+set @b=1;
+set @c=2;
+update t2 set c2=@c+1 where c1=@b+1;
+end|
+delimiter ;|	
+update t1 set c2=5 where c1=1;
+select * from t2;
+
+
+#2.25执行体中为delete语句，delete语句中没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update on t1
+for each row
+begin
+set @b=2;
+delete from t2 where c1=@b+1;
+end|
+delimiter ;|	
+update t1 set c2=6 where c1=1;
+select * from t2;
+
+#2.26执行体为空	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+create trigger test 
+after update
+on t1
+for each row
+begin
+end;|
+delimiter ;|	
+update t1 set c2=7 where c1=1;
+select * from t2;
+
+
+#2.27 执行体中为prepare语句，prepare语句中用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger test 
+after update on t1
+for each row
+begin
+prepare stmt from select c2 from t1;
+end|
+delimiter ;|	
+
+#2.28任意组合，没有用到referencing 	
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1,@b=1;
+delimiter |;
+--error 7013
+create trigger test after update on t1 for each row 
+begin 
+	update t1 set c2=1 where c1=1; 
+	prepare stmt from select c2 from t1 where c1=1; 
+	set @a=15;
+end|
+delimiter ;|	
+
+
+#2.29两两组合
+drop table if exists t1;
+create table t1(c1 int primary key, c2 int);
+insert into t1 values(1,1),(2,2),(3,3);
+drop table if exists t2;
+create table t2(c1 int primary key, c2 int);
+insert into t2 values(1,1),(2,2),(3,3);
+set @a=1;
+set @a=1,@b=1;
+delimiter |;
+create trigger test after update on t1 for each row 
+begin 
+	delete from t2 where c1=2;
+	if @a<0 then set @a=5;
+	end if;	
+end|
+delimiter ;|	
+update t1 set c2=11 where c1=3;
+select c1, c2, @a from t2;

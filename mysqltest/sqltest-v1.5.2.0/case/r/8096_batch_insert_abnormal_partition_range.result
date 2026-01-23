@@ -1,0 +1,116 @@
+drop table if exists trange1,trange2;
+create table trange1(c1 int primary key,c2 int not null)partition by range columns(c1)(partition r0 values less than(2),partition r1 values less than(4),partition r2 values less than maxvalue);
+create table trange2(c1 int primary key,c2 int)partition by range(c1)(partition r0 values less than(2),partition r1 values less than(4),partition r2 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	trange1	1	trange1#r0,trange1#r1,trange1#r2	__range@3001	c1
+3002	2	trange2	1	trange2#r0,trange2#r1,trange2#r2	__range@3002	c1
+insert into trange2 values(1,1),(2,2);
+select * from trange2;
+c1	c2
+1	1
+2	2
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange1#r2	2	0	NULL
+trange2#r0	2	1	NULL
+trange2#r1	2	0	NULL
+trange2#r2	2	1	NULL
+insert into trange1(c1) select c1 from trange2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from trange1;
+c1	c2
+insert into trange1(c1) select c1 from trange2;
+ERROR HY000: YAO-5500: column:'c2' can not be null
+select * from trange1;
+c1	c2
+insert into trange1 select * from trange2;
+select * from trange1;
+c1	c2
+1	1
+2	2
+insert into trange1 select * from trange1;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from trange1;
+c1	c2
+1	1
+2	2
+insert into trange1 select * from trange2;
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+select * from trange1;
+c1	c2
+1	1
+2	2
+drop table if exists trange1,trange2,trange3;
+create table trange1(c1 int primary key,c2 int) partition by range columns(c1)(partition r0 values less than(5),partition r1 values less than(12),partition r2  values less than maxvalue);
+create table trange2(c1 int primary key,c2 int) partition by range columns(c1)(partition r0 values less than(5),partition r1 values less than(12),partition r2  values less than maxvalue);
+create table trange3(c1 int primary key,c2 varchar(30)) partition by range columns(c1)(partition r0 values less than(5),partition r1 values less than(12),partition r2 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	trange1	1	trange1#r0,trange1#r1,trange1#r2	__range@3003	c1
+3004	2	trange2	1	trange2#r0,trange2#r1,trange2#r2	__range@3004	c1
+3005	2	trange3	1	trange3#r0,trange3#r1,trange3#r2	__range@3005	c1
+insert into trange3 values(15,'hhaa');
+select * from trange3;
+c1	c2
+15	hhaa
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange1#r2	2	0	NULL
+trange2#r0	2	1	NULL
+trange2#r1	2	0	NULL
+trange2#r2	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+trange3#r2	2	0	NULL
+insert into trange1 select * from trange3;
+ERROR 25S03: YAO-119: Not supported feature or function, error code = -7
+select * from trange1;
+c1	c2
+insert into trange1(c1) select * from trange3;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from trange1;
+c1	c2
+insert into trange2(c2) select c1 from trange3;
+ERROR HY000: YAO-5030: primary key can not be empty
+select * from trange2;
+c1	c2
+drop table if exists trange1,trange2,trange3;
+create table trange1(c1 int,c2 real,c3 varchar(30),primary key(c1,c2)) partition by range columns(c1)(partition r0 values less than(2),partition r1 values less than maxvalue);
+create table trange2(c1 int primary key,c2 real) partition by range columns(c1)(partition r0 values less than(2),partition r1  values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3006	2	trange1	1	trange1#r0,trange1#r1	__range@3006	c1
+3007	2	trange2	1	trange2#r0,trange2#r1	__range@3007	c1
+insert into trange2 values(1,1.256);
+insert into trange2 values(5,1.256);
+select * from trange2;
+c1	c2
+1	1.256
+5	1.256
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+trange1#r2	2	0	NULL
+trange2#r0	2	1	NULL
+trange2#r1	2	0	NULL
+trange2#r2	2	1	NULL
+trange3#r0	2	0	NULL
+trange3#r1	2	1	NULL
+trange3#r2	2	0	NULL
+insert into trange1(c1,c2) select * from trange2;
+select * from trange1;
+c1	c2	c3
+1	1.256	NULL
+5	1.256	NULL
+insert into trange1 select * from trange2;
+ERROR HY000: YAO-5007: select values are not match insert columns
+select * from trange1;
+c1	c2	c3
+1	1.256	NULL
+5	1.256	NULL

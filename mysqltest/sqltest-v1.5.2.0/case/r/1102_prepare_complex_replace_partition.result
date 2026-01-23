@@ -1,0 +1,608 @@
+drop table if exists t1,t2,t3,t4;
+create table t1(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by range(i1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+prepare stmt_replace from replace into t1 values(?,?,?,?,?,?,?,?);
+set @i1=10;
+set @f1=10.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=9;
+set @f1=9.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=8;
+set @f1=8.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=7;
+set @f1=7.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=6;
+set @f1=6.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=5;
+set @f1=5.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=4;
+set @f1=4.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=3;
+set @f1=3.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=2;
+set @f1=2.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=1;
+set @f1=1.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefg	2020-02-02 20:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+2	2.5	abcdefg	2020-02-02 20:00:00.000000	1	1.5	abcdefgh	2020-02-01 20:00:00.000000
+3	3.5	abcdefg	2020-02-02 20:00:00.000000	2	2.5	abcdefgh	2020-02-01 20:00:00.000000
+4	4.5	abcdefg	2020-02-02 20:00:00.000000	3	3.5	abcdefgh	2020-02-01 20:00:00.000000
+5	5.5	abcdefg	2020-02-02 20:00:00.000000	4	4.5	abcdefgh	2020-02-01 20:00:00.000000
+6	6.5	abcdefg	2020-02-02 20:00:00.000000	5	5.5	abcdefgh	2020-02-01 20:00:00.000000
+7	7.5	abcdefg	2020-02-02 20:00:00.000000	6	6.5	abcdefgh	2020-02-01 20:00:00.000000
+8	8.5	abcdefg	2020-02-02 20:00:00.000000	7	7.5	abcdefgh	2020-02-01 20:00:00.000000
+9	9.5	abcdefg	2020-02-02 20:00:00.000000	8	8.5	abcdefgh	2020-02-01 20:00:00.000000
+10	10.5	abcdefg	2020-02-02 20:00:00.000000	9	9.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t1;
+create table t1(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by range(i1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+prepare stmt_replace_i1 from replace into t1 values(1,?,?,?,?,?,?,?);
+set @f1=10.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=9.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=8.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=7.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=6.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=5.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=4.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=3.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=2.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @f1=1.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_i1 using @f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefg	2020-02-02 20:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+1	2.5	abcdefg	2020-02-02 20:00:00.000000	1	1.5	abcdefgh	2020-02-01 20:00:00.000000
+1	3.5	abcdefg	2020-02-02 20:00:00.000000	2	2.5	abcdefgh	2020-02-01 20:00:00.000000
+1	4.5	abcdefg	2020-02-02 20:00:00.000000	3	3.5	abcdefgh	2020-02-01 20:00:00.000000
+1	5.5	abcdefg	2020-02-02 20:00:00.000000	4	4.5	abcdefgh	2020-02-01 20:00:00.000000
+1	6.5	abcdefg	2020-02-02 20:00:00.000000	5	5.5	abcdefgh	2020-02-01 20:00:00.000000
+1	7.5	abcdefg	2020-02-02 20:00:00.000000	6	6.5	abcdefgh	2020-02-01 20:00:00.000000
+1	8.5	abcdefg	2020-02-02 20:00:00.000000	7	7.5	abcdefgh	2020-02-01 20:00:00.000000
+1	9.5	abcdefg	2020-02-02 20:00:00.000000	8	8.5	abcdefgh	2020-02-01 20:00:00.000000
+1	10.5	abcdefg	2020-02-02 20:00:00.000000	9	9.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t1;
+create table t1(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by list(i1)(partition q0 values in(1,3,7,9,10),partition q1 values in(2,4,5,6,8));
+prepare stmt_replace_f1 from replace into t1 values(?,1.5,?,?,?,?,?,?);
+set @i1=10;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=9;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=8;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=7;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=6;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=4;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=3;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=2;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+set @i1=1;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_f1 using @i1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefg	2020-02-02 20:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+2	1.5	abcdefg	2020-02-02 20:00:00.000000	1	1.5	abcdefgh	2020-02-01 20:00:00.000000
+3	1.5	abcdefg	2020-02-02 20:00:00.000000	2	2.5	abcdefgh	2020-02-01 20:00:00.000000
+4	1.5	abcdefg	2020-02-02 20:00:00.000000	3	3.5	abcdefgh	2020-02-01 20:00:00.000000
+5	1.5	abcdefg	2020-02-02 20:00:00.000000	4	4.5	abcdefgh	2020-02-01 20:00:00.000000
+6	1.5	abcdefg	2020-02-02 20:00:00.000000	5	5.5	abcdefgh	2020-02-01 20:00:00.000000
+7	1.5	abcdefg	2020-02-02 20:00:00.000000	6	6.5	abcdefgh	2020-02-01 20:00:00.000000
+8	1.5	abcdefg	2020-02-02 20:00:00.000000	7	7.5	abcdefgh	2020-02-01 20:00:00.000000
+9	1.5	abcdefg	2020-02-02 20:00:00.000000	8	8.5	abcdefgh	2020-02-01 20:00:00.000000
+10	1.5	abcdefg	2020-02-02 20:00:00.000000	9	9.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t1;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x) '[(1)],[(6)],[(2)],[(5)],[(3)],[(4)],[(7)],[(8)],[(9)],[(10)]';
+create table t2(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by(em,e,i1);
+prepare stmt_insert_s1 from replace into t2 values(?,?,'abcdefg',?,?,?,?,?);
+set @i1=10;
+set @f1=10.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=9;
+set @f1=9.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=8;
+set @f1=8.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=7;
+set @f1=7.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=6;
+set @f1=6.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=5;
+set @f1=5.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=4;
+set @f1=4.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=3;
+set @f1=3.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=2;
+set @f1=2.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+set @i1=1;
+set @f1=1.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_insert_s1 using @i1,@f1,@d1,@i2,@f2,@s2,@d2;
+select * from t2;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefg	2020-02-02 20:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+2	2.5	abcdefg	2020-02-02 20:00:00.000000	1	1.5	abcdefgh	2020-02-01 20:00:00.000000
+3	3.5	abcdefg	2020-02-02 20:00:00.000000	2	2.5	abcdefgh	2020-02-01 20:00:00.000000
+4	4.5	abcdefg	2020-02-02 20:00:00.000000	3	3.5	abcdefgh	2020-02-01 20:00:00.000000
+5	5.5	abcdefg	2020-02-02 20:00:00.000000	4	4.5	abcdefgh	2020-02-01 20:00:00.000000
+6	6.5	abcdefg	2020-02-02 20:00:00.000000	5	5.5	abcdefgh	2020-02-01 20:00:00.000000
+7	7.5	abcdefg	2020-02-02 20:00:00.000000	6	6.5	abcdefgh	2020-02-01 20:00:00.000000
+8	8.5	abcdefg	2020-02-02 20:00:00.000000	7	7.5	abcdefgh	2020-02-01 20:00:00.000000
+9	9.5	abcdefg	2020-02-02 20:00:00.000000	8	8.5	abcdefgh	2020-02-01 20:00:00.000000
+10	10.5	abcdefg	2020-02-02 20:00:00.000000	9	9.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t2;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by(hs,h,i1);
+prepare stmt_replace_d1 from replace into t1 values(?,?,?,'2012-01-01 00:00:00',?,?,?,?);
+set @i1=10;
+set @f1=10.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=9;
+set @f1=9.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=8;
+set @f1=8.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=7;
+set @f1=7.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=6;
+set @f1=6.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=5;
+set @f1=5.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=4;
+set @f1=4.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=3;
+set @f1=3.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=2;
+set @f1=2.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+set @i1=1;
+set @f1=1.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_d1 using @i1,@f1,@s1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefg	2012-01-01 00:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+2	2.5	abcdefg	2012-01-01 00:00:00.000000	1	1.5	abcdefgh	2020-02-01 20:00:00.000000
+3	3.5	abcdefg	2012-01-01 00:00:00.000000	2	2.5	abcdefgh	2020-02-01 20:00:00.000000
+4	4.5	abcdefg	2012-01-01 00:00:00.000000	3	3.5	abcdefgh	2020-02-01 20:00:00.000000
+5	5.5	abcdefg	2012-01-01 00:00:00.000000	4	4.5	abcdefgh	2020-02-01 20:00:00.000000
+6	6.5	abcdefg	2012-01-01 00:00:00.000000	5	5.5	abcdefgh	2020-02-01 20:00:00.000000
+7	7.5	abcdefg	2012-01-01 00:00:00.000000	6	6.5	abcdefgh	2020-02-01 20:00:00.000000
+8	8.5	abcdefg	2012-01-01 00:00:00.000000	7	7.5	abcdefgh	2020-02-01 20:00:00.000000
+9	9.5	abcdefg	2012-01-01 00:00:00.000000	8	8.5	abcdefgh	2020-02-01 20:00:00.000000
+10	10.5	abcdefg	2012-01-01 00:00:00.000000	9	9.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t1;
+create table t1(i1 int,f1 float,s1 varchar(30),d1 datetime,i2 int,f2 float,s2 varchar(30),d2 datetime,primary key(i1,f1,s1,d1))partition by range(i1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+prepare stmt_replace_rowkey from replace into t1 values(10000,10000.5,'10000-abcdefg','2012-01-01 00:00:00',?,?,?,?);
+set @i1=10;
+set @f1=10.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=9;
+set @f2=9.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=9;
+set @f1=9.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=8;
+set @f2=8.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=8;
+set @f1=8.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=7;
+set @f2=7.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=7;
+set @f1=7.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=6;
+set @f2=6.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=6;
+set @f1=6.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=5;
+set @f2=5.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=5;
+set @f1=5.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=4;
+set @f2=4.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=4;
+set @f1=4.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=3;
+set @f2=3.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=3;
+set @f1=3.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=2;
+set @f2=2.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=2;
+set @f1=2.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=1;
+set @f2=1.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+set @i1=1;
+set @f1=1.5;
+set @s1='abcdefg';
+set @d1=timestamp'2020-02-02 20:00:00';
+set @i2=0;
+set @f2=0.5;
+set @s2='abcdefgh';
+set @d2=timestamp'2020-02-01 20:00:00';
+execute stmt_replace_rowkey using @i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+10000	10000.5	10000-abcdefg	2012-01-01 00:00:00.000000	0	0.5	abcdefgh	2020-02-01 20:00:00.000000
+drop table t1;

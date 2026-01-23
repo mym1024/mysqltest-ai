@@ -1,0 +1,264 @@
+##############################################################################################
+###1.测试功能点：drop alter desc view:
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210218
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:所修改视图名称异常
+--error 5001
+alter view %v as select 1+1;
+
+###2-2:所修改视图不存在
+drop view if exists v1;
+--error 18
+alter view v1 as select 1*2.37*6.78;
+drop view if exists v1;
+
+
+###2-3:修改视图定义时出现循环引用情况(如v1引用v2，v2引用v3，v3引用v1)
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create table t2(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select v1.c1,t2.c2 from v1,t2;
+create view v3 as select v2.c1,v2.c2 from v2,t2;
+alter view v1 as select c1 from v3;
+--error 5853
+select * from v1;
+--error 5853
+select * from v2;
+--error 5853
+select * from v3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-4:删除视图列表里包含基本表
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5852
+drop view if exists v1,v2,t1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-5:删除视图列表里包含系统表
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view if exists v1,__all_view; ##和基本表删除一致  不报错
+--error 5019
+drop view v1,__all_view;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-6:删除视图列表,全部视图没有drop权限
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create database db;
+using database db;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+create user 'user01' identified by 'Abc@12345';
+grant select on *.* to 'user01';
+###在user用户下
+--real_sleep 15
+connect(conn2,$OBMYSQL_MS0,user01,Abc@12345,test,$OBMYSQL_PORT);
+connection conn2;
+using database db;
+--error 5036
+drop view if exists v1,v2;
+--error 5036
+drop view v1,v2;
+###admin用户
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-7:删除视图列表,某一个视图没有drop权限
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+drop user 'user01';
+create user 'user01' identified by 'Abc@12345';
+grant select on db.v1 to 'user01';
+grant drop on db.v1 to 'user01';
+###在user用户下
+connection conn2;
+using database db;
+--error 5036
+drop view if exists v1,v2;
+--error 5036
+drop view v1,v2;
+connection conn1;
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-8:删除视图列表，某一个视图不存在
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5019
+drop view v1,v2,v3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-9:删除视图列表，多个视图不存在
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5019
+drop view v1,v2,v3,v4,v6,v5;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-10:删除视图列表，视图不存在
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+--error 5019
+drop view v1,v2,v3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-11:truncate table 语句带有视图名称
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5852
+truncate table v1;
+--error 5852
+truncate table t1,v1;
+--error 5852
+truncate table if exists t1,v1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-12:alter table 语句带有视图名称
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5852
+alter table v1 add c1 int;
+--error 5852
+alter table v1 drop c1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-13:drop table 语句带有视图名称
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5852
+drop table v1,v2,t1;
+--error 5852
+drop table if exists v1,v2,t1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-14:rename table 语句带有视图名称
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5852
+rename table v1 to v3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+
+###2-15:desc的视图名称不存在
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+create view v2 as select c2 from t1;
+--error 5019
+desc v3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-16:desc的名称为基本表名称
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+desc t1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-17:删除某视图后，desc该视图
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+--error 5019
+desc v1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-18:删除其他数据库某视图后，desc该视图
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+using database "yao";
+--error 5019
+desc db.v1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+
+###2-19:删除其他数据库下某视图后，重新创建该视图，desc该视图
+using database db;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 int);
+create view v1 as select c1 from t1;
+drop view v1;
+using database "yao";
+--error 5019
+desc db.v1;
+create view db.v1 as select c1 from db.t1;
+desc db.v1;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2;
+

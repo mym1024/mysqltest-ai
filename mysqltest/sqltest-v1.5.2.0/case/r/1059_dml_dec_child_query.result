@@ -1,0 +1,39 @@
+drop table if exists t3,t5;
+create table t3(id decimal(10,5) primary key,c1 decimal(10,5),c2 decimal(10,5),c3 decimal(10,5),c4 decimal(10,5),c5 decimal(10,5),c6 decimal(10,5));
+insert into t3 values(1.000,5123,2,4.123,4.123,3,22);
+select * from t3;
+id	c1	c2	c3	c4	c5	c6
+1	5123	2	4.123	4.123	3	22
+insert into t3 values(2.000,5123,2,4.123,4.123,9,13);
+select * from t3;
+id	c1	c2	c3	c4	c5	c6
+1	5123	2	4.123	4.123	3	22
+2	5123	2	4.123	4.123	9	13
+create table t5(id decimal(10,5) primary key,c1 varchar(20),c2 decimal(10,5));
+insert into t5 values(3.000,'5.123',1);
+insert into t5 values(7.000,'4.123',5.123);
+insert into t5 values(8.000,'6',5.123);
+select * from t5;
+id	c1	c2
+3	5.123	1
+7	4.123	5.123
+8	6	5.123
+create table t6(id decimal(10,5) primary key,c1 varchar(20),c2 decimal(10,5));
+insert into t6 values(3.000,'5.123',1);
+insert into t6 values(7.000,'4.123',5.123);
+insert into t6 values(8.000,'6',5.123);
+select * from t6;
+id	c1	c2
+3	5.123	1
+7	4.123	5.123
+8	6	5.123
+select * from t3 where t3.c3 in ('4.123','5.123',6);
+id	c1	c2	c3	c4	c5	c6
+1	5123	2	4.123	4.123	3	22
+2	5123	2	4.123	4.123	9	13
+select * from t3 where t3.c3 in (select distinct c1 from t5);
+id	c1	c2	c3	c4	c5	c6
+1	5123	2	4.123	4.123	3	22
+2	5123	2	4.123	4.123	9	13
+select * from t3 where t3.c1 in (select distinct c1 from t5 union select c1 from t6);
+id	c1	c2	c3	c4	c5	c6

@@ -1,0 +1,1025 @@
+[32m[==========][0m Running 124 cases ( Test Mode )
+[32m[----------][0m 2026-01-22 13:24:06
+[32m[----------][0m rebooting...
+2026-01-22 13:25:20.810113
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0001_alias_no_or_have_partition [ 1 / 124 ]
+[32m[       OK ][0m 0001_alias_no_or_have_partition ( 2.559459 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:26:44.579665
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0002_create_table_use_parameter_table_id [ 2 / 124 ]
+[32m[       OK ][0m 0002_create_table_use_parameter_table_id ( 425.056966 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:35:09.642246
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0003_alias_group_by_and_order_by_no_or_have_partition [ 3 / 124 ]
+[32m[       OK ][0m 0003_alias_group_by_and_order_by_no_or_have_partition ( 6.011874 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:36:35.011295
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0004_alter_table_change_column_varchar2others [ 4 / 124 ]
+[32m[       OK ][0m 0004_alter_table_change_column_varchar2others ( 0.543109 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:37:55.082289
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0005_add_all_type_column [ 5 / 124 ]
+[32m[       OK ][0m 0005_add_all_type_column ( 2.293548 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:39:17.170613
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0006_alias_associated_multiple_tables_no_or_have_partition [ 6 / 124 ]
+[32m[       OK ][0m 0006_alias_associated_multiple_tables_no_or_have_partition ( 2.695695 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:40:39.352946
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0007_alias_join_no_or_have_partition [ 7 / 124 ]
+[32m[       OK ][0m 0007_alias_join_no_or_have_partition ( 2.436649 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:42:01.238452
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0008_set_column_default_values [ 8 / 124 ]
+[32m[       OK ][0m 0008_set_column_default_values ( 4.488472 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:43:25.801314
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0009_alias_illegal_validation_no_or_have_partition [ 9 / 124 ]
+[32m[       OK ][0m 0009_alias_illegal_validation_no_or_have_partition ( 2.782632 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:44:48.012627
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0010_use_default_value_insertupdate [ 10 / 124 ]
+[32m[       OK ][0m 0010_use_default_value_insertupdate ( 0.780724 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:46:08.294148
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0011_use_default_value_insertupdate_muti_values [ 11 / 124 ]
+[32m[       OK ][0m 0011_use_default_value_insertupdate_muti_values ( 0.672891 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:47:28.684313
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0012_rename_press_partition [ 12 / 124 ]
+[32m[       OK ][0m 0012_rename_press_partition ( 7.007673 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:48:55.202157
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0013_rename_press [ 13 / 124 ]
+[32m[       OK ][0m 0013_rename_press ( 7.426342 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:50:22.242704
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0014_expire_info_add [ 14 / 124 ]
+[32m[       OK ][0m 0014_expire_info_add ( 4.487206 s )
+[32m[----------][0m rebooting...
+2026-01-22 13:53:40.319053
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+2026-01-22 13:53:41 INFO: reboot failed, retry after 60 seconds
+[32m[----------][0m rebooting...
+2026-01-22 13:57:49.407068
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+2026-01-22 13:57:50 INFO: reboot failed, retry after 60 seconds
+[32m[----------][0m rebooting...
+2026-01-22 14:00:04.412959
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0015_expire_info_add_with_index [ 15 / 124 ]
+[32m[       OK ][0m 0015_expire_info_add_with_index ( 11.072591 s )
+[32m[----------][0m rebooting...
+2026-01-22 14:01:35.731070
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0016_expire_info_alter [ 16 / 124 ]
+[32m[       OK ][0m 0016_expire_info_alter ( 5.997840 s )
+[32m[----------][0m rebooting...
+2026-01-22 14:03:01.085775
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0017_expire_info_alter_with_index [ 17 / 124 ]
+[32m[       OK ][0m 0017_expire_info_alter_with_index ( 8.467687 s )
+[32m[----------][0m rebooting...
+2026-01-22 14:04:29.024735
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0018_expire_info_drop [ 18 / 124 ]
+[32m[       OK ][0m 0018_expire_info_drop ( 4.963064 s )
+[32m[----------][0m rebooting...
+2026-01-22 14:05:53.394501
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0019_expire_info_drop_with_index [ 19 / 124 ]
+[32m[       OK ][0m 0019_expire_info_drop_with_index ( 5.452610 s )
+[32m[----------][0m rebooting...
+2026-01-22 14:07:18.323923
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0020_expire_info_create [ 20 / 124 ]
+[32m[       OK ][0m 0020_expire_info_create ( 3233.121731 s )
+[32m[----------][0m rebooting...
+2026-01-22 15:02:31.315817
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0021_expire_info_create_with_index [ 21 / 124 ]
+[32m[       OK ][0m 0021_expire_info_create_with_index ( 2632.013475 s )
+[32m[----------][0m rebooting...
+2026-01-22 15:47:43.153205
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0022_expire_info_column_reject_alter [ 22 / 124 ]
+[32m[       OK ][0m 0022_expire_info_column_reject_alter ( 3.480060 s )
+[32m[----------][0m rebooting...
+2026-01-22 15:49:07.287710
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0023_expire_info_cluster_up_down [ 23 / 124 ]
+[32m[       OK ][0m 0023_expire_info_cluster_up_down ( 1223.687577 s )
+[32m[----------][0m rebooting...
+2026-01-22 16:10:50.752892
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0024_expire_info_always_false [ 24 / 124 ]
+[32m[       OK ][0m 0024_expire_info_always_false ( 1.686862 s )
+[32m[----------][0m rebooting...
+2026-01-22 16:12:11.927416
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0025_insert_value_with_space_in_primarykey [ 25 / 124 ]
+[32m[       OK ][0m 0025_insert_value_with_space_in_primarykey ( 601.887364 s )
+[32m[----------][0m rebooting...
+2026-01-22 16:23:33.368270
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0026_rename_table [ 26 / 124 ]
+[32m[       OK ][0m 0026_rename_table ( 501.794990 s )
+[32m[----------][0m rebooting...
+2026-01-22 16:33:14.922893
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0027_create_alter_table_use_block_cache [ 27 / 124 ]
+[32m[       OK ][0m 0027_create_alter_table_use_block_cache ( 601.410733 s )
+[32m[----------][0m rebooting...
+2026-01-22 16:44:35.762328
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0028_expire_info_enhancement_string_compare [ 28 / 124 ]
+[32m[       OK ][0m 0028_expire_info_enhancement_string_compare ( 1002.426083 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:02:38.597452
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0029_expire_info_enhancement_const_timestamp_compare [ 29 / 124 ]
+[32m[       OK ][0m 0029_expire_info_enhancement_const_timestamp_compare ( 662.035965 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:14:59.971075
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0030_expire_info_enhancement_add_time_type [ 30 / 124 ]
+[32m[       OK ][0m 0030_expire_info_enhancement_add_time_type ( 661.439585 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:27:20.629851
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0031_expire_info_enhancement_with_index [ 31 / 124 ]
+[32m[       OK ][0m 0031_expire_info_enhancement_with_index ( 665.300266 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:39:45.455963
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0032_expire_info_support_and_or [ 32 / 124 ]
+[32m[       OK ][0m 0032_expire_info_support_and_or ( 677.509477 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:52:22.447811
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0033_create_alter_table_without_specified_varchar_parameter [ 33 / 124 ]
+[32m[       OK ][0m 0033_create_alter_table_without_specified_varchar_parameter ( 0.982345 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:53:42.604719
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0034_create_view_simple_column [ 34 / 124 ]
+[32m[       OK ][0m 0034_create_view_simple_column ( 64.792764 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:56:06.632323
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0035_create_view_arithmetic_operation [ 35 / 124 ]
+[32m[       OK ][0m 0035_create_view_arithmetic_operation ( 151.899017 s )
+[32m[----------][0m rebooting...
+2026-01-22 17:59:58.911022
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0036_create_view_system_function [ 36 / 124 ]
+[32m[       OK ][0m 0036_create_view_system_function ( 40.384397 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:01:59.103912
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0037_create_view_aggregate_function [ 37 / 124 ]
+[32m[       OK ][0m 0037_create_view_aggregate_function ( 6.749691 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:03:25.218917
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0038_create_view_select_dual [ 38 / 124 ]
+[32m[       OK ][0m 0038_create_view_select_dual ( 7.537754 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:04:52.651709
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0039_create_view_select_subquery [ 39 / 124 ]
+[32m[       OK ][0m 0039_create_view_select_subquery ( 6.669590 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:06:18.701607
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0040_create_view_select_join_clause [ 40 / 124 ]
+[32m[       OK ][0m 0040_create_view_select_join_clause ( 16.170290 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:08:14.259688
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0041_create_view_select_set [ 41 / 124 ]
+[32m[       OK ][0m 0041_create_view_select_set ( 6.823057 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:09:40.412426
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0042_create_view_other_clause [ 42 / 124 ]
+[32m[       OK ][0m 0042_create_view_other_clause ( 14.657077 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:11:14.478999
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0043_create_view_error [ 43 / 124 ]
+[32m[       OK ][0m 0043_create_view_error ( 13.618155 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:12:47.597156
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0044_alter_view [ 44 / 124 ]
+[32m[       OK ][0m 0044_alter_view ( 5.294226 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:14:12.233914
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0045_drop_view [ 45 / 124 ]
+[32m[       OK ][0m 0045_drop_view ( 12.986415 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:15:46.452343
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0046_desc_view [ 46 / 124 ]
+[32m[       OK ][0m 0046_desc_view ( 17.491201 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:17:23.284979
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0047_drop_alter_desc_view [ 47 / 124 ]
+[32m[       OK ][0m 0047_drop_alter_desc_view ( 31.593937 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:19:15.596519
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0048_dml_oracle_datatype [ 48 / 124 ]
+[32m[       OK ][0m 0048_dml_oracle_datatype ( 3.440489 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:20:38.342316
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0049_dml_keyword_columnnames [ 49 / 124 ]
+[32m[       OK ][0m 0049_dml_keyword_columnnames ( 0.461005 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:21:58.307650
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0050_no_pk_pk_auto-increment [ 50 / 124 ]
+[32m[       OK ][0m 0050_no_pk_pk_auto-increment ( 3.120817 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:23:20.923845
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0051_no_pk_pk_auto-increment-partition [ 51 / 124 ]
+[31m[  FAILED  ][0m 0051_no_pk_pk_auto-increment-partition ( 5.731663 s )
+--- /home/yaotest/tool0/mysqltest_yaobase/mysql_test/r/0051_no_pk_pk_auto-increment-partition.result	2026-01-22 13:22:03.712045506 +0800
++++ /home/yaotest/tool0/mysqltest_yaobase/mysql_test/var/log/0051_no_pk_pk_auto-increment-partition.reject	2026-01-22 18:23:27.760726257 +0800
+@@ -137,9 +137,7 @@
+ c1
+ 1
+ 2
+-3
+ 4
+-11
+ select * from test_pk where c1=1;
+ c1
+ 1
+@@ -514,8 +512,6 @@
+ 3	c
+ 4	a
+ 5	c
+-6	b
+-7	d
+ UPDATE test_auto  set c2 = 'dd' WHERE c1 = 1;
+ select * from test_auto;
+ c1	c2
+
+mysqltest: Result content mismatch
+
+
+[32m[----------][0m rebooting...
+2026-01-22 18:24:46.082011
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0052_purge [ 52 / 124 ]
+[32m[       OK ][0m 0052_purge ( 7.367157 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:26:12.812918
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0053_drop-database [ 53 / 124 ]
+[32m[       OK ][0m 0053_drop-database ( 3.583317 s )
+[32m[----------][0m rebooting...
+2026-01-22 18:27:35.811057
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0054_alter_partition_to_other_partition_trash [ 54 / 124 ]
+[32m[       OK ][0m 0054_alter_partition_to_other_partition_trash ( 9497.747153 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:07:13.663701
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0055_drop-table [ 55 / 124 ]
+[32m[       OK ][0m 0055_drop-table ( 13.781797 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:08:46.833075
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0056_flashback [ 56 / 124 ]
+[32m[       OK ][0m 0056_flashback ( 16.519336 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:10:22.613693
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0057_flashback-query [ 57 / 124 ]
+[32m[       OK ][0m 0057_flashback-query ( 820.971526 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:25:22.821417
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0058_enumset_create [ 58 / 124 ]
+[31m[  FAILED  ][0m 0058_enumset_create ( 21.694050 s )
+--- /home/yaotest/tool0/mysqltest_yaobase/mysql_test/r/0058_enumset_create.result	2026-01-22 13:22:03.712045506 +0800
++++ /home/yaotest/tool0/mysqltest_yaobase/mysql_test/var/log/0058_enumset_create.reject	2026-01-22 21:25:45.619158633 +0800
+@@ -472,7 +472,7 @@
+ child_id INT(10),
+ child_status enum ('parent_a','parent_b') COLLATE 'utf8mb4_general_ci',
+  PRIMARY KEY(child_id),
+- CONSTRAINT t_enum_set_child_ybfk_1768359690440590 FOREIGN KEY (child_status) REFERENCES test.t_enum_set_parent(parent_status) ON UPDATE RESTRICT ON DELETE RESTRICT
++ CONSTRAINT t_enum_set_child_ybfk_1769088340994234 FOREIGN KEY (child_status) REFERENCES test.t_enum_set_parent(parent_status) ON UPDATE RESTRICT ON DELETE RESTRICT
+ ) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ INSERT INTO t_enum_set_child VALUES (1, 'parent_a');
+ INSERT INTO t_enum_set_child VALUES (2, 'nonexistent');
+@@ -497,7 +497,7 @@
+ test.t_enum_set_child	CREATE TABLE t_enum_set_child (
+ child_id INT(10),
+ child_ref_id INT(10),
+- CONSTRAINT t_enum_set_child_ybfk_1768359691341367 FOREIGN KEY (child_ref_id) REFERENCES test.t_enum_set_parent(parent_id) ON UPDATE RESTRICT ON DELETE RESTRICT
++ CONSTRAINT t_enum_set_child_ybfk_1769088341957419 FOREIGN KEY (child_ref_id) REFERENCES test.t_enum_set_parent(parent_id) ON UPDATE RESTRICT ON DELETE RESTRICT
+ ) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+ INSERT INTO t_enum_set_child VALUES (1, 1);
+ INSERT INTO t_enum_set_child VALUES (2, 999);
+
+mysqltest: Result content mismatch
+
+
+[32m[----------][0m rebooting...
+2026-01-22 21:27:03.836983
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0059_enumset_alter [ 59 / 124 ]
+[32m[       OK ][0m 0059_enumset_alter ( 8.919650 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:28:31.984970
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0060_enumset_insert_replace [ 60 / 124 ]
+[32m[       OK ][0m 0060_enumset_insert_replace ( 4.428702 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:29:55.685140
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0061_enumset_select [ 61 / 124 ]
+[32m[       OK ][0m 0061_enumset_select ( 4.472197 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:31:19.971438
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0062_enumset_select_advanced [ 62 / 124 ]
+[32m[       OK ][0m 0062_enumset_select_advanced ( 5.090406 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:32:44.452308
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0063_enumset_update [ 63 / 124 ]
+[32m[       OK ][0m 0063_enumset_update ( 3.166514 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:34:06.792940
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0064_enumset_delete [ 64 / 124 ]
+[32m[       OK ][0m 0064_enumset_delete ( 4.635533 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:35:30.623788
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0065_enumset_show [ 65 / 124 ]
+[32m[       OK ][0m 0065_enumset_show ( 2.000416 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:36:51.943578
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0070_load_data [ 66 / 124 ]
+[32m[       OK ][0m 0070_load_data ( 193.541666 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:41:24.912935
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0080_tenant_base [ 67 / 124 ]
+[32m[       OK ][0m 0080_tenant_base ( 0.625794 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:42:44.767768
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 0081_tenant_privilege [ 68 / 124 ]
+[32m[       OK ][0m 0081_tenant_privilege ( 5.701855 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:44:09.734557
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1001_dml_affect_rows_no_or_have_hash_partition [ 69 / 124 ]
+[32m[       OK ][0m 1001_dml_affect_rows_no_or_have_hash_partition ( 5.938935 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:45:34.892934
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1002_owkey_update_alter_table [ 70 / 124 ]
+[32m[       OK ][0m 1002_owkey_update_alter_table ( 6.234492 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:47:00.323726
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1003_to_date [ 71 / 124 ]
+[32m[       OK ][0m 1003_to_date ( 0.169538 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:48:20.361253
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1004_dml_count_distinct_no_or_have_partition [ 72 / 124 ]
+[32m[       OK ][0m 1004_dml_count_distinct_no_or_have_partition ( 28.193322 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:50:07.796527
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1005_rowkey_update_varchar_convert_decimal [ 73 / 124 ]
+[32m[       OK ][0m 1005_rowkey_update_varchar_convert_decimal ( 7.124913 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:51:34.115540
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1006_dml_alter_decimal_select_for_update [ 74 / 124 ]
+[32m[       OK ][0m 1006_dml_alter_decimal_select_for_update ( 8.125173 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:53:01.441830
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1007_dml_alter_decimal_select_for_update_v1 [ 75 / 124 ]
+[32m[       OK ][0m 1007_dml_alter_decimal_select_for_update_v1 ( 7.113416 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:54:27.677069
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1008_rowkey_update_normal_sql [ 76 / 124 ]
+[32m[       OK ][0m 1008_rowkey_update_normal_sql ( 10.510163 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:55:57.522938
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1009_dml_alter_decimal_normal_select_for_update [ 77 / 124 ]
+[32m[       OK ][0m 1009_dml_alter_decimal_normal_select_for_update ( 6.804111 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:57:23.724019
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1010_rowkey_update_explain [ 78 / 124 ]
+[32m[       OK ][0m 1010_rowkey_update_explain ( 5.567575 s )
+[32m[----------][0m rebooting...
+2026-01-22 21:58:48.571070
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1011_batch_delete [ 79 / 124 ]
+[32m[       OK ][0m 1011_batch_delete ( 704.063116 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:11:52.380471
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1012_dml_alter_decimal_normal_select_for_update_v1 [ 80 / 124 ]
+[32m[       OK ][0m 1012_dml_alter_decimal_normal_select_for_update_v1 ( 6.305689 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:13:17.841865
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1013_update [ 81 / 124 ]
+[32m[       OK ][0m 1013_update ( 2.316113 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:14:39.894943
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1014_batch_delete_int [ 82 / 124 ]
+[32m[       OK ][0m 1014_batch_delete_int ( 906.582847 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:31:05.738833
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1015_dml_alter_decimal_type_conversion [ 83 / 124 ]
+[32m[       OK ][0m 1015_dml_alter_decimal_type_conversion ( 5.667715 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:32:31.021520
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1016_batch_delete_test [ 84 / 124 ]
+[32m[       OK ][0m 1016_batch_delete_test ( 2.027678 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:33:52.350664
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1017_dml_alter_decimal_scope [ 85 / 124 ]
+[32m[       OK ][0m 1017_dml_alter_decimal_scope ( 5.683181 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:35:17.443494
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1018_batch_update [ 86 / 124 ]
+[32m[       OK ][0m 1018_batch_update ( 715.444040 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:48:26.121228
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+2026-01-22 22:48:27 INFO: reboot failed, retry after 60 seconds
+[32m[----------][0m rebooting...
+2026-01-22 22:50:40.956827
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1019_dml_alter_sys_parameters [ 87 / 124 ]
+[32m[       OK ][0m 1019_dml_alter_sys_parameters ( 20.328903 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:52:20.551766
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1020_batch_update_test [ 88 / 124 ]
+[32m[       OK ][0m 1020_batch_update_test ( 5.803823 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:53:45.609099
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1021_dml_alter_table_varchar_column [ 89 / 124 ]
+[32m[       OK ][0m 1021_dml_alter_table_varchar_column ( 9.809361 s )
+[32m[----------][0m rebooting...
+2026-01-22 22:55:14.836573
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1022_batch_update_test_int [ 90 / 124 ]
+[32m[       OK ][0m 1022_batch_update_test_int ( 1005.958969 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:13:20.546314
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1023_dml_alter_table_varchar_column_v1 [ 91 / 124 ]
+[32m[       OK ][0m 1023_dml_alter_table_varchar_column_v1 ( 6.475215 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:14:46.284714
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1024_dml_alter_table_varchar_column_illegal_v1 [ 92 / 124 ]
+[32m[       OK ][0m 1024_dml_alter_table_varchar_column_illegal_v1 ( 5.787182 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:16:11.266562
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1025_dml_alter_table_varchar_column_v2 [ 93 / 124 ]
+[32m[       OK ][0m 1025_dml_alter_table_varchar_column_v2 ( 9.084815 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:17:39.630208
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1026_dml_alter_table_varchar_column_illegal [ 94 / 124 ]
+[32m[       OK ][0m 1026_dml_alter_table_varchar_column_illegal ( 5.908529 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:19:04.978724
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1027_dml_alter_table_column_no_or_have_partition [ 95 / 124 ]
+[32m[       OK ][0m 1027_dml_alter_table_column_no_or_have_partition ( 17.688252 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:20:41.895594
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1028_rowkey_update_secondary_index [ 96 / 124 ]
+[32m[       OK ][0m 1028_rowkey_update_secondary_index ( 1017.939190 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:38:59.385949
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1029_dml_alter_table_partition_rule [ 97 / 124 ]
+[32m[       OK ][0m 1029_dml_alter_table_partition_rule ( 24.966643 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:40:43.556783
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1030_dml_batch_insert_abnormal [ 98 / 124 ]
+[32m[       OK ][0m 1030_dml_batch_insert_abnormal ( 17.181678 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:42:19.924012
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1031_batch_insert_datatype [ 99 / 124 ]
+[32m[       OK ][0m 1031_batch_insert_datatype ( 7.240410 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:43:46.325665
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1032_batch_insert_function_expression [ 100 / 124 ]
+[32m[       OK ][0m 1032_batch_insert_function_expression ( 1.895738 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:45:07.394165
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1033_batch_insert_normal [ 101 / 124 ]
+[32m[       OK ][0m 1033_batch_insert_normal ( 32.655711 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:46:59.281317
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1034_batch_insert_select_special [ 102 / 124 ]
+[32m[       OK ][0m 1034_batch_insert_select_special ( 29.098482 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:48:47.591413
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1035_batch_insert_transaction [ 103 / 124 ]
+[32m[       OK ][0m 1035_batch_insert_transaction ( 22.362468 s )
+[32m[----------][0m rebooting...
+2026-01-22 23:50:29.291418
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1036_batch_rollback_multi_session [ 104 / 124 ]
+[32m[       OK ][0m 1036_batch_rollback_multi_session ( 507.838888 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:00:16.371036
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1037_batch_count_distinct [ 105 / 124 ]
+[32m[       OK ][0m 1037_batch_count_distinct ( 2.950522 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:01:39.186860
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1038_dml_bigint [ 106 / 124 ]
+[32m[       OK ][0m 1038_dml_bigint ( 3.022398 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:03:01.425871
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1039_dml_binary_protocol [ 107 / 124 ]
+[32m[       OK ][0m 1039_dml_binary_protocol ( 0.415595 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:04:21.166517
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1040_dml_bind_variable_stres_prepare [ 108 / 124 ]
+[32m[       OK ][0m 1040_dml_bind_variable_stres_prepare ( 100.408783 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:07:20.960965
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1041_dml_bind_variable_stres_prepare_1 [ 109 / 124 ]
+[32m[       OK ][0m 1041_dml_bind_variable_stres_prepare_1 ( 94.108369 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:10:14.218788
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1042_dml_bind_variable_stres_prepare_greater_then_65535 [ 110 / 124 ]
+[32m[       OK ][0m 1042_dml_bind_variable_stres_prepare_greater_then_65535 ( 91.905032 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:13:06.242233
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1043_dml_bool [ 111 / 124 ]
+[32m[       OK ][0m 1043_dml_bool ( 0.831219 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:14:26.400074
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1044_dml_build_in_func_test [ 112 / 124 ]
+[32m[       OK ][0m 1044_dml_build_in_func_test ( 2.380891 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:15:48.024194
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1045_dml_case_when [ 113 / 124 ]
+[32m[       OK ][0m 1045_dml_case_when ( 1.870129 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:17:09.254976
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1046_insert_space [ 114 / 124 ]
+[32m[       OK ][0m 1046_insert_space ( 601.091763 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:28:29.546266
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1047_dml_compare_datetime [ 115 / 124 ]
+[32m[       OK ][0m 1047_dml_compare_datetime ( 2.625425 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:29:51.386085
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1048_dml_compare [ 116 / 124 ]
+[32m[       OK ][0m 1048_dml_compare ( 0.784232 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:31:12.022076
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1049_dml_connection [ 117 / 124 ]
+[32m[       OK ][0m 1049_dml_connection ( 13.293706 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:32:45.232974
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1050_dml_count_distinct [ 118 / 124 ]
+[32m[       OK ][0m 1050_dml_count_distinct ( 3.449465 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:34:08.132938
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1051_dml_create_syntax [ 119 / 124 ]
+[32m[       OK ][0m 1051_dml_create_syntax ( 0.852379 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:35:28.268872
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1052_dml_create_table [ 120 / 124 ]
+[32m[       OK ][0m 1052_dml_create_table ( 484.323197 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:44:51.956101
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1053_dml_create_abnormal_table [ 121 / 124 ]
+[32m[       OK ][0m 1053_dml_create_abnormal_table ( 1.460252 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:46:12.585001
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1054_dml_create_user [ 122 / 124 ]
+[32m[       OK ][0m 1054_dml_create_user ( 15.655543 s )
+[32m[----------][0m rebooting...
+2026-01-23 00:47:47.707526
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1055_date_time_addition [ 123 / 124 ]
+[31m[  FAILED  ][0m 1055_date_time_addition ( 95.270207 s )
+--- /home/yaotest/tool0/mysqltest_yaobase/mysql_test/r/1055_date_time_addition.result	2026-01-22 13:22:03.712045506 +0800
++++ /home/yaotest/tool0/mysqltest_yaobase/mysql_test/var/log/1055_date_time_addition.reject	2026-01-23 00:49:24.078516660 +0800
+@@ -13,7 +13,7 @@
+ 2015-12-01
+ select current_time;
+ current_time
+-02:18:18
++00:47:48
+ select current_timestamp();
+ current_timestamp()
+ 2015-12-01 14:30:25.932260
+@@ -23,7 +23,7 @@
+ ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+ select current_timestamp(1);
+ current_timestamp(1)
+-2025-12-25 02:18:18.1
++2026-01-23 00:47:48.8
+ create table test_date(c1 int primary key,c2 date);
+ insert into test_date values(1,current_date());
+ select * from test_date;
+@@ -58,15 +58,15 @@
+ insert into test_date values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-946656020251225
+-978278420251225
++946656020260123
++978278420260123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 time);
+ insert into test_date values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20341225
+-20331225
++20350123
++20340123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 timestamp);
+ insert into test_date values(1,timestamp'2000--error 01--error 01 09:00:00'),(2,timestamp'2001--error 01--error 01 08:00:00');
+@@ -74,8 +74,8 @@
+ insert into test_date values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20000121341225
+-20010121331225
++20000121350123
++20010121340123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 timestamp);
+ insert into test_date values(1,timestamp'2000--error 01--error 01 09:00:00'),(2,timestamp'2001--error 01--error 01 08:00:00');
+@@ -83,15 +83,15 @@
+ insert into test_date values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_date()+c1 from  test_date;
+ current_date()+c1
+-20251226
+-20251227
++20260124
++20260125
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 varchar(20));
+ insert into test_date values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20253225
+-20253226
++20262123
++20262124
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 date);
+ insert into test_time values(1,current_time());
+@@ -131,36 +131,36 @@
+ insert into test_time values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-946656000021823
+-978278400021823
++946656000004754
++978278400004754
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 time);
+ insert into test_time values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_time()+c2 from test_time;
+ current_time()+c2
+-111824
+-101824
++94754
++84754
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 timestamp);
+ insert into test_time values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-20000101111824
+-20010101101824
++20000101094755
++20010101084755
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 timestamp);
+ insert into test_time values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_time()+c1 from  test_time;
+ current_time()+c1
+-21825
+-21826
++4756
++4757
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 varchar(20));
+ insert into test_time values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-23825
+-23826
++6755
++6756
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 date);
+ insert into test_timestamp values(1,current_time());
+@@ -190,36 +190,36 @@
+ insert into test_timestamp values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-966907225021826
+-998529625021826
++966916123004757
++998538523004757
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 time);
+ insert into test_timestamp values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-20251225111827
+-20251225101827
++20260123094757
++20260123084757
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 timestamp);
+ insert into test_timestamp values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_timestamp()+c2 from  test_timestamp;
+ current_timestamp()+c2
+-40251326111827
+-40261326101827
++40260224094758
++40270224084758
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 timestamp);
+ insert into test_timestamp values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_timestamp()+c1 from  test_timestamp;
+ current_timestamp()+c1
+-20251225021829
+-20251225021830
++20260123004759
++20260123004760
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 varchar(20));
+ insert into test_timestamp values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-20251225023828
+-20251225023829
++20260123006758
++20260123006759
+ select year('1900-01-01');
+ year('1900-01-01')
+ 1900
+
+mysqltest: Result content mismatch
+
+
+[32m[----------][0m rebooting...
+2026-01-23 00:50:42.432867
+echo "create database test" | mysql -h 192.168.16.101 -P16880 -uadmin -padmin;sleep 1;
+[32m[ RUN      ][0m 1056_date_time [ 124 / 124 ]
+[31m[  FAILED  ][0m 1056_date_time ( 90.404003 s )
+--- /home/yaotest/tool0/mysqltest_yaobase/mysql_test/r/1056_date_time.result	2026-01-22 13:22:03.712045506 +0800
++++ /home/yaotest/tool0/mysqltest_yaobase/mysql_test/var/log/1056_date_time.reject	2026-01-23 00:52:13.941157657 +0800
+@@ -13,7 +13,7 @@
+ 2015-12-01
+ select current_time;
+ current_time
+-02:21:12
++00:50:43
+ select current_timestamp();
+ current_timestamp()
+ 2015-12-01 14:30:25.932260
+@@ -23,7 +23,7 @@
+ ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+ select current_timestamp(1);
+ current_timestamp(1)
+-2025-12-25 02:21:12.3
++2026-01-23 00:50:43.5
+ create table test_date(c1 int primary key,c2 date);
+ insert into test_date values(1,current_date());
+ select * from test_date;
+@@ -58,15 +58,15 @@
+ insert into test_date values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-946656020251225
+-978278420251225
++946656020260123
++978278420260123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 time);
+ insert into test_date values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20341225
+-20331225
++20350123
++20340123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 timestamp);
+ insert into test_date values(1,timestamp'2000--error 01--error 01 09:00:00'),(2,timestamp'2001--error 01--error 01 08:00:00');
+@@ -74,8 +74,8 @@
+ insert into test_date values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20000121341225
+-20010121331225
++20000121350123
++20010121340123
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 timestamp);
+ insert into test_date values(1,timestamp'2000--error 01--error 01 09:00:00'),(2,timestamp'2001--error 01--error 01 08:00:00');
+@@ -83,15 +83,15 @@
+ insert into test_date values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_date()+c1 from  test_date;
+ current_date()+c1
+-20251226
+-20251227
++20260124
++20260125
+ drop table if exists test_date;
+ create table test_date(c1 int primary key,c2 varchar(20));
+ insert into test_date values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_date()+c2 from  test_date;
+ current_date()+c2
+-20253225
+-20253226
++20262123
++20262124
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 date);
+ insert into test_time values(1,current_time());
+@@ -131,36 +131,36 @@
+ insert into test_time values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-946656000022117
+-978278400022117
++946656000005049
++978278400005049
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 time);
+ insert into test_time values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_time()+c2 from test_time;
+ current_time()+c2
+-112118
+-102118
++95049
++85049
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 timestamp);
+ insert into test_time values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-20000101112118
+-20010101102118
++20000101095049
++20010101085049
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 timestamp);
+ insert into test_time values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_time()+c1 from  test_time;
+ current_time()+c1
+-22119
+-22120
++5051
++5052
+ drop table if exists test_time;
+ create table test_time(c1 int primary key,c2 varchar(20));
+ insert into test_time values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_time()+c2 from  test_time;
+ current_time()+c2
+-24119
+-24120
++7050
++7051
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 date);
+ insert into test_timestamp values(1,current_timestamp());
+@@ -190,36 +190,36 @@
+ insert into test_timestamp values(1,date'2000-01-01'),(2,date'2001-01-01');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-966907225022120
+-998529625022120
++966916123005052
++998538523005052
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 time);
+ insert into test_timestamp values(1,time'09:00:00'),(2,time'08:00:00');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-20251225112121
+-20251225102121
++20260123095052
++20260123085052
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 timestamp);
+ insert into test_timestamp values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_timestamp()+c2 from  test_timestamp;
+ current_timestamp()+c2
+-40251326112121
+-40261326102121
++40260224095052
++40270224085052
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 timestamp);
+ insert into test_timestamp values(1,timestamp'2000-01-01 09:00:00'),(2,timestamp'2001-01-01 08:00:00');
+ select current_timestamp()+c1 from  test_timestamp;
+ current_timestamp()+c1
+-20251225022122
+-20251225022123
++20260123005054
++20260123005055
+ drop table if exists test_timestamp;
+ create table test_timestamp(c1 int primary key,c2 varchar(20));
+ insert into test_timestamp values(1,'2000-01-01 09:00:00'),(2,'2001-01-01 08:00:00');
+ select current_timestamp()+c2 from test_timestamp;
+ current_timestamp()+c2
+-20251225024122
+-20251225024123
++20260123007053
++20260123007054
+ select year('1900-01-01');
+ year('1900-01-01')
+ 1900
+
+mysqltest: Result content mismatch
+
+
+[32m[==========][0m 124 tests run done!
+[31m[  FAILED  ][0m 4 tests are failed out of 124 total
+[32m[ PASS LST ][0m 0001_alias_no_or_have_partition,0002_create_table_use_parameter_table_id,0003_alias_group_by_and_order_by_no_or_have_partition,0004_alter_table_change_column_varchar2others,0005_add_all_type_column,0006_alias_associated_multiple_tables_no_or_have_partition,0007_alias_join_no_or_have_partition,0008_set_column_default_values,0009_alias_illegal_validation_no_or_have_partition,0010_use_default_value_insertupdate,0011_use_default_value_insertupdate_muti_values,0012_rename_press_partition,0013_rename_press,0014_expire_info_add,0015_expire_info_add_with_index,0016_expire_info_alter,0017_expire_info_alter_with_index,0018_expire_info_drop,0019_expire_info_drop_with_index,0020_expire_info_create,0021_expire_info_create_with_index,0022_expire_info_column_reject_alter,0023_expire_info_cluster_up_down,0024_expire_info_always_false,0025_insert_value_with_space_in_primarykey,0026_rename_table,0027_create_alter_table_use_block_cache,0028_expire_info_enhancement_string_compare,0029_expire_info_enhancement_const_timestamp_compare,0030_expire_info_enhancement_add_time_type,0031_expire_info_enhancement_with_index,0032_expire_info_support_and_or,0033_create_alter_table_without_specified_varchar_parameter,0034_create_view_simple_column,0035_create_view_arithmetic_operation,0036_create_view_system_function,0037_create_view_aggregate_function,0038_create_view_select_dual,0039_create_view_select_subquery,0040_create_view_select_join_clause,0041_create_view_select_set,0042_create_view_other_clause,0043_create_view_error,0044_alter_view,0045_drop_view,0046_desc_view,0047_drop_alter_desc_view,0048_dml_oracle_datatype,0049_dml_keyword_columnnames,0050_no_pk_pk_auto-increment,0052_purge,0053_drop-database,0054_alter_partition_to_other_partition_trash,0055_drop-table,0056_flashback,0057_flashback-query,0059_enumset_alter,0060_enumset_insert_replace,0061_enumset_select,0062_enumset_select_advanced,0063_enumset_update,0064_enumset_delete,0065_enumset_show,0070_load_data,0080_tenant_base,0081_tenant_privilege,1001_dml_affect_rows_no_or_have_hash_partition,1002_owkey_update_alter_table,1003_to_date,1004_dml_count_distinct_no_or_have_partition,1005_rowkey_update_varchar_convert_decimal,1006_dml_alter_decimal_select_for_update,1007_dml_alter_decimal_select_for_update_v1,1008_rowkey_update_normal_sql,1009_dml_alter_decimal_normal_select_for_update,1010_rowkey_update_explain,1011_batch_delete,1012_dml_alter_decimal_normal_select_for_update_v1,1013_update,1014_batch_delete_int,1015_dml_alter_decimal_type_conversion,1016_batch_delete_test,1017_dml_alter_decimal_scope,1018_batch_update,1019_dml_alter_sys_parameters,1020_batch_update_test,1021_dml_alter_table_varchar_column,1022_batch_update_test_int,1023_dml_alter_table_varchar_column_v1,1024_dml_alter_table_varchar_column_illegal_v1,1025_dml_alter_table_varchar_column_v2,1026_dml_alter_table_varchar_column_illegal,1027_dml_alter_table_column_no_or_have_partition,1028_rowkey_update_secondary_index,1029_dml_alter_table_partition_rule,1030_dml_batch_insert_abnormal,1031_batch_insert_datatype,1032_batch_insert_function_expression,1033_batch_insert_normal,1034_batch_insert_select_special,1035_batch_insert_transaction,1036_batch_rollback_multi_session,1037_batch_count_distinct,1038_dml_bigint,1039_dml_binary_protocol,1040_dml_bind_variable_stres_prepare,1041_dml_bind_variable_stres_prepare_1,1042_dml_bind_variable_stres_prepare_greater_then_65535,1043_dml_bool,1044_dml_build_in_func_test,1045_dml_case_when,1046_insert_space,1047_dml_compare_datetime,1048_dml_compare,1049_dml_connection,1050_dml_count_distinct,1051_dml_create_syntax,1052_dml_create_table,1053_dml_create_abnormal_table,1054_dml_create_user
+[31m[ FAIL LST ][0m 0051_no_pk_pk_auto-increment-partition,0058_enumset_create,1055_date_time_addition,1056_date_time

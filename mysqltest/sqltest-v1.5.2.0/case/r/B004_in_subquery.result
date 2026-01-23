@@ -1,0 +1,554 @@
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8,t9,t10;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+create table t3(c1 int primary key,c2 int,c3 varchar(30));
+create table t4(c1 int primary key,c2 int,c3 varchar(30));
+create table t5(c1 int primary key,c2 int,c3 varchar(30));
+create table t6(c1 int primary key,c2 int,c3 varchar(30));
+create table t7(c1 int primary key,c2 int,c3 varchar(30));
+create table t8(c1 int primary key,c2 int,c3 varchar(30));
+create table t9(c1 int primary key,c2 int,c3 varchar(30));
+create table t10(c1 int primary key,c2 int,c3 varchar(30),c4 timestamp,c5 int,c6 double);
+insert into t1 values(1,1,'a'),(2,2,'b');
+insert into t2 values(1,1,'a'),(2,2,'b');
+insert into t3 values(1,1,'a'),(2,2,'b');
+insert into t4 values(1,1,'a'),(2,2,'b');
+insert into t5 values(1,1,'a'),(2,2,'b');
+insert into t6 values(1,1,'a'),(2,2,'b');
+insert into t7 values(1,1,'a'),(2,2,'b');
+insert into t8 values(1,1,'a'),(2,2,'b');
+insert into t9 values(1,1,'a'),(2,2,'b');
+insert into t10 values(1,1,'a','2015-9-30 00:00:00',1000,3.56),(2,2,'b','2015-9-30 00:00:00',2000,3.56);
+select * from t1;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t2;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t4;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t5;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t6;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t7;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t8;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t9;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t10;
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select * from t8 where c1 in(select c1 from t8 a where a.c1 in(select c1 from t8 b where b.c1 < 3));
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t8 where c1 in(select c1 from t8 a where a.c1 in(select c1 from t8 b where b.c1 < 3));
+c1	c2	c3
+1	1	a
+2	2	b
+(select * from t8 a where c1 in(select c1 from t8  where c1 = 1)) union (select * from t8 a where c1 in(select c1 from t8  where c1 = 1));
+c1	c2	c3
+1	1	a
+(select * from t8  where c1 in(select c1 from t8 b where b.c1 = 1)) union (select * from t8  where c1 in(select c1 from t8 b where b.c1 = 1));
+c1	c2	c3
+1	1	a
+(select * from t8 a where c1 in(select c1 from t8 b where b.c1 = 1)) union (select * from t8 a where c1 in(select c1 from t8 b where b.c1 = 1));
+c1	c2	c3
+1	1	a
+select count(*) from t3 where (c1 + 1,c2 + 1) in(select c1, c2 from t3);
+count(*)
+1
+select count(*) from t3 where (c1 + 1,c2 + 1) in(select c1, c2 from t4);
+count(*)
+1
+select * from t9 where c1 in(select 2);
+c1	c2	c3
+2	2	b
+select 2 from t9 where c1 in(select c1 from t9);
+2
+2
+2
+select 2 from t9 where c1 in(select c1 from t9);
+2
+2
+2
+select 2 from t9 where c1 in(select 2);
+2
+2
+select 2 from t9 where c1 in(select 2 from t9);
+2
+2
+select * from t9 where c1 * 2 in(select c1 from t9);
+c1	c2	c3
+1	1	a
+select * from t9 where c1 * 2 in(select c1 from t9);
+c1	c2	c3
+1	1	a
+select * from t9 where c1 / 2 in(select c1 from t9);
+c1	c2	c3
+2	2	b
+select * from t9 where c1 / 2 in(select c1 from t9);
+c1	c2	c3
+2	2	b
+select * from t9 where c1  in(select c1 / 2 from t9);
+c1	c2	c3
+1	1	a
+select * from t9 where c1  in(select c1 / 2 from t9);
+c1	c2	c3
+1	1	a
+select * from t9 where c1  in(select c1 * 2 from t9);
+c1	c2	c3
+2	2	b
+select * from t9 where c1  in(select c1 * 2 from t9);
+c1	c2	c3
+2	2	b
+select count(*) from t9 where c1 + c2  in(select c1 + c2 from t9 where c1 < 10000);
+count(*)
+2
+select count(*) from t9 where c1 + c2  in(select c1 + c2 from t9 where c1 < 9000);
+count(*)
+2
+select count(*) from t9 where c1  in(select c2 from t9);
+count(*)
+2
+select count(*) from t9 where c1  in(select c2 from t9);
+count(*)
+2
+explain select * from t9 where c1 in(select c1 from t9);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3009,"TableName":"test.t9","AliasName":"NULL","Type":"BASE_TABLE","RefId":3009}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3009},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3009},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3009}
+                ]
+            },
+            {
+                "QueryId":3,
+                "TableItemList":[
+                    {"Num":0,"TableId":3009,"TableName":"test.t9","AliasName":"NULL","Type":"BASE_TABLE","RefId":3009}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3009}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3009,16>|],expr<NULL,65518>=[COL<3009,17>|],expr<NULL,65517>=[COL<3009,18>|]])(sequence_values_=[])
+MultiBind()
+====ObMultiBind main query====
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65515>=[COL<3009,16>|ROW<1>|LEFT_PARAM_END<2>|sub_query_select_num<1>|IN<2>|],])Project(columns=[expr<3009,16>=[COL<3009,16>|],expr<3009,17>=[COL<3009,17>|],expr<3009,18>=[COL<3009,18>|]])(sequence_values_=[])>)
+====ObMultiBind sub query1====
+Project(columns=[expr<NULL,65516>=[COL<3009,16>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Project(columns=[expr<3009,16>=[COL<3009,16>|]])(sequence_values_=[])>)
+
+explain select * from t9 where c1 in(select c1 from t9);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3009,"TableName":"test.t9","AliasName":"NULL","Type":"BASE_TABLE","RefId":3009}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3009},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3009},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3009}
+                ]
+            },
+            {
+                "QueryId":3,
+                "TableItemList":[
+                    {"Num":0,"TableId":3009,"TableName":"test.t9","AliasName":"NULL","Type":"BASE_TABLE","RefId":3009}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3009}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3009, "RefColumnId":16}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3009,16>|],expr<NULL,65518>=[COL<3009,17>|],expr<NULL,65517>=[COL<3009,18>|]])(sequence_values_=[])
+MultiBind()
+====ObMultiBind main query====
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65515>=[COL<3009,16>|ROW<1>|LEFT_PARAM_END<2>|sub_query_select_num<1>|IN<2>|],])Project(columns=[expr<3009,16>=[COL<3009,16>|],expr<3009,17>=[COL<3009,17>|],expr<3009,18>=[COL<3009,18>|]])(sequence_values_=[])>)
+====ObMultiBind sub query1====
+Project(columns=[expr<NULL,65516>=[COL<3009,16>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Project(columns=[expr<3009,16>=[COL<3009,16>|]])(sequence_values_=[])>)
+
+explain select count(*) from t2 where c1 in(select c1 from t2 where c1 > 1);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3002}
+                ]
+            },
+            {
+                "QueryId":3,
+                "TableItemList":[
+                    {"Num":0,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65507,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+MultiBind()
+====ObMultiBind main query====
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65507>=[COL<3002,16>|ROW<1>|LEFT_PARAM_END<2>|sub_query_select_num<1>|IN<2>|],])Project(columns=[expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+====ObMultiBind sub query1====
+Project(columns=[expr<NULL,65509>=[COL<3002,16>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65508>=[COL<3002,16>|int:1|GT<2>|],])Project(columns=[expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+
+select * from t9 where c1 * 0 in(select c1 from t9);
+c1	c2	c3
+select * from t9 where c1 * 0 in(select c1 from t9);
+c1	c2	c3
+select * from t9 where c1 in(select c1 from t9) and (select c2 from t9);
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select * from t9 where c1 in(select c1 from t9) and (select c2 from t9 where c2 = 4);
+c1	c2	c3
+select * from t3 where c1 in(select c1 from t3) or (select c1 from t3);
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select * from t3 where c1 in(select c1 from t3 where c3 = 'c') or (select c1 from t3 where c3 = 'b');
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t9 where c1 in(select c1 from t9) and c2 in(select c2 from t9);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t9 where c1 in(select c1 from t9) and c2 in(select c2 from t9 where c2 = 4);
+c1	c2	c3
+select * from t3 where c1 in(select c1 from t3) or c1 in(select c1 from t4);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3 where c1 in(select c1 from t3 where c3 = 'c') or c1 in(select c1 from t4 where c3 = 'b');
+c1	c2	c3
+2	2	b
+select * from t3 where c1 in(1,2);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3 where c1 in(select c1 from t3 where c3 = 'c') and c1 = 3;
+c1	c2	c3
+select * from t3 where c1 in(select c1 from t4 where c3 = 'c') and c1 = 3;
+c1	c2	c3
+select * from t3 where c1 in(select c1 from t3 where c3 = 'c') or c1 = 1;
+c1	c2	c3
+1	1	a
+select * from t3 where c1 in(select c1 from t4 where c3 = 'c') or c1 = 1;
+c1	c2	c3
+1	1	a
+select * from t3 where c3 in(select c3 from t3 where c3 in (select c3 from t3 where c3 = 'c'));
+c1	c2	c3
+select * from t3 where c3 in(select c3 from t4 where c3 in (select c3 from t4 where c3 = 'c'));
+c1	c2	c3
+select * from t3 where c3 in(select c3 from t3 where c3 = 'b') and c1 in(1,2);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') and c1 in(1,2);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t3 where c3 = 'b') or c1 in(1,2);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') or c1 in(1,2);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') and c1 in(select 2 from t4);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') and c1 in(select 2 from t3);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') or c1 in(select 2 from t4);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') or c1 in(select 2 from t3);
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t3 where c3 = 'b') and c1 in(select 2) or c1 > 1;
+c1	c2	c3
+2	2	b
+select * from t3 where c3 in(select c3 from t4 where c3 = 'b') and c1 in(select 2) or c1 > 1;
+c1	c2	c3
+2	2	b
+select * from t10 where c4 in(select c4 from t10 where c1 = 1);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select * from t10 where c5 in(select c5 from t10 where c1 = 1);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+select * from t10 where c6 in(select c6 from t10 where c1 = 1);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select sum(c1) from t10 where c1 in(select c1 from t10);
+sum(c1)
+3
+select sum(c1) from t10 where c1 in(select c1 from t3);
+sum(c1)
+3
+select * from t10 where c1 in(select min(c1) from t10);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+select * from t10 where c1 in(select min(c1) from t3);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+select sum(c1) from t10 where c1 in(select min(c1) from t10);
+sum(c1)
+1
+select sum(c1) from t10 where c1 in(select min(c1) from t3);
+sum(c1)
+1
+select * from t10 where c1 in(select (count(t3.c1) - 1)*2-3 from t3,t4 where t3.c1 = t4.c1);
+c1	c2	c3	c4	c5	c6
+select * from t10 where c1 in(select t3.c1 from t3,t4 where t3.c1 = t4.c1);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select * from t10 where c1 in(select t3.c1 from t3,t4 where t3.c1 = t4.c1) or c1 = 1 or c6 = 3.56 or c1 in(1,2);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select * from t10 where c1 in(select t3.c1 from t3,t4 where t3.c1 = t4.c1) or c1 = 1 or c6 = 3.56 or c1 in(1,2);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select * from t10 where c1 in(select t3.c1 from t3,t4 where t3.c1 = t4.c1) or c1 = 1 or c6 = 3.56 and c1 in(1,2);
+c1	c2	c3	c4	c5	c6
+1	1	a	2015-09-30 00:00:00.000000	1000	3.56
+2	2	b	2015-09-30 00:00:00.000000	2000	3.56
+select count(t3.c1) from t3,t4 where t3.c1 = t4.c1 or t3.c1 in(1,2);
+count(t3.c1)
+4
+select count(t3.c1) from t3,t4 where t3.c1 = t4.c1 and t3.c1 in(1,2);
+count(t3.c1)
+2
+select count(*) from t9 ta,t9 tb where ta.c1 = tb.c1 or ta.c1 in(1,2);
+count(*)
+4
+select count(*) from t9 ta,t9 tb where ta.c1 = tb.c1 and ta.c1 in(1,2);
+count(*)
+2
+select * from t3,t4  where t3.c1 = t4.c1 or (t3.c1,t4.c1) in(select 1,2);
+c1	c2	c3	c1	c2	c3
+1	1	a	1	1	a
+1	1	a	2	2	b
+2	2	b	2	2	b
+select * from t3,t4  where t3.c1 = t4.c1 and (t3.c1,t4.c1) in(select 1,2);
+c1	c2	c3	c1	c2	c3
+select count(*) from t2,t1  where t2.c1 = t1.c1 and (t2.c1,t1.c1) in(select 1,1);
+count(*)
+1
+select count(*) from t3  where c1 in(select c1 is not null from t3);
+count(*)
+1
+select count(*) from t3  where c1 in(select c1 is not null from t4);
+count(*)
+1
+select * from t3  where c1 in(select c1 from t3 where c1 is not null and c1 > 1);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select c1 from t4 where c1 is not null and c1 > 1);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select c1 between 1 and 2 from t3);
+c1	c2	c3
+1	1	a
+select * from t3  where c1 in(select count(*) from t3 left join t4 on t3.c1 = t4.c1);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select count(*) from t3 right join t4 on t3.c1 = t4.c1);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select count(*) from t3 full join t4 on t3.c1 = t4.c1);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select 1 from t3 union all select 2 from t3);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3  where c1 in(select 1 from t3 union all select 2 from t4);
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3  where c1 in(select count(*) from t3 union select count(*) from t3);
+c1	c2	c3
+2	2	b
+select * from t3  where c1 in(select count(*) from t3 union select count(*) from t4);
+c1	c2	c3
+2	2	b
+select * from t9  where c1 in(select c1 from t9 where c1 < 3 )union select * from t9 where c1 = 2;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t9  where c1 in(select c1 from t9 where c1 < 3 )union select * from t9 where c1 = 2;
+c1	c2	c3
+1	1	a
+2	2	b
+select * from t3  where c1 in(select 1 from t3 except select 2 from t3);
+c1	c2	c3
+1	1	a
+select * from t3  where c1 in(select 1 from t3 except select 2 from t4);
+c1	c2	c3
+1	1	a
+select * from t3  where c1 in(select count(*) from t3 except select count(*) from t3);
+c1	c2	c3

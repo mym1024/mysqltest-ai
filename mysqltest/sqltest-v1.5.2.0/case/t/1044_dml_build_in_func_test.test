@@ -1,0 +1,457 @@
+####################################必填######################################################
+###1.测试功能点：在不指定分区下，测试数据库系统函数
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+#--real_sleep 30
+--disable_warnings
+drop table if exists build_in_func_test_table;
+drop table if exists t;
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+--enable_warnings
+
+
+###2-1: test substr()
+create table build_in_func_test_table(varchar_c varchar(255) primary key,date_c datetime,v varchar(255));
+create table t(c1 int primary key,c2 int);
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+create table t3(c1 int primary key,c2 int,c3 int);
+
+insert into build_in_func_test_table values('hello','2012-11-01 19:14:32',null);
+insert into t values(1,2),(3,5),(4,2),(5,8);
+insert into t1 values(5,4,'wq');
+insert into t1 values(4,8,'sw');
+insert into t2 values(4,8,'sw');
+insert into t2 values(2,4,'y');
+insert into t2 values(10,4,'pwd');
+insert into t3 values(1,2,3);
+insert into t3 values(3,4,5);
+
+
+###2-2:full param
+select substr(varchar_c,1,1) from build_in_func_test_table;
+select substr(varchar_c,0,1) from build_in_func_test_table;
+select substr(varchar_c,-1,1) from build_in_func_test_table;
+select substr(varchar_c,-5,1) from build_in_func_test_table;
+select substr(varchar_c,-6,1) from build_in_func_test_table;
+select substr(varchar_c,-100,1) from build_in_func_test_table;
+select substr(varchar_c,3,1) from build_in_func_test_table;
+select substr(varchar_c,5,1) from build_in_func_test_table;
+select substr(varchar_c,6,1) from build_in_func_test_table;
+select substr(varchar_c,6,-1) from build_in_func_test_table;
+select substr(varchar_c,5,-1) from build_in_func_test_table;
+select substr(varchar_c,4,-1) from build_in_func_test_table;
+select substr(varchar_c,-1,-1) from build_in_func_test_table;
+select substr(varchar_c,0,5) from build_in_func_test_table;
+select substr(varchar_c,0,6) from build_in_func_test_table;
+select substr(varchar_c,0,100) from build_in_func_test_table;
+select substr(varchar_c,-6,10) from build_in_func_test_table;
+select substr(varchar_c,-5,10) from build_in_func_test_table;
+select substr(varchar_c,-5,3) from build_in_func_test_table;
+select substr(v,5,10) from build_in_func_test_table;
+select substr(varchar_c,null,10) from build_in_func_test_table;
+select substr(varchar_c,2,null) from build_in_func_test_table;
+
+
+###2-3:default length
+select substr(varchar_c,-6) from build_in_func_test_table;
+select substr(varchar_c,-5) from build_in_func_test_table;
+select substr(varchar_c,-4) from build_in_func_test_table;
+select substr(varchar_c,-0) from build_in_func_test_table;
+select substr(varchar_c,1) from build_in_func_test_table;
+select substr(varchar_c,2) from build_in_func_test_table;
+select substr(varchar_c,5) from build_in_func_test_table;
+select substr(varchar_c,6) from build_in_func_test_table;
+select substr(varchar_c,null) from build_in_func_test_table;
+select substr(v,1) from build_in_func_test_table;
+
+
+###2-4:cast test
+select substr(date_c,0) from build_in_func_test_table;
+select substr(date_c,10) from build_in_func_test_table;
+select substr(1024,1,2) from build_in_func_test_table;
+select cast(12 as int);
+select cast(12 as float);
+select cast(12 as double);
+#--error 2 
+select cast(12 as decimal);
+#--error 7
+select cast(12 as date);
+#--error 7
+select cast(12 as time);
+select cast(12 as datetime);
+select cast(12 as varchar);
+--error 5001
+select cast(12 as null);
+
+select cast(cast(1.2 as float) as int);
+select cast(cast(1.2 as float) as float);
+select cast(cast(1.2 as float) as double);
+#--error 2
+select cast(cast(1.2 as float) as decimal);
+select cast(cast(1.2 as float) as varchar);
+#--error 7
+select cast(cast(1.2 as float) as date);
+#--error 7
+select cast(cast(1.2 as float) as time);
+select cast(cast(1.2 as float) as datetime);
+--error 5001
+select cast(cast(1.2 as float) as null);
+
+select cast(0 as varchar);
+select cast(1 as varchar);
+select cast(-1 as varchar);
+select cast(1+1 as bool);
+select cast(1+1 as int);
+select cast(1+1 as varchar);
+select cast(1+1 as float);
+select cast(5-2 as bool);
+select cast(5-2 as float);
+select cast(5-2 as varchar);
+select cast(5-2 as int);
+select cast(5*2 as int);
+select cast(5*2 as varchar);
+select cast(4/2 as int);
+select cast(4/2 as varchar);
+select cast(3+2-4 as float);
+select cast(3+2-4 as varchar);
+select cast(6/3*4 as varchar);
+select cast(6/3*4 as float);
+select cast(concat(1,1) as int);
+select cast(concat(1,1) as varchar);
+#select cast(current_timestamp() as varchar);
+#select cast(current_timestamp() as float);
+select cast(length('wangy') as varchar);
+select cast(length('wangy') as bool);
+select cast(hex('c') as int);
+select cast(hex('cbase') as float);
+select cast('ab%' like 'abc%' as varchar);
+select cast(lower('CBASE') as float);
+#select cast(now() as varchar);
+select cast(nvl(null,23) as varchar);
+select cast(nvl(null,23) as float);
+select cast(substr('anbsf',2,3) as float);
+select cast(substr('anbsf',2,3) as varchar);
+select cast(unhex('6362617365') as float);
+select cast(unhex('6362617365') as bool);
+select cast(upper('cbase') as varchar);
+select cast(upper('cbase') as float);
+select cast(count(c1) as varchar) from t;
+select cast(avg(c1) as varchar) from t;
+select cast(max(c1) as varchar) from t;
+select cast(sum(c1) as varchar) from t;
+select c2 from t1 where c1=cast(4 as int) and c3=cast('sw' as varchar);
+select c2 from t1 where c1 between cast(3 as int) and cast(5 as varchar);
+select c3 from t1 where c3=cast('sw' as varchar) intersect select c3 from t2 where c3=cast('sw' as varchar);
+select c3 from t1 where c3=cast('yuanw' as varchar) union select c3 from t2 where c3=cast('y' as varchar);
+select c3 from t1 where c3=cast('yuanw' as varchar) except select c3 from t2 where c3=cast('y' as varchar);
+select c1 from t1 having c1<cast(10 as int);
+select c3 from t1 group by c1=cast(5 as int);
+
+
+###2-5:length to test
+select length(2);
+select length(cast(1.2 as double));
+select length('ocean');
+select length('2017/01/01');
+select length('2017/01/01 00:00:00');
+select length(' 00:00:00');
+select length(2+3-1);
+select length(2*6/3);
+select length(0);
+select length(1);
+select length(-1);
+select length(cast('cbase' as varchar));
+select length(current_timestamp());
+select length(concat(1,'wangy'));
+select length(hex('cbase'));
+select length('ab%' like 'abc%');
+select length(int2ip(126666666));
+select length(lower('CBASE'));
+select length(now());
+select length(substr('anbsf',2,3));
+select length(nvl(null,23));
+select length(unhex('6362617365'));
+select length(upper('cbase'));
+select length(count(c1)) from t;
+select length(max(c1)) from t;
+update t set c2=10 where c1=length('wq');
+select c2 from t where c1 between length('ew') and length('wqrr');
+select * from t1 where c1=length('wang') intersect select * from t2;
+select * from t1 where c1=length('wang') union select * from t2;
+select * from t1 where c1=length('wang') except select * from t2 where c1=length('sw');
+select c1 from t2 having c1<length('love');
+select c1 from t group by  c1=length('wangy');
+
+
+###2-6:concat to test
+select concat(13,12);
+select concat(10,cast(2.1 as float));
+select concat(10,cast(2.1 as double));
+select concat(13,3.2);
+select concat(16,' 2017/03/17 17:00:00');
+select concat(9,' wangy ');
+select concat(cast(2.0 as double),cast(4.1 as float));
+select concat(cast(2.0 as double),'2017/01/01 02:01:00');
+select concat(cast(2.0 as double),2.11154);
+select concat(1.3,'2014/01/02 00:00:08');
+select concat(1.3,null);
+select concat('2017/01/01',cast(6.4 as double));
+select concat('2017/01/01','wangy');
+select concat('00:00:00','wangy');
+select concat('00:00:00',cast(3.2 as double));
+select concat(' 2014/01/01 00:00:00',cast(3.5 as double));
+select concat(' 2014/01/01 00:00:00',null);
+select concat(null,cast(5.43 as double));
+select concat(null,'wangy');
+select concat(1+4-2,2-1+3);
+select concat(1+4-2,2/1*3);
+select concat(1*4/2,2/1*3);
+select concat(cast(123 as bool),' wangy');
+#select concat(current_timestamp(),' wangy');
+select concat(length('wangy'),' wangy');
+select concat('ab%' like 'abc%',' wangy');
+select concat(int2ip(126666666),' wangy');
+select concat(lower('CBASE'),' wangy');
+#select concat(now(),' wangy');
+select concat(nvl(null,23),' wangy');
+select concat(substr('anbsf',2,3),' wangy');
+select concat(unhex('6362617365'),' wangy');
+select concat(count(c1),' wangy') from t;
+select concat(max(c1),' wangy') from t;
+select concat(avg(c1),' wangy') from t;
+select c2 from t1 where c3=('obase') and c1=concat(2,1);
+select c3 from t1 where c1 between 10 and concat(1,5);
+select c2 from t1 where c3=concat('w','q') intersect select c2 from t2;
+select c2 from t1 where c3=concat('s','w') union select c2 from t2 where c3=concat('pw','d');
+select c2 from t1 where c3=concat('w','q') except select c2 from t2 where c3=concat('s','w');
+select c1 from t1 having c1<concat(20,'');
+select c2 from t1 group by c3=concat('o','base');
+
+
+###2-7: coalesce test
+select coalesce(cast(null as int),null) from build_in_func_test_table;
+#--error 153
+select coalesce(null,'monkey59',123) from build_in_func_test_table;
+#--error 154
+select coalesce(date_c,null,'monkey59',123) from build_in_func_test_table;
+
+#--error 153
+select coalesce('jasimin',null,'a,a',123) from build_in_func_test_table;
+select coalesce(cast(null as int),null,32.23) from build_in_func_test_table;
+
+
+###2-8:to lower/upper case
+select lower('ABC&*03_+abc') from build_in_func_test_table;
+select lower(varchar_c) from build_in_func_test_table;
+select lower(null) from build_in_func_test_table;
+select upper('ABC&*03_+abc') from build_in_func_test_table;
+select upper(varchar_c) from build_in_func_test_table;
+select upper(null) from build_in_func_test_table;
+select lower(2);
+select lower('2014/01/01 ');
+select lower('2014/01/01 00:00:00');
+select lower('00:00:00');
+select lower(0);
+select lower(1);
+select lower(2+3-4);
+select lower(2*6/3);
+select lower(cast('cbase' as varchar));
+#select lower(current_timestamp());
+select lower(length('wangy'));
+select lower(concat('cbase',''));
+select lower('ab%' like 'abc%');
+select lower(int2ip(126666666));
+select lower(hex('CBASE'));
+#select lower(now());
+select lower(substr('anbsf',2,3));
+select lower(unhex('6362617365'));
+select lower(upper('cbase'));
+select lower(count(c1)) from t;
+select lower(max(c1)) from t;
+
+
+###2-9:upper to test
+select upper(2);
+select upper(cast(1.2 as double));
+select upper('cbase');
+select upper(1.2);
+select upper('2014/01/01 00:00:00');
+select upper('00:00:00');
+select upper('2014/01/01 ');
+select upper(null);
+select upper(0);
+select upper(1);
+select upper(-1);
+select upper(2+3-4);
+select upper(2*6/3);
+select upper(cast('cbase' as varchar));
+#select upper(current_timestamp());
+select upper(length('wangy'));
+select upper(concat('cbase',''));
+select upper('ab%' like 'abc%');
+select upper(int2ip(126666666));
+select upper(lower('CBASE'));
+select upper(nvl(null,23));
+#select upper(now());
+select upper(substr('anbsf',2,3));
+select upper(unhex('6362617365'));
+select upper(hex('cbase'));
+select upper(count(c1)) from t;
+select upper(avg(c1)) from t;
+select upper(max(c1)) from t;
+select upper(sum(c1)) from t;
+insert into t1 values(11,2,upper('wy'));
+delete from t1 where c3=upper('wy');
+update t1 set c3=upper('wq') where c1=2;
+select * from t1 where c3=upper('sw');
+replace into t1 values(21,upper('21'),'obase');
+select c3 from t1 where c1=upper(5) and c2=upper(4);
+select c3 from t1 where c1 between upper(4) and upper(5);
+select c3 from t1 where c1=upper(4) intersect select c3 from t2 where c1=upper(4);
+select c3 from t1 where c1=upper(4) union select c3 from t2 where c1=upper(2);
+select c3 from t1 where c1=upper(4) except select c3 from t2 where c1=upper(2);
+select * from t1 having c1=upper(4);
+select c3 from t1 group by c1=upper(1);
+
+
+###2-10:cast to test
+select cast(12 as datetime) from build_in_func_test_table;
+#--error 5102
+select cast('12' as datetime) from build_in_func_test_table;
+#--error 7
+select cast(cast('1970-01-01 08:00:12' as datetime) as int) from build_in_func_test_table;
+select cast('1970-01-01 08:00:12' as int) from build_in_func_test_table;
+# --error 5001
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+# --error 5001
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+# --error 5001
+select cast(cast('12' as decimal) as datetime) from build_in_func_test_table;
+select cast(v as int) from build_in_func_test_table;
+
+
+###2-11:trim function
+select trim('aba' from 'ababa') from build_in_func_test_table;
+select length(trim('aba' from 'aba')) from build_in_func_test_table;
+select trim('aba' from 'aba') from build_in_func_test_table;
+select trim('  hello  ') from build_in_func_test_table;
+select trim('h' from 'hhhhello!') from build_in_func_test_table;
+select trim('o!' from 'hhhhello!') from build_in_func_test_table;
+select trim('h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+select trim(LEADING 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+select trim(TRAILING 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+select trim(BOTH 'h' from 'hhhhaaaahhhh') from build_in_func_test_table;
+select trim(BOTH from '  hhhHaaaa  ') from build_in_func_test_table;
+select trim(123 from 123542) from build_in_func_test_table;
+select trim(2 from cast(12312312 as datetime)) from build_in_func_test_table;
+select length(trim('     hi' || 'dir ')) from build_in_func_test_table;
+select trim(1) from build_in_func_test_table;
+select trim(cast(111 as varchar)) from build_in_func_test_table;
+select trim(LEADING 1 from cast(111 as varchar)) from build_in_func_test_table;
+select trim(TRAILING 1 from cast(111 as varchar)) from build_in_func_test_table;
+select trim(v) from build_in_func_test_table;
+select trim(leading v from 'v'),trim(leading varchar_c from 'he') from build_in_func_test_table;
+
+
+###2-12:hex to test
+select hex(2);
+select hex(cast(1.2 as double));
+select hex('cbase');
+select hex('2014/01/01 00:00:00');
+select hex(2+3-4);
+select hex(2*6/3);
+select hex(cast('cbase' as varchar));
+--replace_column 1 '60b1e42f7b6d3'
+select hex(current_timestamp());
+select hex(length('wangy'));
+select hex(concat('cbase',''));
+select hex('ab%' like 'abc%');
+select hex(int2ip(126666666));
+select hex(lower('CBASE'));
+--replace_column 1 '60b1e42f7c04d'
+select hex(now());
+select hex(nvl(null,23));
+select hex(substr('anbsf',2,3));
+select hex(upper('cbase'));
+select hex(unhex('6362617365'));
+select hex(avg(c1)) from t;
+select hex(count(c1)) from t;
+select c3 from t1 where c1 between hex(4) and hex(5);
+select c3 from t1 where c1=hex(4) intersect select c3 from t2 where c1=hex(4);
+select c3 from t1 where c1=hex(4) union select c3 from t2 where c1=hex(2);
+select c3 from t1 where c1=hex(4) except select c3 from t2 where c1=hex(2);
+select * from t1 having c1=hex(4);
+select c3 from t1 group by c1=hex(1);
+
+
+###2-13:like to test
+select '12%' like '123%';
+--error 2
+select cast('1.2%' as float) like cast('1.23%' as float);
+--error 2
+select cast('1.2%' as double) like cast('1.23%' as double);
+select '1.2%' like '1.34%';
+select '00:00:%' like '00:01:0%';
+select '2014/01/01 00:0%' like '2016/02/02 00:00:%';
+select 'wy%' like 'wangy%';
+select '4+2%' like '5+2%';
+select '4+2%' like '5-2%';
+select '4+2%' like '5*2%';
+select '4+2%' like '6/2%';
+select '4+2-1%' like '6-4+8%';
+select '4+2-1%' like '5*2/2%';
+select concat('an','wan') like 'wangh%';
+--error 2
+select current_timestamp() like 'wang%';
+--error 2
+select length('wangy') like '123%';
+select hex('wangy') like 'wangy%';
+select cast('wang' as varchar) like 'wangy%';
+select lower('WANG') like 'wany%';
+--error 2
+select now() like '2017/01/01 00%';
+--error 2
+select nvl(null,31) like '321%';
+select substr('anbsf',2,3) like 'wang%';
+select unhex('6362617365') like 'cbase%';
+--error 2
+select count(c1) like '123%' from t;
+--error 2
+select max(c1) like '123%' from t;
+--error 2
+select sum(c1) like '123%' from t;
+--error 2
+select avg(c1) like '123%' from t;
+
+
+###2-14:all in all test
+select coalesce(lower(null),length(lower(upper('yssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxddsd'))),'dir') from build_in_func_test_table;
+select 'NAME:'||varchar_c,'ADDR:'||v from build_in_func_test_table;
+
+drop table build_in_func_test_table;
+drop table t;
+drop table t1;
+drop table t2;
+drop table t3;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

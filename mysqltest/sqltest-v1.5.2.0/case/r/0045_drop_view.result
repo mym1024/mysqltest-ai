@@ -1,0 +1,185 @@
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3002	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+drop view v1;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select 1*2*5*7;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3004	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+3005	0	0	select (((1 * 2) * 5) * 7) as "1*2*5*7" from dual
+drop view v1,v2;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create database db;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view db.v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view db.v2 as select c5 from t1;
+create view v2 as select 1*2*5*7;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3007	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+3008	0	1	select "test"."t1"."c5" as "c5" from "test"."t1"
+3009	0	0	select (((1 * 2) * 5) * 7) as "1*2*5*7" from dual
+drop view db.v1,db.v2,v2;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop view if exists db.v1,db.v2,v1,v2,v3;
+drop database db;
+drop table if exists t1,t2,t3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3011	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+drop view if exists v1;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select 1*2*5*7;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3013	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+3014	0	0	select (((1 * 2) * 5) * 7) as "1*2*5*7" from dual
+drop view if exists v1,v2;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop view if exists v1,v2,v3,vv1,vv2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3016	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+drop view if exists v1,vv1,vv2;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select t1.c1,t1.c2 ,c3 from t1;
+create view v3 as select * from v1;
+create view v4 as select * from v2;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3018	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+3019	0	1	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", "test"."t1"."c3" as "c3" from "test"."t1"
+3020	0	1	select "test"."v1"."c1" as "c1", "test"."v1"."c2" as "c2", "test"."v1"."c3" as "c3" from "test"."v1"
+3021	0	1	select "test"."v2"."c1" as "c1", "test"."v2"."c2" as "c2", "test"."v2"."c3" as "c3" from "test"."v2"
+drop view if exists v1,v2,v3,v4;
+show tables;
+table_name_in_test
+t1
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create database db;
+using database db;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select t1.c1,t1.c2 ,c3 from t1;
+create view v3 as select * from v1;
+create view v4 as select * from v2;
+using database "yao";
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3023	0	1	select "db"."t1"."c1" as "c1", "db"."t1"."c2" as "c2", "db"."t1"."c3" as "c3" from "db"."t1"
+3024	0	1	select "db"."t1"."c1" as "c1", "db"."t1"."c2" as "c2", "db"."t1"."c3" as "c3" from "db"."t1"
+3025	0	1	select "db"."v1"."c1" as "c1", "db"."v1"."c2" as "c2", "db"."v1"."c3" as "c3" from "db"."v1"
+3026	0	1	select "db"."v2"."c1" as "c1", "db"."v2"."c2" as "c2", "db"."v2"."c3" as "c3" from "db"."v2"
+drop view if exists db.v1,db.v2,db.v3,db.v4;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop table if exists db.t1;
+drop view if exists db.v1,db.v2,db.v3,db.v4;
+drop database db;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create database db;
+using database db;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select t1.c1,t1.c2 ,c3 from t1;
+create view v3 as select * from v1;
+create view v4 as select * from v2;
+using database "yao";
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t1.c1,t1.c2 ,c3 from t1;
+create view v2 as select t1.c1,t1.c2 ,c3 from t1;
+create view v3 as select * from v1;
+create view v4 as select * from v2;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3028	0	1	select "db"."t1"."c1" as "c1", "db"."t1"."c2" as "c2", "db"."t1"."c3" as "c3" from "db"."t1"
+3029	0	1	select "db"."t1"."c1" as "c1", "db"."t1"."c2" as "c2", "db"."t1"."c3" as "c3" from "db"."t1"
+3030	0	1	select "db"."v1"."c1" as "c1", "db"."v1"."c2" as "c2", "db"."v1"."c3" as "c3" from "db"."v1"
+3031	0	1	select "db"."v2"."c1" as "c1", "db"."v2"."c2" as "c2", "db"."v2"."c3" as "c3" from "db"."v2"
+3033	0	1	select "yao"."t1"."c1" as "c1", "yao"."t1"."c2" as "c2", "yao"."t1"."c3" as "c3" from "yao"."t1"
+3034	0	1	select "yao"."t1"."c1" as "c1", "yao"."t1"."c2" as "c2", "yao"."t1"."c3" as "c3" from "yao"."t1"
+3035	0	1	select "yao"."v1"."c1" as "c1", "yao"."v1"."c2" as "c2", "yao"."v1"."c3" as "c3" from "yao"."v1"
+3036	0	1	select "yao"."v2"."c1" as "c1", "yao"."v2"."c2" as "c2", "yao"."v2"."c3" as "c3" from "yao"."v2"
+drop view if exists db.v1,db.v2,db.v3,db.v4,v1,v2,v3,v4;
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+drop view if exists db.v1,db.v2,db.v3,db.v4,v1,v2,v3,v4;
+drop table if exists db.t1,"yao".t1;
+drop database db;

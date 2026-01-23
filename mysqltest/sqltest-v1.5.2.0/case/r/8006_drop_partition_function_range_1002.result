@@ -1,0 +1,63 @@
+drop partition function fh,r1,r2;
+ERROR HY000: YAO-5077: partition function 'fh' doesn't exist
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create range partition function r2(x)  '(1),(2),(maxvalue)';
+drop partition function r1,r2,h3;
+ERROR HY000: YAO-5077: partition function 'h3' doesn't exist
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r1	1	x	(1),(2),(maxvalue)
+r2	1	x	(1),(2),(maxvalue)
+drop partition function 'r1';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r1	1	x	(1),(2),(maxvalue)
+r2	1	x	(1),(2),(maxvalue)
+drop partition function __r1;
+ERROR HY000: YAO--1: Invalid partition function name.
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r1	1	x	(1),(2),(maxvalue)
+r2	1	x	(1),(2),(maxvalue)
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop partition function r1;
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create table t1(c1 int primary key,c2 int) partition by (a,r1,c1);
+Okay
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r1	1	x	(1),(2),(maxvalue)
+r2	1	x	(1),(2),(maxvalue)
+drop table t1;
+drop partition function r1,r2;
+create range partition function r1(x)  '(1),(2),(maxvalue)';
+create range partition function r2(x)  '(1),(2),(maxvalue)';
+create table t1(c1 int primary key,c2 int) partition by (a,r1,c1);
+Okay
+drop partition function r1,r2;
+ERROR HY000: YAO--1: Partition Funtion r1 is Using or using its table is in trash,Cann't Drop Now.
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+r1	1	x	(1),(2),(maxvalue)
+r2	1	x	(1),(2),(maxvalue)
+drop table t1;
+Okay
+drop partition function r1,r2;

@@ -1,0 +1,88 @@
+drop table if exists t1;
+create hash partition function h1(x) 'x+1';
+create table t1(c1 int primary key,c2 varchar(30)) partition by(hs,h1,c1);
+insert into t1 values(1,'a'),(2,'b');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+"connect conn1"
+begin;
+update t1 set c1=3 where c1=1;
+"connect conn2"
+update t1 set c1=4 where c1=1;
+ERROR 25S03: YAO-119: Shared lock conflict, error code = -5049
+"connect conn1"
+rollback;
+drop table if exists t1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+"connect conn3"
+begin;
+update t1 set c1=3 where c1=1;
+"connect conn4"
+update t1 set c1=4 where c1=1;
+ERROR 25S03: YAO-119: Transaction rollbacked, error code = -119
+"connect conn3"
+rollback;
+"connect conn4"
+begin;
+update t1 set c1=4 where c1=1;
+select * from t1;
+c1	c2
+2	b
+4	a
+commit;
+select * from t1;
+c1	c2
+2	b
+4	a
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;
+drop table if exists t1;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+"connect conn5"
+begin;
+update t1 set c1=3 where c1=1;
+"connect conn6"
+begin;
+update t1 set c1=4 where c1=1;
+ERROR 25S03: YAO-119: Shared lock conflict, error code = -5049
+"connect conn5"
+rollback;
+"connect conn6"
+rollback;
+drop table if exists t1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+"connect conn7"
+begin;
+update t1 set c1=3 where c1=1;
+"connect conn8"
+begin;
+update t1 set c1=4 where c1=1;
+ERROR 25S03: YAO-119: Transaction rollbacked, error code = -119
+"connect conn7"
+rollback;
+"connect conn8"
+rollback;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;

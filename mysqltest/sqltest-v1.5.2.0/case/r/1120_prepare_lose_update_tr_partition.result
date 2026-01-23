@@ -1,0 +1,69 @@
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(a int primary key,b varchar(255),c int)partition by(hs,h,a);
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+prepare stmt1 from update t1 set b='ok' where a=?;
+set @a=1;
+execute stmt1 using @a;
+alter table t1 add d int;
+set autocommit=0;
+execute stmt1 using @a;
+commit;
+set autocommit=1;
+select * from t1;
+a	b	c	d
+1	ok	2	NULL
+2	b	3	NULL
+3	c	4	NULL
+deallocate prepare stmt1;
+prepare stmt2 from update t1 set b='ok' where a=?;
+set @a=1;
+execute stmt2 using @a;
+alter table t1 drop d;
+set autocommit=0;
+execute stmt2 using @a;
+commit;
+set autocommit=1;
+select * from t1;
+a	b	c
+1	ok	2
+2	b	3
+3	c	4
+deallocate prepare stmt2;
+prepare stmt3 from update t1 set b='ok' where a=?;
+set @a=1;
+execute stmt3 using @a;
+alter table t1 drop b;
+set autocommit=0;
+execute stmt3 using @a;
+ERROR 42S22: YAO-5009: Unknown column
+commit;
+set autocommit=1;
+select * from t1;
+a	c
+1	2
+2	3
+3	4
+deallocate prepare stmt3;
+drop table t1;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x) '[(1)],[(3)],[(2)],[(4)],[(5)],[(7)],[(6)],[(8)],[(9)],[(10)]';
+create table t1(a int primary key,b varchar(255),c int)partition by(em,e,a);
+insert into t1 values(1,'a',2),(2,'b',3),(3,'c',4);
+prepare stmt4 from update t1 set b='ok' where a=?;
+set @a=1;
+execute stmt4 using @a;
+alter table t1 add d int;
+alter table t1 drop d;
+set autocommit=0;
+execute stmt4 using @a;
+commit;
+set autocommit=1;
+select * from t1;
+a	b	c
+1	ok	2
+2	b	3
+3	c	4
+deallocate prepare stmt4;

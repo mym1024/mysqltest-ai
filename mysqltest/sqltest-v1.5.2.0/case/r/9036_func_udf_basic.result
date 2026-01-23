@@ -1,0 +1,569 @@
+create table student(id int,name varchar(20),score int);
+insert into student values(1,'a',60);
+insert into student values(2,'b',90);
+insert into student values(3,'c',91);
+insert into student values(4,'d',60);
+insert into student values(5,'e',15);
+create table t1(a int);
+insert into t1 values(1),(2),(3);
+create function udf_name() returns bit(3)
+begin 
+declare a bit(3) default b'001';
+-- 单行注释
+set a =  b'111';
+return a;
+end//
+select udf_name()//
+udf_name()
+
+/*多行注释
+多行注释*/
+create function udf_name1() returns createtime
+begin 
+declare a createtime ;
+/*多行注释
+多行注释*/
+return a;
+end//
+select udf_name1()//
+udf_name1()
+NULL
+create function min(a int)RETURNS int
+begin
+return 0;
+end//
+select min(a) from t1//
+min(a)
+1
+select yao.min(a) from t1//
+ERROR HY000: YAO-5055: Unknown function 'min', ret=-5055
+select test.min(a) from t1//
+test.min(a)
+0
+0
+0
+create function (a int) returns int
+begin
+return 0;
+end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create function UDF_name() returns bit(3)
+begin end//
+ERROR 42S01: YAO-5025: function UDF_name already exists
+create function udf_name(c1 int) returns bit(3)
+begin 
+declare a bit(3) default b'001';
+return a;
+end//
+ERROR 42S01: YAO-5025: function udf_name already exists
+create function udf_para1(n int) returns int
+begin 
+declare a int default 1;
+return 1;
+end//
+select udf_para1(1)//
+udf_para1(1)
+1
+create function udf_para2(c1 json) returns json begin return c1;end//
+select udf_para2('{}')//
+udf_para2('{}')
+{}
+select udf_para2('{"abc":1,"def":null}')//
+udf_para2('{"abc":1,"def":null}')
+{"abc": 1, "def": null}
+create function udf_para3(c1 bit)returns bit begin return c1;end//
+select udf_para3(b'0')//
+udf_para3(b'0')
+
+create function udf_para4(c1 json,c2 bit(1),c3 timestamp) returns bool
+begin 
+return true; 
+end//
+select udf_para4('{"abc":1,"def":null,"hig":"aaa","bool":false}',b'0','2024-03-20')//
+udf_para4('{"abc":1,"def":null,"hig":"aaa","bool":false}',b'0','2024-03-20')
+1
+create function udf_para5(c1 varchar(25),c2 bool,c3 double,c4 float) returns varchar(25)
+begin 
+declare aa varchar(25);
+set aa = c1;
+return aa; 
+end//
+select udf_para5('aaa',true,1.23456789,1.23)//
+udf_para5('aaa',true,1.23456789,1.23)
+aaa
+create function udf_return1() returns json
+begin 
+declare a json;
+set a = '[1,null,true,false,"abc",1.1]';
+return a;
+end//
+select udf_return1()//
+udf_return1()
+[1, null, true, false, "abc", 1.1]
+CREATE FUNCTION udf_return2(num1 INT,num2 INT)RETURNS DECIMAL(10, 2)
+begin
+DECLARE avg DECIMAL(10, 2);
+SET avg = (num1 + num2) / 2;
+RETURN avg;
+END//
+SELECT udf_return2(10, 20)//
+udf_return2(10, 20)
+15
+create function udf_return3() returns int
+begin end//
+select udf_return3()//
+ERROR HY000: YAO-16: FUNCTION udf_return3 ended without RETURN
+create function udf_return4() returns int specific 'p_p'
+begin return 1; end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create function udf_return5() returns int DYNAMIC RESULT SETS 0
+begin return 1; end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create function udf_comment(num int) returns int comment 'calculate the sum of 0-num'
+begin 
+declare i,sum int default 0;
+while i<=num do
+set sum = sum+1;
+set i = i+1;
+end while;
+return sum;
+end//
+select test.udf_comment(10)//
+test.udf_comment(10)
+11
+select test.udf_comment(5)//
+test.udf_comment(5)
+6
+create function udf_language() returns int language sql
+begin return 1; end//
+select udf_language()//
+udf_language()
+1
+CREATE FUNCTION udf_language_sql(input_number INT)RETURNS INT  LANGUAGE SQL
+BEGIN 
+DECLARE a INT;
+IF input_number > 0 THEN
+SET a = 1;
+ELSE
+SET a = 0;
+END IF;
+RETURN a;
+END //
+SELECT udf_language_sql(5) AS a//
+a
+1
+create function udf_deterministic() returns int  NOT DETERMINISTIC
+begin return 1; end//
+select udf_deterministic()//
+udf_deterministic()
+1
+CREATE FUNCTION udf_deterministic_sql(input_string VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC
+BEGIN 
+DECLARE a VARCHAR(255);
+SET a = UPPER(input_string);
+RETURN a;
+END //
+select udf_deterministic_sql('aa')//
+udf_deterministic_sql('aa')
+AA
+create function udf_contains() returns int  CONTAINS SQL
+begin return 1; end//
+select udf_contains()//
+udf_contains()
+1
+create function udf_reads() returns int  READS SQL DATA
+begin return 1; end//
+select udf_reads()//
+udf_reads()
+1
+CREATE TABLE test_table (id int PRIMARY KEY, column_name int)//
+INSERT INTO test_table (id, column_name) VALUES (1, 10)//
+CREATE FUNCTION test_reads_sql_data(input_id INT) RETURNS INT READS SQL DATA
+BEGIN DECLARE a INT;
+SELECT column_name FROM test_table WHERE id = input_id;
+INSERT INTO test_table (id, column_name) VALUES (2, 20);
+RETURN a;
+END //
+select test_reads_sql_data(1)//
+test_reads_sql_data(1)
+NULL
+create function test_modifies_sql_data() returns int  MODIFIES SQL DATA
+begin return 1; end//
+select test_modifies_sql_data()//
+test_modifies_sql_data()
+1
+create function test_modifies_sql_data1(input_val int) returns int MODIFIES SQL DATA
+begin 
+declare a int;
+UPDATE test_table SET column_name = input_val WHERE id = 1;
+INSERT INTO test_table (id, column_name) VALUES (3, 30);
+return a;
+end//
+SELECT test_modifies_sql_data1(20)//
+test_modifies_sql_data1(20)
+NULL
+SELECT * FROM test_table//
+id	column_name
+1	20
+2	20
+3	30
+create function test_modifies_sql_data2() returns int  MODIFIES SQL DATA
+begin 
+declare a int default 1;
+return a; 
+end//
+SELECT test_modifies_sql_data2()//
+test_modifies_sql_data2()
+1
+CREATE FUNCTION test_definer() RETURNS INT SQL SECURITY DEFINER
+BEGIN
+declare a INT;
+SET a = 84;
+RETURN a;
+END //
+SELECT test_definer() AS definer_result//
+definer_result
+84
+CREATE FUNCTION test_invoker() RETURNS INT SQL SECURITY INVOKER
+BEGIN
+DECLARE a INT;
+SET a = 99;
+RETURN a;
+END //
+SELECT test_invoker() AS invoker_result//
+invoker_result
+99
+create function udf_nosql() returns varchar no sql
+begin return 1; end//
+select udf_nosql()//
+udf_nosql()
+1
+create function func1() returns varchar(50) 
+begin 
+return now(); 
+end//
+select func1()//
+func1()
+2024-03-28 18:09:25.766737
+create function func2() returns varchar(50) 
+begin 
+return if(1<2 ,4 ,5); 
+end//
+select func2()//
+func2()
+4
+CREATE FUNCTION CalculateCircleArea(radius FLOAT)
+RETURNS FLOAT
+BEGIN
+DECLARE area FLOAT;    
+SET area = PI() * radius * radius;
+SET area = ROUND(area, 2); -- 在这里调用 ROUND 函数对结果保留两位小数    
+RETURN area;
+END //
+SELECT CalculateCircleArea(3)//
+CalculateCircleArea(3)
+28.27
+CREATE FUNCTION ConvertTemperature(celsius FLOAT)
+RETURNS VARCHAR(50)
+BEGIN
+DECLARE fahrenheit FLOAT;    
+SET fahrenheit = celsius * 9 / 5 + 32;
+SET fahrenheit = CAST(fahrenheit AS CHAR); -- 在这里调用 CAST 函数将浮点数结果转换为字符串    
+RETURN CONCAT('The temperature in Fahrenheit is: ', fahrenheit);
+END //
+SELECT ConvertTemperature(0)//
+ConvertTemperature(0)
+The temperature in Fahrenheit is: 32
+CREATE FUNCTION CheckNullValue(inputValue VARCHAR(50))
+RETURNS VARCHAR(50)
+BEGIN
+DECLARE resultValue VARCHAR(50);    
+SET resultValue = NVL(inputValue, 'NULL');-- 在这里调用 NVL 函数将 NULL 值替换为指定值    
+RETURN resultValue;
+END //
+SELECT CheckNullValue('Hello')//
+CheckNullValue('Hello')
+Hello
+CREATE TABLE orders (order_id INT PRIMARY KEY,order_date DATE,customer_id INT,total_amount DECIMAL(10, 2))//
+INSERT INTO orders VALUES (1, '2024-03-26', 101, 50.00),(2, '2024-03-27', 102, 75.50),(3, '2024-03-28', 103, 100.25)//
+CREATE FUNCTION calculate_total_sales(customer_id INT)RETURNS DECIMAL(10, 2)
+BEGIN
+DECLARE total_sales DECIMAL(10, 2);
+SELECT ROW_NUMBER() OVER (ORDER BY order_id desc) INTO total_sales  FROM orders  ORDER BY order_id LIMIT 1;
+RETURN total_sales;
+END//
+SELECT calculate_total_sales(102)//
+calculate_total_sales(102)
+3
+CREATE FUNCTION generate_json_array(n INT)RETURNS JSON
+BEGIN
+DECLARE i INT DEFAULT 1;
+DECLARE result_json JSON DEFAULT JSON_ARRAY();
+WHILE i <= n DO
+SET result_json = JSON_ARRAY_APPEND(result_json, '$', i);
+SET i = i + 1;
+END WHILE;
+RETURN result_json;
+END//
+SELECT generate_json_array(5)//
+generate_json_array(5)
+[1, 2, 3, 4, 5]
+create function getNext(n int) returns int
+begin
+declare a int default 0;
+set a=n-1;
+return a;
+end //
+select getNext(6)//
+getNext(6)
+5
+create function getNum() returns int
+begin
+declare a int default 0;
+return a;
+end //
+select getNum()//
+getNum()
+0
+create function GradeLevel(score int)
+returns varchar(5)
+begin
+declare level varchar(20);
+case
+when score >=90 and score <=100 then set level = 'a';
+when score >=80 then set level = 'b';
+when score >=60 then set level = 'c';
+else set level = 'd';
+end case;
+return level;
+end//
+select GradeLevel(87)//
+GradeLevel(87)
+b
+select concat(getNext(61), getNext(92))//
+concat(getNext(61), getNext(92))
+6091
+select getNext(2) <= getNext(3) AS c1,getNext(getNum()) AS c2//
+c1	c2
+1	-1
+select * from student where score = getNext(61)//
+id	name	score
+1	a	60
+4	d	60
+select * from student where (name like GradeLevel(60)) && (id in (select getNext(id) from student))//
+id	name	score
+3	c	91
+select * from student t1,student t2 where (t1.name like GradeLevel(60)) AND (t2.id in (select getNext(id) from student))//
+id	name	score	id	name	score
+3	c	91	1	a	60
+3	c	91	2	b	90
+3	c	91	3	c	91
+3	c	91	4	d	60
+select id,name,score from student where GradeLevel(score) like 'A'//
+id	name	score
+2	b	90
+3	c	91
+select * from student t1 inner join student t2 on getNext(t1.id) = getNext(t2.id)//
+id	name	score	id	name	score
+1	a	60	1	a	60
+2	b	90	2	b	90
+3	c	91	3	c	91
+4	d	60	4	d	60
+5	e	15	5	e	15
+select * from student t1,student t2 where t1.id between getNext(2) and getNext(4)//
+id	name	score	id	name	score
+1	a	60	1	a	60
+1	a	60	2	b	90
+1	a	60	3	c	91
+1	a	60	4	d	60
+1	a	60	5	e	15
+2	b	90	1	a	60
+2	b	90	2	b	90
+2	b	90	3	c	91
+2	b	90	4	d	60
+2	b	90	5	e	15
+3	c	91	1	a	60
+3	c	91	2	b	90
+3	c	91	3	c	91
+3	c	91	4	d	60
+3	c	91	5	e	15
+create function udf_qt1() returns int
+begin
+declare a int default 0;
+set a = getNum() +5;
+return getNext(a);
+end//
+select udf_qt1()//
+udf_qt1()
+4
+create function udf_qt2() returns varchar(20)
+begin
+declare a varchar(20) default '0';
+set a = GradeLevel(udf_qt1()+60);
+return a;
+end//
+select udf_qt2()//
+udf_qt2()
+c
+create function udf_qt3() returns int
+begin
+insert into student values(getNext(111),'111',66);
+return 1;
+end//
+select udf_qt3()//
+udf_qt3()
+1
+select * from student//
+id	name	score
+1	a	60
+2	b	90
+3	c	91
+4	d	60
+5	e	15
+110	111	66
+create function udf_qt4() returns int
+begin
+update student set score = getNext(21) where (name like GradeLevel(60)) OR (id in (select getNext(id) from student where id = 2));
+return 1;
+end//
+select udf_qt4()//
+udf_qt4()
+1
+select * from student//
+id	name	score
+1	a	20
+2	b	90
+3	c	20
+4	d	60
+5	e	15
+110	111	66
+alter table student add grade_level varchar(5)//
+update student set grade_level = GradeLevel(score)//
+select * from student//
+id	name	score	grade_level
+1	a	20	d
+2	b	90	a
+3	c	20	d
+4	d	60	c
+5	e	15	d
+110	111	66	c
+update student set score = getNext(96) where id = getNext(3)//
+select * from student//
+id	name	score	grade_level
+1	a	20	d
+2	b	95	a
+3	c	20	d
+4	d	60	c
+5	e	15	d
+110	111	66	c
+update student set score = getNext(99) where id in (select getNext(id) from student)//
+select * from student//
+id	name	score	grade_level
+1	a	98	d
+2	b	98	a
+3	c	98	d
+4	d	98	c
+5	e	15	d
+110	111	66	c
+update student set score = getNext(99) where NOT(name like GradeLevel(60))//
+select * from student//
+id	name	score	grade_level
+1	a	98	d
+2	b	98	a
+3	c	98	d
+4	d	98	c
+5	e	98	d
+110	111	98	c
+insert into student values(6,'f',70,GradeLevel(70))//
+select * from student//
+id	name	score	grade_level
+1	a	98	d
+2	b	98	a
+3	c	98	d
+4	d	98	c
+5	e	98	d
+110	111	98	c
+6	f	70	c
+delete from student where id < getNext(4)//
+select * from student//
+id	name	score	grade_level
+3	c	98	d
+4	d	98	c
+5	e	98	d
+110	111	98	c
+6	f	70	c
+CREATE FUNCTION test.getNum2() RETURNS INT 
+begin  declare a int default 0;   
+return a; 
+END//
+select yao.getNum2()//
+ERROR HY000: YAO-5055: Unknown function 'getNum2', ret=-5055
+select test.getNum2()//
+test.getNum2()
+0
+select getNum2()//
+getNum2()
+0
+show function status;
+db	name	definers	modified	created	security_type	comments
+test	CalculateCircleArea	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	calculate_total_sales	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	CheckNullValue	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	ConvertTemperature	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	func1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	func2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	generate_json_array	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	getNext	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	getNum	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	getNum2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	GradeLevel	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	min	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	test_definer	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	test_invoker	root@'localhost'	固定	固定替换	INVOKER	Comment
+test	test_modifies_sql_data	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	test_modifies_sql_data1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	test_modifies_sql_data2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	test_reads_sql_data	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_comment	root@'localhost'	固定	固定替换	DEFINER	calculate the sum of 0-num
+test	udf_contains	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_deterministic	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_deterministic_sql	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_language	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_language_sql	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_name	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_name1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_nosql	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_para1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_para2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_para3	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_para4	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_para5	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_qt1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_qt2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_qt3	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_qt4	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_reads	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_return1	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_return2	root@'localhost'	固定	固定替换	DEFINER	Comment
+test	udf_return3	root@'localhost'	固定	固定替换	DEFINER	Comment
+show function status like '%test%';
+Db	Name	Type	Definer	Modified	Created	Security_type	Comment	character_set_client	collation_connection	Database Collation
+test	test_definer	FUNCTION	root@'localhost'	固定	固定替换	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	test_invoker	FUNCTION	root@'localhost'	固定	固定替换	INVOKER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	test_modifies_sql_data	FUNCTION	root@'localhost'	固定	固定替换	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	test_modifies_sql_data1	FUNCTION	root@'localhost'	固定	固定替换	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	test_modifies_sql_data2	FUNCTION	root@'localhost'	固定	固定替换	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+test	test_reads_sql_data	FUNCTION	root@'localhost'	固定	固定替换	DEFINER	Comment	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+SHOW FUNCTION STATUS WHERE Db = 'yao' AND Name LIKE 'udf_name';
+Db	Name	Type	Definer	Modified	Created	Security_type	Comment	character_set_client	collation_connection	Database Collation
+show create function udf_qt4;
+Function	sql_mode	Create Function	character_set_client	collation_connection	Database Collation
+udf_qt4	STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER	create function udf_qt4() returns int
+begin
+update student set score = getNext(21) where (name like GradeLevel(60)) OR (id in (select getNext(id) from student where id = 2));
+return 1;
+end	utf8mb4	utf8mb4_general_ci	utf8mb4_general_ci
+drop function udf_qt4;
+drop function test.udf_qt4;
+ERROR HY000: YAO-5740: function udf_qt4 does not exist 
+DROP FUNCTION IF EXISTS test.`getNum2()`;

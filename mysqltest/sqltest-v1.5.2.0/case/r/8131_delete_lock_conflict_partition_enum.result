@@ -1,0 +1,39 @@
+drop table if exists t1;
+create enum partition function e1(x) '[(1)],[(2)]';
+create table t1(c1 int primary key,c2 varchar(30)) partition by(em,e1,c1);
+insert into t1 values(1,'a'),(2,'b');
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+begin;
+rollback;
+drop table if exists t1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+begin;
+rollback;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;
+drop table if exists t1;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+alter system set lock_wait_time='10s' server_type=yaotxnsvr;
+begin;
+begin;
+rollback;
+rollback;
+drop table if exists t1;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=10000000;
+create table t1(c1 int primary key,c2 varchar(30)) ;
+insert into t1 values(1,'a'),(2,'b');
+begin;
+begin;
+rollback;
+rollback;
+alter system set lock_wait_time='3s' server_type=yaotxnsvr;
+set @@global.yao_query_timeout=3000000;

@@ -1,0 +1,118 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：数据表插入数据，索引表也会增加相应的数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：897s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+--disable_query_log
+--enable_query_log
+
+###2-1:在已有数据的数据表上创建索引，查看索引表中数据是否与数据表中数据一致
+create table t1 (c1 datetime,c2 int,c3 varchar(8),c4 timestamp,c5 double,c6 decimal(5,4),primary key (c1));
+
+insert into t1 values('2015-08-08 12:13:16',1,'maosiyu','2015-06-07 11:23:45.763261',2.36455,3.26),('3012-08-08 12:13:16',2,'maosiyu','2015-06-07 11:23:45.763261',2.36455,4.18),('1960-08-08 12:13:16',1,'maosiyu','2015-06-07 11:23:45.763261',2.36455,9.56);
+
+create index il0 on t1(c6,c3,c5) storing (c2,c4);
+create index il1 on t1(c6,c2) storing (c5,c3,c4);
+create index il2 on t1(c3,c5) storing (c2);
+create index il3 on t1(c3,c6,c5);
+create index il4 on t1(c1);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end =__idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+eval select * from $table_name;
+
+--let $table_end1=__idx__il1
+--let $table_name1=$table_head$n$table_end1
+eval select * from $table_name1;
+--let $table_end2=__idx__il2
+--let $table_name2=$table_head$n$table_end2
+--real_sleep 6
+eval select * from $table_name2;
+--let $table_end3=__idx__il3
+--let $table_name3=$table_head$n$table_end3
+eval select * from $table_name3;
+--let $table_end4=__idx__il4
+--let $table_name4=$table_head$n$table_end4
+eval select * from $table_name4;
+
+###2-2:在已有索引的表中插入一条数据，索引表与数据表中数据是否一致
+insert into t1(c1,c2,c3,c5,c6) values('1020-03-09 15:30:36',25,'hahhaha',6.32256,3.2547);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+###2-3:在已有索引的表中插入带有表达式的数据，索引表与数据表中数据是否一致
+insert into t1(c1,c2,c3,c5,c6) values('2015-06-07 11:23:45.763261',89*98,'mace',8/1.23,7.9/8.25);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+insert into t1(c1,c2,c3,c5,c6) values('2015-08-09 16:34:36.876319',89/98,'mauybe',8.00/1.25,0.12*9);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+###2-4:在已有索引的表中,选择某些字段并插入带有表达式的数据
+insert into t1(c1,c6,c2) values('2015-06-07 11:24:45.763261',7/53,8/7);
+insert into t1(c1,c6,c3) values('2015-06-07 11:25:45.763261',7/53,'hahahce');
+insert into t1(c1,c6) values('2015-06-07 11:26:45.763261',7/53);
+insert into t1(c1,c6,c5) values('2015-06-07 11:27:45.763261',7/53,8*0.125);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+
+insert into t1(c1,c6,c2,c3) values('2015-06-05 11:23:45.763261',7/7.8,7,'subrina');
+insert into t1(c1,c6,c3,c5) values('2015-06-06 11:23:45.763261',7/7,'hahahce',5.66426);
+insert into t1(c1,c6,c2,c5) values('2015-06-08 11:23:45.763261',7*0.2254,1232344,83.5546534);
+select * from t1;
+eval select * from $table_name;
+eval select * from $table_name1;
+eval select * from $table_name2;
+eval select * from $table_name3;
+eval select * from $table_name4;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

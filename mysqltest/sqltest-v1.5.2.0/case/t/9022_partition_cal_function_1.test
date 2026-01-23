@@ -1,0 +1,328 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：分区计算函数
+#                 测试不同类型的表，指定分区键值对应的group组和paxos组
+#                   会查询当前版本，上一版本，下一版本
+#                    对应的场景：两两组合
+#                   仅更改分区规则，仅更改分区组，既更改分区组又更改组，先更改目前的分区规则对应的组，再更改分区规则
+#                    分区表变为非分区表，非分区表变为分区表
+##                    
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/552
+###4.问题号：552
+###5.预计运行时间：1208s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5,t6,t7,t8;
+--enable_warnings
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+
+###建各种类型的分区函数以及表
+create range partition function r1(x) '(10),(20),(maxvalue)';
+create range partition function r2(x) '(50),(100),(maxvalue)';
+create range partition function r3(x,y) '(80,\'drf\'),(150,\'vrty\'),(maxvalue,maxvalue)';
+
+create hash partition function h1(x) 'x%3';
+create hash partition function h2(x,y) 'x+y';
+
+create enum partition function e1(x,y,z) '[(a,1,1),(b,2,2),(c,3,3),(d,4,4)],[(e,5,5),(f,6,6),(g,7,7),(h,8,8)]';
+create enum partition function e2(x) '[(1),(2),(3),(4)],[(5),(6),(7),(8)]';
+
+
+
+create table t1(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4));
+create table t2(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (group1);
+create table t3(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (rr,r1,c1);
+create table t4(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (hh,h1,c3);
+create table t5(c1 int ,c2 varchar(20),c3 int,c4 int,c5 int,primary key(c1,c2,c3,c4)) partition by (ee,e1,c2,c1,c3);
+
+create table t6(c1 int ,c2 varchar(3),c3 int,c4 int,c5 int,primary key(c1,c2,c4))
+partition by range columns(c1,c4,c2) (
+partition p0 values less than (5,10,'ggg'),
+partition p1 values less than (10,20,'mmm'),
+partition p2 values less than (15,30,'sss'),
+partition p3 values less than (maxvalue,maxvalue,maxvalue)
+) with prefix(pfx1);
+
+create table t7(c1 int primary key ,c2 varchar(30),c3 varchar(30),c4 int,c5 int)
+partition by list(c1) (
+partition p1 values in (3,5,6,9,17),
+partition p2 values in (1,2,10,11,19,20),
+partition p3 values in (4,12,13,14,18),
+partition p4 values in (7,8,15,16)
+);
+
+
+create table t8(c1 varchar(25) ,c2 varchar(25),c3 int,c4 varchar(30),c5 varchar(15),primary key(c1,c3))
+partition by list columns (c1,c3) (
+partition p1 values in (('aaa',1),('bbb',2)),
+partition p2 values in (('ccc',1),('ddd',2))
+) with prefix(ll);
+
+#在未更改分区规则和分区组情况下，查看当前版本，下一版本，上一版本分区键对应的值
+
+select partition_calc(t1,(1),0);
+select partition_calc(t1,(1));
+select partition_calc(t1,(1),-1);
+select partition_calc(t1,(1),1);
+select partition_calc(t2,(1),0);
+select partition_calc(t2,(1));
+select partition_calc(t2,(1),-1);
+select partition_calc(t2,(1),1);
+
+select partition_calc(t3,(5),0);
+select partition_calc(t3,(5));
+select partition_calc(t3,(10),0);
+select partition_calc(t3,(10));
+select partition_calc(t3,(20),0);
+select partition_calc(t3,(20));
+select partition_calc(t3,(20),-1);
+select partition_calc(t3,(20),1);
+
+select partition_calc(t4,(0),0);
+select partition_calc(t4,(0));
+select partition_calc(t4,(1),0);
+select partition_calc(t4,(1));
+select partition_calc(t4,(2),0);
+select partition_calc(t4,(2));
+
+
+#t1(非分区表改为range分区) t2(更改group1组对应的paxos_id) t3(更新分区规则为r2，并更改组信息) t4(先更改目前的分区规则对应的组，再更改分区规则)
+show table rules;
+show partition groups;
+alter table t1 partition rule to (t1,r1,c1);
+alter group "group1" move to paxos_idx=0;
+alter table t3 partition rule to (t3,r2,c3);
+alter group "t3#0" move to paxos_idx=0;
+alter group "hh#0" move to paxos_idx=0;
+alter group "hh#1" move to paxos_idx=1;
+alter table t4 partition rule to (t4,r3,c1,c2);
+show table rules;
+show partition groups;
+
+
+select partition_calc(t1,(20,20),0);
+select partition_calc(t1,(20,20));
+--error 65535
+select partition_calc(t1,(20,20),1);
+select partition_calc(t1,(10),1);
+select partition_calc(t1,(5),1);
+select partition_calc(t1,(100),1);
+select partition_calc(t2,(100),0);
+select partition_calc(t2,(100));
+select partition_calc(t2,(100),1);
+
+select partition_calc(t3,(10),0);
+select partition_calc(t3,(10));
+select partition_calc(t3,(10),1);
+select partition_calc(t3,(20),0);
+select partition_calc(t3,(20));
+select partition_calc(t3,(20),1);
+select partition_calc(t3,(70),0);
+select partition_calc(t3,(70));
+select partition_calc(t3,(70),1);
+
+select partition_calc(t4,(1),0);
+select partition_calc(t4,(1));
+select partition_calc(t4,(2),0);
+select partition_calc(t4,(2));
+--error 65535
+select partition_calc(t4,(2),1);
+select partition_calc(t4,(1,'a'),1);
+select partition_calc(t4,(100,'a'),1);
+select partition_calc(t4,(150,'a'),1);
+
+select partition_calc(t5,('a',1,1),0);
+select partition_calc(t5,('a',1,1));
+--error 5083
+select partition_calc(t5,('a',1,2),0);
+--error 5083
+select partition_calc(t5,('a',1,2));
+
+select partition_calc(t6,(1,2,'a'),0);
+select partition_calc(t6,(1,2,'a'));
+select partition_calc(t6,(10,20,'a'),0);
+select partition_calc(t6,(10,20,'a'));
+select partition_calc(t6,(20,20,'a'),0);
+select partition_calc(t6,(20,20,'a'));
+
+select partition_calc(t7,(10),0);
+select partition_calc(t7,(10));
+select partition_calc(t7,(15),0);
+select partition_calc(t7,(15));
+select partition_calc(t8,('aaa',1),0);
+select partition_calc(t8,('aaa',1));
+select partition_calc(t8,('ddd',2),0);
+select partition_calc(t8,('ddd',2));
+--error 5083
+select partition_calc(t8,('eee',2),0);
+--error 5083
+select partition_calc(t8,('eee',2));
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+
+show table rules;
+--error 65535
+select partition_calc(t1,(20,20),0);
+--error 65535
+select partition_calc(t1,(20,20));
+select partition_calc(t1,(20,20),-1);
+select partition_calc(t1,(10),0);
+select partition_calc(t1,(10));
+select partition_calc(t1,(5),0);
+select partition_calc(t1,(5));
+select partition_calc(t1,(100),0);
+select partition_calc(t1,(100));
+select partition_calc(t1,(100),1);
+select partition_calc(t2,(100),0);
+select partition_calc(t2,(100));
+select partition_calc(t2,(100),1);
+select partition_calc(t2,(100),-1);
+select partition_calc(t3,(80),0);
+select partition_calc(t3,(80));
+select partition_calc(t3,(80),1);
+select partition_calc(t3,(80),-1);
+
+#将t4改为非分区表，将t5绑定新的分区函数h1，并更改分区组，更改t6的分区组，将t7改为range分区
+alter table t4 partition rule to (group1);
+alter table t5 partition rule to (hh,h1,c1);
+alter group "hh#1" move to paxos_idx=0;
+alter group "hh#0" move to paxos_idx=1;
+alter group "pfx1#p0" move to paxos_idx=1;
+alter group "pfx1#p1" move to paxos_idx=0;
+alter table t7 partition rule to (rr,r1,c1);
+
+--error 2
+select partition_calc(t4,(1,2),0);
+--error 2
+select partition_calc(t4,(1,2));
+select partition_calc(t4,(1,'as'),0);
+select partition_calc(t4,(1,'as'));
+select partition_calc(t4,(1,'as'),1);
+--error 65535
+select partition_calc(t4,(1,'as'),-1);
+select partition_calc(t4,(1),-1);
+
+--error 5083 
+select partition_calc(t5,('a',1,2),0);
+--error 5083 
+select partition_calc(t5,('a',1,2));
+select partition_calc(t5,('a',1,1),0);
+select partition_calc(t5,('a',1,1));
+select partition_calc(t5,('c',3,3),0);
+select partition_calc(t5,('c',3,3));
+--error 65535
+select partition_calc(t5,('c',3,3),1);
+select partition_calc(t5,(10),1);
+select partition_calc(t5,(100),1);
+select partition_calc(t5,(101),1);
+select partition_calc(t5,(101),-1);
+
+select partition_calc(t6,(1,2,'a'),0);
+select partition_calc(t6,(1,2,'a'));
+select partition_calc(t6,(10,1,'a'),0);
+select partition_calc(t6,(10,1,'a'));
+select partition_calc(t6,(1,2,'a'),1);
+select partition_calc(t6,(10,1,'a'),1);
+select partition_calc(t6,(10,1,'a'),-1);
+
+select partition_calc(t7,(3),0);
+select partition_calc(t7,(3));
+select partition_calc(t7,(3),1);
+select partition_calc(t7,(3),-1);
+
+select partition_calc(t8,('aaa',1),0);
+select partition_calc(t8,('aaa',1));
+select partition_calc(t8,('aaa',1),-1);
+select partition_calc(t8,('aaa',1),1);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+--error 65535
+select partition_calc(t1,(20,20),0);
+--error 65535
+select partition_calc(t1,(20,20));
+select partition_calc(t1,(20,20),-1);
+select partition_calc(t1,(10),0);
+select partition_calc(t1,(10));
+select partition_calc(t1,(5),0);
+select partition_calc(t1,(5));
+select partition_calc(t1,(100),0);
+select partition_calc(t1,(100));
+select partition_calc(t1,(100),1);
+select partition_calc(t2,(100),0);
+select partition_calc(t2,(100));
+select partition_calc(t2,(100),1);
+select partition_calc(t2,(100),-1);
+select partition_calc(t3,(80),0);
+select partition_calc(t3,(80));
+select partition_calc(t3,(80),1);
+select partition_calc(t3,(80),-1);
+select partition_calc(t4,(1,'as'),0);
+select partition_calc(t4,(1,'as'));
+select partition_calc(t4,(1,'as'),1);
+select partition_calc(t4,(1,'as'),-1);
+--error 65535
+select partition_calc(t4,(1),-1);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 400
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+select partition_calc(t5,(10),0);
+select partition_calc(t5,(10));
+select partition_calc(t5,(100),0);
+select partition_calc(t5,(100));
+select partition_calc(t5,(101),0);
+select partition_calc(t5,(101));
+select partition_calc(t5,(10),1);
+--error 65535
+select partition_calc(t5,(101),-1);
+select partition_calc(t5,('c',3,3),-1);
+
+select partition_calc(t6,(1,2,'a'),0);
+select partition_calc(t6,(1,2,'a'));
+select partition_calc(t6,(10,1,'a'),0);
+select partition_calc(t6,(10,1,'a'));
+select partition_calc(t6,(1,2,'a'),-1);
+select partition_calc(t6,(10,1,'a'),-1);
+select partition_calc(t6,(10,1,'a'),1);
+
+select partition_calc(t7,(3),0);
+select partition_calc(t7,(3));
+select partition_calc(t7,(3),1);
+select partition_calc(t7,(3),-1);
+
+select partition_calc(t8,('aaa',1),0);
+select partition_calc(t8,('aaa',1));
+select partition_calc(t8,('aaa',1),-1);
+select partition_calc(t8,('aaa',1),1);
+
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,107 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists t1,t2,t3;
+create table t1(c1 int primary key, c2 int);
+create table t2(c1 int primary key, c2 int);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	t1	0
+3002	2	t2	0
+rename table t1 to t2;
+ERROR 42S02: YAO-5019: Table 't2' already exist
+rename table t1 to test1;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+show current database;
+Database
+test
+create database test1;
+using database test1;
+create table t2(c1 int primary key, c2 int);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+3003	2	t2	0	__user_default_group	NULL	NULL
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+3003	2	t2	0
+rename table t2 to test2;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+3003	2	test2	0	__user_default_group	NULL	NULL
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+3003	2	test2	0
+create range partition function r1(x) '(40),(80),(maxvalue)';
+alter table test2 partition rule to(rr,r1,c1);
+rename table test2 to t2;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+3003	2	t2	0	__user_default_group	NULL	NULL
+3003	3	t2	1	rr	r1	c1
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+3003	2	t2	0
+3003	3	t2	1
+"merge"
+major_freeze...
+merge: DONE
+create range partition function r2(x) '(30),(60),(maxvalue)';
+alter table t2 partition rule to(rr,r2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+3003	2	t2	0	__user_default_group	NULL	NULL
+3003	3	t2	1	rr	r1	c1
+3003	4	t2	1	rr	r2	c1
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+3003	2	t2	0
+3003	3	t2	1
+3003	4	t2	1
+rename table t2 to test2;
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	0	__user_default_group	NULL	NULL
+3002	2	t2	0	__user_default_group	NULL	NULL
+3003	2	test2	0	__user_default_group	NULL	NULL
+3003	3	test2	1	rr	r1	c1
+3003	4	test2	1	rr	r2	c1
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+table_id	start_version	table_name	partition_type
+3001	2	test1	0
+3002	2	t2	0
+3003	2	test2	0
+3003	3	test2	1
+3003	4	test2	1

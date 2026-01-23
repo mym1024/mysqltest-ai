@@ -1,0 +1,120 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 varchar(10));
+insert into t1 values(0,'aa');
+"merge"
+major_freeze...
+insert into t1 values(1,'aa');
+select * from t1;
+c1	c2
+0	aa
+1	aa
+select * from t1 where c1 = 0;
+c1	c2
+0	aa
+select * from t1 where c1 = 1;
+c1	c2
+1	aa
+truncate table t1;
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+"merge"
+major_freeze...
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+insert into t1 values(2,'aa');
+select * from t1;
+c1	c2
+2	aa
+select * from t1 where c1 = 2;
+c1	c2
+2	aa
+truncate table t1;
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+"merge"
+major_freeze...
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+insert into t1 values(3,'aa');
+select * from t1;
+c1	c2
+3	aa
+truncate table t1;
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+select * from t1 where c1 = 3;
+c1	c2
+"merge"
+major_freeze...
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+select * from t1 where c1 = 3;
+c1	c2
+insert into t1 values(4,'aa');
+select * from t1;
+c1	c2
+4	aa
+truncate table t1;
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+select * from t1 where c1 = 3;
+c1	c2
+select * from t1 where c1 = 4;
+c1	c2
+"merge"
+major_freeze...
+select * from t1;
+c1	c2
+select * from t1 where c1 = 0;
+c1	c2
+select * from t1 where c1 = 1;
+c1	c2
+select * from t1 where c1 = 2;
+c1	c2
+select * from t1 where c1 = 3;
+c1	c2
+select * from t1 where c1 = 4;
+c1	c2

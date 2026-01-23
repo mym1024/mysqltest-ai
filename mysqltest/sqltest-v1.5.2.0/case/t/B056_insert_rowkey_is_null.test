@@ -1,0 +1,105 @@
+##############################################################################################
+###1.测试功能点：未指定分区下，insert空值
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+create table t1(a int primary key,c int);
+
+insert into t1(a) values(null);
+insert into t1(a) values(1);
+insert into t1(a) values(0);
+--error 5024
+insert into t1(a) values(null);
+select * from t1;
+drop table t1;
+
+create table t1(a int ,b int,primary key(a,b),c int);
+
+insert into t1(a,b) values(null,null);
+insert into t1(a,b) values(1,null);
+insert into t1(a,b) values(null,1);
+insert into t1(a,b) values(1,1);
+--error 5024
+insert into t1(a,b) values(null,null);
+--error 5024
+insert into t1(a,b) values(null,1);
+--error 5024
+insert into t1(a,b) values(1,null);
+select * from t1;
+drop table t1;
+
+create table t1(a varchar(20) primary key,b varchar(30));
+--real_sleep 5
+insert into t1(a) values(null);
+insert into t1(a) values('1');
+
+--error 5024
+insert into t1(a) values(null);
+select * from t1;
+drop table t1;
+
+
+create table t1(a varchar(20) ,b varchar(20),primary key(a,b),c varchar(30));
+--real_sleep 5
+insert into t1(a,b) values(null,null);
+insert into t1(a,b) values('1',null);
+insert into t1(a,b) values(null,'1');
+insert into t1(a,b) values('1','1');
+
+--error 5024
+insert into t1(a,b) values(null,null);
+--error 5024
+insert into t1(a,b) values(null,'1');
+--error 5024
+insert into t1(a,b) values('1',null);
+select * from t1;
+drop table t1;
+
+
+create table t1(a datetime primary key,b datetime);
+--real_sleep 5
+insert into t1(a) values(null);
+insert into t1(a) values('2010-01-01 12:00:00');
+
+--error 5024
+insert into t1(a) values(null);
+select * from t1;
+drop table t1;
+
+create table t1(a datetime ,b datetime,primary key(a,b),c datetime);
+--real_sleep 5
+insert into t1(a,b) values(null,null);
+insert into t1(a,b) values('2010-01-01 12:00:00',null);
+insert into t1(a,b) values(null,'2010-01-01 12:00:00');
+insert into t1(a,b) values('2010-01-01 12:00:00','2010-01-01 12:00:00');
+
+--error 5024
+insert into t1(a,b) values(null,null);
+--error 5024
+insert into t1(a,b) values(null,'2010-01-01 12:00:00');
+--error 5024
+insert into t1(a,b) values('2010-01-01 12:00:00',null);
+select * from t1;
+drop table t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

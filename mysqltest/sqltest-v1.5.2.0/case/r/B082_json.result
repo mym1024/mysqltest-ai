@@ -1,0 +1,696 @@
+set names utf8mb4;
+drop table if exists lc,lc0,lc1,lc2,lc3,lc4,lc5,lc6,lc7,lc8;
+create table lc0(a int,b json,c varchar(20));
+create table lc1(a int primary key,b json,c varchar(20));
+create table lc3(a int ,b json primary key,c varchar(20));
+ERROR HY000: YAO-5006: json column 'b' can not be primary key
+create table lc2(a int primary key,b json not null,c varchar(20));
+create table lc7(b json default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table lc4(a int,b json,c varchar(20));
+create index idx1 on lc4(b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create table lc5(a int,b json,c varchar(20));
+create index idx1 on lc5(a);
+create table lc(b json);
+create table lc8(b json, c json, d json);
+create table lc6(a int,b json,c varchar(20));
+create index idx1 on lc6(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+alter table lc1 drop b;
+alter table lc1 add b json;
+desc lc1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+c	varchar(20)	YES		NULL	
+b	json	YES		NULL	
+show create table lc1;
+Table	Create Table
+test.lc1	CREATE TABLE `lc1` (
+`a` INT(10),
+`c` VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+`b` JSON,
+ PRIMARY KEY(`a`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show full columns from lc1;
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+a	int(10)	NULL	YES	PRI	NULL		select,insert,update,references	
+c	varchar(20)	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+b	json	NULL	YES		NULL		select,insert,update,references	
+insert into lc values(1);
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(1.1);
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(cast(current_timestamp() as datetime));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(cast(current_timestamp() as date));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(cast(current_timestamp() as time));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(cast(1.1 as double));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(cast(1.1 as float));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values(null);
+insert into lc values('1'),('null'),('true'),('false'),('"abc"'),('1.1');
+select * from lc;
+b
+NULL
+1
+null
+true
+false
+"abc"
+1.1
+truncate table lc;
+insert into lc values('[1,null,true,false,"abc",1.1]');
+select * from lc;
+b
+[1, null, true, false, "abc", 1.1]
+truncate table lc;
+insert into lc values('"abc"'),('"null"');
+select * from lc;
+b
+"abc"
+"null"
+truncate table lc;
+insert into lc values('{"abc":1,"def":null,"hig":"aaa","bool":false}');
+select * from lc;
+b
+{"abc": 1, "def": null, "hig": "aaa", "bool": false}
+truncate table lc;
+insert into lc values('abc');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+truncate table lc;
+insert into lc values('');
+ERROR HY000: YAO-5410: The document is empty.
+select * from lc;
+b
+truncate table lc;
+insert into lc values('[1,{"a":true}, null');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into lc values('[1,{a:true}, null]');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+truncate table lc;
+insert into lc values('[true,{"array":[1,null,[1,2,3]],"object":{"abc":{"true":1}}}]');
+select * from lc;
+b
+[true, {"array": [1, null, [1, 2, 3]], "object": {"abc": {"true": 1}}}]
+truncate table lc;
+insert into lc values('{"a":1,"b":2,"a":3}');
+select * from lc;
+b
+{"a": 3, "b": 2}
+insert into lc1(a,b) values(1,'[true]');
+update lc1 set b='[1,2,null,{"abc":1}]' where a =1;
+select * from lc1;
+a	c	b
+1	NULL	[1, 2, null, {"abc": 1}]
+truncate table lc1;
+insert into lc1(a,b) values(1,'[true]');
+update lc1 set b='[1,2,null,{"abc":1}]' where a =1;
+select * from lc1;
+a	c	b
+1	NULL	[1, 2, null, {"abc": 1}]
+update lc set b=1;
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc set b=1.1;
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc set b=cast(1.1 as double);
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc set b=cast(1.1 as float);
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc set b=cast(current_timestamp() as time);
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc set b=cast(current_timestamp() as date);
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+update lc1 set b='{[1,2,3]' where a =1;
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+update lc1 set b=null where a =1;
+select * from lc1;
+a	c	b
+1	NULL	NULL
+update lc1 set b='' where a =1;
+ERROR HY000: YAO-5410: The document is empty.
+truncate table lc;
+insert into lc values('1'),('[1,2,3]');
+delete from lc where b=1;
+select * from lc;
+b
+[1, 2, 3]
+truncate table lc;
+insert into lc values('1'),('[1,2,3]');
+delete from lc where b='[1,2,3]';
+select * from lc;
+b
+1
+[1, 2, 3]
+drop table if exists lc1;
+create table lc1(a int primary key,b json,c varchar(20));
+prepare stmt1 from insert into lc1 values(1,?,'hello1');
+set @a='[1,2,{"name":"Bob"}]';
+execute stmt1 using @a;
+select * from lc1;
+a	b	c
+1	[1, 2, {"name": "Bob"}]	hello1
+deallocate prepare stmt1;
+drop table if exists lc1;
+create table lc1(a int primary key,b json,c varchar(20));
+prepare stmt1 from insert into lc1 values(1,?,'hello1');
+set @a='[1,2,{"name":Bob}]';
+execute stmt1 using @a;
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select * from lc1;
+a	b	c
+deallocate prepare stmt1;
+drop table if exists lc1;
+create table lc1(a int primary key,b json,c varchar(20));
+prepare stmt1 from insert into lc1 values(1,'[1,2,{"name":"Bob"}]','hello1');
+execute stmt1;
+select * from lc1;
+a	b	c
+1	[1, 2, {"name": "Bob"}]	hello1
+deallocate prepare stmt1;
+drop table if exists lc1;
+create table lc1(a int primary key,b json,c varchar(20));
+prepare stmt1 from insert into lc1 values(1,'[1,2,{"name":Bob}]','hello1');
+execute stmt1;
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select * from lc1;
+a	b	c
+deallocate prepare stmt1;
+truncate table lc;
+insert into lc values('1'),('[1,2,3]');
+select * from lc where b=cast('[1,2,3]' as json);
+b
+[1, 2, 3]
+select count(*) from lc where b in (select b from lc);
+count(*)
+2
+select count(*) from lc where b in (select b  from lc bb where bb.b=cast('[1,2,3]' as json));
+count(*)
+1
+select count(*) from lc a where a.b in (select b  from lc bb where bb.b=cast('[1,2,3]' as json));
+count(*)
+1
+truncate table lc1;
+truncate table lc2;
+insert into lc1(a,b) values(1,'1'),(2,'[1,2,3]');
+insert into lc2(a,b) values(1,'[1,2,3]');
+select count(*) from lc1 where b in (select b from lc2);
+count(*)
+1
+select count(*) from lc1 where b in (select json_extract(b, '$') from lc1);
+count(*)
+2
+select b from lc1  union select b from lc2;
+b
+1
+[1, 2, 3]
+select b from lc1  except select b from lc2;
+b
+1
+select b from lc1  intersect select b from lc2;
+b
+[1, 2, 3]
+select count(*)  from lc1 right join lc2 on lc1.b = lc2.b;
+count(*)
+1
+select count(*)  from lc1 left join lc2 on lc1.b = lc2.b;
+count(*)
+2
+truncate table lc;
+insert into lc(b) values('1'),('[1,2,3]'),('{"name":1}');
+select b from lc order by b desc;
+b
+[1, 2, 3]
+{"name": 1}
+1
+select b from lc order by b asc;
+b
+1
+{"name": 1}
+[1, 2, 3]
+select * from lc where b=1 or b = cast('[1,2,3]' as json);
+b
+1
+[1, 2, 3]
+select b from lc where b=1 union select b from lc where b=cast('[1,2,3]' as json);
+b
+1
+[1, 2, 3]
+truncate table lc;
+insert into lc(b) values('1'),('[1,2,3]');
+select b from lc except select b from lc where b=1;
+b
+[1, 2, 3]
+select b from lc intersect select b from lc where b=1;
+b
+1
+select b from lc where b between 1 and cast('[1,2,3]' as json);
+b
+1
+[1, 2, 3]
+select b from lc where b is not null;
+b
+1
+[1, 2, 3]
+select b is not null from lc;
+b is not null
+1
+1
+select max(b) from lc;
+max(b)
+[1, 2, 3]
+select min(b) from lc ;
+min(b)
+1
+select sum(b) from lc;
+sum(b)
+1
+select avg(b) from lc ;
+avg(b)
+0.5
+select 2 from lc where b in(select b from lc) ;
+2
+2
+2
+select b from lc group by b;
+b
+1
+[1, 2, 3]
+select b from lc having sum(b)<4;
+b
+1
+truncate table lc8;
+insert into lc8(b,c) values('{"age":12}','[true,null]'),('"abc"','1');
+select b,c,ord(b),ord(c) from lc8;
+b	c	ord(b)	ord(c)
+{"age": 12}	[true, null]	123	91
+"abc"	1	34	49
+select b,instr(b, 'a') from lc8;
+b	instr(b, 'a')
+{"age": 12}	3
+"abc"	2
+select b,left(b, 3),c,right(c,2) from lc8;
+b	left(b, 3)	c	right(c,2)
+{"age": 12}	{"a	[true, null]	l]
+"abc"	"ab	1	1
+select b,c,substr(b,2),substr(c,2,3) from lc8;
+b	c	substr(b,2)	substr(c,2,3)
+{"age": 12}	[true, null]	"age": 12}	tru
+"abc"	1	abc"	
+select b,c,concat(b,c),concat(b,' json'),concat('json! ',c) from lc8;
+b	c	concat(b,c)	concat(b,' json')	concat('json! ',c)
+{"age": 12}	[true, null]	{"age": 12}[true, null]	{"age": 12} json	json! [true, null]
+"abc"	1	"abc"1	"abc" json	json! 1
+select json_array(cast('20230303' as date));
+json_array(cast('20230303' as date))
+["2023-03-03"]
+select json_array(true,false,null,'xoj',1111,cast('[1,true,null]' as json),cast(1.1 as double),current_timestamp());
+json_array(true,false,null,'xoj',1111,cast('[1,true,null]' as json),cast(1.1 as double),current_timestamp())
+[true, false, null, "xoj", 1111, [1, true, null], 1.1, "2025-12-24 21:59:48.680711"]
+select json_array(cast('[a' as json));
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select json_array(1+3,1.1-1.2,'1'*'8',9.3/3.2,9%5);
+json_array(1+3,1.1-1.2,'1'*'8',9.3/3.2,9%5)
+[4, -0.1, 8.0, 2.90625, 4]
+create table test1(c1 json);
+Insert into test1 values(json_array(1,true,'abc'));
+update test1 set c1=json_array(1,2,true,'abcd');
+select * from test1;
+c1
+[1, 2, true, "abcd"]
+update test1 set c1=json_array(1,2,true,'abcd',cast('[1' as json));
+ERROR 25S03: YAO-119: INVALID JSON TEXT, error code = -5411
+select * from test1;
+c1
+[1, 2, true, "abcd"]
+select * from test1 having c1 <= json_array(1,2,true,'abcd');
+c1
+[1, 2, true, "abcd"]
+create table t2(c1 int primary key, c2 varchar(10));
+insert into t2 values(1,'a'),(2,'b');
+select json_array(max(c2), min(c1), sum(c1), avg(c1), count(c2)) from t2;
+json_array(max(c2), min(c1), sum(c1), avg(c1), count(c2))
+["b", 1, 3, 1.5, 2]
+truncate table test1;
+insert into test1 values('[1]');
+select * from test1 join t2 on test1.c1=json_array(t2.c1);
+c1	c1	c2
+[1]	1	a
+select json_object('name',cast('[1,true,null]' as json));
+json_object('name',cast('[1,true,null]' as json))
+{"name": [1, true, null]}
+select json_object('name',true,'age',false,'first',null,'second','xoj','third',1111,'fourth',cast('[1,true,null]' as json),'fifth',cast(1.1 as double),'sixth',current_timestamp());
+json_object('name',true,'age',false,'first',null,'second','xoj','third',1111,'fourth',cast('[1,true,null]' as json),'fifth',cast(1.1 as double),'sixth',current_timestamp())
+{"age": false, "name": true, "fifth": 1.1, "first": null, "sixth": "2025-12-24 21:59:49.242197", "third": 1111, "fourth": [1, true, null], "second": "xoj"}
+select json_object('first',1+3,'second',1.1-1.2,'third','1'*'8','fourth',9.3/3.2,'fifth',9%5);
+json_object('first',1+3,'second',1.1-1.2,'third','1'*'8','fourth',9.3/3.2,'fifth',9%5)
+{"fifth": 4, "first": 4, "third": 8.0, "fourth": 2.90625, "second": -0.1}
+truncate table test1;
+Insert into test1 values(json_object('age',1,'man',true,'name','abc'));
+update test1 set c1='1' where c1=json_object('age',1,'man',true,'name','abc');
+select * from test1;
+c1
+1
+select * from test1 having c1<=json_object('age',1,'man',true,'name','abc','json',cast(1 as json));
+c1
+1
+delete from test1 where c1=json_object('age',1,'man',true,'name','abc','json',cast(1 as json));
+select json_object('max',max(c2), 'min',min(c1), 'sum',sum(c1), 'avg',avg(c1), 'count',count(c2)) from t2;
+json_object('max',max(c2), 'min',min(c1), 'sum',sum(c1), 'avg',avg(c1), 'count',count(c2))
+{"avg": 1.5, "max": "b", "min": 1, "sum": 3, "count": 2}
+truncate table test1;
+truncate table t2;
+insert into test1 values('{"a":1}');
+insert into t2 values(1,'a'),(2,'b');
+select * from test1 join t2 on test1.c1=json_object(t2.c2,t2.c1);
+c1	c1	c2
+{"a": 1}	1	a
+select json_quote();
+ERROR HY000: YAO-5054: Param num of function 'json_quote' must be 1, ret=-5054
+select json_quote(to_date('2022-12-30 22:34:39','yyyy-mm-dd hh24:mi:ss'));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_quote('{name:"zxs",grade:60}');
+json_quote('{name:"zxs",grade:60}')
+"{name:\"zxs\",grade:60}"
+select json_quote(json_quote('123'));
+json_quote(json_quote('123'))
+"\"123\""
+select json_contains(cast('2022-01-01' as date), cast('2022-01-01' as date));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_contains(cast(current_timestamp() as json),'"abc"');
+json_contains(cast(current_timestamp() as json),'"abc"')
+0
+create table test2(c1 json,c2 json,c3 int);
+insert into test2(c1,c2) values('[1,2]','[1]'),('[1]','[1,2]');
+update test2 set c3 = 1 where json_contains(c1,c2);
+select * from test2;
+c1	c2	c3
+[1, 2]	[1]	1
+[1]	[1, 2]	NULL
+update test2 set c3 = json_contains(c1,c2);
+select * from test2;
+c1	c2	c3
+[1, 2]	[1]	1
+[1]	[1, 2]	0
+select * from test2 having json_contains(c1,c2);
+c1	c2	c3
+[1, 2]	[1]	1
+insert into test2 values('1','1',json_contains('1','1'));
+delete from test2 where c3!=json_contains(c1,c2);
+(select * from test2 where json_contains(c1,c2) = 0) union (select * from test2 where json_contains(c1,c2) = 1);
+c1	c2	c3
+1	1	1
+[1]	[1, 2]	0
+[1, 2]	[1]	1
+select json_contains_path('1','one');
+ERROR HY000: YAO-2: Invalid argument
+select json_contains_path(1.1,'all','$');
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_contains_path('[1,{"name":"Alice","array":[1,null,false]}]','all','$[last-1 to last-0]','$[1].array[2][*]','$[1][0].name');
+json_contains_path('[1,{"name":"Alice","array":[1,null,false]}]','all','$[last-1 to last-0]','$[1].array[2][*]','$[1][0].name')
+0
+select json_contains_path('1','one',  '$')<>json_contains_path('1', 'one', '$');
+json_contains_path('1','one',  '$')<>json_contains_path('1', 'one', '$')
+0
+select json_extract();
+ERROR HY000: YAO-5054: Param num of function 'json_extract' can not be empty, ret=-5054
+select json_extract('[1,2,3]','$','$[1]','$[2]','$[1][1]','$[100][100]','$[3 to 5]','$[last-1]');
+json_extract('[1,2,3]','$','$[1]','$[2]','$[1][1]','$[100][100]','$[3 to 5]','$[last-1]')
+[[1, 2, 3], 2, 3, 2]
+select json_extract(cast(2.1 as decimal(2,1)),'$');
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_extract('[1,{"name":"Alice","array":[1,null,false]}]', '$[0][0][0]','$[1][0][0]','$[1]**[0]');
+json_extract('[1,{"name":"Alice","array":[1,null,false]}]', '$[0][0][0]','$[1][0][0]','$[1]**[0]')
+[1, {"name": "Alice", "array": [1, null, false]}, {"name": "Alice", "array": [1, null, false]}, "Alice", 1, null, false]
+select json_extract('1', '$')!=json_extract('1', '$');
+json_extract('1', '$')!=json_extract('1', '$')
+0
+select json_keys('[1,[1,2]]' ,'abc');
+ERROR HY000: YAO-5413: Invalid JSON path expression.
+select json_keys('{"name":{"age":10}}','$.name.name');
+json_keys('{"name":{"age":10}}','$.name.name')
+NULL
+select json_keys('{"name":"Bob","obj":[1,[2,3],4]}','$.obj[1]');
+json_keys('{"name":"Bob","obj":[1,[2,3],4]}','$.obj[1]')
+NULL
+select json_keys('1', '$')!=json_keys('1', '$');
+json_keys('1', '$')!=json_keys('1', '$')
+NULL
+select json_overlaps('1','1');
+json_overlaps('1','1')
+1
+select json_overlaps('1','1','$','$');
+ERROR HY000: YAO-5054: Param num of function 'json_overlaps' must be 2, ret=-5054
+select json_overlaps(cast(2.1 as decimal(2,1)), cast(2.1 as decimal(2,1)));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_overlaps(cast('[true]' as json), cast(true as json));
+json_overlaps(cast('[true]' as json), cast(true as json))
+1
+select json_overlaps('1','1')=json_overlaps('1','1');
+json_overlaps('1','1')=json_overlaps('1','1')
+1
+select json_search('1','one');
+ERROR HY000: YAO-2: Invalid argument
+select json_search('["%a","_a","%_a"]','all','%_','12');
+ERROR HY000: YAO-2: Invalid argument
+select json_search('"1"','one','1',null,'$','$[0]','$.obj');
+json_search('"1"','one','1',null,'$','$[0]','$.obj')
+"$"
+select json_search('[1,["1",2]]', 'one',$);
+ERROR 42S22: YAO-5009: Unkown column name $
+select json_search('[1', 'one','1');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select json_search('{"name":"Bob","age":11,"bool":true,"max":null,"others":"Bob"}','all',null);
+json_search('{"name":"Bob","age":11,"bool":true,"max":null,"others":"Bob"}','all',null)
+NULL
+select json_search('["abc","bc",{"alpha":"b","beta":"bc","cigema":"ab"},"b"]','all','%b%',null,'$[last-3 to last-1]','$[0 to 4]');
+json_search('["abc","bc",{"alpha":"b","beta":"bc","cigema":"ab"},"b"]','all','%b%',null,'$[last-3 to last-1]','$[0 to 4]')
+["$[0]", "$[1]", "$[2].beta", "$[2].alpha", "$[2].cigema", "$[3]"]
+select json_value('[1]','$[1]' ERROR on empty);
+ERROR HY000: YAO-5422: No value was found on the specified path.
+select json_value('[1,"abc",3]','$[10]' error on empty DEFAULT 11 on error);
+ERROR HY000: YAO-5422: No value was found on the specified path.
+select json_value('[1,2,3]','$' RETURNING FLOAT error on empty DEFAULT 11 on error);
+json_value('[1,2,3]','$' RETURNING FLOAT error on empty DEFAULT 11 on error)
+11
+select json_value('[1,{"name":"Alice","array":["2023-01-10 11:11:11",null,false]}]', '$[1].array[0]' returning datetime);
+json_value('[1,{"name":"Alice","array":["2023-01-10 11:11:11",null,false]}]', '$[1].array[0]' returning datetime)
+2023-01-10 11:11:11.000
+select json_value('[1,{"name":"Alice","array":[1,null,false]}]', '$[0 to 2]' returning double default '888.8' on error null on empty);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select 1 member of('[1');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select cast('"abc"' as json) member of(cast(current_timestamp() as json));
+cast('"abc"' as json) member of(cast(current_timestamp() as json))
+0
+select cast('{"fname":"Bob","lage":11}' as json) member of('{"name":"Bob","age":11}');
+cast('{"fname":"Bob","lage":11}' as json) member of('{"name":"Bob","age":11}')
+0
+select 1 member of('1')<1 member of('1');
+1 member of('1')<1 member of('1')
+0
+select json_array_append('[1,2,3]','$[0]','2','$[0][0]');
+ERROR HY000: YAO-2: Invalid argument
+select json_array_append(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json));
+json_array_append(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json))
+[1, [2, [1, 2]]]
+select json_array_append('[1,2,3,4,5]', '$[1 to 3]',1);
+ERROR HY000: YAO-5415: In this situation, path expressions may not contain the * and ** tokens.
+select json_array_append('{"name":"Bob","age":11}', '$.name[0]', true);
+json_array_append('{"name":"Bob","age":11}', '$.name[0]', true)
+{"age": 11, "name": ["Bob", true]}
+select json_array_append('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].array[0]',false,'$[1].array[0]',true);
+json_array_append('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].array[0]',false,'$[1].array[0]',true)
+[1, {"name": "Alice", "array": [[1, false, true], null, false]}]
+select json_array_append('1', '$', '1')>json_array_append('1', '$', '1');
+json_array_append('1', '$', '1')>json_array_append('1', '$', '1')
+0
+select json_array_insert('1');
+ERROR HY000: YAO-5054: Param num of function 'json_array_insert' can not be less than 2, ret=-5054
+select json_array_insert('[1,2,3]','$[0]','2','$[0][0]','3');
+json_array_insert('[1,2,3]','$[0]','2','$[0][0]','3')
+["2", 1, 2, 3]
+select json_array_insert(cast('2022-01-01' as date),'$[0]', 1);
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_array_insert('[1]','$[0]', cast('[1,2]' as json));
+json_array_insert('[1]','$[0]', cast('[1,2]' as json))
+[[1, 2], 1]
+select json_array_insert('{"name":"Bob","age":11}', '$', true);
+ERROR HY000: YAO-5424: A path expression is not a path to a cell in an array
+select json_array_insert('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].name[0]',1);
+json_array_insert('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].name[0]',1)
+[1, {"name": "Alice", "array": [1, null, false]}]
+select json_insert('[1,2,3]','$[0]','2','$[0][0]','3');
+json_insert('[1,2,3]','$[0]','2','$[0][0]','3')
+[1, 2, 3]
+select json_insert('[1,[1,2]]' ,true, 1);
+ERROR HY000: YAO-5413: Invalid JSON path expression.
+select json_insert(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json));
+json_insert(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json))
+[1, 2]
+select json_insert('[1,2,3,4,5]', '$[1 to 3]',1);
+ERROR HY000: YAO-5415: In this situation, path expressions may not contain the * and ** tokens.
+select json_insert('{"name":"Bob","age":11}', '$.name[1]', true);
+json_insert('{"name":"Bob","age":11}', '$.name[1]', true)
+{"age": 11, "name": ["Bob", true]}
+select json_insert('[1,{"name":"Alice","array":[1,null,false]}]', '$[last-8]','abc','$[0][1]','bcd');
+json_insert('[1,{"name":"Alice","array":[1,null,false]}]', '$[last-8]','abc','$[0][1]','bcd')
+[["abc", "bcd"], 1, {"name": "Alice", "array": [1, null, false]}]
+select json_replace();
+ERROR HY000: YAO-5054: Param num of function 'json_replace' can not be empty, ret=-5054
+select json_replace('[1,2,3]','$[0]','2','$[0][0]');
+ERROR HY000: YAO-2: Invalid argument
+select json_replace('[1]','$[0]', cast('[1,2]' as json));
+json_replace('[1]','$[0]', cast('[1,2]' as json))
+[[1, 2]]
+select json_replace('{"name":"Bob","age":11}', '$.name[1]', true);
+json_replace('{"name":"Bob","age":11}', '$.name[1]', true)
+{"age": 11, "name": "Bob"}
+select json_replace('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].hobby','tennis','$[1].name','Bob');
+json_replace('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].hobby','tennis','$[1].name','Bob')
+[1, {"name": "Bob", "array": [1, null, false]}]
+select json_set('[1,[1,2]]' ,current_timestamp(), 1);
+ERROR HY000: YAO-5413: Invalid JSON path expression.
+select json_set('[1]','$[0]', cast('[1,2]' as json));
+json_set('[1]','$[0]', cast('[1,2]' as json))
+[[1, 2]]
+select json_set(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json));
+json_set(cast('[1,2]' as json),'$[1]',cast('[1,2]' as json))
+[1, [1, 2]]
+select json_set('[1,2,3,4,5]', '$[*]',1);
+ERROR HY000: YAO-5415: In this situation, path expressions may not contain the * and ** tokens.
+select json_set('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].hobby','tennis','$[1].name','Bob');
+json_set('[1,{"name":"Alice","array":[1,null,false]}]', '$[1].hobby','tennis','$[1].name','Bob')
+[1, {"name": "Bob", "array": [1, null, false], "hobby": "tennis"}]
+select json_remove('[1,2,3]','$[1]','$[1]','$[2]','$[1][1]','$[100][100]','$[last-1]');
+json_remove('[1,2,3]','$[1]','$[1]','$[2]','$[1][1]','$[100][100]','$[last-1]')
+[1]
+select json_remove('[1,[1,2]]' ,$);
+ERROR 42S22: YAO-5009: Unkown column name $
+select json_remove('[1','$');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+select json_remove('[1,{"name":"Alice","array":[1,null,false]}]', '$.name','$[1].array','$[1].array[0]');
+json_remove('[1,{"name":"Alice","array":[1,null,false]}]', '$.name','$[1].array','$[1].array[0]')
+[1, {"name": "Alice"}]
+select json_remove('1', '$[0]')<>json_remove('1', '$[0]');
+json_remove('1', '$[0]')<>json_remove('1', '$[0]')
+0
+select json_merge('1','1');
+json_merge('1','1')
+[1, 1]
+select json_merge(cast('11:11:11' as time), cast('11:11:11' as time));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_merge(cast(current_timestamp() as json),'"abc"');
+json_merge(cast(current_timestamp() as json),'"abc"')
+["2025-12-24 21:59:49", "abc"]
+select json_merge('{"name":"Bob","age":11}','{"name":"Bob","age":11,"relation":"dad"}');
+json_merge('{"name":"Bob","age":11}','{"name":"Bob","age":11,"relation":"dad"}')
+{"age": [11, 11], "name": ["Bob", "Bob"], "relation": "dad"}
+select json_merge('[1,2,3,{"name":"Alice","age":11}]','{"name":"Bob","obj":[1,[2,3],4]}','{"relation":"Dad","age":65,"pet":["cat","dog"]}');
+json_merge('[1,2,3,{"name":"Alice","age":11}]','{"name":"Bob","obj":[1,[2,3],4]}','{"relation":"Dad","age":65,"pet":["cat","dog"]}')
+[1, 2, 3, {"age": 11, "name": "Alice"}, {"obj": [1, [2, 3], 4], "name": "Bob"}, {"age": 65, "pet": ["cat", "dog"], "relation": "Dad"}]
+select json_merge_patch();
+ERROR HY000: YAO-5054: Param num of function 'json_merge_patch' can not be less than 2, ret=-5054
+select json_merge_patch('1','[1,2]','"abc"','{"array":[1,2,3]}');
+json_merge_patch('1','[1,2]','"abc"','{"array":[1,2,3]}')
+{"array": [1, 2, 3]}
+select json_merge_patch('true','false');
+json_merge_patch('true','false')
+false
+select json_merge_patch('{"name":["Bob", "Lisa", "Alice"],"age":11}','{"name":["Tom", "Jerry", "Lisa"], "age":{"year":1998, "day":25}, "obj":[true]}');
+json_merge_patch('{"name":["Bob", "Lisa", "Alice"],"age":11}','{"name":["Tom", "Jerry", "Lisa"], "age":{"year":1998, "day":25}, "obj":[true]}')
+{"age": {"day": 25, "year": 1998}, "obj": [true], "name": ["Tom", "Jerry", "Lisa"]}
+select json_merge_patch(current_timestamp(),'[1]','[2]');
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_depth('1','1');
+ERROR HY000: YAO-5054: Param num of function 'json_depth' must be 1, ret=-5054
+select json_depth('true'),json_depth(cast(1 as json));
+json_depth('true')	json_depth(cast(1 as json))
+1	1
+select json_depth(cast('[true]' as json));
+json_depth(cast('[true]' as json))
+2
+select json_depth('{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{}}}}}}}}}}}');
+json_depth('{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{}}}}}}}}}}}')
+11
+select json_depth('1')<>json_depth('1');
+json_depth('1')<>json_depth('1')
+0
+select json_unquote('1'),json_unquote('1.1'),json_unquote('"abc"');
+json_unquote('1')	json_unquote('1.1')	json_unquote('"abc"')
+1	1.1	abc
+select json_unquote(cast('2022-01-01' as date));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_unquote(cast('[true]' as json));
+json_unquote(cast('[true]' as json))
+[true]
+select json_unquote('[[],{},[[[[],[[],[{}]]]]]]');
+json_unquote('[[],{},[[[[],[[],[{}]]]]]]')
+[[],{},[[[[],[[],[{}]]]]]]
+select json_valid();
+ERROR HY000: YAO-5054: Param num of function 'json_valid' must be 1, ret=-5054
+select json_valid('1'),json_valid('1.1'),json_valid('"abc"');
+json_valid('1')	json_valid('1.1')	json_valid('"abc"')
+1	1	1
+select json_valid('{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{}}}}}}}}}}}');
+json_valid('{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{"a":{}}}}}}}}}}}')
+1
+select json_valid('{"name":["Tom", "Jerry", "Lisa"], "age":{"year":1998, "day":25}, "obj":[true]}');
+json_valid('{"name":["Tom", "Jerry", "Lisa"], "age":{"year":1998, "day":25}, "obj":[true]}')
+1
+select json_pretty('1'),json_pretty('1.1'),json_pretty('"abc"');
+json_pretty('1')	json_pretty('1.1')	json_pretty('"abc"')
+1	1.1	"abc"
+select json_pretty(cast('2022-01-01' as date));
+ERROR HY000: YAO-5414: Invalid data type for JSON data, a JSON string or JSON type is required.
+select json_pretty('1')!=json_pretty('1');
+json_pretty('1')!=json_pretty('1')
+0
+select json_storage_size('1'),json_storage_size('1.1'),json_storage_size('"abc"');
+json_storage_size('1')	json_storage_size('1.1')	json_storage_size('"abc"')
+1	8	5
+select json_storage_size('1','1');
+ERROR HY000: YAO-5054: Param num of function 'json_storage_size' must be 1, ret=-5054
+select json_storage_size('{"name":"Bob","age":11,"relation":"dad"}');
+json_storage_size('{"name":"Bob","age":11,"relation":"dad"}')
+41
+select json_length('[1,[1,2]]' ,1);
+ERROR HY000: YAO-5413: Invalid JSON path expression.
+select json_length(cast('[1,2]' as json),'$[1]');
+json_length(cast('[1,2]' as json),'$[1]')
+1
+select json_length('[1,{"name":"Alice","array":[1,null,false]}]', '$');
+json_length('[1,{"name":"Alice","array":[1,null,false]}]', '$')
+2
+select json_type('1'),json_type('1.1'),json_type('"abc"');
+json_type('1')	json_type('1.1')	json_type('"abc"')
+INTEGER	DOUBLE	STRING
+select json_type('1','1');
+ERROR HY000: YAO-5054: Param num of function 'json_type' must be 1, ret=-5054
+select json_type('{"name":"Bob","age":11,"relation":"dad"}');
+json_type('{"name":"Bob","age":11,"relation":"dad"}')
+OBJECT
+select json_type('1')>json_type('1');
+json_type('1')>json_type('1')
+0
+CREATE TABLE table1(ID VARCHAR2(100),DATA_JSON json,TITLE VARCHAR2(300),AUTHOR VARCHAR2(300),URL VARCHAR2(300),IMG VARCHAR2(300),CITY_CODE VARCHAR2(300),AREA_CODE VARCHAR2(300),CMANAGER_CONTACT_PHONE VARCHAR2(300),CREATE_TIME TIMESTAMP(0),REMARKS VARCHAR2(300));
+insert into table1 values('9b9d3233-1002-420f-8b72-e7aa139c110e','{"actNum":"15774","areaCode":"5742","background":"","bizType":"手机报彩信","cityCode":"574","cmanagerContact":"邵丹青","cmanagerContactPhone":"18858221009","costTotal":"1261.92","customType":"标签客群","customerName":"吴丽亚","details":"1.潜在求职意向用户:高\n2.年龄:47,52\n3.籍贯归属区县,按区县:余姚市\n4.居住地,按区县:余姚市\n","enterSion":"【农业银行余姚支行】","imgId":"908efc8a14354d36b61bf9bc06e140ae","market":"","mmsContent":"2021、2022届毕业生看过来！专业不限>！中国农业银行宁波市分行招聘啦！报名请扫图片二维码或点击下面链接。{链接}","preNum":"15774","publishId":"18747","publishName":"招聘彩信投放20210906","publishPrup":"线下引流","publishTime":"2021-09-06 17:00","pv":"70","pvRate":"0.00444","tradeId":12,"uv":"20","uvRate":"0.00127"}','招聘彩信投放20210906','jc','NULL','908efc8a14354d36b61bf9bc06e140ae','574','5742','18858221009','2021-09-08 10:01:33.000000','操作成功');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+insert into table1 values('ac8d5eae-1107-4b4c-8ade-7fdb5b3cd040','{"actNum":"12435","areaCode":"5713","background":"","bizType":"手机报彩信","cityCode":"571","cmanagerContact":"倪梦瑶","cmanagerContactPhone":"13456785211","costTotal":"0.0000","customType":"","customerName":"何雪燕","details":"","enterSion":"【晋安家电】@!~#$%^&*","imgId":"6cb40285cedf44a8bacd2aced4f7fcf3","market":"","mmsContent":"亲爱的晋安老顾客，晋安家电新登店已搬迁至富春港商城一楼！乔迁新址又遇31周年庆，9月19 -20日全场电器超低价销售再送大礼，23238726","preNum":"15766","publishId":"18782","publishName":"晋安家电新登店已搬迁至富春港商城一楼","publishPrup":"线下引流","publishTime":"2021-09-07 16:00","pv":"0","pvRate":"0.0000","tradeId":16,"uv":"0","uvRate":"0.0000"}','晋安家电新登店已搬迁至富春港商城一楼','jc','NULL','6cb40285cedf44a8bacd2aced4f7fcf3','571','5713','13456785211','2021-09-09 00:02:03.000000','操作成功');
+insert into table1 values('747f1f75-8648-456f-a3b9-22037afc68e4','{"customerName":"长兴~~~~~~~~~","publishName":"新冠疫苗宣传","costTotal":153.4,"publishTime":"2021-09-10 09:15:09","areaCode":"5722","cmanagerContactPhone":"15067220770","tradeId":8,"sceneId":"24小时应急","enterSion":"【虹星桥镇人民政府】","mmsContent":"【虹星桥镇人民政府】通知:明天(本周6)新冠疫苗生物跟科兴都有，可用于成人和12周岁以上的儿童（打第二针）。\n从下午13：30打到下午18：00。电话6682605。尽快安排，后续苗供应紧张。","cityCode":"572","cmanagerContact":"林玲","preNum":767,"actNum":767,"publishId":104716,"details":"1)(用户居住地归属乡镇【日】[已选择条件：湖州市|长兴县|和平镇]\r\n或\r\n2)用户工作地归属乡镇【日】[已选择条件：湖>州市|长兴县|和平镇])\r\n剔除\r\n3)当日停机用户【日】[是]"}','新冠疫苗宣传','jhms','NULL','NULL','NULL','NULL','NULL','2021-09-11 00:10:03.000000','筛选未通过');
+ERROR HY000: YAO-5411: INVALID JSON TEXT
+drop table if exists table1;
+create table table1 (b json);
+insert into table1 values('{"1":"aaa"}');
+SELECT CAST(b AS VARCHAR) from  table1;
+CAST(b AS VARCHAR)
+{"1": "aaa"}
+SELECT CAST(b AS int) from  table1;
+CAST(b AS int)
+0
+SELECT CAST(b AS date ) from  table1;
+CAST(b AS date )
+NULL

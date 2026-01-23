@@ -1,0 +1,9 @@
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8)) partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+begin;
+insert into c values(1,1);
+begin;
+insert into c values(1,1);
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+commit;
+commit;

@@ -1,0 +1,754 @@
+drop table if exists test_key1;
+drop table if exists test_key2;
+drop table if exists test_key3;
+create table test_key1(co1 int primary key,co2 bigint,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date) partition by range(co1)(partition q1 values less than(2),partition q3 values less than(10),partition q2 values less than maxvalue);
+create table test_key2(co1 bigint primary key,co2 int,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date) partition by range(co1)(partition s1 values less than(5),partition s2 values less than(10),partition s3 values less than(15),partition s4 values less than maxvalue);
+create table test_key3(co1 bigint,co2 int,co3 decimal(10,5),co4 varchar(256),co5 bool,co6 date,primary key(co1,co2,co3)) partition by range(co1)(partition g1 values less than(10),partition g2 values less than(20),partition g3 values less than maxvalue);
+desc test_key1;
+Field	Type	Null	Key	Default	Extra
+co1	int(10)	YES	PRI	NULL	
+co2	bigint	YES		NULL	
+co3	decimal(10,5)	YES		NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+desc test_key1;
+Field	Type	Null	Key	Default	Extra
+co1	int(10)	YES	PRI	NULL	
+co2	bigint	YES		NULL	
+co3	decimal(10,5)	YES		NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+insert into test_key1 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:1' for key 'PRIMARY'
+insert into test_key1 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+ERROR HY000: YAO-5047: No rowkey column specified
+insert into test_key1 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+ERROR HY000: YAO-5047: No rowkey column specified
+insert into test_key1 values('596',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(true,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:1' for key 'PRIMARY'
+insert into test_key1 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key1 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+ERROR HY000: YAO-5047: No rowkey column specified
+insert into test_key1 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+ERROR HY000: YAO-5047: No rowkey column specified
+desc test_key2;
+Field	Type	Null	Key	Default	Extra
+co1	bigint	YES	PRI	NULL	
+co2	int(10)	YES		NULL	
+co3	decimal(10,5)	YES		NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+desc test_key2;
+Field	Type	Null	Key	Default	Extra
+co1	bigint	YES	PRI	NULL	
+co2	int(10)	YES		NULL	
+co3	decimal(10,5)	YES		NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+insert into test_key2 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3002.16>=int:1' for key 'PRIMARY'
+insert into test_key2 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values('596',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(true,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3002.16>=int:1' for key 'PRIMARY'
+insert into test_key2 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key2 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+desc test_key3;
+Field	Type	Null	Key	Default	Extra
+co1	bigint	YES	PRI	NULL	
+co2	int(10)	YES	PRI	NULL	
+co3	decimal(10,5)	YES	PRI	NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+desc test_key3;
+Field	Type	Null	Key	Default	Extra
+co1	bigint	YES	PRI	NULL	
+co2	int(10)	YES	PRI	NULL	
+co3	decimal(10,5)	YES	PRI	NULL	
+co4	varchar(256)	YES		NULL	
+co5	bool	YES		NULL	
+co6	date	YES		NULL	
+insert into test_key3 values(NULL,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(1,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(2.2,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(1.55687,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3003.16>=int:1 <3003.17>=int32:1 <3003.18>=decimal:2.88000' for key 'PRIMARY'
+insert into test_key3 values(timestamp '1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('1990-01-01 10:10:10',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('hello',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values('596',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(true,1,2.88,'int32 test',false,'2015-10-13');
+ERROR 23000: YAO-5024: Duplicate entry ' <3003.16>=int:1 <3003.17>=int32:1 <3003.18>=decimal:2.88000' for key 'PRIMARY'
+insert into test_key3 values(5.882,1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(date '2000-01-01',1,2.88,'int32 test',false,'2015-10-13');
+insert into test_key3 values(time '10:11:12',1,2.88,'int32 test',false,'2015-10-13');
+drop table if exists test_airthemetic;
+create table test_airthemetic(co1 int primary key,c_int int,c_bigint bigint,c_float float,c_double double,c_datetime timestamp,c_timestamp timestamp,c_varchar varchar(256),c_ctime createtime,c_mtime modifytime,c_bool bool,c_decimal decimal(10,5),c_date date,c_time time) partition by range(co1)(partition r1 values less than(5),partition r2 values less than(10),partition r3 values less than(20),partition r4 values less than maxvalue);
+insert into test_airthemetic(co1) values(1);
+select co1+c_int from test_airthemetic;
+co1+c_int
+NULL
+select co1-c_int from test_airthemetic;
+co1-c_int
+NULL
+select co1*c_int from test_airthemetic;
+co1*c_int
+NULL
+select co1/c_int from test_airthemetic;
+co1/c_int
+NULL
+select c_int+c_bigint from test_airthemetic;
+c_int+c_bigint
+NULL
+select c_int-c_bigint from test_airthemetic;
+c_int-c_bigint
+NULL
+select c_int*c_bigint from test_airthemetic;
+c_int*c_bigint
+NULL
+select c_int/c_bigint from test_airthemetic;
+c_int/c_bigint
+NULL
+select c_int+c_float from test_airthemetic;
+c_int+c_float
+NULL
+select c_int-c_float from test_airthemetic;
+c_int-c_float
+NULL
+select c_int*c_float from test_airthemetic;
+c_int*c_float
+NULL
+select c_int/c_float from test_airthemetic;
+c_int/c_float
+NULL
+select c_int+c_double from test_airthemetic;
+c_int+c_double
+NULL
+select c_int-c_double from test_airthemetic;
+c_int-c_double
+NULL
+select c_int*c_double from test_airthemetic;
+c_int*c_double
+NULL
+select c_int/c_double from test_airthemetic;
+c_int/c_double
+NULL
+select c_int+c_datetime from test_airthemetic;
+c_int+c_datetime
+NULL
+select c_int-c_datetime from test_airthemetic;
+c_int-c_datetime
+NULL
+select c_int*c_datetime from test_airthemetic;
+c_int*c_datetime
+NULL
+select c_int/c_datetime from test_airthemetic;
+c_int/c_datetime
+NULL
+select c_int+c_timestamp from test_airthemetic;
+c_int+c_timestamp
+NULL
+select c_int-c_timestamp from test_airthemetic;
+c_int-c_timestamp
+NULL
+select c_int*c_timestamp from test_airthemetic;
+c_int*c_timestamp
+NULL
+select c_int/c_timestamp from test_airthemetic;
+c_int/c_timestamp
+NULL
+select c_int+c_varchar from test_airthemetic;
+c_int+c_varchar
+NULL
+select c_int-c_varchar from test_airthemetic;
+c_int-c_varchar
+NULL
+select c_int*c_varchar from test_airthemetic;
+c_int*c_varchar
+NULL
+select c_int/c_varchar from test_airthemetic;
+c_int/c_varchar
+NULL
+select c_int+c_bool from test_airthemetic;
+c_int+c_bool
+NULL
+select c_int-c_bool from test_airthemetic;
+c_int-c_bool
+NULL
+select c_int*c_bool from test_airthemetic;
+c_int*c_bool
+NULL
+select c_int/c_bool from test_airthemetic;
+c_int/c_bool
+NULL
+select c_int+c_decimal from test_airthemetic;
+c_int+c_decimal
+NULL
+select c_int-c_decimal from test_airthemetic;
+c_int-c_decimal
+NULL
+select c_int*c_decimal from test_airthemetic;
+c_int*c_decimal
+NULL
+select c_int/c_decimal from test_airthemetic;
+c_int/c_decimal
+NULL
+select c_int+c_date from test_airthemetic;
+c_int+c_date
+NULL
+select c_int-c_date from test_airthemetic;
+c_int-c_date
+NULL
+select c_int*c_date from test_airthemetic;
+c_int*c_date
+NULL
+select c_int/c_date from test_airthemetic;
+c_int/c_date
+NULL
+select c_int+c_time from test_airthemetic;
+c_int+c_time
+NULL
+select c_int-c_time from test_airthemetic;
+c_int-c_time
+NULL
+select c_int*c_time from test_airthemetic;
+c_int*c_time
+NULL
+select c_int/c_time from test_airthemetic;
+c_int/c_time
+NULL
+drop table if exists test_airthemetic;
+create table test_airthemetic(co1 int primary key,c_int int,c_bigint bigint,c_float float,c_double double,c_datetime timestamp,c_timestamp timestamp,c_varchar varchar(256),c_ctime createtime,c_mtime modifytime,c_bool bool,c_decimal decimal(10,5),c_date date,c_time time) partition by range(co1)(partition w1 values less than(3),partition w2 values less than(5),partition w3 values less than maxvalue);
+insert into test_airthemetic(co1,c_int,c_bigint,c_float,c_double,c_datetime,c_timestamp,c_varchar,c_bool,c_decimal,c_date,c_time) values (1,1,5,1.1,1.1234567,'1970-01-01 08:00:00','2015-10-09 10:24:32.123456','test int32',true,1256.668,'1998-10-24','09:44:11');
+insert into test_airthemetic(co1,c_int,c_bigint,c_float,c_double,c_datetime,c_timestamp,c_varchar,c_bool,c_decimal,c_date,c_time) values (2,2,5,1.1,1.1234567,'1970-01-01 08:00:00','2015-10-09 10:24:32.123456','1258',true,1256.668,'1998-10-24','09:44:11');
+insert into test_airthemetic(co1,c_int) values(3,0);
+select co1+c_int from test_airthemetic where co1=1;
+co1+c_int
+2
+select co1-c_int from test_airthemetic where co1=1;
+co1-c_int
+0
+select co1*c_int from test_airthemetic where co1=1;
+co1*c_int
+1
+select co1/c_int from test_airthemetic where co1=1;
+co1/c_int
+1
+select co1/c_int from test_airthemetic where co1=3;
+co1/c_int
+NULL
+select c_int+c_bigint from test_airthemetic where co1=1;
+c_int+c_bigint
+6
+select c_int-c_bigint from test_airthemetic where co1=1;
+c_int-c_bigint
+-4
+select c_int*c_bigint from test_airthemetic where co1=1;
+c_int*c_bigint
+5
+select c_int/c_bigint from test_airthemetic where co1=1;
+c_int/c_bigint
+0.2
+select c_int+c_float from test_airthemetic where co1=1;
+c_int+c_float
+2.100000023841858
+select c_int-c_float from test_airthemetic where co1=1;
+c_int-c_float
+-0.10000002384185791
+select c_int*c_float from test_airthemetic where co1=1;
+c_int*c_float
+1.100000023841858
+select c_int/c_float from test_airthemetic where co1=1;
+c_int/c_float
+0.9090908893868948
+select c_int+c_double from test_airthemetic where co1=1;
+c_int+c_double
+2.1234567
+select c_int-c_double from test_airthemetic where co1=1;
+c_int-c_double
+-0.12345669999999997
+select c_int*c_double from test_airthemetic where co1=1;
+c_int*c_double
+1.1234567
+select c_int/c_double from test_airthemetic where co1=1;
+c_int/c_double
+0.8901099615143157
+select c_int+c_datetime from test_airthemetic where co1=1;
+c_int+c_datetime
+19700101080001
+select c_int-c_datetime from test_airthemetic where co1=1;
+c_int-c_datetime
+-19700101079999
+select c_int*c_datetime from test_airthemetic where co1=1;
+c_int*c_datetime
+19700101080000
+select c_int/c_datetime from test_airthemetic where co1=1;
+c_int/c_datetime
+0
+select c_int+c_timestamp from test_airthemetic where co1=1;
+c_int+c_timestamp
+19700101080001
+select c_int-c_timestamp from test_airthemetic where co1=1;
+c_int-c_timestamp
+-19700101079999
+select c_int*c_timestamp from test_airthemetic where co1=1;
+c_int*c_timestamp
+20151009102432.123456
+select c_int/c_timestamp from test_airthemetic where co1=1;
+c_int/c_timestamp
+0
+select c_int+c_varchar from test_airthemetic where co1=1;
+c_int+c_varchar
+1
+select c_int-c_varchar from test_airthemetic where co1=1;
+c_int-c_varchar
+1
+select c_int*c_varchar from test_airthemetic where co1=1;
+c_int*c_varchar
+0
+select c_int/c_varchar from test_airthemetic where co1=1;
+c_int/c_varchar
+0
+select c_int+c_varchar from test_airthemetic where co1=2;
+c_int+c_varchar
+1260
+select c_int-c_varchar from test_airthemetic where co1=2;
+c_int-c_varchar
+-1256
+select c_int*c_varchar from test_airthemetic where co1=2;
+c_int*c_varchar
+2516
+select c_int/c_varchar from test_airthemetic where co1=2;
+c_int/c_varchar
+0.001589825119236884
+select c_int+c_ctime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int-c_ctime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int*c_ctime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int/c_ctime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int+c_mtime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int-c_mtime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int*c_mtime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int/c_mtime from test_airthemetic;
+ERROR S1004: YAO-5023: Illegal type
+select c_int+c_bool from test_airthemetic;
+c_int+c_bool
+2
+3
+NULL
+select c_int-c_bool from test_airthemetic;
+c_int-c_bool
+0
+1
+NULL
+select c_int*c_bool from test_airthemetic;
+c_int*c_bool
+1
+2
+NULL
+select c_int/c_bool from test_airthemetic;
+c_int/c_bool
+1
+2
+NULL
+select c_int+c_decimal from test_airthemetic;
+c_int+c_decimal
+1257.668
+1258.668
+NULL
+select c_int-c_decimal from test_airthemetic;
+c_int-c_decimal
+-1255.668
+-1254.668
+NULL
+select c_int*c_decimal from test_airthemetic;
+c_int*c_decimal
+1256.668
+2513.336
+NULL
+select c_int/c_decimal from test_airthemetic;
+c_int/c_decimal
+0.0008
+0.0016
+NULL
+select c_int+c_date from test_airthemetic;
+c_int+c_date
+19700102
+19700103
+NULL
+select c_int-c_date from test_airthemetic;
+c_int-c_date
+-19700100
+-19700099
+NULL
+select c_int*c_date from test_airthemetic;
+c_int*c_date
+909158400000000
+1818316800000000
+NULL
+select c_int/c_date from test_airthemetic;
+c_int/c_date
+0
+0
+NULL
+select c_int+c_time from test_airthemetic;
+c_int+c_time
+94412
+94413
+NULL
+select c_int-c_time from test_airthemetic;
+c_int-c_time
+-94410
+-94409
+NULL
+select c_int*c_time from test_airthemetic;
+c_int*c_time
+94411
+188822
+NULL
+select c_int/c_time from test_airthemetic;
+c_int/c_time
+0
+0
+NULL
+drop table if exists test_bound;
+create table test_bound(id int primary key,co1 int) partition by list(id)(partition r1 values in(1,3),partition r2 values in(2,4));
+insert into test_bound values (1,2147483647);
+insert into test_bound values (2,2147483648);
+ERROR HY000: YAO-79: Value out of range
+insert into test_bound values (3,-2147483648);
+insert into test_bound values (4,-2147483649);
+ERROR HY000: YAO-79: Value out of range
+drop table if exists test_update;
+create table test_update(co1 bigint primary key,co2 int) partition by range(co1)(partition p1 values less than(5),partition p2 values less than(10),partition p3 values less than maxvalue);
+create or replace sequence seq;
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+insert into test_update values(nextval for seq,nextval for seq);
+update test_update set co2=null where co1=1;
+select * from test_update;
+co1	co2
+1	NULL
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=12345 where co1=1;
+select * from test_update;
+co1	co2
+1	12345
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=12345678910 where co1=1;
+ERROR HY000: YAO-79: Value out of range
+select * from test_update;
+co1	co2
+1	12345
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=123.0 where co1=1;
+select * from test_update;
+co1	co2
+1	123
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=123.0 where co1=1;
+select * from test_update;
+co1	co2
+1	123
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=123.0000000000000001 where co1=1;
+select * from test_update;
+co1	co2
+1	123
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=12345678919.0000000000001 where co1=1;
+ERROR HY000: YAO-79: Value out of range
+select * from test_update;
+co1	co2
+1	123
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='1345.' where co1=1;
+select * from test_update;
+co1	co2
+1	1345
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='1345.' where co1=1;
+select * from test_update;
+co1	co2
+1	1345
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='321' where co1=1;
+select * from test_update;
+co1	co2
+1	321
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='98765432112345' where co1=1;
+ERROR HY000: YAO-19: Size overflow
+select * from test_update;
+co1	co2
+1	321
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='abc' where co1=1;
+ERROR 0A000: YAO-7: Not supported feature or function
+select * from test_update;
+co1	co2
+1	321
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=true where co1=2;
+select * from test_update;
+co1	co2
+1	321
+2	1
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2=false where co1=2;
+select * from test_update;
+co1	co2
+1	321
+2	0
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='2015-12-12 12:21:16.1234' where co1=2;
+select * from test_update;
+co1	co2
+1	321
+2	2015
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='2015-12-12' where co1=2;
+select * from test_update;
+co1	co2
+1	321
+2	2015
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+update test_update set co2='12:21:32' where co1=2;
+select * from test_update;
+co1	co2
+1	321
+2	12
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+drop table if exists test_delete;
+create table test_delete(co1 bigint primary key,co2 int) partition by range(co1)(partition v1 values less than(3),partition v2 values less than(6),partition v3 values less than(10),partition v4 values less than maxvalue);
+create or replace sequence seq;
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+insert into test_delete values(nextval for seq,nextval for seq);
+delete from test_delete where co1=1;
+select * from test_delete;
+co1	co2
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+delete from test_delete where co1>9;
+select * from test_delete;
+co1	co2
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+delete from test_delete where co1<3;
+select * from test_delete;
+co1	co2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+delete from test_delete where co1>=9;
+select * from test_delete;
+co1	co2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+delete from test_delete where co1<=3;
+select * from test_delete;
+co1	co2
+4	4
+5	5
+6	6
+7	7
+8	8
+delete from test_delete where co1 between 4 and 5;
+select * from test_delete;
+co1	co2
+6	6
+7	7
+8	8
+delete from test_delete where co1 in(7,8);
+select * from test_delete;
+co1	co2
+6	6

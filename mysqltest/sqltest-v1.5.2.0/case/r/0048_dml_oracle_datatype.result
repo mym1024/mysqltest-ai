@@ -1,0 +1,169 @@
+set names utf8mb4;
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 varchar2(30));
+insert into t values(1,'aaa');
+insert into t values(2,'12345');
+insert into t values(3,'数据类型');
+select * from t;
+id1	id2
+1	aaa
+2	12345
+3	数据类型
+update t set id2='abcdefg' where id1=2;
+select * from t;
+id1	id2
+1	aaa
+2	abcdefg
+3	数据类型
+select length(id1) from  t where id1=1;
+length(id1)
+1
+select length(id2) from  t where id1=3;
+length(id2)
+12
+select max(length(id1)) from  t;
+max(length(id1))
+1
+select max(length(id2)) from  t;
+max(length(id2))
+12
+select min(length(id1)) from  t;
+min(length(id1))
+1
+select min(length(id2)) from  t;
+min(length(id2))
+3
+SELECT SUBSTR('2018-08-17',6);
+SUBSTR('2018-08-17',6)
+08-17
+SELECT SUBSTR(id2,3) from t;
+SUBSTR(id2,3)
+a
+cdefg
+类型
+SELECT SUBSTR('2018-08-17',6,7);
+SUBSTR('2018-08-17',6,7)
+08-17
+SELECT * FROM t WHERE LENGTH(id2) <> CHAR_LENGTH(id2);
+id1	id2
+3	数据类型
+delete from t where id1=1;
+drop table if exists t;
+create table if not exists t(id1 nvarchar2(30) primary key, id2 int);
+insert into t values('aaa',1);
+insert into t values('12345',2);
+insert into t values('数据类型',3);
+update t set id1='数据' where id1='aaa';
+delete from t where id1='12345';
+select * from t;
+id1	id2
+数据	1
+数据类型	3
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 datetime(6));
+insert into t values(1,'2022-04-11 15:36:01');
+insert into t values(2,'2019-09-11 09:28:34');
+insert into t values(3,'2021-05-30 13:26:14');
+update t set id2='2021-06-30 13:26:33' where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	2021-06-30 13:26:33.000000
+2	2019-09-11 09:28:34.000000
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 datetime(0));
+insert into t values(1,'2022-04-11 15:36:01');
+insert into t values(2,'2019-09-11 09:28:34');
+insert into t values(3,'2021-05-30 13:26:14');
+select * from t;
+id1	id2
+1	2022-04-11 15:36:01
+2	2019-09-11 09:28:34
+3	2021-05-30 13:26:14
+update t set id2='2021-06-30' where id1=1;
+select * from t;
+id1	id2
+1	2021-06-30 00:00:00
+2	2019-09-11 09:28:34
+3	2021-05-30 13:26:14
+delete from t where id1=2;
+select * from t;
+id1	id2
+1	2021-06-30 00:00:00
+3	2021-05-30 13:26:14
+drop table if exists t;
+CREATE TABLE if not exists t(c1 BIGINT,c2 TIMESTAMP(0));
+insert into t values(1, to_date('2020/02/03','YYYY-MM-DD'));
+insert into t values(2, to_date('2020/02/02','YYYY-MM-DD'));
+insert into t(c1,c2) values(3, to_date('2020/02/05','YYYY-MM-DD'));
+select * from t;
+c1	c2
+1	2020-02-03 00:00:00
+2	2020-02-02 00:00:00
+3	2020-02-05 00:00:00
+update t set c2='2021-06-30' where c1=1;
+select * from t;
+c1	c2
+1	2021-06-30 00:00:00
+2	2020-02-02 00:00:00
+3	2020-02-05 00:00:00
+delete from t where c1=1;
+select * from t;
+c1	c2
+2	2020-02-02 00:00:00
+3	2020-02-05 00:00:00
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 number(6,3));
+insert into t values(1,123.4578);
+insert into t values(2,13.24645);
+insert into t values(3,5.12);
+select * from t;
+id1	id2
+1	123.457
+2	13.246
+3	5.12
+update t set id2=256.78215 where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	256.782
+2	13.246
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 number(31,7));
+insert into t values(1,121213.4578155515);
+insert into t values(2,1312121151515151212121212121212.246451);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(37,6) to decimal(31,7) for table[test.t] column[id2] at row[1]
+insert into t values(4,1312121151515151212121212121212.2464145);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(38,7) to decimal(31,7) for table[test.t] column[id2] at row[1]
+insert into t values(3,5.12);
+select * from t;
+id1	id2
+1	121213.4578155
+3	5.12
+update t set id2=256.78215 where id1=1;
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	256.78215
+drop table if exists t;
+create table if not exists t(id1 number primary key, id2 number);
+insert into t values(1,12);
+insert into t values(2,1312121151515151212121212121212.246451);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(37,6) to decimal(65,40) for table[test.t] column[id2] at row[1]
+insert into t values(4,1312121151515151212121212121212.2464145);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(38,7) to decimal(65,40) for table[test.t] column[id2] at row[1]
+insert into t values(3,512);
+select * from t;
+id1	id2
+1	12
+3	512
+update t set id2=5348 where id1=1;
+select * from t;
+id1	id2
+1	5348
+3	512
+delete from t where id1=3;
+select * from t;
+id1	id2
+1	5348
+drop table if exists t;

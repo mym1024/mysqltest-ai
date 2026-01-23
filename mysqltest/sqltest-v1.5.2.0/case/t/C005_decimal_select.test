@@ -1,0 +1,96 @@
+--source merge.sql
+#######################################################################################################
+###1.测试功能点：decimal类型的数据简单查询
+
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：602s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2019-10-30
+###8.其他（选填）：***
+###
+##
+#
+###########################################################################################################
+
+#######################################Do SQL##############################################################
+
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+###设置合并参数
+
+
+###根据用户传入的值进行查询
+create table t1(c1 decimal(10,5) primary key, c2 decimal(10,5));
+insert into t1 values(1234.56781, 1234.43211);
+insert into t1 values(1234.56782, 1234.43212);
+insert into t1 values(1234.56783, 1234.43213);
+insert into t1 values(1234.56784, 1234.43214);
+insert into t1 values(1234.56785, 1234.43215);
+
+select * from t1;
+select * from t1 where c1 = 1234.56781;
+select * from t1 where c2 = 1234.43211;
+
+select * from t1 where c1 between 1234.56781 and 1234.56784;
+select * from t1 where c1 between 1234.56781 and 1234.56783;
+
+create table t2(c1 decimal(10,3) primary key, c2 decimal(10,3), c3 decimal(10,3), c4 decimal(10,3));
+replace into t2 values(1.23, 1.23, 1.23, 1.23), (2.34, 2.34, 2.34, 2.34), (3.45, 3.45, 3.45, 3.45), (4.56, 4.56, 4.56, 4.56); 
+select * from t2;
+
+#主键操作
+drop table if exists t2;
+create table t2(c1 decimal(10,3) primary key, c2 decimal(10,3), c3 decimal(10,3), c4 decimal(10,3));
+replace into t2 values(1.23, 1.23, 1.23, 1.23), (2.34, 2.34, 2.34, 2.34), (3.45, 3.45, 3.45, 3.45), (4.56, 4.56, 4.56, 4.56); 
+select * from t2;
+delete from t2 where c1 > 1;
+select * from t2;
+replace into t2 values(1.23, 1.23, 1.23, 1.23), (2.34, 2.34, 2.34, 2.34), (3.45, 3.45, 3.45, 3.45), (4.56, 4.56, 4.56, 4.56); 
+select * from t2;
+delete from t2 where c1 > 1.0;
+select * from t2;
+
+
+#非主键操作
+drop table if exists t2;
+create table t2(c1 decimal(10,3) primary key, c2 decimal(10,3), c3 decimal(10,3), c4 decimal(10,3));
+replace into t2 values(1.23, 1.23, 1.23, 1.23), (2.34, 2.34, 2.34, 2.34), (3.45, 3.45, 3.45, 3.45), (4.56, 4.56, 4.56, 4.56); 
+select * from t2;
+delete from t2 where c2 > 1;
+select * from t2;
+replace into t2 values(1.23, 1.23, 1.23, 1.23), (2.34, 2.34, 2.34, 2.34), (3.45, 3.45, 3.45, 3.45), (4.56, 4.56, 4.56, 4.56); 
+select * from t2;
+delete from t2 where c2 > 1.0;
+select * from t2;
+
+
+#建立索引
+drop table if exists t2;
+create table t2(c1 decimal(10,3) primary key, c2 decimal(10,3), c3 decimal(10,3), c4 decimal(10,3));
+select * from t2;
+create index i1 on t2(c2);
+create index i2 on t2(c3);
+
+###合并，使索引生效
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+-- real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t2;
+
+#根据索引的主键列删除表数据
+delete from t2 where c2 > 3;
+select * from t2;
+delete from t2 where c2 > 2.0;
+select * from t2;
+delete from t2 where c2 = 2.34;
+select * from t2;
+delete from t2 where c2 = 1.2300;
+select * from t2;

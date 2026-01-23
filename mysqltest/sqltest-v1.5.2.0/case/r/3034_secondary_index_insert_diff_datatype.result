@@ -1,0 +1,222 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+set yao_query_timeout=900000000;
+drop table if exists t1;
+create table t1(id int primary key,c1 decimal(5,4),c2 int,c3 varchar(20),c4 datetime,c5 bool,c6 double);
+insert into t1 values(1,1.2345,3,'maos','2901-12-22 12:00:00',1,23.345),(2,2.3545,4,'dfdff','2301-02-13 12:00:00',0,3434),(3,1.3445,34,'fcf','1234-01-12 21:00:00',0,12.43);
+select * from t1;
+id	c1	c2	c3	c4	c5	c6
+1	1.2345	3	maos	2901-12-22 12:00:00.000000	1	23.345
+2	2.3545	4	dfdff	2301-02-13 12:00:00.000000	0	3434
+3	1.3445	34	fcf	1234-01-12 21:00:00.000000	0	12.43
+create index il0 on t1(c1,c3) storing(c5,c6);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__il0	1	0
+__3001__idx__il0
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+3	1.3445	fcf	0	12.43
+2	2.3545	dfdff	0	3434
+insert into t1(id,c1) values(4,7.3433),(6,3.4541),(7,3.9080),(8,8.3433);
+insert into t1(id,c1) values (111,32.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(4,2) to decimal(5,4) for table[test.t1] column[c1] at row[1]
+insert into t1(id,c1) values (111,2.12);
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+insert into t1(id,c3) values(9,'nfndf'),(10,'fde3');
+insert into t1(id,c3) values(11,'dsfdfdsdsdsfsd');
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+insert into t1(id,c4) values(18,'1234-2-2 12:00:00'),(12,'1234-2-2 12:00:00'),(13,'1234-2-2 12:00:00');
+insert into t1(id,c4) values(14,'13224-09-12123 324:32:2343');
+ERROR HY000: YAO-5102: Format of TIMESTAMP value is incorrect.
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+12	NULL	NULL	NULL	NULL
+13	NULL	NULL	NULL	NULL
+18	NULL	NULL	NULL	NULL
+insert into t1(id,c5) values(15,1),(16,0);
+insert into t1(id,c5) values(17,9);
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+12	NULL	NULL	NULL	NULL
+13	NULL	NULL	NULL	NULL
+15	NULL	NULL	1	NULL
+16	NULL	NULL	0	NULL
+17	NULL	NULL	1	NULL
+18	NULL	NULL	NULL	NULL
+insert into t1(id,c1,c3) values(20,1.2345,'mmmmmm'),(22,1.2345,'mmmmmm'),(23,1.2345,'mmmmmm'),(24,1.2345,'mmmmmm'),(25,1.2345,'mmmmmm');
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+20	1.2345	mmmmmm	NULL	NULL
+22	1.2345	mmmmmm	NULL	NULL
+23	1.2345	mmmmmm	NULL	NULL
+24	1.2345	mmmmmm	NULL	NULL
+25	1.2345	mmmmmm	NULL	NULL
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+12	NULL	NULL	NULL	NULL
+13	NULL	NULL	NULL	NULL
+15	NULL	NULL	1	NULL
+16	NULL	NULL	0	NULL
+17	NULL	NULL	1	NULL
+18	NULL	NULL	NULL	NULL
+insert into t1(id,c1,c4) values(26,2.2345,'cdcdcdcdcd'),(27,2.2345,'cdcdcdcdcd'),(28,2.2345,'cdcdcdcdcd'),(29,2.2345,'cdcdcdcdcd'),(30,2.2345,'cdcdcdcdcd'),(31,2.2345,'cdcdcdcdcd');
+ERROR HY000: YAO-5102: Format of TIMESTAMP value is incorrect.
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+20	1.2345	mmmmmm	NULL	NULL
+22	1.2345	mmmmmm	NULL	NULL
+23	1.2345	mmmmmm	NULL	NULL
+24	1.2345	mmmmmm	NULL	NULL
+25	1.2345	mmmmmm	NULL	NULL
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+12	NULL	NULL	NULL	NULL
+13	NULL	NULL	NULL	NULL
+15	NULL	NULL	1	NULL
+16	NULL	NULL	0	NULL
+17	NULL	NULL	1	NULL
+18	NULL	NULL	NULL	NULL
+insert into t1(id,c4,c5) values(32,'3024-04-24 2:00:00','frfrfrfr'),(34,'3024-04-24 2:00:00','frfrfrfr'),(35,'3024-04-24 2:00:00','frfrfrfr'),(36,'3024-04-24 2:00:00','frfrfrfr'),(37,'3024-04-24 2:00:00','frfrfrfr');
+select * from __3001__idx__il0;
+id	c1	c3	c5	c6
+1	1.2345	maos	1	23.345
+20	1.2345	mmmmmm	NULL	NULL
+22	1.2345	mmmmmm	NULL	NULL
+23	1.2345	mmmmmm	NULL	NULL
+24	1.2345	mmmmmm	NULL	NULL
+25	1.2345	mmmmmm	NULL	NULL
+3	1.3445	fcf	0	12.43
+111	2.12	NULL	NULL	NULL
+2	2.3545	dfdff	0	3434
+6	3.4541	NULL	NULL	NULL
+7	3.908	NULL	NULL	NULL
+4	7.3433	NULL	NULL	NULL
+8	8.3433	NULL	NULL	NULL
+11	NULL	dsfdfdsdsdsfsd	NULL	NULL
+10	NULL	fde3	NULL	NULL
+9	NULL	nfndf	NULL	NULL
+12	NULL	NULL	NULL	NULL
+13	NULL	NULL	NULL	NULL
+15	NULL	NULL	1	NULL
+16	NULL	NULL	0	NULL
+17	NULL	NULL	1	NULL
+18	NULL	NULL	NULL	NULL
+32	NULL	NULL	0	NULL
+34	NULL	NULL	0	NULL
+35	NULL	NULL	0	NULL
+36	NULL	NULL	0	NULL
+37	NULL	NULL	0	NULL
+drop table t1;
+create table t1 (id int primary key,c1 createtime,c2 modifytime,c3 timestamp,c4 real);
+create index il0 on t1(c3) storing(c1,c2,c4);
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3003__idx__il0	1	0
+__3003__idx__il0
+select * from __3003__idx__il0;
+c1	c2	id	c3	c4
+insert into t1(id,c1) values(1,'2019-08-29 13:26:47.326624');
+ERROR HY000: YAO-5056: Column 'c1' of type ObCreateTimeType can not be inserted
+select * from __3003__idx__il0;
+c1	c2	id	c3	c4
+insert into t1(id,c2) values(1,'2019-08-29 13:26:47.326624');
+ERROR HY000: YAO-5056: Column 'c2' of type ObModifyTimeType can not be inserted
+select * from __3003__idx__il0;
+c1	c2	id	c3	c4
+insert into t1(id,c3) values(3,'2019-08-29 13:26:47.326624');
+insert into t1(id,c3) values(4,'2019-08-29 13:30:07.997919');
+insert into t1(id,c3) values(5,'2019-08-29 13:28:47.875477');
+insert into t1(id,c3) values(6,'2019-08-29');
+select count(*) from __3003__idx__il0;
+count(*)
+4
+insert into t1(id,c4) values(7,1.232434333);
+insert into t1(id,c4) values(8,43.232434333);
+insert into t1(id,c4) values(9,1.2324343999999999999999999999999999999933);
+insert into t1(id,c4) values(10,1);
+insert into t1(id,c4) values(11,0);
+select count(*) from __3003__idx__il0;
+count(*)
+9
+create index il1 on t1(c3,c4) storing(c2,c1);
+insert into t1(id,c3,c4) values(12,'2019-08-29 13:30:07.997919','2019-08-29 13:30:07.997919');
+insert into t1(id,c3,c4) values(13,'2019-08-29 13:30:07.997919','2019-08-29 13:30:07.997919');
+select count(*) from __3003__idx__il0;
+count(*)
+11

@@ -1,0 +1,324 @@
+##############################################################################################
+###1.测试功能点：测试存储过程条件控制功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-03-21
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+###准备表数据
+create table proc_test(id int  primary key, age int, name varchar(20)); 
+insert into proc_test values(2,2,'a'),(3,3,'a'),(4,4,'a');
+select * from proc_test;
+
+###2-1、IF语句
+#IF语句表达式为子查询类型
+delimiter //;
+create procedure p() 
+begin 
+declare a int default 1;
+if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual;
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式为多个子查询组成
+create procedure p() 
+begin 
+declare a int default 1; 
+declare b int default 2;
+if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) and b = (select count(1) from proc_test where id = (select count(1) from proc_test)) + 1 then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare a int default 1; 
+if a = (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式为纯子查询，子查询结果不为0
+create procedure p() 
+begin 
+declare a int default 1; 
+if (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual;
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式为纯子查询，子查询结果为0
+create procedure p() 
+begin 
+declare a int default 1; 
+if (select count(1)-1 from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中row_count函数
+create procedure p() 
+begin 
+update proc_test set name = 'b' where id = 2; if row_count() = 1 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中substring函数
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if substring(str,4) = 't' then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中REGEXP
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if (str REGEXP 't') then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中convert函数
+create procedure p() 
+begin 
+declare str varchar(20) default '0';
+if convert(str,int) then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中convert函数using更改编码
+create procedure p() 
+begin 
+declare str varchar(20) default '0';
+if convert(str using utf8) then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中instr函数
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if instr(str,'t') = 1 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句表达式中char_length函数
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if char_length(str) = 4 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中批量insert语句
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 6;
+if char_length(str) = 4 then insert into proc_test values(a,a+1,'a'),(7,a+1,'a');
+select * from proc_test;
+else select 3; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中简单update语句,update语句修改非主键列
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then update proc_test set age = 18 where id = a;
+select * from proc_test;
+else select 4; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中简单update语句,update语句修改主键列
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then update proc_test set id = a+1 where id = a;
+select * from proc_test;
+else select 5; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中delete语句
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then delete from proc_test where id = a+1;
+select * from proc_test;
+else select 6; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#select语句where子句in子查询
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then select * from proc_test where id in (select age from proc_test where id < a);
+else select 8; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中select语句where子句嵌套多层子查询
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+else select 9; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中select语句where子句join连接子查询
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test)); 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中select语句from子句嵌套子查询
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+else select 12; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中select语句from子句嵌套子查询,group by,order by,limit
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+else select 15; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#IF语句中select语句union
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then select * from proc_test union select * from proc_test;
+else select 16; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+###2-2、CASE语句
+#CASE语句case表达式为子查询类型
+create procedure p() 
+begin 
+declare a int default 1;
+case  (select count(1) from proc_test where id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+end;//
+call p()//
+drop procedure p//
+
+#CASE语句when表达式为子查询类型
+create procedure p() 
+begin 
+declare a int default 1;
+case a when (select count(1) from proc_test where id = (select count(1) from proc_test))  then select 1 from dual;
+else select 3 from dual; 
+end case; 
+end;//
+call p()//
+drop procedure p//
+
+#CASE语句case表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare a int default 1; 
+case (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+end;//
+call p()//
+drop procedure p//
+
+#CASE语句when表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare a int default 1; 
+case a when (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;else select 3 from dual; 
+end case; 
+end;//
+call p()//
+drop procedure p//

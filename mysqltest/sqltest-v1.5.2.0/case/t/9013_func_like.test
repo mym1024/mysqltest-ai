@@ -1,0 +1,104 @@
+##############################################################################################
+###1.测试功能点：不指定分区规则，条件查询like
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-27
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1(a varchar(10) primary key,b int default 0);
+insert into t1(a) values ('a'),('abc'),('abcd'),('hello'),('test');
+select  * from t1 where a like 'abc%';
+select  * from t1 where a like 'ABC%';
+select  * from t1 where a like 'test%';
+select  * from t1 where a like 'te_t';
+select  * from t1 where a like '%a%';
+select  * from t1 where a like '%abcd%';
+select  * from t1 where a like '%abc\d%';
+drop table t1;
+
+create table t1(a varchar(10) primary key,b int default 0);
+insert into t1(a) values ('a'),('a\\b');
+select  * from t1 where a like 'a\\%';
+drop table t1;
+
+drop table if exists t1;
+create table t1(id int primary key,name varchar(20));
+insert into t1 values(1,'hello');
+insert into t1 values(2,'hell');
+insert into t1 values(3,'hel');
+insert into t1 values(4,'hello1');
+insert into t1 values(5,'hell1');
+insert into t1 values(6,'hel1');
+select  * from t1 where name like '%h%';
+select  * from t1 where name like '%hel%';
+select  * from t1 where name like '%hell%';
+select  * from t1 where name like '%hello%';
+select  * from t1 where name like '%h%';
+select  * from t1 where name like '%h%e%l%';
+select  * from t1 where name like '%h%e%l%l%';
+select  * from t1 where name like '%h%e%l%l%o%';
+select  * from t1 where name like '%%h%%';
+select  * from t1 where name like '%%h%%e%%l%%';
+select  * from t1 where name like '%%h%%e%%l%%l%%';
+select  * from t1 where name like '%%h%%e%%l%l%%o%%';
+select  * from t1 where name like '%%he%%llo%%';
+select  * from t1 where name like '1%h%';
+select  * from t1 where name like '1%hel%';
+select  * from t1 where name like '1%hell%';
+select  * from t1 where name like '1%h%';
+select  * from t1 where name like '%hel%1';
+select  * from t1 where name like '%hell%1';
+select  * from t1 where name like '%hello%1';
+select  * from t1 where name like '1%hel%1';
+select  * from t1 where name like '%hell%1';
+select  * from t1 where name like '%hello%1';
+select  * from t1 where name like '%hel%1';
+select  * from t1 where name like '1%hell%1';
+select  * from t1 where name like '1%hello%1';
+
+select  * from t1 where name like '_h_';
+select  * from t1 where name like '_hel_';
+select  * from t1 where name like '_hell_';
+select  * from t1 where name like '_hello_';
+select  * from t1 where name like '_h_';
+select  * from t1 where name like '_h_e_l_';
+select  * from t1 where name like '_h_e_l_l_';
+select  * from t1 where name like '_h_e_l_l_o_';
+select  * from t1 where name like '__h__';
+select  * from t1 where name like '__h__e__l__';
+select  * from t1 where name like '__h__e__l__l__';
+select  * from t1 where name like '__h__e_l__l__o__';
+select  * from t1 where name like '__he__llo__';
+select  * from t1 where name like '1_h_';
+select  * from t1 where name like '1_hel_';
+select  * from t1 where name like '1_hell_';
+select  * from t1 where name like '1_h_';
+select  * from t1 where name like '_hel_1';
+select  * from t1 where name like '_hell_1';
+select  * from t1 where name like '_hello_1';
+select  * from t1 where name like '1_hel_1';
+select  * from t1 where name like '_hell_1';
+select  * from t1 where name like '_hello_1';
+select  * from t1 where name like '_hel_1';
+select  * from t1 where name like '1_hell_1';
+select  * from t1 where name like '1_hello_1';
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

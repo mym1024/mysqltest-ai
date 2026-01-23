@@ -1,0 +1,174 @@
+##############################################################################################
+###1.测试功能点：测试jdbc连接数据库，通过设置autocommit来控制事务的执行
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2020-01-02
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_abort_on_error
+--echo case 1:commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+
+###2-1：测试jdbc连接数据库，通过设置autocommit来控制事务的执行
+
+create table t1(c1 int primary key ,c2 int) partition by range(c1) (partition a1 values less than(3),partition a2 values less than (6),partition a3 values less than maxvalue);
+set autocommit=0;
+--real_sleep 6
+insert into t4 values(2,3,1,22);
+insert into t4 values(1,3,1,22);
+insert into t4 values(4,7,11,21);
+insert into t1 values(1,2);
+select * from t1 where c1=1 for update;
+commit;
+set autocommit =1;
+select * from t1;
+disconnect conn1;
+
+--echo case 2:commit is ignored if ac=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t2;
+create table t2(c1 int primary key ,c2 int) partition by list(c1) (partition b1 values in(1,3),partition b2 values in(2,4));
+set autocommit =1;
+--real_sleep 6
+insert into t2 values(1,2);
+select * from t2 where c1=1 for update;
+select * from t2;
+disconnect conn1;
+
+--echo case 3:autocommit commit before set from 0 to 1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t3;
+-error 5077
+drop partition function h1;
+create enum partition e1(x) '[(1)],[(3)]';
+create table t3(c1 int primary key ,c2 int) partition by(ta1,e1,c1);
+set autocommit=0;
+--real_sleep 6
+insert into t3 values(1,2);
+select * from t3 where c1=1 for update;
+set autocommit=1;
+select * from t3;
+disconnect conn1;
+
+--echo case 4:rollback is ignored if ac=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t4;
+--error 5077
+drop partition function h1;
+create hash partition function h1(x) 'x*2';
+create table t4(c1 int primary key ,c2 int) partition by(ta2,h1,c1);
+set autocommit=1;
+--real_sleep 6
+insert into t4 values(1,2);
+select * from t4 where c1=1 for update;
+select * from t4;
+disconnect conn1;
+
+--echo case 5:rollback
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t5;
+create table t5(c1 int primary key ,c2 int) partition by range(c1) (partition c1 values less than(2),partition c2 values less than (5),partition c3 values less than maxvalue);
+set autocommit=0;
+--real_sleep 6
+insert into t5 values(1,2);
+select * from t5 where c1=1 for update;
+rollback;
+set autocommit=1;
+select * from t5;
+disconnect conn1;
+
+
+--echo case 5:continue commit/rollback
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t6;
+create table t6(c1 int primary key ,c2 int) partition by list(c1) (partition d1 values in(1,2,3),partition d2 values in(4,5,6));
+set autocommit=0;
+--real_sleep 6
+insert into t6 values(1,1);
+select * from t6 where c1=1 for update;
+commit;
+insert into t6 values(2,2);
+select * from t6 where c1=2 for update;
+commit;
+insert into t6 values(3,3);
+select * from t6 where c1=3 for update;
+rollback;
+insert into t6 values(4,4);
+select * from t6 where c1=4 for update;
+commit;
+insert into t6 values(5,5);
+rollback;
+set autocommit=1;
+select * from t6;
+disconnect conn1;
+
+
+--echo case 6:fail first,and then success
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t7;
+--error 5077
+drop partition function h2;
+create hash partition function h2(x) 'x-4';
+create table t7(c1 int primary key ,c2 int) partition by(ta3,h2,c1);
+set autocommit=0;
+--real_sleep 6
+insert into t7 values(1,1);
+select * from t7 where c1=1 for update;
+rollback;
+insert into t7 values(1,1);
+select * from t7 where c1=1 for update;
+commit;
+set autocommit=1;
+select * from t7;
+disconnect conn1;
+
+
+--echo case 7:no stmt success in trx
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t8;
+-error 5077
+drop partition function e2;
+create enum partition function e2(x) '[(1)],[(2)],[(3)]';
+create table t8(c1 int primary key ,c2 int) partition by(ta4,e2,c1);
+set autocommit=0;
+--real_sleep 6
+insert into t8 values(1,1);
+commit;
+--real_sleep 6
+--error 5024
+insert into t8 values(1,1);
+rollback;
+set autocommit=1;
+select * from t8;
+disconnect conn1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

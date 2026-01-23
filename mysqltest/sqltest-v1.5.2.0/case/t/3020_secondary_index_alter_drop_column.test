@@ -1,0 +1,86 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：创建索引并删除表中某个字段
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：918s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+--disable_query_log
+--enable_query_log
+
+create table t1 (c1 int ,c2 int,c3 int,c4 int,primary key(c1,c2));
+insert into t1 values(1,1,1,1),(2,2,2,2),(3,3,3,3);
+create index il on t1(c2) storing (c3);
+###2-1:在创建索引并在发起合并前删除数据表中某字段，补充在删除前与删除后进行查询操作
+select * from  t1;
+
+create table t2 (c1 int ,c2 int,c3 int,c4 int,primary key(c1,c2));
+insert into t2 values(1,1,1,1),(2,2,2,2),(3,3,3,3);
+create index il on t2(c2) storing (c3);
+select * from t2;
+
+--error 5002
+alter table t2 drop c2;
+--error 65535
+alter table t2 drop c3;
+alter table t2 drop c4;
+select * from t2;
+select * from t2 where c3=2;
+--error 5009
+select * from t2 where c4 between 1 and 3;
+
+
+select * from t1;
+select * from t1 where c1=1;
+select * from t1 where c4=1;
+select * from t1 where c3 between 1 and 3;
+--error 5009
+select * from t2 where c4=1;
+select * from t2 where c3 between 1 and 3;
+select * from t2 where c1=1;
+select * from t2;
+
+--error 5002
+alter table t2 drop c2;
+--error 65535
+alter table t2 drop c3;
+--error 5009
+alter table t2 drop c4;
+
+--error 5002
+alter table t2 drop c2;
+--error 65535
+alter table t2 drop c3;
+--real_sleep 5
+alter table t1 drop c4;
+
+--error 5009
+select * from t1 where c4 between 1 and 3;
+--error 5009
+select * from t2 where c4 between 1 and 3;
+
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,176 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create table test78(c1 int, c2 int);
+desc test78;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES		NULL	
+c2	int(10)	YES		NULL	
+show create table test78;
+Table	Create Table
+test.test78	CREATE TABLE `test78` (
+`c1` INT(10),
+`c2` INT(10)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table test_auto(c1 int primary key auto_increment,c2 int);
+desc test_auto;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	auto_increment
+c2	int(10)	YES		NULL	
+show create  table test_auto;
+Table	Create Table
+test.test_auto	CREATE TABLE `test_auto` (
+`c1` INT(10) AUTO_INCREMENT,
+`c2` INT(10),
+ PRIMARY KEY(`c1`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table test78_1(c1 int primary key,c2 int );
+show create table test78_1;
+Table	Create Table
+test.test78_1	CREATE TABLE `test78_1` (
+`c1` INT(10),
+`c2` INT(10),
+ PRIMARY KEY(`c1`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+desc test78_1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	int(10)	YES		NULL	
+insert into test78_1 values(1,1);
+select name,value from (select * from  __all_server_stat where name ='inc_query_get_count');
+name	value
+inc_query_get_count	16
+select * from test78_1 where c1=1;
+c1	c2
+1	1
+select name,value from (select * from  __all_server_stat where name ='inc_query_get_count');
+name	value
+inc_query_get_count	17
+create table test35(c1 int primary key,c2 int);
+create index index_test35 on test35(c2);
+insert into test35  values(1,1),(2,2);
+create table test29(c1 int primary key,c2 int);
+create table test84(c1 int primary key,c2 int);
+create index index_test84 on test84(c2);
+merge
+major_freeze...
+merge: DONE
+insert into test35  values(3,3);
+select name,value from (select * from  __all_server_stat where name ='old_ver_dropped_tablets_num');
+name	value
+old_ver_dropped_tablets_num	0
+drop table test29;
+merge
+major_freeze...
+delete from __first_tablet_entry where table_name='__3004__idx__index_test35';
+Okay
+merge: DONE
+select name,value from (select * from  __all_server_stat where name ='old_ver_dropped_tablets_num');
+name	value
+old_ver_dropped_tablets_num	2
+create table test41(a int,b int,c char,primary key(a,b));
+alter table test41 drop column c;
+show create table test41;
+Table	Create Table
+test.test41	CREATE TABLE `test41` (
+`a` INT(10),
+`b` INT(10),
+ PRIMARY KEY(`a`, `b`)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+desc test41;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+b	int(10)	YES	PRI	NULL	
+create table test42(id int primary key, age int);
+insert into test42 values(1,1),(2,2);
+set @a = 1;
+delete from test42 where id = @a;
+select * from test42;
+id	age
+2	2
+create table test46(id int primary key, age int);
+insert into test46 values(1,1);
+set @a = 2;
+update test46 set id = @a where id = 1;
+select * from test46;
+id	age
+2	1
+create table test60(c1 int,c2 int);
+insert into test60 values(1+1,1);
+insert into test60 values(8+2*3,1);
+insert into test60 values((8+2)*3,1);
+select * from test60;
+c1	c2
+2	1
+14	1
+30	1
+create table test60_1(c1 varchar(999) primary key,c2 int);
+insert into test60_1 values(concat('hello ', 'YaoBase'),1);
+select * from test60_1;
+c1	c2
+hello YaoBase	1
+create table test65(a int primary key,b int);
+set @a=2;
+insert into test65 values(@a,@a);
+insert into test65 values(@a+1,@a+1);
+insert into test65 values(@a*2,@a*2);
+select * from test65;
+a	b
+2	2
+3	3
+4	4
+create table test67(c1 int primary key,c2 int);
+select * from test67 where c1= (select c1 from test67) +1;
+c1	c2
+select * from test67 where c1= (select c1 from test67 where c1=1) +1;
+c1	c2
+select * from test67 where c1= (select * from test67 where c1=1) +1;
+ERROR HY000: YAO-5007: Operand should contain 1 column(s)
+insert into test67 values(1,1),(2,2);
+select * from test67 where c1= (select c1 from test67) +1;
+ERROR HY000: YAO-5601: Subquery returns more than 1 row
+select * from test67 where c1= (select c1 from test67 where c1=1) +1;
+c1	c2
+2	2
+select * from test67 where c1= (select * from test67 where c1=1) +1;
+ERROR HY000: YAO-5007: Operand should contain 1 column(s)
+create table test70_1(c1 int primary key,c2 int);
+create table test70_2(c1 int primary key,c2 int);
+insert into test70_1 values(1,1),(2,2);
+insert into test70_2 values(1,1),(2,2);
+select /*+join(bloomfilter_join)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+select /*+join(hash_join_single)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+select /*+join(merge_join)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+select /*+join(si)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+select /*+join(sib)*/ * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+select * from test70_1 join test70_2 on test70_1.c1=test70_2.c1 and test70_1.c2<(select max(c1) from test70_1) where test70_1.c1=1;
+c1	c2	c1	c2
+1	1	1	1
+show variables like 'net_buffer_length';
+variable_name	value
+net_buffer_length	16384
+set @@net_buffer_length=10000;
+show variables like 'net_buffer_length';
+variable_name	value
+net_buffer_length	10000
+create table test84_1(c1 int primary key,c2 int);
+create index index_test84_1 on test84_1(c2);
+merge
+major_freeze...
+merge: DONE

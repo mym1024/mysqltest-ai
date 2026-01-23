@@ -1,0 +1,34 @@
+####################################必填######################################################
+###1.测试功能点:租户基本功能测试 - CREATE/ALTER/DROP
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-12-31
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+
+#测试1: 查看初始系统租户
+SELECT * FROM __all_tenant_config;
+##测试2: 创建租户
+create tenant t1 cpu=1,memory_size='4GB',disk_size='128GB',connect_list=('ANY');
+##测试3: 修改租户配置
+alter tenant t1 cpu=2;
+alter tenant t1 memory_size = '16GB';
+alter tenant t1 disk_size = '256GB';
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+alter tenant t1 cpu = 8, memory_size= '16GB', disk_size = '256GB', connect_list = ('ANY');
+SELECT tenant_name,tenant_id,cpu_limit,mem_limit/1024/1024/1024 as mem_limit_GB,disk_size/1024/1024/1024 as disk_size_GB,connect_list FROM __all_tenant_config;
+##测试4：查看租户已使用资源
+select tenant_id,name from __all_virtual_tenant_status;
+select vts.tenant_id,tenant_name from __all_virtual_tenant_status vts join __all_tenant_config tc on vts.tenant_id = tc.tenant_id;
+##测试4: 删除租户
+drop tenant t1;
+SELECT * FROM __all_tenant_config;
+
+############################################ end sql ###################################################

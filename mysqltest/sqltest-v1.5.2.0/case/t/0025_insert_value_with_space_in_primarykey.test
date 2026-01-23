@@ -1,0 +1,100 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：主键varchar列插入数据末尾带空格
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/456
+###4.问题号：456
+###5.预计运行时间：1220 s
+###6.编写/修改人：chensy
+###7.编写/修改日期：2020-04-27
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-1 主键varchar列插入数据末尾带空格
+create table t1(c1 varchar(5) primary key, c2 int, c3 varchar(4));
+--error 5611
+insert into t1 values('123456',1,'a');
+--error 5611
+insert into t1 values('12345  ',2,'b');
+insert into t1 values('12345',2,'b');
+select length(c1),* from t1;
+insert into t1 values('q',2,'c');
+select length(c1),* from t1;
+--error 5024
+insert into t1 values('q',2,'d');
+select * from t1 where c1='q';
+select * from t1 where c1='12345';
+select length(c1),* from t1;
+replace into t1 values('q',3,'dw');
+select * from t1 where c1='q';
+select length(c1),* from t1;
+delete from t1 where c1='q';
+select * from t1;
+select length(c1),c1 from t1;
+update t1 set c1='pt  ';
+insert into t1 values('pt\t\t',1,'a');
+select * from t1;
+select * from t1 where c1='pt';
+select length(c1) from t1;
+
+select * from t1;
+select * from t1 where c1='pt';
+select length(c1) from t1;
+
+drop table t1;
+
+###2-2 原表非主键索引表主键varchar列插入或更新时拼接空格
+create table t2(c1 int, c2 varchar(5), c3 varchar(6), c4 varchar(6),primary key(c1));
+create index idx_1 on t2(c2) storing(c4);
+create index idx_2 on t2(c3) storing(c4);
+let $t2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='t2',table_id,1);
+--let $index_head =__
+--let $index1_end =__idx__idx_1
+--let $index2_end =__idx__idx_2
+--let $t2_idx1_name=$index_head$t2_tb_id$index1_end
+--let $t2_idx2_name=$index_head$t2_tb_id$index2_end
+echo $t2_idx1_name;
+echo $t2_idx2_name;
+
+insert into t2 values(1,'df','fg','de');
+--error 5611
+insert into t2 values(2,'df v   ','fg ','de');
+insert into t2 values(3,'df v ','fgr ','de');
+insert into t2 values(4,'df v\t','fg ','de');
+replace into t2 values(3,'dfv','fgd ','de');
+
+select *, length(c2), length(c3) from t2;
+select *, length(c2), length(c3) from t2 where c2='df v';
+select *, length(c2), length(c3) from t2 where c2='df v  ';
+select *, length(c2), length(c3) from t2 where c3='fg';
+select *, length(c2), length(c3) from t2 where c3='fgd';
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+eval select * from $t2_idx1_name;
+eval select * from $t2_idx2_name;
+
+drop table t2;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,22 @@
+drop table if exists t1,t2,t3,t4,t5;
+alter system set balance_worker_idle_sleep_seconds=33 COMMENT 'new all balance_worker_idle_sleep_seconds' SERVer_TYPE=yaoadminsvr cluster=0;
+alter system set balance_worker_idle_sleep_seconds=39 COMMENT 'new1 all balance_worker_idle_sleep_seconds' SERVer_TYPE=yaoadminsvr server_ip='10.235.162.3' server_port=47051;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x) '[(1)],[(3)]';
+create table t_status(id int primary key,yaodatasvr char(90),yaosqlsvr char(90),yaoadminsvr char(90),yaotxnsvr char(90),tablet_max_size int, status int)partition by(em,e,id);
+insert into t_status(id, yaodatasvr,tablet_max_size,status) values(1,'yaodatasvr',1024,0);
+select id,yaodatasvr,status from t_status;
+id	yaodatasvr	status
+1	yaodatasvr	0
+select id,yaodatasvr,status as verbose from t_status;
+id	yaodatasvr	verbose
+1	yaodatasvr	0
+select id,yaodatasvr,grants.status as verbose from t_status grants;
+id	yaodatasvr	verbose
+1	yaodatasvr	0
+select use_bloom_filter() from dual;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select use_bloom() from dual;
+ERROR HY000: YAO-5055: Unknown function 'use_bloom', ret=-5055
+drop table t_status;

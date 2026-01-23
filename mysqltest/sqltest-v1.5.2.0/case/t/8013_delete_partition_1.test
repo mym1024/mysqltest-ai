@@ -1,0 +1,199 @@
+###1.测试功能点：有分区时count和count(distinct)测试
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：20 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+
+#
+# Test of update and delete with limit
+#
+
+--disable_warnings
+drop table if exists t1;
+drop table if exists t2;
+drop table if exists t3;
+drop table if exists t4;
+--real_sleep 3
+--enable_warnings
+
+###2-1 枚举分区单主键时删除
+#single column rowkey
+create enum partition function e1(x) '[(1)],[(2)],[(3)],[(4)]';
+create table t1 (a int primary key, b int) partition by(et1,e1,a);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+insert into t1 values(1,0),(2,0),(3,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t1;
+delete from t1 where a = 1;
+delete from t1 where a = 2;
+delete from t1 where a = 3;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t1;
+
+insert into t1 values(1,0),(2,0),(3,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t1 where a = 1;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t1;
+
+insert into t1 values(1,0);
+replace into t1 values(2,0),(3,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t1 where a=1;
+delete from t1 where a=2;
+delete from t1 where a=1 or a=2 or a=3;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t1;
+
+insert into t1 values(1,0),(2,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t1 where a=1;
+delete from t1 where a=2;
+delete from t1 where a=3;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t1;
+
+drop table t1;
+drop partition function e1;
+--real_sleep 3
+
+###2-2 range分区多主键时删除
+#multi-column rowkey
+create table t2 (p1 int, p2 int, p3 int, p4 int, primary key(p1,p2,p3))partition by range columns(p1,p2,p3)(partition s1 values less than(3,3,3),partition s2 values less than(8,8,8),partition s3 values less than(10,10,10),partition s4 values less than(15,15,15),partition s5 values less than (maxvalue,maxvalue,maxvalue));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+insert into t2 values(1,1,1,0),(2,2,2,0),(3,3,3,0),(4,4,4,0),(5,4,4,0),(6,4,4,0),(7,4,6,0),(8,4,6,0),(9,4,6,0),(10,4,6,0),(11,4,6,0),(12,4,6,0),(13,4,6,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t2 where p1 = 1;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+--let $p=13
+while($p)
+{
+   eval delete from t2 where p1=$p and p2 = $p and p3=$p;
+   dec $p;
+}
+
+select * from t2;
+select p1,p3 from t2;
+
+replace into t2 values(1,1,1,0),(2,2,2,0),(3,3,3,0),(4,4,4,0),(5,4,4,0),(6,4,4,0),(7,4,6,0),(8,4,6,0),(9,4,6,0),(10,4,6,0),(11,4,6,0),(12,4,6,0),(13,4,6,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t2 where p1=1 and p2=1 and p3=1;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t2;
+select p1,p3 from t2;
+
+replace into t2 values(1,1,1,0),(2,2,2,0),(3,3,3,0),(4,4,4,0),(5,4,4,0),(6,4,4,0),(7,4,6,0),(8,4,6,0),(9,4,6,0),(10,4,6,0),(11,4,6,0),(12,4,6,0),(13,4,6,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t2 where p1 in (1,2,3,6,13,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t2;
+
+drop table t2;
+--real_sleep 3
+
+###2-3 哈希分区多主键时过滤条件混合主键列和非主键列删除
+#mix common column and rowkey column
+create hash partition function h1(x,y)'x+y+1';
+create table t3 (p1 int, p2 int, p3 int, primary key(p1,p2))partition by(ht3,h1,p1,p2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+insert into t3 values(1,1,1),(2,2,2),(3,3,3),(4,4,4),(5,4,4),(6,4,4),(7,4,6),(8,4,6),(9,4,6),(10,4,6),(11,4,6),(12,4,6),(13,4,6);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t3 where p1=1 and p2=1 and p3=1;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t3;
+select p1,p3 from t3;
+
+replace into t3 values(1,1,1),(2,2,2),(3,3,3),(4,4,4),(5,4,4),(6,4,4),(7,4,6),(8,4,6),(9,4,6),(10,4,6),(11,4,6),(12,4,6),(13,4,6);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t3 where p1>3 or p3 >=6;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t3;
+select p1,p3 from t3;
+delete from t3 where p1=1 and p3 =2;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t3;
+select p1,p3 from t3;
+delete from t3 where p1=1 and p2 =1 and p3=1;
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t3;
+select p1,p3 from t3;
+
+replace into t3 values(1,1,1),(2,2,2),(3,3,3),(4,4,4),(5,4,4),(6,4,4),(7,4,6),(8,4,6),(9,4,6),(10,4,6),(11,4,6),(12,4,6),(13,4,6);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+delete from t3 where p1 in (1,2,3,6,13,0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t3;
+
+drop table t3;
+drop partition function h1;
+--real_sleep 3
+
+###2-1 枚举分区多主键时删除
+#where clause
+--error 5077
+drop partition function e4;
+create enum partition function e4(x,y) '[(a,41)],[(b,42)],[(c,43)]';
+create table t4 (p1 varchar(100), p2 int, p3 datetime, p4 int, primary key(p1,p2)) partition by(ta4,e4,p1,p2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+
+insert into t4 values('a', 41, '2012-10-23 17:14:00',0), ('b', 42, '2012-10-23 17:15:00',0), ('c', 43, '2012-10-23 17:16:00',0);
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t4;
+delete from t4 where p2='42';
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+select * from t4;
+delete from t4 where p2<'401' and p1='c';
+
+delete from t4 where p1='a' and p2=41 and p3='2012-10-23 17:14:00';
+##chensy, need delete sleep after have snapshot
+--real_sleep 3
+
+select * from t4;
+drop table t4;
+--real_sleep 3
+drop partition function e4;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

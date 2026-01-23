@@ -1,0 +1,18 @@
+#######################################################
+###1.测试功能点：在range分区规则表中，多session下加锁读取未提交事务;
+#######################################################
+
+drop table if exists c;
+create table c(c1 int primary key, c2 varchar(8)) partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+begin;
+insert into c values(1,1);
+connection conn2;
+begin;
+insert into c values(2,2);
+commit;
+connection conn1;
+select * from c where c1=2 for update;
+commit;

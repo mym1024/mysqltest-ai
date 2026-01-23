@@ -1,0 +1,103 @@
+##############################################################################################
+###1.测试功能点：指定分区规则下，kill query的使用
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-8
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+create table t1(c1 int primary key,b int)partition by range(c1)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+insert into t1 values(1,1),(2,2),(3,3);
+
+
+--echo use default connection
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+
+
+let $a=query_get_value(show processlist,Id,1);
+
+--echo a new connection named by conn1
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+--echo a new connection named by conn 2
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+let $b=query_get_value(show processlist,Id,2);
+let $c=query_get_value(show processlist,Id,3);
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+connection conn2;
+--replace_column 1  id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+--echo kill query
+--disable_query_log
+eval kill global query $b;
+--enable_query_log
+
+connection conn1;
+--error S70100
+select * from t1;
+
+connection conn1;
+begin;
+select * from t1 where c1=1 for update;
+
+connection conn2;
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+--echo kill query
+--disable_query_log
+eval kill global query $b;
+--enable_query_log
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+connection conn1;
+--error S70100
+commit;
+
+connection conn2;
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+--echo kill query again
+--disable_query_log
+eval kill global query $b;
+--enable_query_log
+
+--replace_column 1 id 3 client 6 time 9 ms 10 idx
+show processlist;
+
+connection conn1;
+--error S70100
+begin;
+commit;
+begin;
+select * from t1 where c1=2 for update;
+commit;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

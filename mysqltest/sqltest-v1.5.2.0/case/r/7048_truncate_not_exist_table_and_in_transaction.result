@@ -1,0 +1,60 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 varchar(10));
+start transaction;
+insert into t1 values(3,'aa');
+select * from t1;
+c1	c2
+3	aa
+select * from t1 where c1 = 3;
+c1	c2
+3	aa
+truncate table t1;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+begin;
+insert into t1 values(3,'aa');
+select * from t1;
+c1	c2
+3	aa
+select * from t1 where c1 = 3;
+c1	c2
+3	aa
+truncate table t1;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+set autocommit=0;
+insert into t1 values(3,'aa');
+select * from t1;
+c1	c2
+3	aa
+select * from t1 where c1 = 3;
+c1	c2
+3	aa
+truncate table t1;
+ERROR HY000: YAO-5060: Transaction already started
+rollback;
+set autocommit=1;
+insert into t1 values(1,'aa');
+select * from t1;
+c1	c2
+1	aa
+select * from t1 where c1 = 1;
+c1	c2
+1	aa
+truncate table t0;
+ERROR 42S02: YAO-5019: table 'test.t0' does not exist
+truncate table t0,t1;
+ERROR 42S02: YAO-5019: table 'test.t0' does not exist
+truncate table t1,t0;
+ERROR 42S02: YAO-5019: table 'test.t0' does not exist
+select * from t1;
+c1	c2
+1	aa
+select * from t1 where c1 = 1;
+c1	c2
+1	aa

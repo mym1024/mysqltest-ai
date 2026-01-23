@@ -1,0 +1,18 @@
+drop table if exists test_timestamp;
+select strict_current_timestamp();
+strict_current_timestamp()
+2020-07-27 09:07:44.757300
+select strict_current_timestamp(1);
+ERROR HY000: YAO-5055: Unknown function 'strict_current_timestamp', ret=-5055
+create table test_timestamp(c1 int primary key,c2 timestamp);
+insert into test_timestamp values(1,strict_current_timestamp());
+select * from test_timestamp;
+c1	c2
+1	2020-07-27 09:07:44.757300
+drop table if exists test_timestamp;
+create table test_date(c1 int primary key,c2 int);
+insert into test_date values(1,strict_current_timestamp());
+ERROR 0A000: YAO-7: Not supported feature or function
+select * from test_date;
+c1	c2
+drop table if exists test_date;

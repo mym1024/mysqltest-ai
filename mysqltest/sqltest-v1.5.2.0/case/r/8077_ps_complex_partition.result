@@ -1,0 +1,68 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3;
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+create table t1(i1 int,f1 float,s1 char(30),d1 datetime,i2 int,f2 float,s2 char(30),d2 datetime, primary key(i1,f1,s1,d1))partition by range(i1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than (maxvalue));
+prepare stmt_replace from replace into t1 values(?,?,?,?,?,?,?,?);
+prepare stmt_insert from insert into t1 values(?,?,?,?,?,?,?,?);
+prepare stmt_update from update t1 set i2=?,f2=?,s2=?,d2=? where i1=? and f1=? and s1=? and d1=?;
+prepare stmt_update_with_other_column from update t1 set i2=?,f2=?,s2=?,d2=? where i1=? and f1=? and s1=? and d1=? and i2=? and f2=? and s2=? and d2=?;
+prepare stmt_delete from delete from t1 where i1=? and f1=? and s1=? and d1=?;
+prepare stmt_delete_with_other_column from delete from t1 where i1=? and f1=? and s1=? and d1=? and i2=? and f2=? and s2=? and d2=?;
+prepare stmt_select from select * from t1 where i1=? and f1=? and s1=? and d1=?;
+prepare stmt_select_with_all_column from select * from t1 where i1=? and f1=? and s1=? and d1=? and i2=? and f2=? and s2=? and d2=?;
+set @i1=1;
+set @f1=1.5;
+set @s1='abcdefghijklmnopqrstuvwxyz';
+set @d1=timestamp'2012-02-20 12:00:01';
+set @i2=100;
+set @f2=100.5;
+set @s2='s100';
+set @d2=timestamp'2012-02-20 12:01:00';
+set @i3=1000;
+set @f3=1000.5;
+set @s3='s1000';
+set @d3=timestamp'2012-02-20 13:01:00';
+execute stmt_insert using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	100	100.5	s100	2012-02-20 12:01:00.000000
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	100	100.5	s100	2012-02-20 12:01:00.000000
+execute stmt_replace using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	100	100.5	s100	2012-02-20 12:01:00.000000
+execute stmt_update_with_other_column using @i3,@f3,@s3,@d3,@i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+execute stmt_update using @i3,@f3,@s3,@d3,@i1,@f1,@s1,@d1;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+execute stmt_select using @i1,@f1,@s1,@d1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+execute stmt_select_with_all_column using @i1,@f1,@s1,@d1,@i3,@f3,@s3,@d3;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+execute stmt_delete_with_other_column using @i1,@f1,@s1,@d1,@i2,@f2,@s2,@d2;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2
+1	1.5	abcdefghijklmnopqrstuvwxyz	2012-02-20 12:00:01.000000	1000	1000.5	s1000	2012-02-20 13:01:00.000000
+execute stmt_delete using @i1,@f1,@s1,@d1;
+select * from t1;
+i1	f1	s1	d1	i2	f2	s2	d2

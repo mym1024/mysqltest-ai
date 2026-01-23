@@ -1,0 +1,69 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：合并前后删除、插入复合主键为null的记录
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：312s
+###6.编写/修改人： huangpeng
+###7.编写/修改日期：2019-11-13
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+alter system set each_tablet_sync_meta=False server_type=yaodatasvr;
+--real_sleep 10
+
+create table t1(c1 int ,c2 char(30),c3 datetime,c4 int,primary  key(c1,c2,c3));
+insert into t1 values(NULL,'c2','2013-1-25',1);
+insert into t1 values(1,NULL,'2013-1-25',1);
+insert into t1 values(1,'c2',NULL,1);
+insert into t1 values(NULL,'c2',NULL,1);
+insert into t1 values(NULL,NULL,'2013-1-25',1);
+insert into t1 values(1,NULL,NULL,1);
+insert into t1 values(NULL,NULL,NULL,1);
+insert into t1 values(NULL,NULL,'2013-1-26',1);
+--error 5024
+insert into t1 values(NULL,NULL,NULL,NULL);
+--error 5024
+insert into t1 values(NULL,NULL,NULL,NULL);
+
+update t1 set c4 = 1 where c1 is NULL and c2 is NULL;
+update t1 set c4 = 1 where c1 is NULL and c2 is NULL and c3 is NULL;
+
+delete from t1 where c1 is NULL and c2 is NULL and c3 is NULL;
+delete from t1 where c1 is NULL and c2 = 'c2' and c3 is NULL;
+delete from t1 where c1 = 1 and c2 = 'c2' and c3 is NULL;
+insert into t1 values(NULL,NULL,NULL,NULL);
+insert into t1 values(NULL,'c2',NULL,NULL);
+
+select * from t1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+select * from t1;
+--real_sleep 300
+select * from t1;
+--error 5024
+insert into t1 values(NULL,NULL,NULL,NULL);
+--error 5024
+insert into t1 values(NULL,'c2',NULL,NULL);
+insert into t1 values(1,'c2',NULL,NULL);
+select * from t1;
+drop table t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

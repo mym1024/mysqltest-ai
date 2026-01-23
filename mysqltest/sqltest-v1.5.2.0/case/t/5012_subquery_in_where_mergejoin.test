@@ -1,0 +1,90 @@
+#######################################################
+####1.测试功能点：merge join语句中，where条件中含有子查询
+#######################################################
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+create table t1(c1 int primary key, c2 int, c3 varchar(30));
+insert into t1 values(1,1,'aaa');
+insert into t1 values(2,2,'bbb');
+insert into t1 values(3,3,'ccc');
+insert into t1 values(4,4,'ddd');
+insert into t1 values(5,5,'eee');
+insert into t1 values(6,6,'fff');
+insert into t1 values(7,7,'ggg');
+insert into t1 values(8,8,'hhh');
+insert into t1 values(9,9,'iii');
+insert into t1 values(10,10,'jjj');
+
+create table t2(c1 int primary key, c2 int, c3 varchar(30));
+insert into t2 values(1,1,'aaa');
+insert into t2 values(2,2,'bbb');
+insert into t2 values(3,3,'ccc');
+insert into t2 values(4,4,'ddd');
+insert into t2 values(5,5,'eee');
+insert into t2 values(6,6,'fff');
+insert into t2 values(7,7,'ggg');
+insert into t2 values(8,8,'hhh');
+insert into t2 values(9,9,'iii');
+insert into t2 values(10,10,'jjj');
+
+
+###2-1:merge join语句中，where条件中含有子查询，where条件为等值条件，where条件为对左表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1=(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t1.c1=(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t1.c1=(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t1.c1=(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1=(select c1 from t2 where c2=6);
+
+###2-2:merge join语句中，where条件中含有子查询，where条件为不等值条件，where条件为对左表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1<(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t1.c1<(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t1.c1<(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t1.c1<(select c1 from t2 where c2=6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1<(select c1 from t2 where c2=6);
+
+###2-3:merge join语句中，where条件中含有子查询，where条件使用in操作符，子查询中使用between and操作符，where条件为对左表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 between 1 and 6);
+
+###2-4:merge join语句中，where条件中含有子查询，where条件使用in操作符，子查询中使用in操作符，where条件为对左表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t1.c1 in(select c1 from t2 where c2 in(1,2,3,4));
+
+###2-5:merge join语句中，where条件中含有子查询，where条件为等值条件，where条件为对右表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1=(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t2.c1=(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t2.c1=(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t2.c1=(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1=(select c1 from t1 where c2=6);
+
+###2-6:merge join语句中，where条件中含有子查询，where条件为不等值条件，where条件为对右表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1<(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t2.c1<(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t2.c1<(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t2.c1<(select c1 from t1 where c2=6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1<(select c1 from t1 where c2=6);
+
+###2-7:merge join语句中，where条件中含有子查询，where条件使用in操作符，子查询中使用between and操作符，where条件为对右表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+
+###2-8:merge join语句中，where条件中含有子查询，where条件使用in操作符，子查询中使用in操作符，where条件为对右表主键的约束
+#select /*+ join(hash_join_single) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a left join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a right join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 in(1,2,3,4));
+select /*+ join(merge_join) */* from t1 a full join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 in(1,2,3,4));
+
+drop table t1,t2;
+#############################################################################

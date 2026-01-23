@@ -1,0 +1,50 @@
+####################################必填######################################################
+###1.测试功能点：多ups枚举分区，主键列的类型为int,double,float,decimal
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1216.755 s
+###6.编写/修改人：pantong
+###7.编写/修改日期：2019-11-5
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5;
+--enable_warnings
+
+
+###2-1：枚举分区
+alter system set balance_worker_idle_sleep_seconds=33 COMMENT 'new all balance_worker_idle_sleep_seconds' SERVer_TYPE=yaoadminsvr cluster=0;
+alter system set balance_worker_idle_sleep_seconds=39 COMMENT 'new1 all balance_worker_idle_sleep_seconds' SERVer_TYPE=yaoadminsvr server_ip='10.235.162.3' server_port=47051;
+
+--error 5077
+drop partition function e;
+create enum partition function e(x) '[(1)],[(3)]';
+
+create table t_status(id int primary key,yaodatasvr char(90),yaosqlsvr char(90),yaoadminsvr char(90),yaotxnsvr char(90),tablet_max_size int, status int)partition by(em,e,id);
+insert into t_status(id, yaodatasvr,tablet_max_size,status) values(1,'yaodatasvr',1024,0);
+sleep 5;
+
+select id,yaodatasvr,status from t_status;
+select id,yaodatasvr,status as verbose from t_status;
+select id,yaodatasvr,grants.status as verbose from t_status grants;
+
+--error 5001
+select use_bloom_filter() from dual;
+
+--error 5055
+select use_bloom() from dual;
+
+drop table t_status;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

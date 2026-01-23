@@ -1,0 +1,130 @@
+--source merge.sql
+#######################################################################################################
+###1.测试功能点：二级索引测试与decimal类型，对全是decimal类型的表数据进行增删改查，查看原表与索引表数据
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2019-10-30
+###8.其他（选填）：***
+###
+##
+#
+###########################################################################################################
+
+#######################################Do SQL##############################################################
+
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+###设置合并参数
+set @@yao_enable_query_optimizer=true;
+set global yao_query_timeout=2147483647;
+set global yao_tx_timeout=2147483647;
+set global yao_tx_idle_timeout=2147483647;
+
+###2-0：数据准备：建表，插入数据，建索引
+create table t1(c1 decimal(15,5) primary key, c2 decimal(15,5), c3 decimal(15,5) ) ;
+insert into t1 values(1.1, 2.2, 3.3);
+insert into t1 values(11.11, 22.22, 33.33);
+insert into t1 values(111.111, 222.222, 333.333);
+insert into t1 values(1111.1111, 2222.2222, 3333.3333);
+insert into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+
+create index i1 on t1(c2);
+create index i2 on t1(c3);
+
+###合并，使索引生效
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+###拼接索引名
+let $t1_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='t1', table_id, 1);
+
+--let $index_head = __
+--let $index1_end = __idx__i1
+--let $index2_end = __idx__i2
+
+--let $t1_idx1_name=$index_head$t1_tb_id$index1_end
+--let $t1_idx2_name=$index_head$t1_tb_id$index2_end
+
+#查询索引状态
+show index on t1;
+
+echo $t1_idx1_name;
+echo $t1_idx2_name;
+
+###2-1：delete类型为decimal数据（> 查询）
+#删除数据，查询原表与索引表
+delete from t1 where c2 > 222.222;
+select * from t1;
+eval select * from $t1_idx1_name;
+
+###2-2：delete类型为decimal数据（>= 查询）
+#替换数据，查询原表与索引表
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+eval select * from $t1_idx1_name;
+
+#删除数据，查询原表与索引表
+delete from t1 where c2 >= 222.222;
+select * from t1;
+eval select * from $t1_idx1_name;
+
+###2-3：delete类型为decimal数据（ between and 查询）
+#替换数据，查询原表与索引表
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+eval select * from $t1_idx1_name;
+
+#删除数据，查询原表与索引表
+delete from t1 where c2 between 22.22 and 222.222;
+select * from t1;
+eval select * from $t1_idx1_name;
+
+###2-4：delete类型为decimal数据（ in查询）
+#替换数据，查询原表与索引表
+replace into t1 values(111.111, 222.222, 333.333);
+replace into t1 values(1111.1111, 2222.2222, 3333.3333);
+replace into t1 values(11111.11111, 22222.22222, 33333.33333);
+select * from t1;
+eval select * from $t1_idx1_name;
+
+#删除数据，查询原表与索引表
+delete from t1 where c2 in(22.22, 222.222);
+select * from t1;
+eval select * from $t1_idx1_name;
+
+###2-5: 更新数据，查询原表与索引表
+update t1 set c2 = c2 + 100;
+select * from t1;
+eval select * from $t1_idx1_name;
+
+update t1 set c3 = c3 + 100.123;
+select * from t1;
+eval select * from $t1_idx1_name;
+
+###2-6: 插入数据，查询原表与索引表
+insert into t1 values(4.4, 5.5, 6.6);
+insert into t1 values(44.44, 55.55, 66.66);
+insert into t1 values(444.444, 555.555, 666.666);
+insert into t1 values(4444.4444, 5555.5555, 6666.6666);
+insert into t1 values(44444.44444, 55555.55555, 66666.66666);
+echo $t1_idx1_name;
+echo $t1_idx2_name;
+select * from t1;
+eval select * from $t1_idx1_name;
+eval select * from $t1_idx2_name;
+
+drop table t1;

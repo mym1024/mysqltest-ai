@@ -1,0 +1,57 @@
+##############################################################################################
+###1.测试功能点：测试白名单功能
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-01-05
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+
+#添加IP到white_list
+add white_list '192.168.16.116';
+add white_list '192.168.16.116','192.168.16.%';
+add white_list '192.168.16.116','192.168.16.%','192.168.%';
+--error 5096
+add white_list ' ';
+--error 5096
+add white_list '';
+add white_list '192.168.16.116','192.168.16.%';
+add white_list '192.168.16.116','192.168.16.%','192.168.%';
+add white_list '192.168.161.11','195.216.168.11','192.168.16.116','192.168.13.%','12zxc.zxca','852.asf.123','%';
+
+#删除IP从white_list
+delete white_list '192.168.16.116';
+--error 5093
+delete white_list '192.168.16.117';
+delete white_list '195.216.168.11','192.168.13.%';
+delete white_list '192.168.161.11','192.168.16.%','%';
+--error 5093
+delete white_list '192.168.161.11','195.216.168.11','192.168.16.116';
+--error 5093
+delete white_list '192.168.16.116','192.168.16.%','192.168.%';
+
+#普通用户对white_list的权限
+create  user  'test' identified by 'admin@1234';
+GRANT SELECT ON test.* TO 'test';
+connect (conn2,$OBMYSQL_MS0,test,admin@1234,test,$OBMYSQL_PORT);
+connection conn2;
+
+--error 5036
+select * from __all_white_ip;
+--error 5036
+add white_list '192.168.16.116','192.168.16.%';
+--error 5036
+delete white_list '192.168.16.116','192.168.16.%';

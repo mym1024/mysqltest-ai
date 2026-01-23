@@ -1,0 +1,680 @@
+drop table if exists t1;
+drop table if exists t2;
+create table if not exists t1(c1 int default 10,c2 bigint default 20,c3 integer not null,c4 mediumint default 20 not null,c5 smallint,c6 tinyint,c7 binary(30),c8 char(30),c9 varchar(30),c10 varbinary(30),c11 bool,c12 createtime,c13 datetime,c14 timestamp,c15 double,c16 real,c17 float,c18 modifytime,primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c17,c13,c14,c15,c16));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c12 CREATETIME,
+c18 MODIFYTIME,
+c1 INT(10) DEFAULT 10,
+c2 BIGINT DEFAULT 20,
+c3 INT(10) NOT NULL,
+c4 INT(8) DEFAULT 20 NOT NULL,
+c5 INT(5),
+c6 INT(3),
+c7 VARCHAR (30) COLLATE 'binary',
+c8 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c9 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c10 VARCHAR (30) COLLATE 'binary',
+c11 BOOL,
+c13 DATETIME,
+c14 DATETIME,
+c15 DOUBLE,
+c16 DOUBLE,
+c17 FLOAT,
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c17, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3001 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3002 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3002 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3001);
+count(1)
+0
+select count(1) from (select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3001 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3002 union all
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3002 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3001);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3001 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3002 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3002 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3001);
+count(1)
+0
+drop table t1,t2;
+create table if not exists t1(c1 varchar(30) primary key,c2 int) EXPIRE_INFO = '$SYS_DATE > c1 + 24*60*60*1000000',REPLICA_NUM = 4,COMPRESS_METHOD = 'lzo_1_0';
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) EXPIRE_INFO = '$SYS_DATE > c1 + 24*60*60*1000000', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'lzo_1_0', REPLICA_NUM = 4 ;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3003 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3004 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3004 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3003);
+count(1)
+0
+select count(1) from (select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3003 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3004 union all
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3004 except
+select partition_type,prefix_name,rule_name,par_list from __all_table_rules where table_id=3003);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3003 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3004 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3004 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3003);
+count(1)
+0
+drop table t1,t2;
+create hash partition function h(x) 'x+1';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(hs,h,c1);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (hs,h,c1)
+/*h(x) = x+1*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3005 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3006 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3006 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3005);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3005 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3006 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3006 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3005);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3005 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3006 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3006 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3005);
+count(1)
+0
+drop table t1,t2;
+create hash partition function h2(x,y) 'x+y';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(h2,h2,c1,c2);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (h2,h2,c1,c2)
+/*h2(x,y) = x+y*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3007 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3008 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3008 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3007);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3007 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3008 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3008 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3007);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3007 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3008 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3008 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3007);
+count(1)
+0
+drop table t1,t2;
+create hash partition function hd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) 'a1+a2+a3+a4+a5+a6+a7+a8+a9+a10+a11+a12+a13+a14+a15+a16';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(h,hd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+c4 INT(10),
+c5 INT(10),
+c6 INT(10),
+c7 INT(10),
+c8 INT(10),
+c9 INT(10),
+c10 INT(10),
+c11 INT(10),
+c12 INT(10),
+c13 INT(10),
+c14 INT(10),
+c15 INT(10),
+c16 INT(10),
+c17 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (h,hd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)
+/*hd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) = a1+a2+a3+a4+a5+a6+a7+a8+a9+a10+a11+a12+a13+a14+a15+a16*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3009 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3010 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3010 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3009);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3009 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3010 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3010 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3009);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3009 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3010 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3010 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3009);
+count(1)
+0
+drop table t1,t2;
+drop partition function h,h2,hd;
+create enum partition function em(x) '[(1),(2),(3),(4),(5),(6)],[(11),(12),(13)],[(25),(23),(21)]';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(en,em,c1);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (en,em,c1)
+/*em(x) = [(1),(2),(3),(4),(5),(6)],[(11),(12),(13)],[(25),(23),(21)]*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3011 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3012 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3012 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3011);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3011 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3012 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3012 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3011);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3011 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3012 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3012 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3011);
+count(1)
+0
+drop table t1,t2;
+create enum partition function em2(x,y) '[(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)],[(11,11),(12,12),(13,13)],[(25,25),(23,23),(21,21)]';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(em2,em2,c1,c2);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (em2,em2,c1,c2)
+/*em2(x,y) = [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)],[(11,11),(12,12),(13,13)],[(25,25),(23,23),(21,21)]*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3013 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3014 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3014 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3013);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3013 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3014 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3014 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3013);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3013 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3014 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3014 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3013);
+count(1)
+0
+drop table t1,t2;
+create enum partition function emd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '[(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)],[(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)]';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(em,emd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+c4 INT(10),
+c5 INT(10),
+c6 INT(10),
+c7 INT(10),
+c8 INT(10),
+c9 INT(10),
+c10 INT(10),
+c11 INT(10),
+c12 INT(10),
+c13 INT(10),
+c14 INT(10),
+c15 INT(10),
+c16 INT(10),
+c17 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (em,emd,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)
+/*emd(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) = [(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)],[(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)]*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3015 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3016 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3016 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3015);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3015 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3016 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3016 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3015);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3015 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3016 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3016 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3015);
+count(1)
+0
+drop table t1,t2;
+drop partition function em,em2,emd;
+create range partition function r1(x) '(\'10\'),(\'20\'),(maxvalue)';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(r,r1,c1);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (r,r1,c1)
+/*r1(x) = ('10'),('20'),(maxvalue)*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3017 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3018 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3018 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3017);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3017 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3018 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3018 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3017);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3017 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3018 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3018 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3017);
+count(1)
+0
+drop table t1,t2;
+create range partition function r2(x,y) '(\'10\',50),(\'20\',60),(maxvalue,maxvalue)';
+create table if not exists t1(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by(r,r2,c1,c2);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (r,r2,c1,c2)
+/*r2(x,y) = ('10',50),('20',60),(maxvalue,maxvalue)*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3019 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3020 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3020 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3019);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3019 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3020 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3020 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3019);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3019 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3020 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3020 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3019);
+count(1)
+0
+drop table t1,t2;
+create range partition function r3(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) '(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)';
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(rr,r3,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+c4 INT(10),
+c5 INT(10),
+c6 INT(10),
+c7 INT(10),
+c8 INT(10),
+c9 INT(10),
+c10 INT(10),
+c11 INT(10),
+c12 INT(10),
+c13 INT(10),
+c14 INT(10),
+c15 INT(10),
+c16 INT(10),
+c17 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (rr,r3,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)
+/*r3(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue)*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3021 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3022 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3022 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3021);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3021 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3022 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3022 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3021);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3021 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3022 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3022 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3021);
+count(1)
+0
+drop table t1,t2;
+drop partition function r1,r2,r3;
+create range partition function _r4(x) '(\'10\'),(\'20\'),(maxvalue)';
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(rr,_r4,c1);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (rr,_r4,c1)
+/*_r4(x) = ('10'),('20'),(maxvalue)*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3023 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3024 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3024 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3023);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3023 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3024 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3024 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3023);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3023 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3024 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3024 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3023);
+count(1)
+0
+drop table t1,t2;
+create table if not exists t1(c1 varchar(30) primary key,c2 int) partition by(,_r4,c1);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (t1,_r4,c1)
+/*_r4(x) = ('10'),('20'),(maxvalue)*/;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3025 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3026 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3026 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3025);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3025 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3026 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3026 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3025);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3025 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3026 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3026 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3025);
+count(1)
+0
+drop table t1,t2;
+drop partition function _r4;
+create table t1(c1 int primary key,c2 int)
+partition by range(c1)
+(partition p0 values less than(5)
+,partition p1 values less than(10)
+,partition p2 values less than(maxvalue));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE(c1)
+(PARTITION p0 VALUES LESS THAN (5)
+,PARTITION p VALUES LESS THAN (10)
+,PARTITION p2 VALUES LESS THAN (maxvalue))WITH PREFIX(t1);
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3027 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3028 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3028 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3027);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3027 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3028 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3028 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3027);
+count(1)
+1
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3027 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3028 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3028 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3027);
+count(1)
+0
+drop table t1,t2;
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2))
+partition by range columns(c1,c2)
+(partition p0 values less than(5,10)
+,partition p1 values less than(10,20)
+,partition p2 values less than(maxvalue,maxvalue));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY RANGE COLUMNS(c1,c2)
+(PARTITION p0 VALUES LESS THAN (5,10)
+,PARTITION p VALUES LESS THAN (10,20)
+,PARTITION p2 VALUES LESS THAN (maxvalue,maxvalue))WITH PREFIX(t1);
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3029 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3030 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3030 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3029);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3029 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3030 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3030 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3029);
+count(1)
+1
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3029 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3030 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3030 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3029);
+count(1)
+0
+drop table t1,t2;
+create table t1(c1 int primary key,c2 int)
+partition by list(c1)
+(partition p0 values in(1,2,3,4,5,18,19)
+,partition p1 values in(6,7,8,9,10,16,17)
+,partition p2 values in(11,12,13,14,15));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+ PRIMARY KEY(c1)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY LIST(c1)
+(PARTITION p0 VALUES IN ((1),(2),(3),(4),(5),(18),(19))
+,PARTITION p VALUES IN ((6),(7),(8),(9),(10),(16),(17))
+,PARTITION p2 VALUES IN ((11),(12),(13),(14),(15)))WITH PREFIX(t1);
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3031 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3032 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3032 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3031);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3031 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3032 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3032 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3031);
+count(1)
+1
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3031 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3032 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3032 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3031);
+count(1)
+0
+drop table t1,t2;
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2))
+partition by list columns(c1,c2)
+(partition p0 values in((5,10),(4,9))
+,partition p1 values in((10,20),(9,19))
+,partition p2 values in((3,6),(4,5)));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+ PRIMARY KEY(c1, c2)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY LIST COLUMNS(c1,c2)
+(PARTITION p0 VALUES IN ((5,10),(4,9))
+,PARTITION p VALUES IN ((10,20),(9,19))
+,PARTITION p2 VALUES IN ((3,6),(4,5)))WITH PREFIX(t1);
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3033 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3034 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3034 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3033);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3033 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3034 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3034 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3033);
+count(1)
+1
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3033 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3034 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3034 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3033);
+count(1)
+0
+drop table t1,t2;
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16));
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+c4 INT(10),
+c5 INT(10),
+c6 INT(10),
+c7 INT(10),
+c8 INT(10),
+c9 INT(10),
+c10 INT(10),
+c11 INT(10),
+c12 INT(10),
+c13 INT(10),
+c14 INT(10),
+c15 INT(10),
+c16 INT(10),
+c17 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3035 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3036 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3036 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3035);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3035 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3036 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3036 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3035);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3035 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3036 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3036 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3035);
+count(1)
+0
+drop table t1,t2;
+create table if not exists t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(30),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by(a);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 INT(10),
+c2 INT(10),
+c3 INT(10),
+c4 INT(10),
+c5 INT(10),
+c6 INT(10),
+c7 INT(10),
+c8 INT(10),
+c9 INT(10),
+c10 INT(10),
+c11 INT(10),
+c12 INT(10),
+c13 INT(10),
+c14 INT(10),
+c15 INT(10),
+c16 INT(10),
+c17 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 
+PARTITION BY (a);
+select count(1) from (select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3037 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3038 union all
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3038 except
+select table_type,rowkey_column_num,column_num,max_used_column_id,replica_num,tablet_max_size,max_rowkey_length,compress_func_name,rowkey_split,expire_condition,is_read_static,data_table_id,db_name from __first_tablet_entry where table_id=3037);
+count(1)
+0
+select count(1) from (select partition_type,rule_name,par_list from __all_table_rules where table_id=3037 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3038 union all
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3038 except
+select partition_type,rule_name,par_list from __all_table_rules where table_id=3037);
+count(1)
+0
+select count(1) from (select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3037 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3038 union all
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3038 except
+select column_name,table_name,column_id,column_group_id,rowkey_id,data_type,data_length,data_precision,data_scale,nullable,column_default from __all_all_column where table_id=3037);
+count(1)
+0
+drop table t1,t2;

@@ -1,0 +1,141 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：expire_info功能完善：新增与常量字符串比较形式及NULL值过滤
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/507
+###4.问题号：507
+###5.预计运行时间：2120 s
+###6.编写/修改人：yangruirui
+###7.编写/修改日期：2020-09-24
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+
+##################################### 异常 ###################################################
+#创建varchar列与字符串比较形式：(指定字符串前后没有转义字符，失败)
+drop table if exists test;
+--error 2
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30)) expire_info='c4=test';
+
+#创建varchar列与字符串比较形式：(非varchar列比较，失败)
+drop table if exists test;
+--error 2
+create table test(c1 int primary key, c2 int, c3 int, c4 datetime)expire_info='c4=\'test\'';
+
+#创建varchar列与字符串比较形式：(转义字符输入错误，失败)
+drop table if exists test;
+--error 2
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30)) expire_info='c4=\'test';
+
+#创建varchar列与字符串比较形式：(有多余转义字符，失败)
+drop table if exists test;
+--error 2
+create table test(c1 int primary key, c2 int, c3 int, c4 varchar(30)) expire_info='c4=\'\'test\'';
+
+
+##################################### 正常功能测试 ###################################################
+###2-1 创建含有varchar属性列的数据表Test1:
+create table test1(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+
+#新增varchar列与指定字符串'test'比较的过期信息
+alter table test1 add current expire_info='c4=\'test\'';
+
+#插入数据
+insert into test1 values(1,1,1,'test');
+insert into test1 values(2,1,1,'game');
+insert into test1 values(3,1,1,'program');
+insert into test1 values(4,1,1,'test');
+
+###2-2 创建含有varchar属性列的数据表Test2:
+create table test2(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+
+#新增varchar列与指定字符串'test'比较的过期信息
+alter table test2 add current expire_info='c4=\'\'';
+
+#插入数据
+insert into test2 values(1,1,1,'test');
+insert into test2 values(2,1,1,'game');
+insert into test2 values(3,1,1,'program');
+insert into test2 values(4,1,1,'');
+insert into test2 values(5,1,1,'');
+insert into test2 (c1,c2,c3)values(6,1,1);
+
+###2-3 创建含有varchar属性列的数据表Test3:
+create table test3(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+
+#新增varchar列与指定字符串'test'比较的过期信息
+alter table test3 add current expire_info='c4=NULL';
+
+#插入数据
+insert into test3 values(1,1,1,'test');
+insert into test3 values(2,1,1,'game');
+insert into test3 values(3,1,1,'program');
+insert into test3 values(4,1,1,'');
+insert into test3 (c1,c2,c3)values(5,1,1);
+insert into test3 (c1,c2,c3)values(6,1,1);
+insert into test3 (c1,c2,c3)values(7,1,1);
+
+###2-4 创建含有varchar属性列的数据表Test4:
+create table test4(c1 int primary key, c2 int, c3 int, c4 varchar(30));
+
+#新增varchar列与指定字符串'test'比较的过期信息
+alter table test4 add current expire_info='$SYS_DATE>c4+1*24*60*60*1000000';
+
+#插入数据
+insert into test4 values(1,1,1,'2021-09-11      18:00:00');
+insert into test4 values(2,1,1,'2021-09-11 18:00:00');
+insert into test4 values(3,1,1,'2999/9/7');
+insert into test4 values(4,1,1,' 2999/9/7 ');
+insert into test4 values(5,1,1,' 2999/9/7');
+insert into test4 values(6,1,1,'SYS_DATE');
+
+select * from test1;
+select * from test2;
+select * from test3;
+select * from test4;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+select * from test1;
+select * from test2;
+select * from test3;
+select * from test4;
+
+###2-5 修改数据表Test4的expire_info：
+alter table test4 alter current expire_info='c4=\'SYS_DATE\'';
+
+--real_sleep 100
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+select * from test4;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

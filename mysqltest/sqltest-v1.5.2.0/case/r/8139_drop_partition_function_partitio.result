@@ -1,0 +1,116 @@
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x+1';
+drop partition function h1;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create enum partition function e1(x) '[(1),(2)]';
+drop partition function e1;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create hash partition function h1(x) 'x+1';
+drop partition function H1;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create enum partition function e1(x) '[(1),(2)]';
+drop partition function E1;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+create hash partition function h3(x) 'x+1';
+drop partition function h1,h2,h3;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create enum partition function e1(x) '[(1),(2)]';
+create enum partition function e2(x) '[(1),(2)]';
+create enum partition function e3(x) '[(1),(2)]';
+drop partition function e1,e2,e3;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+create enum partition function e3(x) '[(1),(2)]';
+drop partition function H1,h2,E3;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+create enum partition function e3(x) '[(1),(2)]';
+drop partition function h1,h2,e3;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+drop partition function fh;
+ERROR HY000: YAO-5077: partition function 'fh' doesn't exist
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+drop partition function h1,h2,h3;
+ERROR HY000: YAO-5077: partition function 'h3' doesn't exist
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+drop partition function h1;
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h2	1	x	x+1
+drop partition function __h1;
+ERROR HY000: YAO--1: Invalid partition function name.
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h2	1	x	x+1
+drop table t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x+1';
+create table t1(c1 int primary key,c2 int) partition by(a,h1,c1);
+drop partition function h1;
+ERROR HY000: YAO--1: Partition Funtion h1 is Using or using its table is in trash,Cann't Drop Now.
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+drop table t1;
+drop partition function h1,h2;
+create hash partition function h1(x) 'x+1';
+create hash partition function h2(x) 'x+1';
+create table t1(c1 int primary key,c2 int) partition by(a,h1,c1);
+drop partition function h1,h2;
+ERROR HY000: YAO--1: Partition Funtion h1 is Using or using its table is in trash,Cann't Drop Now.
+show partition functions;
+rule_name	rule_par_num	rule_par_list	rule_body
+boc_account_mixs	1	x	 
+boc_card_mixs	1	x	 
+h1	1	x	x+1
+h2	1	x	x+1
+drop table t1;
+drop partition function h1,h2;

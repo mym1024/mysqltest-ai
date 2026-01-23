@@ -1,0 +1,337 @@
+####################################必填######################################################
+###1.测试功能点：枚举类型 Test DML - SELECT with ENUM and SET types - Advanced Queries (Subquery, Join, Set Ops)
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间:
+###6.编写/修改人：yangf
+###7.编写/修改日期：2025-08-26
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################	
+#####################################Do sql###################################################
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+set yao_decimal_add_zero=true;
+#Setup: Create tables for advanced SELECT testing
+CREATE TABLE t_main (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category ENUM('A', 'B', 'C', 'D') NOT NULL,
+    tags SET('tag1', 'tag2', 'tag3', 'tag4', 'tag5') NOT NULL,
+    status ENUM('active', 'inactive', 'pending') DEFAULT 'pending',
+    score INT,
+    KEY idx_category (category),
+    KEY idx_tags (tags),
+    KEY idx_status (status)
+);
+
+CREATE TABLE t_lookup1 (
+    code CHAR(2) PRIMARY KEY,
+    description VARCHAR(50)
+);
+
+CREATE TABLE t_lookup2 (
+    id INT PRIMARY KEY,
+    main_id INT, 
+    meta_enum ENUM('meta_x', 'meta_y', 'meta_z'),
+    meta_set SET('flag_a', 'flag_b'),
+    KEY idx_main_id (main_id),
+    KEY idx_meta_enum (meta_enum)
+);
+
+CREATE TABLE t_hierarchy (
+    node_id INT PRIMARY KEY,
+    parent_node_id INT,
+    node_type ENUM('root', 'branch', 'leaf'),
+    node_flags SET('visible', 'editable', 'deletable'),
+    KEY idx_parent (parent_node_id),
+    KEY idx_type (node_type)
+);
+
+CREATE TABLE t_audit (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    ref_main_id INT,
+    action ENUM('insert', 'update', 'delete'),
+    old_status ENUM('active', 'inactive', 'pending'),
+    new_status ENUM('active', 'inactive', 'pending'),
+    KEY idx_ref_main (ref_main_id),
+    KEY idx_action (action)
+);
+
+INSERT INTO t_main (category, tags, status, score) VALUES
+('A', 'tag1,tag3', 'active', 100),
+('B', 'tag2,tag4', 'inactive', 85),
+('A', 'tag1,tag2,tag5', 'pending', 90),
+('C', 'tag3,tag5', 'active', 95),
+('B', '', 'inactive', 70),
+('D', 'tag4', 'pending', 80),
+('A', 'tag1', 'active', 110),
+('C', 'tag2,tag3,tag4', 'inactive', 75);
+
+INSERT INTO t_lookup1 VALUES ('A', 'Category Alpha'), ('B', 'Category Beta'), ('C', 'Category Gamma'), ('D', 'Category Delta');
+
+INSERT INTO t_lookup2 (id, main_id, meta_enum, meta_set) VALUES
+(1, 1, 'meta_x', 'flag_a'),
+(2, 1, 'meta_y', 'flag_b'),
+(3, 2, 'meta_z', 'flag_a,flag_b'),
+(4, 3, 'meta_x', ''),
+(5, 4, 'meta_y', 'flag_a'),
+(6, 5, 'meta_z', 'flag_b'),
+(7, 6, 'meta_x', 'flag_a,flag_b'),
+(8, 7, 'meta_y', ''),
+(9, 8, 'meta_z', 'flag_a');
+
+INSERT INTO t_hierarchy VALUES
+(1, NULL, 'root', 'visible,editable'),
+(2, 1, 'branch', 'visible,editable'),
+(3, 1, 'branch', 'visible'),
+(4, 2, 'leaf', 'visible'),
+(5, 2, 'leaf', 'visible,deletable'),
+(6, 3, 'leaf', 'visible');
+
+INSERT INTO t_audit (ref_main_id, action, old_status, new_status) VALUES
+(1, 'update', 'pending', 'active'),
+(2, 'insert', NULL, 'inactive'),
+(1, 'update', 'active', 'inactive'), 
+(3, 'insert', NULL, 'pending'),
+(4, 'update', 'pending', 'active'),
+(5, 'insert', NULL, 'inactive');
+
+# 1. Advanced Subqueries with ENUM/SET
+#
+# 1.1. Subquery in WHERE - Scalar subquery comparing ENUM
+SELECT id, category, status, score
+FROM t_main
+WHERE category = (SELECT code FROM t_lookup1 WHERE description LIKE '%Alpha%');
+
+# 1.2. Subquery in WHERE - IN subquery with SET
+SELECT id, category, tags
+FROM t_main
+WHERE id IN (
+    SELECT main_id
+    FROM t_lookup2
+    WHERE FIND_IN_SET('flag_b', meta_set) > 0
+);
+
+# 1.3. Subquery in WHERE - EXISTS with ENUM join condition
+SELECT m.id, m.category, m.status
+FROM t_main m
+WHERE EXISTS (
+    SELECT 1
+    FROM t_lookup1 l
+    WHERE l.code = m.category AND l.description LIKE '%Gamma%'
+);
+
+# 1.4. Subquery in WHERE - NOT EXISTS with complex SET logic
+#mysql、ob 执行成功，表现不一致 -排序问题。
+SELECT m.id, m.tags
+FROM t_main m
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM t_lookup2 l
+    WHERE l.main_id = m.id AND l.meta_enum = 'meta_z'
+);
+
+# 1.5. Subquery in SELECT list (Scalar) - Get related ENUM description
+SELECT
+    m.id,
+    m.category,
+    (SELECT l.description FROM t_lookup1 l WHERE l.code = m.category) AS category_desc,
+    m.status
+FROM t_main m
+WHERE m.score > 90;
+
+# 1.6. Subquery in SELECT list (Scalar) - Count related records based on SET
+SELECT
+    m.id,
+    m.tags,
+    (SELECT COUNT(*) FROM t_lookup2 l WHERE l.main_id = m.id AND FIND_IN_SET('flag_a', l.meta_set) > 0) AS count_flag_a
+FROM t_main m
+WHERE m.category = 'A';
+
+# 1.7. Subquery in FROM (Derived Table) - Filter and aggregate ENUM/SET
+SELECT dt.category, dt.avg_score, dt.common_tag
+FROM (
+    SELECT
+        category,
+        AVG(score) AS avg_score,
+        SUBSTRING_INDEX(tags, ',', 1) AS common_tag 
+    FROM t_main
+    WHERE status IN ('active', 'pending')
+    GROUP BY category, SUBSTRING_INDEX(tags, ',', 1)
+    HAVING COUNT(*) > 1
+) AS dt
+WHERE dt.avg_score > 80;
+
+# 2. Complex JOINs with ENUM/SET
+#
+# 2.1. JOIN with lookup table on ENUM column
+SELECT
+    m.id,
+    m.category,
+    l.description AS category_full_name,
+    m.status
+FROM t_main m
+JOIN t_lookup1 l ON m.category = l.code
+ORDER BY m.id;
+
+# 2.2. JOIN with detail table on ID, filter on detail's ENUM/SET
+#mysql、ob 执行成功，表现不一致 -排序问题。
+SELECT
+    m.id,
+    m.tags,
+    d.meta_enum,
+    d.meta_set
+FROM t_main m
+JOIN t_lookup2 d ON m.id = d.main_id
+WHERE d.meta_enum IN ('meta_x', 'meta_y') OR d.meta_set = 'flag_a,flag_b';
+
+# 2.3. LEFT JOIN - Find main records without detail records
+SELECT
+    m.id,
+    m.category,
+    m.status
+FROM t_main m
+LEFT JOIN t_lookup2 d ON m.id = d.main_id
+WHERE d.main_id IS NULL;
+
+# 2.4. Self-JOIN on hierarchy table using ENUM
+SELECT
+    parent.node_id AS parent_id,
+    parent.node_type AS parent_type,
+    child.node_id AS child_id,
+    child.node_flags AS child_flags
+FROM t_hierarchy parent
+JOIN t_hierarchy child ON parent.node_id = child.parent_node_id
+WHERE parent.node_type = 'branch' AND FIND_IN_SET('editable', child.node_flags) = 0;
+
+# 2.5. Multi-JOIN - Main -> Detail -> Audit
+SELECT
+    m.id,
+    m.category,
+    d.meta_enum,
+    a.action,
+    a.old_status,
+    a.new_status
+FROM t_main m
+JOIN t_lookup2 d ON m.id = d.main_id
+JOIN t_audit a ON m.id = a.ref_main_id
+WHERE m.category = 'A' AND a.action = 'update';
+
+# 2.6. JOIN with condition on SET membership (FIND_IN_SET in ON clause)
+SELECT
+    m.id,
+    m.tags,
+    d.id AS detail_id,
+    d.meta_enum
+FROM t_main m
+JOIN t_lookup2 d ON FIND_IN_SET(d.meta_enum, REPLACE(m.tags, 'tag', 'meta_')) > 0
+WHERE m.id IN (1, 3);
+
+# 3. Set Operations (UNION, UNION ALL) with ENUM/SET
+# Note: MySQL supports UNION/UNION ALL. INTERSECT/EXCEPT require workarounds.
+#
+# 3.1. UNION ALL - Combine results from different categories
+(SELECT id, category, tags, 'High Scorers' AS source_type FROM t_main WHERE score >= 100)
+UNION ALL
+(SELECT id, category, tags, 'Tagged with 5' AS source_type FROM t_main WHERE FIND_IN_SET('tag5', tags) > 0)
+ORDER BY id, source_type;
+
+# 3.2. UNION - Combine distinct ENUM states from different sources
+(SELECT DISTINCT status AS state, 'From Main Table' AS source FROM t_main)
+UNION
+(SELECT DISTINCT new_status AS state, 'From Audit Table' AS source FROM t_audit WHERE new_status IS NOT NULL)
+ORDER BY state, source;
+
+# 3.3. UNION ALL with complex SELECTs - ENUM and SET analysis
+(SELECT category, COUNT(*) AS item_count, 'Category Count' AS metric FROM t_main GROUP BY category)
+UNION ALL
+(SELECT 'TOTAL' AS category, COUNT(*) AS item_count, 'Overall Count' AS metric FROM t_main)
+UNION ALL
+(SELECT 'WITH_TAG1' AS category, COUNT(*) AS item_count, 'Tag Analysis' AS metric FROM t_main WHERE FIND_IN_SET('tag1', tags) > 0)
+ORDER BY metric, category;
+
+# 3.4. Simulating INTERSECT using INNER JOIN on UNION ALL results
+SELECT t.id FROM (
+    (SELECT id FROM t_main WHERE score >= 100)
+    UNION ALL
+    (SELECT id FROM t_main WHERE FIND_IN_SET('tag1', tags) > 0)
+) AS t
+GROUP BY t.id
+HAVING COUNT(*) = 2;
+
+# 4. Common Table Expressions (CTE) with ENUM/SET
+#
+# 4.1. Simple CTE - Filter and reuse
+WITH ActiveItems AS (
+    SELECT id, category, tags, score
+    FROM t_main
+    WHERE status = 'active'
+)
+SELECT ai.id, ai.category, ai.tags
+FROM ActiveItems ai
+WHERE ai.score > 90;
+
+# 4.2. Recursive CTE - Traverse hierarchy using ENUM/SET
+WITH RECURSIVE NodeHierarchy AS (
+    SELECT node_id, parent_node_id, node_type, node_flags, 0 AS level, CAST(node_id AS CHAR(200)) AS path
+    FROM t_hierarchy
+    WHERE parent_node_id IS NULL
+    UNION ALL
+    SELECT h.node_id, h.parent_node_id, h.node_type, h.node_flags, nh.level + 1, CONCAT(nh.path, '->', h.node_id)
+    FROM t_hierarchy h
+    INNER JOIN NodeHierarchy nh ON h.parent_node_id = nh.node_id
+)
+SELECT
+    nh.node_id,
+    nh.level,
+    nh.path,
+    nh.node_type,
+    nh.node_flags
+FROM NodeHierarchy nh
+WHERE nh.node_type = 'leaf' OR FIND_IN_SET('editable', nh.node_flags) > 0
+ORDER BY nh.path;
+
+# 4.3. Multiple CTEs - Complex analysis
+WITH CategoryStats AS (
+    SELECT category, AVG(score) AS avg_score, COUNT(*) AS cnt
+    FROM t_main
+    GROUP BY category
+),
+TopCategories AS (
+    SELECT category
+    FROM CategoryStats
+    WHERE avg_score > 90
+),
+TagSummary AS (
+    SELECT
+        id,
+        category,
+        tags,
+        CASE
+            WHEN FIND_IN_SET('tag1', tags) > 0 THEN 'Has_Tag1'
+            WHEN FIND_IN_SET('tag5', tags) > 0 THEN 'Has_Tag5'
+            ELSE 'Other'
+        END AS tag_group
+    FROM t_main
+)
+SELECT
+    tc.category,
+    ts.tag_group,
+    COUNT(*) AS item_count,
+    GROUP_CONCAT(ts.id ORDER BY ts.id) AS item_ids
+FROM TopCategories tc
+JOIN TagSummary ts ON tc.category = ts.category
+GROUP BY tc.category, ts.tag_group
+ORDER BY tc.category, ts.tag_group;
+
+# Cleanup
+DROP TABLE t_audit;
+DROP TABLE t_hierarchy;
+DROP TABLE t_lookup2;
+DROP TABLE t_lookup1;
+DROP TABLE t_main;
+############################################ end sql ###################################################

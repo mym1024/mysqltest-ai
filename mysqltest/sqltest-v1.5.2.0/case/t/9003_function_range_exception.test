@@ -1,0 +1,65 @@
+##############################################################################################
+###1.测试功能点：新建range分区函数，绑定分区函数建表的异常项
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：2s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2019-10-30
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+###2-1：建表时绑定一个不存在的分区函数
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+--error 5077
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1);
+
+###2-2：建表时在非主键列上绑定分区函数
+create range partition function r(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+--error 5081
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1)) partition by(rr,r,c2);
+drop partition function r;
+
+###2-3：建表时分区列名与分区函数的参数不等
+create range partition function r(x,y) '(10,50),(20,60),(maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+--error 5054
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1);
+drop partition function r;
+
+###2-4：建表时分区列名重复
+create range partition function r(x,y) '(10,50),(20,60),(maxvalue,maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+--error 5025
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c1,c1);
+drop partition function r;
+
+###2-5：建表时分区列名不存在
+create range partition function r(x) '(10),(20),(maxvalue)';
+select rule_name, rule_par_num, rule_par_list, rule_body, type from __all_partition_rules;
+--error 5009
+create table if not exists t1(c1 int,c2 int,c3 varchar(30), primary key(c1,c2)) partition by(rr,r,c4);
+drop partition function r;
+
+##2-6：删除不存在的分区函数
+--error 5077
+drop partition function r;
+
+drop table if exists t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,1092 @@
+create table proc_test(id int  primary key, age int, name varchar(20));
+insert into proc_test values(2,2,'a'),(3,3,'a'),(4,4,'a');
+select * from proc_test;
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+create procedure p() 
+begin 
+declare i int default 7; 
+declare j int default 8;
+while i<10 do insert into proc_test values(i,i,'a'),(j,j,'b'); 
+set i=i+2,j=j+2;
+end while;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+while i<3 do update proc_test set age = i+7 where id = i;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+2	9	a
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+while i<3 do update proc_test set id = i+10 where id = i;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+12	9	a
+drop procedure p//
+create procedure p() 
+begin declare i int default 1;
+while i<3 do delete from proc_test where id = i+10;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 11; 
+declare i int default 1;
+while i<3 do select * from proc_test where id = (select age from proc_test where id = 3);
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from proc_test where age = a-6 and id in (select age from proc_test where id < 5); 
+set i=i+1;
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9; 
+declare i int default 1; 
+while i<3 do select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test)); 
+set i=i+1;
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test));
+set i=i+1;
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 6 and id in (select age from proc_test where age in (select age from proc_test));
+set i=i+1; 
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1;
+while i<3 do select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 2 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+set i=i+1;
+end while;
+end;//
+call p()//
+id	sum(age)
+4	4
+3	3
+id	sum(age)
+4	4
+3	3
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1;
+while i<3 do select * from proc_test union select * from proc_test;
+set i=i+1;
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 10;
+declare i int default 1;
+while i<3 do select * from proc_test union all select * from proc_test;
+set i=i+1; 
+end while;
+end;//
+call p()//
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+id	age	name
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+3	3	a
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+declare b int default 2; 
+declare i int default 1; 
+while i<3 do if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) and b = (select count(1) from proc_test where id = (select count(1) from proc_test)) + 1 then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while; 
+end;//
+call p()//
+2
+2
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if a = (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while; 
+end;//
+call p()//
+2
+2
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+2
+2
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if (select count(1)-1 from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+while i<3 do update proc_test set name = 'b' where id = 3; 
+if row_count() = 1 then select 1; 
+else select 2; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+declare a int default 7; 
+if locate(str,a)=4 then delete from proc_test where id = a+1 ; 
+select * from proc_test; 
+else select 6 ; 
+end if; 
+end;//
+call p()//
+6
+6
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if substring(str,4) = 't' then select 1; 
+else select 2; 
+end if; 
+set i=i+1;
+end while;
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default '10.68.14.152';
+while i<3 do if '10'=substring_index(str,'.',1) then select 1; 
+else select 2;
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default '0';
+while i<3 do if convert(str,int) then select 1; 
+else select 2; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+2
+2
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if instr(str,'t') = 1 then select 1; 
+else select 2; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if char_length(str) = 4 then select 1; 
+else select 2; 
+end if;
+set i=i+1;
+end while; 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 13;
+while i<3 do if char_length(str) = 4 then insert into proc_test values(a,a+1,'a'),(a+1,a+2,'a');
+select * from proc_test;
+else select 3; 
+end if; 
+set a=a+2; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+id	age	name
+3	3	b
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+id	age	name
+3	3	b
+4	4	a
+7	7	a
+8	8	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+15	16	a
+16	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then update proc_test set age = 18 where id = a;
+select * from proc_test;
+else select 3; 
+end if; 
+set i=i+1; 
+set a=a+1;
+end while;
+end;//
+call p()//
+id	age	name
+3	3	b
+4	4	a
+7	18	a
+8	8	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+15	16	a
+16	17	a
+id	age	name
+3	3	b
+4	4	a
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+15	16	a
+16	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 16;
+declare i int default 1;
+while i<3 do if char_length(str) = 4 then update proc_test set id = a+1 where id = a;
+select * from proc_test;
+else select 5; 
+end if;
+set i=i+1; 
+set a=a-1;
+end while; 
+end;//
+call p()//
+id	age	name
+3	3	b
+4	4	a
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+15	16	a
+17	17	a
+id	age	name
+3	3	b
+4	4	a
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 2;
+declare i int default 1; 
+while i<3 do if char_length(str) = 4 then delete from proc_test where id = a+1;
+select * from proc_test;else select 6; 
+end if;
+set i=i+1;
+set a=a+1; 
+end while; 
+end;//
+call p()//
+id	age	name
+4	4	a
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+id	age	name
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then select * from proc_test where id in (select age from proc_test where id < a);
+else select 8; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+id	age	name
+id	age	name
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+declare a int default 15;
+while i<3 do if char_length(str) = 4 then select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+else select 9; 
+end if; 
+set i=i+1;
+end while;
+end;//
+call p()//
+id	age	name
+9	9	a
+id	age	name
+9	9	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test'; 
+declare a int default 15;
+while i<3 do if char_length(str) = 4 then select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test)); 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+id	age	name
+9	9	a
+id	age	name
+9	9	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test'; 
+declare a int default 16;
+while i<3 do if char_length(str) = 4 then select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+else select 12;
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+id	age	name
+9	9	a
+id	age	name
+9	9	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 13;
+while i<3 do if char_length(str) = 4 then select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+else select 15; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+id	sum(age)
+10	10
+9	9
+id	sum(age)
+10	10
+9	9
+drop procedure p//
+create procedure p() 
+begin declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then select * from proc_test union select * from proc_test;
+else select 16; 
+end if;
+set i=i+1;
+end while; 
+end;//
+call p()//
+id	age	name
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+id	age	name
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1;
+while i<3 do case (select count(1) from proc_test where id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1;
+while i<3 do case a when (select count(1) from proc_test where id = (select count(1) from proc_test))  then select 1 from dual;
+else select 3 from dual; 
+end case; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1; 
+while i<3 do case (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+set i=i+1;
+end while;
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare i int default 1; 
+declare a int default 1;
+while i<3 do case a when (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 3 from dual; 
+end case; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+1
+1
+1
+1
+drop procedure p//
+create procedure p()
+lb:begin 
+case when 1=1 
+then leave lb;
+end case;
+end;//
+call p()//
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+lp:while a<3 
+do leave lp;
+leave lp;
+end while;
+end;//
+call p()//
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+lp:loop set a=a+1;
+leave lp;
+end loop;
+repeat set a=a+1; 
+until a=3 
+end repeat;
+while a<3 
+do leave lp;
+end while;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin
+declare i int default 1;
+a :while i < 10 do  
+select i;
+if i > 0 then
+leave a;
+end if;
+set i = i+1;
+end while ;
+end //
+call p()//
+i
+1
+drop procedure p//
+create procedure p()
+lb:begin 
+case when 1=1 
+then iterate lp;
+end case;
+end;//
+call p()//
+ERROR HY000: YAO-16: ITERATE statement is not valid.
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+lp:loop 
+if a=1 
+then set a=a+1;
+iterate lp;
+end if;
+leave lp;
+set a=a+1;
+end loop;
+end//
+call p()//
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+lp:loop set a=a+1;
+leave lp;
+end loop;
+repeat iterate lp;
+until 1=1 
+end repeat;
+end;//
+call p()//
+ERROR HY000: YAO-16: ITERATE statement is not valid.
+drop procedure p//
+create procedure p()
+lb:begin 
+declare a int default 1;
+set a=a+1;
+lb:while a<3 do 
+iterate lb;
+end while;
+end;//
+call p();//
+ERROR HY000: YAO-6000: NAME "lb" specified in context is not unique.
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 1;
+lp:loop set a=a+1;
+leave lp;
+end loop;
+repeat set a=a+1; 
+until a=3 
+end repeat;
+while a<3 do 
+iterate lp;
+end while;
+select a;
+end;//
+call p()//
+a
+3
+drop procedure p//
+create procedure p() 
+begin
+declare i int default 1;
+a :while i < 10 do 
+set i = i+1;
+if i < 9 
+then iterate a;
+end if;
+select i;
+end while ;
+end //
+call p()//
+i
+9
+i
+10
+drop procedure p//
+create procedure p()
+begin 
+loop 
+end loop;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+lb:begin 
+declare a,b int;
+declare csr cursor for select * from proc_test; 
+loop 
+open csr;
+fetch csr into a,b;
+close csr;
+leave lb;   
+end loop;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+lb:begin 
+loop 
+replace into proc_test values(1,1,'b');
+leave lb;
+end loop;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+lb:begin 
+loop 
+case when 1=1 then select 1;
+end case;
+leave lb;
+end loop;
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+lb:begin 
+loop 
+if 1=1 
+then select 1;
+end if;
+leave lb;
+end loop;
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+lb:begin 
+declare a int default 1;
+loop 
+while a<2 do set a=a+1;
+select a;
+end while;
+leave lb;
+end loop;
+end;//
+call p()//
+a
+2
+drop procedure p//
+create procedure p()
+lb:begin
+declare a int default 1;
+loop 
+lp:loop set a=a+1;
+if a=3 
+then leave lp;
+end if;
+end loop;
+leave lb;
+end loop;
+end;//
+call p()//
+drop procedure p//
+create procedure p()
+lb:begin 
+loop 
+delete from proc_test where id=2;
+select * from proc_test;
+leave lb;
+end loop;
+end;//
+call p()//
+id	age	name
+1	1	b
+7	18	a
+8	18	b
+9	9	a
+10	10	b
+13	14	a
+14	15	a
+16	16	a
+17	17	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1;
+lp:loop leave lp;
+end loop lp;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin
+declare i int default 1;
+label1: loop
+set i = i+1;
+if i < 10 then
+iterate label1;
+end if;
+leave label1;
+end loop label1;
+select i;
+end;//
+call p()//
+i
+10
+drop procedure p//
+truncate table proc_test;//
+create procedure p() 
+begin 
+declare a int default 0;
+lp:loop set a=a+1;
+delete from proc_test where id=4;
+insert into proc_test values(a,5,'b');
+if a=10 
+then leave lp;
+end if;
+end loop lp;
+select * from proc_test;
+end;//
+call p()//
+id	age	name
+1	5	b
+2	5	b
+3	5	b
+5	5	b
+6	5	b
+7	5	b
+8	5	b
+9	5	b
+10	5	b
+drop procedure p//
+create procedure p()
+begin 
+declare a int;
+set a =1;
+repeat 
+until a=1 
+end repeat;
+end//
+call p()//
+drop procedure p//
+create procedure p()
+begin 
+declare a int default 0;
+repeat 
+select a;
+until 1+2*3 
+end repeat;
+end//
+call p()//
+a
+0
+drop procedure p//
+create procedure p()
+lb:begin 
+declare a,b int;
+declare csr cursor for select * from proc_test; 
+repeat open csr;
+fetch csr into a,b;
+close csr;
+leave lb;
+until 1=1 
+end repeat;
+end;//
+call p()//
+drop procedure p//
+create procedure p() 
+begin
+declare i int default 1;
+repeat
+set i = i+1;
+until i > 10 
+end repeat;
+select i;
+end;//
+call p()//
+i
+11
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 0;
+lp:repeat 
+set a=a+1;
+until a=10 
+end repeat;
+select a;
+end;//
+call p()//
+a
+10
+drop procedure p//
+create procedure p()
+lb:begin 
+declare a int default 1;
+lp:repeat set a=a+1;
+iterate lb;
+leave lp;
+until 1=1  
+end repeat;
+end;//
+call p()//
+ERROR HY000: YAO-16: ITERATE statement is not valid.
+drop procedure p//
+create procedure p()
+lb:begin 
+declare a int default 1;
+lp:loop set a=a+1;
+iterate lb;
+leave lp;
+end loop;
+end;//
+call p()//
+ERROR HY000: YAO-16: ITERATE statement is not valid.
+drop procedure p//

@@ -1,0 +1,144 @@
+create database test_decimal;
+using database test_decimal;
+create table if not exists t1(c1 int primary key, c2 decimal(5,2));
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t1 values(1,1);
+insert into t1 values(2,12.12);
+insert into t1 values(3,123.123);
+select * from t1;
+c1	c2
+1	1
+2	12.12
+3	123.12
+select *, c1+c2 from t1 where c1 = 3 for update;
+c1	c2	c1+c2
+3	123.12	126.12
+select *, c1+c2 from t1 where c1 = 3;
+c1	c2	c1+c2
+3	123.12	126.12
+insert into t1 values(4,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t1] column[c2] at row[1]
+alter table t1 alter column c2 set data type decimal(5,3);
+ERROR HY000: YAO-5014: The integer part is less than the previous length, operation is not allowed! previous integer part length is:3
+desc t1;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t1 values(5,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t1] column[c2] at row[1]
+insert into t1 values(6,123.123);
+insert into t1 values(7,12.12);
+insert into t1 values(8,1);
+select * from t1;
+c1	c2
+1	1
+2	12.12
+3	123.12
+6	123.12
+7	12.12
+8	1
+select *, c1+c2 from t1 where c1 = 7 for update;
+c1	c2	c1+c2
+7	12.12	19.12
+select *, c1+c2 from t1 where c1 = 7;
+c1	c2	c1+c2
+7	12.12	19.12
+drop table if exists t1;
+create table if not exists t2(c1 int primary key, c2 decimal(5,2));
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t2 values(1,1);
+insert into t2 values(2,12.12);
+insert into t2 values(3,123.123);
+select * from t2;
+c1	c2
+1	1
+2	12.12
+3	123.12
+select *, c1+c2 from t2 where c1 = 3 for update;
+c1	c2	c1+c2
+3	123.12	126.12
+select *, c1+c2 from t2 where c1 = 3;
+c1	c2	c1+c2
+3	123.12	126.12
+insert into t2 values(4,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t2] column[c2] at row[1]
+alter table t2 alter column c2 set data type decimal(4,2);
+ERROR HY000: YAO-5014: The integer part is less than the previous length, operation is not allowed! previous integer part length is:3
+desc t2;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t2 values(5,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t2] column[c2] at row[1]
+insert into t2 values(6,123.123);
+insert into t2 values(7,12.12);
+insert into t2 values(8,1);
+select * from t2;
+c1	c2
+1	1
+2	12.12
+3	123.12
+6	123.12
+7	12.12
+8	1
+select *, c1+c2 from t2 where c1 = 7 for update;
+c1	c2	c1+c2
+7	12.12	19.12
+select *, c1+c2 from t2 where c1 = 7;
+c1	c2	c1+c2
+7	12.12	19.12
+drop table if exists t2;
+create table if not exists t3(c1 int primary key, c2 decimal(5,2));
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t3 values(1,1);
+insert into t3 values(2,12.12);
+insert into t3 values(3,123.123);
+select * from t3;
+c1	c2
+1	1
+2	12.12
+3	123.12
+select *, c1+c2 from t3 where c1 = 3 for update;
+c1	c2	c1+c2
+3	123.12	126.12
+select *, c1+c2 from t3 where c1 = 3;
+c1	c2	c1+c2
+3	123.12	126.12
+insert into t3 values(4,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t3] column[c2] at row[1]
+alter table t3 alter column c2 set data type decimal(4,3);
+ERROR HY000: YAO-5014: The integer part is less than the previous length, operation is not allowed! previous integer part length is:3
+desc t3;
+Field	Type	Null	Key	Default	Extra
+c1	int(10)	YES	PRI	NULL	
+c2	decimal(5,2)	YES		NULL	
+insert into t3 values(5,1234.12);
+ERROR HY000: YAO-58: Overflow occurred during convert decimal(6,2) to decimal(5,2) for table[test_decimal.t3] column[c2] at row[1]
+insert into t3 values(6,123.123);
+insert into t3 values(7,12.12);
+insert into t3 values(8,1);
+select * from t3;
+c1	c2
+1	1
+2	12.12
+3	123.12
+6	123.12
+7	12.12
+8	1
+select *, c1+c2 from t3 where c1 = 7 for update;
+c1	c2	c1+c2
+7	12.12	19.12
+select *, c1+c2 from t3 where c1 = 7;
+c1	c2	c1+c2
+7	12.12	19.12
+drop table if exists t3;
+drop database test_decimal;

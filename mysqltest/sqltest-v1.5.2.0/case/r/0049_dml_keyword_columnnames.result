@@ -1,0 +1,14 @@
+drop table if exists t;
+create table if not exists t(key int primary key, explain varchar2(30), describe int, password int);
+insert into t values(1,'aaa',45,1234);
+insert into t values(2,'12345',45,23);
+insert into t values(3,'数据类型',1678,3456);
+update t set explain='abcdefg' where password=23;
+update t set describe=451 where key=1;
+delete from t where key=1;
+delete from t where describe=451;
+select * from t;
+key	explain	describe	password
+2	abcdefg	45	23
+3	数据类型	1678	3456
+drop table if exists t;

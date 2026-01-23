@@ -1,0 +1,19 @@
+#######################################################
+###1.测试功能点：在hash分区表中,通过设置autocommit参数，回滚事务;
+#######################################################
+
+
+--disable_abort_on_error
+
+drop table if exists t1;
+
+--error 5077
+drop partition function h;
+create hash partition function h(x)'x+1';
+create table t1 (c1 int primary key, c2 int) partition by (hs,h,c1);
+insert into t1 values(1,1);
+set autocommit=0;
+insert into t1 values(1,1);
+rollback;
+insert into t1 values(1,1);
+rollback;

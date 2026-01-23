@@ -1,0 +1,25 @@
+#######################################################
+###1.���Թ��ܵ㣺��hash����������У���ͬsession��insertͬһ����;
+#######################################################
+
+drop table if exists c;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1'; 
+create table c(c1 int primary key, c2 varchar(8)) partition by (hs,h,c1);
+
+connect(conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connect(conn2,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+set autocommit=0;
+insert into c values(1,1);
+connection conn2;
+set autocommit=0;
+--error 5049
+insert into c values(1,1);
+commit;
+connection conn1;
+commit;
+
+

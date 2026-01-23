@@ -1,0 +1,130 @@
+##############################################################################################
+###1.测试功能点：测试bit数据类型
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2023-11-14
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+###函数位置测试
+CREATE TABLE test (id int ,bit_1 bit(1),bit_3 bit(3) default b'001',bit_7 bit(7));
+desc test;
+insert into test(id,bit_1,bit_7) values(1,b'0',b'1110000');
+select * from test;
+insert into test values(2,b'1',b'110',b'0101010');
+select * from test;
+--error 5611
+insert into test(id,bit_1,bit_7) values(1,b'0',1110000);
+--error 5611
+insert into test values(2,b'1','110','0101010');
+
+update test set bit_7 = b'0110110' where id = 1;
+select * from test;
+
+select * from test where bit_1 = b'1';
+select * from test group by id having bit_1 = b'1';
+select * from test order by bit_1;
+
+update test set id = 3 where bit_1 = b'1';
+select * from test;
+
+insert into test values(2,1,0,5);
+select * from test;
+delete from test where bit_3 = b'000';
+select * from test;
+
+(select * from test where id < 3) union (select * from test where bit_3 < b'111');
+(select * from test where id < 3) intersect (select * from test where bit_3 < b'111');
+(select * from test where id < 3) except (select * from test where bit_3 < b'111');
+select * from test where bit_3 between b'000' and b'111';
+select * from test where bit_3 in (select bit_3 from test);
+
+create index bit_3_index on test(bit_3);
+show index on test;
+
+create TABLE test1 (id int ,bit_1 bit(1),bit_3 bit(3) default b'001',bit_7 bit(7));
+insert into test1(id,bit_1,bit_7) values(1,b'0',b'1111111');
+select * from test1;
+insert into test1 values(2,b'1',b'001',b'1000001');
+select * from test1;
+
+select test.bit_1,test1.bit_7 from test,test1;
+select test.id,test.bit_3,test1.bit_1 B,test1.bit_7 from test,test1 where test.bit_7<b'1111111';
+
+###相关函数测试
+select bit_and(bit_1) from test;
+select bit_and(bit_3),bit_and(bit_1) from test;
+select bit_and(bit_1),bit_and(bit_7) A from test;
+
+select bit_or(bit_1) from test;
+select bit_or(bit_3),bit_or(bit_1) from test;
+select bit_or(bit_1),bit_or(bit_7) O from test;
+
+select bit_xor(bit_1) from test;
+select bit_xor(bit_3),bit_xor(bit_1) from test;
+select bit_xor(bit_1),bit_xor(bit_7) X from test;
+
+select bin(bit_1) from test;
+select bin(bit_3),bin(bit_1) from test;
+select bin(bit_1),bin(bit_7) B from test;
+
+select hex(bit_1) from test;
+select hex(bit_3),hex(bit_1) from test;
+select hex(bit_1),hex(bit_7) H from test;
+
+select oct(bit_1) from test;
+select oct(bit_3),oct(bit_1) from test;
+select oct(bit_1),oct(bit_7)O from test;
+
+###左移右移测试
+select b'1101' << 2;
+select b'1011' << 1;
+select bit_1 << 1 from test;
+select bit_3 << 2,bit_1 << 1 from test;
+select bit_1 << 3,bit_7 << 1 Z from test;
+
+select b'1101' >> 2;
+select b'1011' >> 1;
+select bit_1 >> 1 from test;
+select bit_3 >> 2,bit_1 >> 1 from test;
+select bit_1 >> 3,bit_7 >> 1 Y from test;
+
+###相关计算测试
+select b'101'+1;
+select b'1111'+999 from test;
+
+select b'101'-1;
+select b'1111'-999 from test;
+
+select b'101'*2;
+select b'1111'*3 from test;
+
+select b'101'/2;
+select b'1111'/10 from test;
+
+select b'101'%3;
+select b'1111'%99 from test;
+
+###cast函数
+CREATE TABLE t1 (c1 int ,c2 bit(1),c3 bit(3) default b'001',c4 bit(7));
+insert into t1(c1,c2,c4) values(1,b'0',b'1110000');
+select cast(c2 as int) from t1;
+select cast(c4 as bigint) from t1;
+#目前不支持转varchar
+#select cast(c3 as varchar(10)) from t1;
+select cast(c3 as smallint) from t1;
+#--error 7
+select cast(c4 as time) from t1;

@@ -1,0 +1,108 @@
+drop table if exists t1,t2,t3,t4;
+set yao_read_consistency=4;
+create table t1(pk int primary key,extra int) partition by range(pk) (partition p1 values less than(2),partition p2 values less than (10),partition p3 values less than maxvalue);
+insert into t1(pk) values(1),(2);
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+insert into t1(pk,extra) values(3,null),(4,null);
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+insert into t1(pk,extra) values(6,null);
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+6	NULL
+select * from t1 where extra =null;
+pk	extra
+select * from t1 where extra !=null;
+pk	extra
+select * from t1 where extra is null;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+6	NULL
+select * from t1 where extra is not null;
+pk	extra
+select * from t1 where pk is null;
+pk	extra
+select * from t1 where pk =null;
+pk	extra
+select * from t1 where pk !=null;
+pk	extra
+select * from t1 where pk is not null;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+6	NULL
+select * from t1 where pk in (null);
+pk	extra
+select * from t1 where pk in (null,1);
+pk	extra
+1	NULL
+select * from t1 where null > null;
+pk	extra
+select * from t1 where null < null;
+pk	extra
+select * from t1 where null = null;
+pk	extra
+select * from t1 where null > 1;
+pk	extra
+select * from t1 where null < 1;
+pk	extra
+select * from t1 where null is null;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+6	NULL
+select * from t1;
+pk	extra
+1	NULL
+2	NULL
+3	NULL
+4	NULL
+6	NULL
+update t1 set extra=1 where pk !=null;
+update t1 set extra=1 where pk is not null;
+delete from t1 where pk =null;
+select * from t1;
+pk	extra
+1	1
+2	1
+3	1
+4	1
+6	1
+delete from t1 where pk is null;
+delete from t1 where pk is not null;
+delete from t1 where pk !=null;
+set autocommit=0;
+select * from t1;
+pk	extra
+insert into t1 values (5,null);
+select * from t1 where extra is null and pk=5 for update;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:5' for key 'PRIMARY'
+select * from t1 where extra is null and pk is null for update;
+pk	extra
+commit;
+select * from t1 where extra is null and pk=5 for update;
+pk	extra
+5	NULL
+select * from t1 where extra is not null and pk=5 for update;
+pk	extra
+select * from t1 where extra is not null and pk is not null for update;
+pk	extra
+set autocommit=1;

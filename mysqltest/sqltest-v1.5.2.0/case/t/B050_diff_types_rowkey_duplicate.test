@@ -1,0 +1,85 @@
+##############################################################################################
+###1.测试功能点:测试以不同类型为主键
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+###2-1：int is primary key
+create table t1(pk int primary key,a int);
+insert into t1(pk) values(1);
+select * from t1;
+--error 5024
+insert into t1(pk) values(1);
+select * from t1;
+drop table t1;
+
+
+###2-2：char is primary key
+create table t1(pk varchar(128) primary key,a int);
+insert into t1(pk) values('c1');
+select * from t1;
+--error 5024
+insert into t1(pk) values('c1');
+select * from t1;
+drop table t1;
+
+###2-3：datetime is primary key
+create table t1(pk datetime primary key,a datetime);
+insert into t1(pk) values('2012-02-02 12:00:00');
+select * from t1;
+--error 5024
+insert into t1(pk) values('2012-02-02 12:00:00');
+select * from t1;
+drop table t1;
+
+###2-4：createtime is not allowed to be pk
+--error 2 
+create table t1(pk createtime primary key,a int);
+--error 5019
+insert into t1(a) values(1);
+--error 5019
+insert into t1(a) values(2);
+--error 5019
+select * from t1;
+--error 5019
+drop table t1;
+
+###2-5：modifytime is not allowed to be pk
+--error 2 
+create table t1(pk modifytime primary key,a int);
+--error 5019
+insert into t1(a) values(1);
+--error 5019
+insert into t1(a) values(2);
+--error 5019
+select * from t1;
+--error 5019
+insert into t1(a) values(1);
+--error 5019
+insert into t1(a) values(2);
+--error 5019
+select * from t1;
+--error 5019
+drop table t1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

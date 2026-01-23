@@ -1,0 +1,695 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：使用列表分区函数创建表
+#### 列表分区函数的list参数只能为整型列；多参情况下，分区列类型只能为整型或字符串型
+##
+#
+###2.测试项：（每新添一测试项，需在添加前注明测试项，注释填在新添sql前，不填在此处，如下样例）
+###2.问题网址：xxx
+###3.问题号：xxx
+###4.预计运行时间：109 s
+###5.编写/修改人：hexiangsong
+###6.编写/修改日期：2019-11-25
+###7.其它（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+###2-1：使用列表分区函数创建表
+drop table if exists list1;
+--enable_warnings
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+--echo "refesh"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+show table rules;
+--real_sleep 500
+insert into list1 values(1,'a',1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+--echo "refesh"
+
+show table rules;
+--real_sleep 3
+insert into list1 values(1,'a',1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+###2-2：使用列表分区函数创建表，并指定前缀名
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5)) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 3
+insert into list1 values(1,'a',1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+###2-3：使用列表分区函数创建表，分区函数列表元素类型与分区列类型需一致
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in(1));
+--echo "refesh"
+
+show table rules;
+--real_sleep 3
+insert into list1 values(1,'a',1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+--error 5089
+create table list1(c1 int primary key,c2 varchar(20),c3 int) partition by list(c1) (partition q0 values in('a','b'),partition q1 values in(1,2));
+--echo "refesh"
+
+show table rules;
+--error 5019
+insert into list1 values(1,'a',1);
+--error 5019
+select * from list1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-4：使用列表分区函数创建表，多参数，参数全为整型
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+--echo "refesh"
+
+show table rules;
+--real_sleep 10
+insert into list2 values(1,1,1),(3,3,3);
+--sleep 3
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-5：使用列表分区函数创建表，多参数，参数全为字符串类型
+create table list2(c1 varchar(20),c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c'),('d','d')));
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list2 values('a','a',1),('c','c',3);
+--real_sleep 5
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-6：使用列表分区函数创建表，多参数，参数为整型与字符串混合
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,'a'),(2,'b')),partition qq1 values in((3,'c'),(4,'d')));
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list2 values(1,'a',1),(3,'c',3);
+--real_sleep 5
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,'1'),(2,'2')),partition qq1 values in((3,'3'),(4,'4'))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list2 values(1,'1',1),(3,'3',3);
+--real_sleep 5
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-7：使用列表分区函数创建表，多参数，列表元素的类型与分区列的类型匹配情况
+--error 5089
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1','1'),('2','2')),partition qq1 values in((3,'3'),(4,'4')));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5089
+create table list2(c1 varchar(20),c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5089
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1','1'),('2','2')),partition qq1 values in(('3','3'),('4','4')));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5089
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1.1),('2',2.1)),partition qq1 values in(('3',3.1),('4','4')));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+#--error 5089
+create table list2(c1 varchar(20),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1.1),('2',2.1)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+#--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+#--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+#--error 5019
+drop table list2;
+
+###2-8：使用列表分区函数创建表，多参数，分区列数为16
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+###2-9：使用列表分区函数创建表，多参数，分区列数为15
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+
+show table rules;
+--real_sleep 5
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1);
+select * from list1;
+--replace_column 3 0
+show partition groups;
+drop table list1;
+
+###2-10：使用列表分区函数创建表，多参数，列表元素为表达式
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1*3-2,'1'),(2*2-1,'2')),partition qq1 values in(((3+1)/2,'3'),(4,'4'))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+--error 5702
+insert into list2 values(1,'1',1),(3,'3',3);
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((3/5,'1'),(2*2-1,'2')),partition qq1 values in((4%5/2,'3'),(4,'4'))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+--error 5702
+insert into list2 values(1,'1',1),(3,'3',3);
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+create table list2(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((3 MOD 5,'1'),(2*2-1,'2')),partition qq1 values in((4%5/2,'3'),(4,'4'))) with prefix(a);
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+--error 5702
+insert into list2 values(1,'1',1),(3,'3',3);
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-11：使用列表分区函数创建表，多参数，但插入表的值不是列表的元素
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c'),('d','d')));
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+#--error 5702
+insert into list2 values('A','A',1),('C','C',3);
+--sleep 3
+select * from list2;
+--replace_column 3 0
+show partition groups;
+#drop table list2;
+
+--error 5084
+create table list3(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('A','A'),('B','B')));
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+--error 5024
+insert into list2 values('A','A',1),('C','C',3);
+--sleep 3
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-12：使用列表分区函数创建表，多参数，不同分区的列表元素重复
+--error 5084
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('b','b'),('a','a')));
+show table rules;
+--error 5019
+insert into list2 values('a','a',1),('c','c',3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5084
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',30,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5084
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',10),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-13：使用列表分区函数创建表，分区列表中的元素中的参数个数与分区列的个数不匹配（包含单参且非法类型）
+--error 5088
+create table list2(c1 varchar(30),c2 varchar(30),c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('a','a'),('b','b')),partition qq1 values in(('c','c',1),('a','a')));
+show table rules;
+--error 5019
+insert into list2 values('a','a',1),('c','c',3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+
+#陈世阳修改了单列分区键为varchar类型的这个功能，因此该句是可以执行成功的，故涉及到该测试项的sql将错误码注释掉了 --20200310
+#--error 65535
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list(c2) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+--echo "refesh"
+
+--real_sleep 5
+show table rules;
+#--error 5019
+insert into list1 values(1,'2',1);
+#--error 5019
+select * from list1;
+--replace_column 3 0
+show partition groups;
+#--error 5019
+drop table list1;
+
+#--error 5081
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list(c1) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+#--error 5019
+insert into list1 values(1,'2',1);
+#--error 5019
+--real_sleep 3
+select * from list1;
+--replace_column 3 0
+show partition groups;
+#--error 5019
+drop table list1;
+
+#--error 65535
+create table list1(c1 int,c2 varchar(20),c3 varchar(30),primary key(c1,c2)) partition by list(c2) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+--echo "refesh"
+
+--real_sleep 3
+show table rules;
+#--error 5019
+insert into list1 values(1,'2','1');
+#--error 5019
+select * from list1;
+--replace_column 3 0
+show partition groups;
+#--error 5019
+drop table list1;
+
+--error 5088
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1,'1'),('2',2,'2')),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5088
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1'+1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5088
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1'+(1,1)),('2',2)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5088
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+
+###2-14：使用列表分区函数创建表，多参数，分区列为（含）非法类型
+--error 5089
+create table list2(c1 float,c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5089
+create table list2(c1 varchar(30),c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list1;
+
+###2-15：使用列表分区函数创建表，多参数，分区列为（含）非法类型
+--error 5089
+create table list2(c1 int,c2 float,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5089
+create table list2(c1 float,c2 float,c3 int,primary key(c3)) partition by list columns(c1,c2) (partition qq0 values in((1.1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5081
+create table list2(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c3) (partition qq0 values in((1,1),(2,2)),partition qq1 values in((3,3),(4,4)));
+show table rules;
+--error 5019
+insert into list2 values(1,1,1),(3,3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5081
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c3) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5081
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2,c3) (partition qq0 values in(('1',1,1),('2',2,1)),partition qq1 values in(('3',3,3),('4',4,4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-16：使用列表分区函数创建表，多参数，分区列为（含）未定义列
+--error 5009
+create table list1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2)) partition by list columns(c9) (partition q0 values in('1','3'),partition q1 values in('2','4','5'));
+show table rules;
+--error 5019
+insert into list1 values(1,'2',1);
+--error 5019
+select * from list1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5009
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c9) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('3',3),('4',4)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-17：使用列表分区函数创建表，多参数，分区列重复
+--error 5025
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2,c1) (partition qq0 values in(('1',1,'1'),('2',2,'2')),partition qq1 values in(('3',3,'3'),('4',4,'4')));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('3',3,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-18：使用列表分区函数创建表，多参数，列表中元素中含用户变量
+set @a=1;
+--error 7
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',@a),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-19：使用列表分区函数创建表，多参数，列表中元素中含逻辑表达式
+#V1.2.0.0错误码从7变为5089
+#--error 7
+--error 5084
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',2>1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-20：使用列表分区函数创建表，多参数，列表重复
+--error 65535
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq0 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list1;
+
+###2-21：使用列表分区函数创建表，多参数，分区列数为17
+--error 65535
+create table list1 (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int, c9 int, c10 int, c11 int, c12 int, c13 int, c14 int, c15 int, c16 int, c17 int,c18 int, primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17)) partition by list columns(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17) (partition r0 values in((5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)),partition r1 values in((10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10))) with prefix(a);
+show table rules;
+--error 5019
+insert into list1 values(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,1,1);
+--error 5019
+select * from list1;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-22：使用列表分区函数创建表，多参数，分区列含表达式
+--error 5001
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1-1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-23：使用列表分区函数创建表，多参数，分区列前无关键词column
+--error 5001
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-24：使用列表分区函数创建表，多参数，分区列前含关键词column
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1) (partition qq0 values in('1','2'),partition qq1 values in('3','4'));
+--echo "refesh"
+
+show table rules;
+--real_sleep 5
+insert into list2 values('1',1,1),('2',2,3);
+select * from list2;
+--replace_column 3 0
+show partition groups;
+drop table list2;
+
+###2-25：使用列表分区函数创建表，分区列数为0
+--error 5001
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns() (partition qq0 values in(),partition qq1 values in());
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+###2-26：使用列表分区函数创建表，列表元素含两对括号，但不同分区列表元素重复
+--error 5084
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in(('1',1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+--error 5019
+drop table list2;
+
+--error 5084
+create table list2(c1 varchar(30),c2 int,c3 int,primary key(c1,c2)) partition by list columns(c1,c2) (partition qq0 values in((('1'),1),('2',2)),partition qq1 values in(('1',1),('2',2)));
+show table rules;
+--error 5019
+insert into list2 values('1',1,1),('2',2,3);
+--error 5019
+select * from list2;
+--replace_column 3 0
+show partition groups;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

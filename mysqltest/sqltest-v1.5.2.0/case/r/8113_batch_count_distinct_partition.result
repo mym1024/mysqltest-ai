@@ -1,0 +1,13 @@
+drop table if exists a1;
+create table a1(rowkey_suffix int primary key,price int) partition by range(rowkey_suffix)(partition q0 values less than(20),partition q1 values less than(50),partition q3 values less than maxvalue);
+select count(distinct price) from a1;
+count(distinct price)
+100
+drop table if exists a1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+6';
+create table a1(rowkey_suffix int primary key,price int) partition by(ht1,h1,rowkey_suffix);
+select count(distinct price) from a1;
+count(distinct price)
+100

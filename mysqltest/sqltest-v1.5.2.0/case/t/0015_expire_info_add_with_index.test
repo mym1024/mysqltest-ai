@@ -1,0 +1,257 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：alter操作添加expire_info，带索引
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/352
+###4.问题号：352
+###5.预计运行时间：15s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-10-16 / mod:2020-12-24:zyy
+###8.其他（选填）：according to the 608-expire_info_support_int_type, mod this case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_warnings
+alter system set location_cache_timeout='6s' server_type=yaosqlsvr;
+
+##################################### MODIFYTIME ###################################################
+#创建含有modifytime属性列的数据表Test1:
+create table test1(c1 int primary key, c2 int, c3 modifytime);
+
+#创建test1的索引t1：
+create index t1 on test1(c2);
+
+###2-1: 在modifytime属性列上alter添加expire_info(失败):
+--error 152
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+drop index t1 on test1;
+
+create index  t1 on test1(c2) storing(c3);
+###2-2: 在modifytime属性列上alter添加expire_info:
+alter table test1 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### CREATETIME ###################################################
+#创建含有createtime属性列的数据表test2:
+create table test2(c1 int primary key, c2 int, c3 createtime);
+
+#创建test2的索引t2：
+create index t2 on test2(c2);
+
+###2-3: 在createtime属性列上alter添加expire_info:(索引表中无createtime属性列，添加失败)
+--error 152
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#创建test2索引t2_1:(失败，createtime属性列不能作为主键列及索引列)
+--error 2
+create index t2_1 on test2(c3);
+
+#创建test2索引t2_2冗余createtime列：
+create index t2_2 on test2(c2) storing(c3);
+
+###2-4: 在createtime属性列上alter添加expire_info:(不是所有的索引表中包含createtime属性列，添加失败)
+--error 152
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#删除test2上索引t2:
+drop index  t2 on test2;
+
+###2-5: 在createtime属性列上alter添加expire_info:(索引表满足条件，添加成功)
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-6: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test2 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### VARCHAR ###################################################
+#创建含有varchar属性列的数据表test3:
+create table test3(c1 int primary key, c2 int, c3 varchar(30));
+
+#创建test3的索引t3_1：
+create index t3_1 on test3(c2);
+
+#创建test3索引t3_2：
+create index t3_2 on test3(c2) storing(c3);
+
+#创建test3的索引t3_3：
+create index t3_3 on test3(c3);
+
+###2-7: 在varchar属性列上alter添加expire_info:(不是所有的索引表满足条件，添加失败)
+--error 152
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#删除不包含该varchar列的索引表
+drop index t3_1 on test3;
+
+###2-8: 在varchar属性列上alter添加expire_info:(成功)
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-9: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test3 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### CHAR ###################################################
+#创建含有char属性列的数据表test4:
+create table test4(c1 int primary key, c2 int, c3 char(30));
+
+#创建test4的索引t4_1：
+create index t4_1 on test4(c2);
+
+#创建test4索引t4_2：
+create index t4_2 on test4(c2) storing(c3);
+
+#创建test4的索引t4_3：
+create index t4_3 on test4(c3);
+
+###2-10: 在char属性列上alter添加expire_info:(不是所有的索引表满足条件，添加失败)
+--error 152
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#删除不包含该char列的索引表
+drop index t4_1 on test4;
+
+###2-11: 在char属性列上alter添加expire_info:(成功)
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-12: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test4 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DATETIME ###################################################
+#创建含有datetime属性列的数据表test5:
+create table test5(c1 int primary key, c2 int, c3 datetime);
+
+#创建test4的索引t4_1：
+create index t5_1 on test5(c2);
+
+#创建test5索引t5_2：
+create index t5_2 on test5(c2) storing(c3);
+
+#创建test5的索引t5_3：
+create index t5_3 on test5(c3);
+
+###2-13: 在datetime属性列上alter添加expire_info:(不是所有的索引表满足条件，添加失败)
+--error 152
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#删除不包含该datetime列的索引表
+drop index t5_1 on test5;
+
+###2-14: 在datetime属性列上alter添加expire_info:
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-15: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test5 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### TIMESTAMP ###################################################
+#创建含有timestamp属性列的数据表test6:
+create table test6(c1 int primary key, c2 int, c3 timestamp);
+
+#创建test6的索引t6_1：
+create index t6_1 on test6(c2);
+
+#创建test6索引t6_2：
+create index t6_2 on test6(c2) storing(c3);
+
+#创建test6的索引t6_3：
+create index t6_3 on test6(c3);
+
+###2-16: 在timestamp属性列上alter添加expire_info:(不是所有的索引表满足条件，添加失败)
+--error 152
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+#删除不包含该timestamp列的索引表
+drop index t6_1 on test6;
+
+###2-17: 在timestamp属性列上alter添加expire_info:
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+###2-18: 重复添加，拒绝添加，报错:
+--error 1046
+alter table test6 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### INT ###################################################
+#创建含有int属性列的数据表test7:
+create table test7(c1 int primary key, c2 int, c3 int);
+
+#创建test7索引t7_1：
+create index t7_1 on test7(c2) storing(c3);
+
+###2-19: 在int属性列上alter添加expire_info:(属性不符，失败)
+#--error 2
+alter table test7 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### FLOAT ###################################################
+#创建含有float属性列的数据表test8:
+create table test8(c1 int primary key, c2 int, c3 float);
+
+#创建test8索引t8_1：
+create index t8_1 on test8(c2) storing(c3);
+
+###2-20: 在float属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test8 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DOUBLE ###################################################
+#创建含有double属性列的数据表test9:
+create table test9(c1 int primary key, c2 int, c3 double);
+
+#创建test9索引t9_1：
+create index t9_1 on test9(c2) storing(c3);
+
+###2-21: 在double属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test9 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+
+
+##################################### DECIMAL ###################################################
+#创建含有decimal属性列的数据表test10:
+create table test10(c1 int primary key, c2 int, c3 decimal(30,2));
+
+#创建test10索引t10_1：
+create index t10_1 on test10(c2) storing(c3);
+
+###2-22: 在decimal属性列上alter添加expire_info:(属性不符，失败)
+--error 2
+alter table test10 add current expire_info='$SYS_DATE>c3+1*1*1*60*1000000';
+--disable_query_log
+drop table if exists test1;
+drop table if exists test2;
+drop table if exists test3;
+drop table if exists test4;
+drop table if exists test5;
+drop table if exists test6;
+drop table if exists test7;
+drop table if exists test8;
+drop table if exists test9;
+drop table if exists test10;
+--enable_query_log
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

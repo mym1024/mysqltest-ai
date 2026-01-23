@@ -1,0 +1,22 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+drop table if exists c;
+create table c (c1 int primary key,c2 varchar(8)) ;
+create index c_index on c(c2);
+show index on c;
+index_name	status	index_type
+__3001__idx__c_index	4	0
+set autocommit=0;
+insert into c values (1,1);
+set autocommit=0;
+delete from c where c1=1;
+ERROR HY000: YAO-5049: Exclusive lock conflict 'int32:1' for key 'PRIMARY'
+commit;
+commit;

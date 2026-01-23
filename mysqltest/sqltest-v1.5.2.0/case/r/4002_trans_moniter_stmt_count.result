@@ -1,0 +1,279 @@
+drop table if exists t1;
+create table t1 (c1 int primary key, c2 int);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	6
+multi_stmt_trans_stmt_count	15
+set autocommit = 0;
+insert into t1 values (1,2);
+insert into t1 values (2,3);
+set autocommit = 1;
+insert into t1 values (3,4);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	7
+multi_stmt_trans_stmt_count	18
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	8
+multi_stmt_trans_stmt_count	21
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+commit;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	9
+multi_stmt_trans_stmt_count	24
+drop table t1;
+drop table if exists t1;
+create table t1 (c1 int,c2 int, c3 decimal(3,1),c4 varchar(10),primary key(c1,c3));
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	14
+multi_stmt_trans_stmt_count	34
+set autocommit = 0;
+replace into t1 values(1,1,11.1,'poll');
+replace into t1 values(2,2,22.2,'into'),(3,3,33.3,'jack'),(4,4,44.4,'jerry');
+replace into t1 values(5,5,55.5,'Tom');
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	15
+multi_stmt_trans_stmt_count	38
+replace into t1 values(6,6,66.6,'Smith');
+replace into t1 values(7,7,77.7,'rose'),(8,8,88.8,'xiaoming');
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	15
+multi_stmt_trans_stmt_count	38
+set autocommit = 0;
+replace into t1 values(9,9,1.1,'poll');
+replace into t1 values(10,10,1.2,'into'),(11,11,2.3,'xiaohei'),(12,12,5.4,'xiaobai');
+replace into t1 values(13,13,6.5,'Tom');
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	16
+multi_stmt_trans_stmt_count	42
+drop table if exists t1;
+create table t1 (c1 int,c2 int, c3 decimal(3,1),c4 varchar(10),primary key(c1,c3));
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	20
+multi_stmt_trans_stmt_count	50
+insert into t1 values(1,1,11.1,'poll');
+insert into t1 values(2,2,22.2,'into'),(3,3,33.3,'jack'),(4,4,44.4,'jerry'),(5,5,55.5,'Tom');
+replace into t1 values(6,6,66.6,'Smith');
+replace into t1 values(7,7,77.7,'rose'),(8,8,88.8,'xiaoming');
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	21
+multi_stmt_trans_stmt_count	55
+set autocommit = 0;
+update t1 set c2=10 where c1=1;
+update t1 set c2=20,c3=90.1 where c1 between 1 and 5;
+update t1 set c1=333 where c1 in(1);
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	21
+multi_stmt_trans_stmt_count	60
+update t1 set c2=60,c4='change' where c1=6;
+update t1 set c2=80,c1=20 where c1=9;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	22
+multi_stmt_trans_stmt_count	62
+set autocommit = 0;
+update t1 set c2=80,c1=70 where c1=7;
+update t1 set c2=80,c4='what' where c1>8;
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	23
+multi_stmt_trans_stmt_count	65
+drop table if exists t1;
+create table t1 (c1 int,c2 int, c3 decimal(3,1),c4 varchar(10),primary key(c1,c3));
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	27
+multi_stmt_trans_stmt_count	73
+insert into t1 values(1,1,11.1,'poll');
+insert into t1 values(2,2,22.2,'into'),(3,3,33.3,'jack'),(4,4,44.4,'jerry'),(5,5,55.5,'Tom');
+replace into t1 values(6,6,66.6,'Smith');
+replace into t1 values(7,7,77.7,'rose'),(8,8,88.8,'xiaoming');
+select * from t1;
+c1	c2	c3	c4
+1	1	11.1	poll
+2	2	22.2	into
+3	3	33.3	jack
+4	4	44.4	jerry
+5	5	55.5	Tom
+6	6	66.6	Smith
+7	7	77.7	rose
+8	8	88.8	xiaoming
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	28
+multi_stmt_trans_stmt_count	79
+set autocommit = 0;
+select * from t1;
+c1	c2	c3	c4
+1	1	11.1	poll
+2	2	22.2	into
+3	3	33.3	jack
+4	4	44.4	jerry
+5	5	55.5	Tom
+6	6	66.6	Smith
+7	7	77.7	rose
+8	8	88.8	xiaoming
+select * from t1 where c1>20;
+c1	c2	c3	c4
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	28
+multi_stmt_trans_stmt_count	83
+select c1,c3 from t1 where c1=10;
+c1	c3
+select c1,c2,c1*c2 from t1 where c1<20;
+c1	c2	c1*c2
+1	1	1
+2	2	4
+3	3	9
+4	4	16
+5	5	25
+6	6	36
+7	7	49
+8	8	64
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	28
+multi_stmt_trans_stmt_count	83
+set autocommit = 0;
+select * from t1;
+c1	c2	c3	c4
+1	1	11.1	poll
+2	2	22.2	into
+3	3	33.3	jack
+4	4	44.4	jerry
+5	5	55.5	Tom
+6	6	66.6	Smith
+7	7	77.7	rose
+8	8	88.8	xiaoming
+select * from t1 where c1+c2>20;
+c1	c2	c3	c4
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	28
+multi_stmt_trans_stmt_count	83
+drop table if exists t1;
+create table t1 (c1 int,c2 int, c3 decimal(3,1),c4 varchar(10),primary key(c1,c3));
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	32
+multi_stmt_trans_stmt_count	91
+insert into t1 values(1,1,11.1,'poll');
+insert into t1 values(2,2,22.2,'into'),(3,3,33.3,'jack'),(4,4,44.4,'jerry'),(5,5,55.5,'Tom');
+replace into t1 values(6,6,66.6,'Smith');
+replace into t1 values(7,7,77.7,'rose'),(8,8,88.8,'xiaoming');
+select * from t1;
+c1	c2	c3	c4
+1	1	11.1	poll
+2	2	22.2	into
+3	3	33.3	jack
+4	4	44.4	jerry
+5	5	55.5	Tom
+6	6	66.6	Smith
+7	7	77.7	rose
+8	8	88.8	xiaoming
+update t1 set c2=101;
+select * from t1;
+c1	c2	c3	c4
+1	101	11.1	poll
+2	101	22.2	into
+3	101	33.3	jack
+4	101	44.4	jerry
+5	101	55.5	Tom
+6	101	66.6	Smith
+7	101	77.7	rose
+8	101	88.8	xiaoming
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	33
+multi_stmt_trans_stmt_count	99
+set autocommit = 0;
+insert into t1 values(21,21,21.1,'when'),(22,22,22.1,'how');
+select * from t1;
+c1	c2	c3	c4
+1	101	11.1	poll
+2	101	22.2	into
+3	101	33.3	jack
+4	101	44.4	jerry
+5	101	55.5	Tom
+6	101	66.6	Smith
+7	101	77.7	rose
+8	101	88.8	xiaoming
+21	21	21.1	when
+22	22	22.1	how
+replace into t1 values(15,51,15.1,'would'),(16,16,15.1,'where');
+update t1 set c3=19.1 where c1<15;
+select * from t1;
+c1	c2	c3	c4
+1	101	19.1	poll
+2	101	19.1	into
+3	101	19.1	jack
+4	101	19.1	jerry
+5	101	19.1	Tom
+6	101	19.1	Smith
+7	101	19.1	rose
+8	101	19.1	xiaoming
+15	51	15.1	would
+16	16	15.1	where
+21	21	21.1	when
+22	22	22.1	how
+delete from t1 where c1<10;
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	33
+multi_stmt_trans_stmt_count	107
+select * from t1;
+c1	c2	c3	c4
+15	51	15.1	would
+16	16	15.1	where
+21	21	21.1	when
+22	22	22.1	how
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	33
+multi_stmt_trans_stmt_count	107
+set autocommit = 0;
+replace into t1 values(1,1,1.1,'xiaobai'),(2,2,2.2,'xiaohei');
+select * from t1;
+c1	c2	c3	c4
+1	1	1.1	xiaobai
+2	2	2.2	xiaohei
+15	51	15.1	would
+16	16	15.1	where
+21	21	21.1	when
+22	22	22.1	how
+update t1 set c2=10 where c1=1;
+delete from t1 where c1=2;
+select * from t1 where c1>10;
+c1	c2	c3	c4
+15	51	15.1	would
+16	16	15.1	where
+21	21	21.1	when
+22	22	22.1	how
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+name	sum(value)
+multi_stmt_trans_count	34
+multi_stmt_trans_stmt_count	113

@@ -1,0 +1,804 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：UPS分区测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：610 s
+###6.编写/修改人：wangxiangyi
+###7.编写/修改日期：2019-11-6
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists part_table1;
+drop table if exists default_group_part_table3;
+drop table if exists hash_part_table1;
+drop table if exists hash_part_table1_2;
+drop table if exists hash_part_table2;
+drop table if exists hash_part_table3;
+drop table if exists hash_part_table4;
+drop table if exists hash_part_table5;
+drop table if exists hash_part_table6;
+drop table if exists hash_part_table7;
+drop table if exists hash_part_table8;
+drop table if exists hash_part_table8_2;
+drop table if exists hash_part_table9;
+drop table if exists hash_part_table9_2;
+drop table if exists hash_part_table10;
+drop table if exists hash_part_table13;
+drop table if exists hash_part_table14;
+drop table if exists hash_part_table15;
+drop table if exists hash_part_table16;
+drop table if exists hash_part_table17;
+drop table if exists hash_part_table18;
+drop table if exists hash_part_table19;
+drop table if exists hash_part_table20;
+drop table if exists hash_part_table21;
+drop table if exists hash_part_table22;
+drop table if exists hash_part_table23;
+drop table if exists hash_part_table24;
+drop table if exists hash_part_table25;
+drop table if exists hash_part_table26;
+drop table if exists hash_part_table27;
+drop table if exists hash_part_table28;
+drop table if exists hash_part_table29;
+drop table if exists hash_part_table30;
+drop table if exists hash_part_table31;
+drop table if exists hash_part_table32;
+drop table if exists enum_part_table1;
+drop table if exists enum_part_table2;
+drop table if exists enum_part_table3;
+drop table if exists enum_part_table4;
+drop table if exists enum_part_table5;
+drop table if exists enum_part_table6;
+drop table if exists enum_not_part_table;
+drop table if exists enum_ERR_part_table1;
+drop table if exists enum_ERR2_part_table1;
+--enable_warnings
+
+#
+# 2-1:映射到__user_default_group中
+#
+create table part_table1(c1 int primary key,c2 int,c3 int,c4 timestamp,c5 bool);
+--real_sleep 5
+insert into part_table1 values(1,1,1,'2019-11-06 13:02:04.527979',false);
+insert into part_table1 values(2,2,2,'2019-11-06 13:02:04.527979',true);
+insert into part_table1 values(3,3,3,'2019-11-06 13:02:04.527979','y');
+insert into part_table1 values(4,4,4,'2019-11-06 13:02:04.527979','t');
+insert into part_table1 values(5,5,5,'2019-11-06 13:02:04.527979',0);
+insert into part_table1 values(6,6,6,'2019-11-06 13:02:04.527979',1);
+insert into part_table1 values(7,7,7,'2019-11-06 13:02:04.527979',-1);
+insert into part_table1 values(8,8,8,'2019-11-06 13:02:04.527979',2);
+insert into part_table1 values(9,9,9,'2019-11-06 13:02:04.527979',10);
+delete from part_table1 where c1=4;
+delete from part_table1 where c1=7;
+update part_table1 set c4='2019-11-06 13:02:04.527979' where c1=2;
+update part_table1 set c4='2019-11-06 13:02:04.527979' where c1=3;
+update part_table1 set c4='2019-11-06 13:02:04.527979' where c1=5;
+select * from part_table1;
+select * from part_table1 where c1 in (1,2,3,4,5,6,7);
+
+
+
+#
+# 2-2:映射到指定group中
+#
+create table default_group_part_table3(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group_default);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+insert into default_group_part_table3 
+values('enum1','test1','1','other1',1),
+	  ('enum1','test2','2','other2',2),
+	  ('enum1','test3','3','other3',3),
+	  ('enum1','test4','4','other4',4),
+	  ('enum2','test1','1','other5',5),
+	  ('enum2','test2','2','other6',6),
+	  ('enum2','test3','3','other7',7),
+	  ('enum2','test4','4','other8',8),
+	  ('enum3','test1','1','other9',9),
+	  ('enum3','test2','2','other10',10),
+	  ('enum3','test3','3','other11',11),
+	  ('enum3','test4','4','other12',12);
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test2' and c3='2' and c4='other2';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test3' and c3='3' and c4='other3';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test4' and c3='4' and c4='other4';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test2' and c3='2' and c4='other2';
+delete from default_group_part_table3 where c1='enum2' and c2='test3' and c3='3' and c4='other3';
+delete from default_group_part_table3 where c1='enum2' and c2='test4' and c3='4' and c4='other4';
+delete from default_group_part_table3 where c1='enum3' and c2='test2' and c3='2' and c4='other2';
+
+
+
+#
+# 2-3:哈希分区
+#
+insert into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('func1',1,'x','x',0),
+('func2',1,'x','x+1',0),
+('func3',1,'x','x-2',0),
+('func4',1,'x','x*2',0),
+('func5',1,'x','x/3',0),
+('func6',1,'x','x%4',0),
+('func7',1,'x','(x+3)%5',0),
+('func8',2,'x,y','(x+y)%5',0),
+('func9',3,'x,y,z','(x*y+z)%5',0),
+('func10',3,'x,y,z','(x*y-z)%5',0),
+('func11',2,'x,y','x*y/5%5',0),
+('func12',5,'a,b,c,d,e','((a+b-c)*d/5%3)%5',0),
+('func13',2,'x,y','x>10',0),
+('func14',2,'x,y','4>=y',0),
+('func15',2,'x,y','x<2+3',0),
+('func16',2,'x,y','x<=4*2',0),
+('func17',2,'x,y','x=y',0),
+('func18',2,'x,y','x!=y',0),
+('func19',2,'x,y','x=3',0),
+('func20',2,'x,y','x!=4',0),
+('func21',2,'x,y','x>y',0),
+('func22',2,'x,y','x>=y',0),
+('func23',2,'x,y','x<y',0),
+('func24',2,'x,y','x<=y',0),
+('func25',2,'x,y','x=y',0),
+('func26',2,'x,y','x!=y',0),
+('func27',3,'x,y,z','x>(y+z)',0),
+('func28',2,'x,y','x>=(y%5)',0),
+('func29',2,'x,y','x<(y*2)',0),
+('func30',2,'x,y','(x+3)<=y',0),
+('func31',2,'x,y','(x-2)=y',0),
+('func32',2,'x,y','(x/2)!=(y%2)',0);
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+
+# func1中的哈希规则
+create table hash_part_table1(c1 int primary key,c2 int) partition by(group1,func1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into hash_part_table1 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table1 set c2=c2+2 where c1=0;
+update hash_part_table1 set c2=c2+2 where c1=1;
+update hash_part_table1 set c2=c2+2 where c1=2;
+update hash_part_table1 set c2=c2+2 where c1=3;
+update hash_part_table1 set c2=c2+2 where c1=4;
+delete from hash_part_table1 where c1=-1;
+delete from hash_part_table1 where c1=5;
+delete from hash_part_table1 where c1=100000;
+
+--error 5081
+create table hash_part_table1_2(c1 int primary key,c2 int) partition by(group1,func1,c2);
+
+
+# func2中的哈希规则
+create table hash_part_table2(c1 int primary key,c2 int) partition by(group1,func2,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into  hash_part_table2 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table2 set c2=c2+2 where c1=0;
+update hash_part_table2 set c2=c2+2 where c1=1;
+update hash_part_table2 set c2=c2+2 where c1=2;
+update hash_part_table2 set c2=c2+2 where c1=3;
+update hash_part_table2 set c2=c2+2 where c1=4;
+delete from hash_part_table2 where c1=-1;
+delete from hash_part_table2 where c1=5;
+delete from hash_part_table2 where c1=100000;
+
+
+# func3中的哈希规则
+create table hash_part_table3(c1 int primary key,c2 int) partition by(group1,func3,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into  hash_part_table3 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table3 set c2=c2+2 where c1=0;
+update hash_part_table3 set c2=c2+2 where c1=1;
+update hash_part_table3 set c2=c2+2 where c1=2;
+update hash_part_table3 set c2=c2+2 where c1=3;
+update hash_part_table3 set c2=c2+2 where c1=4;
+delete from hash_part_table3 where c1=-1;
+delete from hash_part_table3 where c1=5;
+delete from hash_part_table3 where c1=100000;
+
+
+# func4中的哈希规则
+create table hash_part_table4(c1 int primary key,c2 int) partition by(group1,func4,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into  hash_part_table4 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table4 set c2=c2+2 where c1=0;
+update hash_part_table4 set c2=c2+2 where c1=1;
+update hash_part_table4 set c2=c2+2 where c1=2;
+update hash_part_table4 set c2=c2+2 where c1=3;
+update hash_part_table4 set c2=c2+2 where c1=4;
+delete from hash_part_table4 where c1=-1;
+delete from hash_part_table4 where c1=5;
+delete from hash_part_table4 where c1=100000;
+
+
+# func5中的哈希规则
+create table hash_part_table5(c1 int primary key,c2 int) partition by(group1,func5,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into  hash_part_table5 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table5 set c2=c2+2 where c1=0;
+update hash_part_table5 set c2=c2+2 where c1=1;
+update hash_part_table5 set c2=c2+2 where c1=2;
+update hash_part_table5 set c2=c2+2 where c1=3;
+update hash_part_table5 set c2=c2+2 where c1=4;
+delete from hash_part_table5 where c1=-1;
+delete from hash_part_table5 where c1=5;
+delete from hash_part_table5 where c1=100000;
+
+
+# func6中的哈希规则
+create table hash_part_table6(c1 int primary key,c2 int) partition by(group1,func6,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into  hash_part_table6 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table6 set c2=c2+2 where c1=0;
+update hash_part_table6 set c2=c2+2 where c1=1;
+update hash_part_table6 set c2=c2+2 where c1=2;
+update hash_part_table6 set c2=c2+2 where c1=3;
+update hash_part_table6 set c2=c2+2 where c1=4;
+delete from hash_part_table6 where c1=-1;
+delete from hash_part_table6 where c1=5;
+delete from hash_part_table6 where c1=100000;
+
+
+# func7中的哈希规则
+create table hash_part_table7(c1 int primary key,c2 int) partition by(group1,func7,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into hash_part_table7 values(1,1),(0,0),(2,2),(3,3),(4,4),(5,5),(-1,2),(100000,100000);
+update hash_part_table7 set c2=c2+2 where c1=0;
+update hash_part_table7 set c2=c2+2 where c1=1;
+update hash_part_table7 set c2=c2+2 where c1=2;
+update hash_part_table7 set c2=c2+2 where c1=3;
+update hash_part_table7 set c2=c2+2 where c1=4;
+delete from hash_part_table7 where c1=-1;
+delete from hash_part_table7 where c1=5;
+delete from hash_part_table7 where c1=100000;
+
+
+# func8中的哈希规则
+create table hash_part_table8(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func8,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into hash_part_table8 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+--error 5081
+create table hash_part_table8_2(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func8,c1,c9);
+
+
+# func9中的哈希规则
+--error 5089
+create table hash_part_table9(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c4,c6,c8))partition by(group2,func9,c1,c2,c4);
+--error 5019
+insert into hash_part_table9 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+--error 5019
+update hash_part_table9 set c3='2019-11-06 13:02:04.527979',c7=TRUE where c1=1 and c2=1 and c4=100.001 and c6=1.111 and c8='test111';
+--error 5019
+update hash_part_table9 set c3='2019-11-06 13:02:04.527979',c7=TRUE where c1=1 and c2=1 and c4=100.001 and c6=2.111 and c8='test222';
+--error 5019
+update hash_part_table9 set c3='2019-11-06 13:02:04.527979',c7=TRUE where c1=1 and c2=2 and c4=1000.001 and c6=3.111 and c8='test333';
+--error 5019
+update hash_part_table9 set c3='2019-11-06 13:02:04.527979',c7=TRUE where c1=2 and c2=3 and c4=20.002 and c6=4.111 and c8='test444';
+--error 5019
+update hash_part_table9 set c3='2019-11-06 13:02:04.527979',c7=TRUE where c1=2 and c2=4 and c4=10.001 and c6=5.111 and c8='test555';
+--error 5019
+delete from hash_part_table9 where c1=3 and c2=5 and c4=120.01 and c6=6.111 and c8='test666';
+--error 5019
+delete from hash_part_table9 where c1=4 and c2=6 and c4=50.001 and c6=7.111 and c8='test777';
+
+--error 5054
+create table hash_part_table9_2(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func9,c1,c2);
+
+
+# func10中的哈希规则
+--error 5089
+create table hash_part_table10(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c4,c6,c8)) 
+partition by(group2,func10,c1,c2,c6);
+--error 5019
+insert into hash_part_table10 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+# func11
+# func12
+
+
+# func13中的哈希规则
+create table hash_part_table13(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func13,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table13 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func14中的哈希规则
+create table hash_part_table14(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2))
+partition by(group2,func14,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 5024
+insert into hash_part_table14 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+--error 2
+update hash_part_table14 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=1;
+--error 2
+update hash_part_table14 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=2;
+--error 2
+update hash_part_table14 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=3;
+--error 2
+update hash_part_table14 set c3='2019-11-06 13:02:04.527979' where c1=2 and c2=3;
+--error 2
+update hash_part_table14 set c3='2019-11-06 13:02:04.527979' where c1=12 and c2=4;
+--error 2
+delete from hash_part_table14 where c1=1 and c2=3;
+--error 2
+delete from hash_part_table14 where c1=12 and c2=4;
+select * from hash_part_table14;
+
+
+# func15中的哈希规则
+create table hash_part_table15(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2))
+partition by(group2,func15,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 5024
+insert into hash_part_table15 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+--error 2
+update hash_part_table15 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=1;
+--error 2
+update hash_part_table15 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=2;
+--error 2
+update hash_part_table15 set c3='2019-11-06 13:02:04.527979' where c1=1 and c2=3;
+--error 2
+update hash_part_table15 set c3='2019-11-06 13:02:04.527979' where c1=2 and c2=3;
+--error 2
+update hash_part_table15 set c3='2019-11-06 13:02:04.527979' where c1=12 and c2=4;
+--error 2
+delete from hash_part_table15 where c1=1 and c2=3;
+--error 2
+delete from hash_part_table15 where c1=12 and c2=4;
+select * from hash_part_table15;
+
+
+# func16中的哈希规则
+create table hash_part_table16(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func16,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table16 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func17中的哈希规则
+create table hash_part_table17(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func17,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table17 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func18中的哈希规则
+create table hash_part_table18(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func18,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table18 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func19中的哈希规则
+create table hash_part_table19(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func19,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table19 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func20中的哈希规则
+create table hash_part_table20(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func20,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table20 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func21中的哈希规则
+create table hash_part_table21(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func21,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table21 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func22中的哈希规则
+create table hash_part_table22(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func22,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table22 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func23中的哈希规则
+create table hash_part_table23(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func23,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table23 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func24中的哈希规则
+create table hash_part_table24(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func24,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table24 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func25中的哈希规则
+create table hash_part_table25(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func25,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table25 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func26中的哈希规则
+create table hash_part_table26(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func26,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table26 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func27中的哈希规则
+create table hash_part_table27(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func27,c1,c2,c8);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table27 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func28中的哈希规则
+create table hash_part_table28(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func28,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table28 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func29中的哈希规则
+create table hash_part_table29(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func29,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table29 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func30中的哈希规则
+create table hash_part_table30(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func30,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table30 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func31中的哈希规则
+create table hash_part_table31(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func31,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table31 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+# func32中的哈希规则
+create table hash_part_table32(c1 int,c2 int,c3 timestamp,c4 decimal(10,5),c5 float,c6 double,c7 bool,c8 varchar(20),c9 int,primary key(c1,c2,c3,c4,c6,c8))
+partition by(group2,func32,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+--error 2
+insert into hash_part_table32 values(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,1.11,-1,'test111',1),
+(1,1,'2019-11-06 13:02:04.527979',100.001,1.2345,2.11,TRUE,'test222',2),
+(1,2,'2019-11-06 13:02:04.527979',1000.001,1.2345,3.11,FALSE,'test333',3),
+(2,3,'2019-11-06 13:02:04.527979',20.002,1.2345,4.11,'T','test444',4),
+(2,4,'2019-11-06 13:02:04.527979',10.001,1.2345,5.11,'F','test555',5),
+(3,5,'2019-11-06 13:02:04.527979',120.01,1.2345,6.11,'Y','test666',6),
+(4,6,'2019-11-06 13:02:04.527979',50.001,1.2345,7.11,'N','test777',7);
+
+
+#
+# 2-4:枚举分区
+#
+insert into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('enum1',1,'a','[(enum1)],[(enum2)],[(enum3)],[(enum4)]',2),
+('enum2',2,'a,b','[(enum1,test1)],[(enum2,test1)],[(enum1,test2)],[(enum1,test3)],[(enum1,test4)],[(enum3,test1)],[(enum3,test2)],[(enum3,test3)],[(enum3,test4)],[(enum2,test3)],[(enum2,test4)]',2),
+('enum3',3,'a,b,c','[(enum1,test1,1)],[(enum1,test2,2)],[(enum1,test3,3)],[(enum1,test4,4)],[(enum2,test1,1)],[(enum2,test2,2)],[(enum2,test3,1)],[(enum2,test4,1)],[(enum3,test1,1)],[(enum3,test2,1)],[(enum3,test3,3)],[(enum3,test4,4)]',2);
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+
+
+# func1中的哈希规则
+create table enum_part_table1(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into enum_part_table1 
+values('enum1','test1','1','other1',1),
+	  ('enum1','test2','2','other2',2),
+	  ('enum1','test3','3','other3',3),
+	  ('enum1','test4','4','other4',4),
+	  ('enum2','test1','1','other5',5),
+	  ('enum2','test2','2','other6',6),
+	  ('enum2','test3','1','other7',7),
+	  ('enum2','test4','1','other8',8),
+	  ('enum3','test1','1','other9',9),
+	  ('enum3','test2','1','other10',10),
+	  ('enum3','test3','3','other11',11),
+	  ('enum3','test4','4','other12',12);
+--real_sleep 5
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test2' and c3='2' and c4='other2';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test3' and c3='3' and c4='other3';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test4' and c3='4' and c4='other4';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test2' and c3='2' and c4='other2';
+delete from default_group_part_table3 where c1='enum2' and c2='test3' and c3='3' and c4='other3';
+delete from default_group_part_table3 where c1='enum2' and c2='test4' and c3='4' and c4='other4';
+delete from default_group_part_table3 where c1='enum3' and c2='test2' and c3='2' and c4='other2';
+
+
+create table enum_part_table2(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum2,c1,c2);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into enum_part_table2 
+values('enum1','test1','1','other1',1),
+	  ('enum1','test2','2','other2',2),
+	  ('enum1','test3','3','other3',3),
+	  ('enum1','test4','4','other4',4),
+	  ('enum2','test1','1','other5',5),
+	  ('enum2','test3','1','other7',7),
+	  ('enum2','test4','1','other8',8),
+	  ('enum3','test1','1','other9',9),
+	  ('enum3','test2','1','other10',10),
+	  ('enum3','test3','3','other11',11),
+	  ('enum3','test4','4','other12',12);
+--real_sleep 5
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test2' and c3='2' and c4='other2';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test3' and c3='3' and c4='other3';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test4' and c3='4' and c4='other4';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test2' and c3='2' and c4='other2';
+delete from default_group_part_table3 where c1='enum2' and c2='test3' and c3='3' and c4='other3';
+delete from default_group_part_table3 where c1='enum2' and c2='test4' and c3='4' and c4='other4';
+delete from default_group_part_table3 where c1='enum3' and c2='test2' and c3='2' and c4='other2';
+
+
+create table enum_part_table3(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum3,c1,c2,c3);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+insert into enum_part_table3 
+values('enum1','test1','1','other1',1),
+	  ('enum1','test2','2','other2',2),
+	  ('enum1','test3','3','other3',3),
+	  ('enum1','test4','4','other4',4),
+	  ('enum2','test1','1','other5',5),
+	  ('enum2','test2','2','other6',6),
+	  ('enum2','test3','1','other7',7),
+	  ('enum2','test4','1','other8',8),
+	  ('enum3','test1','1','other9',9),
+	  ('enum3','test2','1','other10',10),
+	  ('enum3','test3','3','other11',11),
+	  ('enum3','test4','4','other12',12);
+--real_sleep 5
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test2' and c3='2' and c4='other2';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test3' and c3='3' and c4='other3';
+update default_group_part_table3 set c5=c5+1 where c1='enum1' and c2='test4' and c3='4' and c4='other4';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test1' and c3='1' and c4='other1';
+update default_group_part_table3 set c5=c5+1 where c1='enum2' and c2='test2' and c3='2' and c4='other2';
+delete from default_group_part_table3 where c1='enum2' and c2='test3' and c3='3' and c4='other3';
+delete from default_group_part_table3 where c1='enum2' and c2='test4' and c3='4' and c4='other4';
+delete from default_group_part_table3 where c1='enum3' and c2='test2' and c3='2' and c4='other2';
+
+--error 5054
+create table enum_part_table4(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum3,c1,c2);
+--error 5054
+create table enum_part_table5(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum3,c1,c2,c3,c4);
+--error 5081
+create table enum_part_table6(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum3,c1,c2,c5);
+--error 5077
+create table enum_not_exist_part_table(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group2,enum_test,c1,c2);
+
+
+# type：0：哈希函数 1：范围函数 2：枚举函数，目前范围函数不支持
+insert into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('enum_ERR',1,'a','[(enum1)],[(enum2)],[(enum3)],[(enum4)]',1);
+--error 16
+create table enum_ERR_part_table1(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group3,enum_ERR,c1);
+
+insert into __all_partition_rules(rule_name,rule_par_num,rule_par_list,rule_body,type)
+values
+('enum_ERR2',1,'a','[(enum1)],[(enum2)],[(enum3)],[(enum4)]',3);
+--error 16
+create table enum_ERR_part_table1(c1 varchar(20),c2 varchar(20),c3 varchar(20),c4 varchar(20),c5 int,primary key(c1,c2,c3,c4))
+partition by(group3,enum_ERR2,c1);
+
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 20
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

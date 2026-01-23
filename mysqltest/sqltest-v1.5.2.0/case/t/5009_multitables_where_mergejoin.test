@@ -1,0 +1,87 @@
+#######################################################
+####1.测试功能点：三张表mgrge_join，筛选条件在where后
+#######################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+create table t1(c1 int primary key, c2 int, c3 varchar(30));
+insert into t1 values(1,1,'aaa');
+insert into t1 values(2,2,'bbb');
+insert into t1 values(3,3,'ccc');
+insert into t1 values(4,4,'ddd');
+insert into t1 values(5,5,'eee');
+insert into t1 values(6,6,'fff');
+insert into t1 values(7,7,'ggg');
+insert into t1 values(8,8,'hhh');
+insert into t1 values(9,9,'iii');
+insert into t1 values(10,10,'jjj');
+
+create table t2(c1 int primary key, c2 int, c3 varchar(30));
+insert into t2 values(1,1,'aaa');
+insert into t2 values(2,2,'bbb');
+insert into t2 values(3,3,'ccc');
+insert into t2 values(4,4,'ddd');
+insert into t2 values(5,5,'eee');
+insert into t2 values(6,6,'fff');
+insert into t2 values(7,7,'ggg');
+insert into t2 values(8,8,'hhh');
+insert into t2 values(9,9,'iii');
+insert into t2 values(10,10,'jjj');
+
+create table t3(c1 int primary key, c2 int, c3 varchar(30));
+insert into t3 values(1,1,'aaa');
+insert into t3 values(2,2,'bbb');
+insert into t3 values(3,3,'ccc');
+insert into t3 values(4,4,'ddd');
+insert into t3 values(5,5,'eee');
+insert into t3 values(6,6,'fff');
+insert into t3 values(7,7,'ggg');
+insert into t3 values(8,8,'hhh');
+insert into t3 values(9,9,'iii');
+insert into t3 values(10,10,'jjj');
+
+###2-1:三张表mgrge_join,其中一表的主键和常量等值比较，该等值比较条件在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1=6;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1=6;
+
+###2-2:三张表mgrge_join,其中一表的主键和常量不等值比较，该不等值比较条件在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1<0;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1<0;
+
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1>10;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1>10;
+
+###2-3:三张表mgrge_join,其中一表的主键取值采用between and操作符，该操作符在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 between 1 and 6;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 between 1 and 6;
+
+###2-4:三张表mgrge_join,其中一表的主键取值采用in操作符，该操作符在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in(1,2,3,4);
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in (1,2,3,4);
+
+###2-5:三张表mgrge_join,其中一表的非主键和常量等值比较，该等值比较条件在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2=6;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2=6;
+
+###2-6:三张表mgrge_join,其中一表的非主键和常量不等值比较，该不等值比较条件在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2<0;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2<0;
+
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2>10;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2>10;
+
+###2-7:三张表mgrge_join,其中一表的非主键取值采用between and操作符，该操作符在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2 between 1 and 6;
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2 between 1 and 6;
+
+###2-8:三张表mgrge_join,其中一表的非主键取值采用in操作符，该操作符在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2 in(1,2,3,4);
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c2 in (1,2,3,4);
+
+###2-9:三张表mgrge_join,其中一表的非主键取值采用like操作符，该操作符在where后
+#select /*+ join(hash_join_single, hash_join_single) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c3 like '%a';
+select /*+ join(merge_join, merge_join) */* from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c3 like '%a';
+
+drop table t1,t2,t3;
+#############################################################################

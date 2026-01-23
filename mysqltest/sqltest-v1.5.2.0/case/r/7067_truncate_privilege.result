@@ -1,0 +1,49 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1;
+alter system set location_cache_timeout='10s' server_type=yaosqlsvr;
+create table t1 (c1 int primary key ,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+create index i10 on t1(c2) storing (c3);
+show index on t1;
+index_name	status	index_type
+__3001__idx__i10	4	0
+start transaction;
+update t1 set c2=10 where c1=1;
+truncate table t1;
+ERROR HY000: YAO-5060: Transaction already started
+select * from t1;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+commit;
+drop table t1;
+create table t1 (c1 int primary key ,c2 int,c3 int);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+create index i10 on t1(c2) storing (c3);
+show index on t1;
+index_name	status	index_type
+__3003__idx__i10	4	0
+set autocommit =0;
+update t1 set c2=10 where c1=1;
+truncate table t1;
+ERROR HY000: YAO-5060: Transaction already started
+select * from t1;
+c1	c2	c3
+1	10	1
+2	2	2
+3	3	3
+commit;
+set autocommit =1;
+truncate table t1;
+select * from t1;
+c1	c2	c3
+select table_id, table_name, user_name, info from __all_truncate_op;
+table_id	table_name	user_name	info
+3003	test.t1	admin	
+3004	test.__3003__idx__i10	admin	
+drop table t1;

@@ -1,0 +1,179 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：单个最小聚合函数消除
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：曹俊
+###7.编写/修改日期：20201130
+###8.其他（选填）：xxx
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+
+###建表插数据
+create table t1(c1 int primary key, c2 int, c3 int, c4 int);
+
+create index idx1 on t1(c2);
+create index idx2 on t1(c2) storing(c3);
+create index idx3 on t1(c2, c3);
+create index idx4 on t1(c2, c3) storing(c4);
+create index idx5 on t1(c3);
+
+
+show index on t1;
+
+--let $row_num = 1
+while ($row_num != 500)
+{
+  eval replace into t1 values($row_num,$row_num,$row_num,$row_num);
+  inc $row_num;
+}
+
+select @@yao_enable_query_optimizer;
+
+set @@yao_enable_query_optimizer=true;
+
+select @@yao_enable_query_optimizer;
+
+###2-1：只含单个聚合函数, 聚合列为主键列
+select min(c1) from t1;
+
+select min(c1) from t1 where c2 > 0;
+
+select min(c1) from t1 where c2 > 0 and c3 > 0;
+
+select min(c1) from t1 where c2 > 0 and c3 > 0 and c4 > 0;
+
+select min(c1) as x from t1;
+
+
+###2-2：只含单个聚合函数, 聚合列为索引列
+select min(c2) from t1;
+
+select min(c2) from t1 where c1 > 0;
+
+select min(c2) from t1 where c2 > 0;
+
+select min(c2) from t1 where c2 > 0 and c3 > 0;
+
+select min(c2) from t1 where c2 > 0 and c3 > 0 and c4 > 0;
+
+select min(c2) as x from t1;
+
+
+###2-3：只含单个聚合函数, 聚合列为非主键索引列
+select min(c4) from t1;
+
+select min(c4) from t1 where c2 > 0;
+
+
+###2-4：嵌套子查询最小聚合消除
+select min(a) from (select min(c1) as a from t1) t1;
+
+select * from (select a from (select min(c1) as a from t1) t1) t1;
+
+select * from (select min(a) as x from (select min(c1) as a from t1) t1) t1;
+
+select min(x) from (select min(a) as x from (select c1 as a from (select * from t1) t1) t1) t1;
+
+
+###2-7：单个聚合函数+其他列, 聚合列为主键列
+select min(c1), c2 from t1;
+
+select min(c1), c2 as x from t1;
+
+select min(c1), c2 from t1 where c2 > 0;
+
+select min(c1), c2, c3 from t1 where c2 > 0;
+
+select min(c1), c2, c3, c4 from t1 where c2 > 0;
+
+select min(c1), c1, c1, c2, c2 from t1;
+
+select c1, c1, min(c1), c2, c2 from t1;
+
+select min(c1) as v, c1 as x, c1, c2, c2 as y from t1;
+
+###2-8：单个聚合函数+其他列, 聚合列为索引列
+select min(c2), c3 from t1;
+
+select min(c2), c3 as x from t1 where c2 > 0;
+
+select min(c2), c3 from t1 where c3 > 0;
+
+select min(c2), c3, c4 from t1 where c4 > 0;
+
+select min(c2), c1, c1, c2, c2 from t1;
+
+select c1, c1, min(c2), c2, c2 from t1;
+
+select min(c2) as v, c1 as x, c1, c2, c2 as y from t1;
+
+
+###2-9：单个聚合函数+其他列，嵌套子查询最小聚合消除
+select min(a) from (select min(c1) as a, c2, c3 from t1) t1;
+
+select * from (select a from (select min(c1) as a, c2, c3 from t1) t1) t1;
+
+select * from (select min(a) as x, c2 as w from (select min(c1) as a, c2, c3 from t1) t1) t1;
+
+
+###2-12：增加limit 1， 最小聚合非隔层嵌套
+select min(c1) from (select * from t1) t1;
+
+select min(a) from (select min(c1) as a from (select c1, c2 from t1) t1) t1;
+
+###2-13：增加limit 1， 最小聚合隔层嵌套
+select x, min(b) from (select min(a) as x, b from (select c1 as a, c2 as b from (select * from t1) t1) t1) t1;
+
+select x, min(b) from (select min(a) as x, b from (select c1 as a, c2 as b from (select c1, c2 from (select * from t1) t1) t1) t1) t1;
+
+###2-14：消除union语句最小聚合
+select min(c1) from t1 union select min(c2) from t1;
+
+select min(c1), c2 from t1 union select min(c2), c3 from t1;
+
+select min(c1) from t1 union select min(c2) from t1 union select min(c3) from t1;
+
+select * from (select min(c1) from t1 union select min(c2) from t1 union select min(c3) from t1) t;
+
+
+###2-15：不支持最小聚合消除的情况
+select min(c1), count(*) from t1;
+
+select min(c1) from t1 group by c2;
+
+select /*+index(t1 idx1) */ min(c1) from t1 where c2 >0 and c3 > 0;
+
+--error 7
+select min(c1) from t1 where c1 = 1 for update;
+
+select min(c1) from t1 limit 1;
+
+select distinct min(c1) from t1;
+
+select min(c1) from t1 order by c2;
+
+select min(c1) from t1 having min(c1);
+
+
+###删表删库
+drop table if exists t1;
+
+########################################################################################################

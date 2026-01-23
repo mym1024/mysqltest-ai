@@ -1,0 +1,1107 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：partition_hash:批量更新hash分区
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1222s
+###6.编写/修改人：caojun
+###7.编写/修改日期：2019-12-30
+###8.其他（选填）：case标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists test1,test2;
+--enable_warnings
+
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+
+
+# 主键是int类型
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int, c2 varchar(20), c3 decimal(10,5), c4 int, primary key(c1)) partition by(hs,h1,c1);
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+show partition groups;
+create index idx1 on test1(c1);
+create index idx2 on test1(c2);
+create index idx3 on test1(c3);
+create index idx4 on test1(c4);
+
+# 主键是int,varchar和decimal类型
+create table test2(c1 int, c2 decimal(10,5), c3 varchar(20), c4 int, c5 int, c6 int, c7 decimal(10,5), c8 varchar(20), primary key(c1,c2,c3)) partition by(hs,h1,c1);
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+create index idx2 on test2(c5) storing(c6,c4);
+create index idx3 on test2(c2,c3) storing(c4,c5);
+
+--echo merge
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 900
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+let $test1_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test1',table_id,1);
+let $test2_tb_id=query_get_value(select table_id from __first_tablet_entry where table_name='test2',table_id,1);
+
+--let $index_head = __
+--let $index1_end = __idx__idx1
+--let $index2_end = __idx__idx2
+--let $index3_end = __idx__idx3
+--let $index4_end = __idx__idx4
+
+--let $test1_idx1_name=$index_head$test1_tb_id$index1_end
+--let $test1_idx2_name=$index_head$test1_tb_id$index2_end
+--let $test1_idx3_name=$index_head$test1_tb_id$index3_end
+--let $test1_idx4_name=$index_head$test1_tb_id$index4_end
+
+--let $test2_idx2_name=$index_head$test2_tb_id$index2_end
+--let $test2_idx3_name=$index_head$test2_tb_id$index3_end
+
+echo $test1_idx1_name;
+echo $test1_idx2_name;
+echo $test1_idx3_name;
+echo $test1_idx4_name;
+
+echo $test2_idx2_name;
+echo $test2_idx3_name;
+
+show index on test1;
+show index on test2;
+
+
+###2-1:单主键，指定where条件为主键
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1=100;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=111 where c1=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=1 where c1>100;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=5 where c1<100;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1=1 OR c1=1 OR c1=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=1 where c1=10 OR c1=11 OR c1=111;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1=1 OR c1=1 OR c1=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=1 where c1=1 OR c1=2 OR c1=3 OR c1=4 OR c1=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--error 145
+update test1 set c1=10 where c1=1 and c1=1 and c1=1 and c1=1 and c1=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c4=111 where c1=10 and c1=10 and c1=10 and c1=10 and c1=10;
+select * from test1;
+eval select * from $test1_idx4_name;
+
+--error 145
+update test1 set c1=1 where c1=10 and c1=10 and c1=10 and c1=11 and c1=12 and c1=13;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c1=1 where c1=10 and c1=10 and c1=11 and c1=10;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c1=1 where c1=11 and c1=10 and c1=10 and c1=10;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c4=1 where c1=10 and c1=10 and c1=10 and c1=11 and c1=12 and c1=13;
+select * from test1;
+eval select * from $test1_idx4_name;
+
+--error 145
+update test1 set c4=1 where c1=10 and c1=10 and c1=11 and c1=10;
+select * from test1;
+eval select * from $test1_idx4_name;
+
+--error 145
+update test1 set c4=1 where c1=11 and c1=10 and c1=10 and c1=10;
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1=1 or c1=2 and c1=3 or c1=4 and c1=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1=1 or c1=2 and c1=3 or c1=4 and c1=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 between 1 and 1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 between 111 and 111;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=5 where c1 between 0 and 1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+sleep 5;
+update test1 set c4=111 where c1 between 1 and 4;
+--real_sleep 1
+select * from test1;
+--real_sleep 1
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 IN(1);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=100 where c1 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=111 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 * 1 + 1 <= 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 * 2 + 1 > 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 / 2 - 1 < 0;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 / 2 - 1 >= 0;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 * 1 % 5 + 1 <= 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 * 2 / 2 * 5 % 4 + 1 < 8;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 MOD 5 + 1 <= 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where (c1 * 2 / 2 * 5) MOD 4 + 1 < 8;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+###2-2: 单主键，指定where条件为非主键（单独一个非主键）
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3>100;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=111 where c3=3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=5 where c3=3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=111 where c3>1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3=2 OR c3=2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+sleep 5;
+update test1 set c4=111 where c3=1 OR c3=2 OR c3=3 OR c3=4 OR c3=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3=1 and c3=1 and c3=1 and c3=1 and c3=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=111 where c3=1 and c3=2 and c3=3 and c3=4 and c3=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3=1 and c3=1 and c3=1 and c3=1 and c3=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=111 where c3=1 and c3=2 and c3=3 and c3=4 and c3=5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 between 1 and 1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 between 1 and 1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 between 3 and 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 between 3 and 4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c1=111 where c3 IN(1);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 IN(1,2,3,4,5,6);
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 * 2 + 1 < 4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 * 2 + 1 > 4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 / 2 - 1 < 0;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 / 2 - 1 > 0;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 % 5 + 1 <= 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 * 2 / 2 * 5 % 4 + 1 >= 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 MOD 5 + 1 <= 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where (c3 * 2 / 2 * 5) MOD 4 + 1 >= 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+###2-3:单主键，指定where条件为多个非主键、主键结合
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1=1 OR c2='a' OR c3=1 OR c4=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1=1 OR c2='2' OR c3=3 OR c4=4 OR c2='5';
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+--error 5009
+update test1 set c1=111 where c1=1 and c2='a' and c3=1 and c4=1 and c5=1;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=111 where c1=2 and c2='a' and c3=1 and c4=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c1=111 where c1=2 and c2='a' and c3=1 and c4=1 and c1=1;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c1=111 where c1=1 and c2='a' and c3=1 and c4=1 and c1=2;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c1=111 where c1=1 and c2='a' and c3=1 and c4=1;
+select * from test1;
+eval select * from $test1_idx1_name;
+
+--error 145
+update test1 set c4=111 where c1=111 and c2='a' and c3=1 and c4=1 and c1=100;
+select * from test1;
+eval select * from $test1_idx4_name;
+
+update test1 set c4=111 where c1=111 and c2='a' and c3=1 and c4=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1=1 or c2='e' and c4=1 or c3=1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1=1 or c2='b' and c4=2 or c2='d' and c3=4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c3 between 4 and 5 and c4 between 4 and 5;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c3 between 1 and 4 and c4 between 3 and 4 ;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where c1 * 2 + c3 < 4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 * 2 + c3 > 4;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+#--error 119
+update test1 set c4=111 where c2 * c3 - 1 > 1;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where (c1 + c3) % 10 + 1 <= 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where c1 * 2 /c3 * 5 % c3 + 1 > 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+delete from test1 where c1>0;
+--real_sleep 1
+insert into test1 values(1,'a',1,1),(2,'b',2,2),(3,'c',3,3),(4,'d',4,4);
+--real_sleep 1
+update test1 set c1=111 where (c1 + c3) MOD 10 + 1 <= 3;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx1_name;
+
+update test1 set c4=111 where (c1 * 2 / c3 * 5) MOD c3 + 1 > 2;
+--real_sleep 1
+select * from test1;
+eval select * from $test1_idx4_name;
+
+
+###2-4: 复合主键，指定where条件为主键
+--error 145
+update test2 set c5=11,c6=12 where c1=1 and c2=1.11 and c3='a' and c1=10;
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+--error 145
+update test2 set c5=11,c6=12 where c1=10 and c2=1.11 and c3='a' and c1=1;
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c5=11,c6=12 where c1=1 and c2=1.11 and c3='a';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c2=12.12,c4=11 where c1>3 and c2>4 and c3>'a';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c1=11,c4=12 where c1>3 and c2>4 and c3>'a';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c4=12,c5=12 where c1=1 OR c2=2 OR c3='a';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c1=12,c4=13 where c1=1 OR c2=2 OR c3='a';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c1 between 1 and 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c2 between 3 and 4;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=14,c5=14 where c3 between 'a' and 'd';
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=13 where c1 IN(1,10,11,12,13,14,15);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=13 where c1 * c2 + 1 < 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1 * c2 + 1 > 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=13 where (c2 + 1) / c1 >= 2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where (c2 + 1) / c1 < 2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c1 * c2 * 100 % 10000 + 1 < 200;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1 * c2 % 4 + 1 > 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where (c1 * c2 * 100) MOD 10000 + 1 < 200;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where (c1 * c2) MOD 4 + 1 > 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+###2-5: 复合主键，指定where条件为非主键
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=11,c2=10.11,c5=12 where c4=1 and c5=1 and c6<2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c5=11,c6=12 where c5>1 and c6>=1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11 where c4=1 OR c5=10 OR c6=10;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=12 where c4=1 OR c5=2 OR c6=3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c4 between 1 and 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=13,c5=13 where c5 between 3 and 4;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c4 IN(1,10,11,12,13,14,15);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c5 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c5 * c6 + 1 < 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c5 * c6 + 1 > 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where (c5 + 1) / c6 >= 2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c6 / c5 > 0;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where (c5 + c6) % 10 + 1 <= 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c5 * 2 / c6 *5 % 4 + 1 < 8;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where (c5 + c6) MOD 10 + 1 <= 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where (c5 * 2 / c6 * 5) MOD 4 + 1 <8;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+###2-6:复合主键，指定where条件为复合主键、非复合主键结合
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=13 where c1<2 and c2<=3 and c3<'b' and c6<=3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1>=1 and c2>2 and c3>'a' and c6>=1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c3='e',c5=13 where c1=1 OR c2=10 OR c4=11 OR c5=15 OR c6=16;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1=1 OR c2=2 OR c4=3 OR c5=4 OR c6=5;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--error 145
+update test2 set c1=12,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+--error 145
+update test2 set c1=12,c5=13 where c1=2 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=1;
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+--error 145
+update test2 set c1=12,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1 and c1=2 and c1=1;
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c1=12,c2=10.11,c5=13 where c1=1 and c2=1.11 and c3='a' and c4=1 and c6=1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c3='e',c5=13 where c2=1.11 or c4=1 and c5=1 or c6=1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c2=1 or c4=2 and c5=3 or c6=5;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=13 where c4 between 1 and 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c4 between 1 and 4;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+  
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=100,c2=10.11,c5=10 where c1 IN(1,10,11,12,13,14,15);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c6 IN(10,11,12,13,14,15);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c5 IN(1,2,3,4,5,6,7,8,9,10);
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c1 * 2 + 1 <= 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c4 * 2 + 1 > 3;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c5 / 2 - 1 >= 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c5 / 2 - 1 > 1;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+replace into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where c1 * 2 / 2 * c6 % 10 + 1 <= 2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where c1 * 2 / 3 * c6 % 4 + 1 < 8;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+delete from test2 where c1>0;
+--real_sleep 1
+insert into test2 values(1,1.11,'a',1,1,1,1,1),(2,2.22,'b',2,2,2,2,2),(3,3.33,'c',3,3,3,3,3),(4,4.44,'b',4,4,4,4,4);
+--real_sleep 1
+update test2 set c1=12,c2=10.11,c5=12 where (c1 * c4 / c5 * 1) MOD 10 + 1 <= 2;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+update test2 set c4=12,c5=13 where (c1 * c4 / 3 * 5) MOD 3 + 1 <8;
+--real_sleep 1
+select * from test2;
+eval select * from $test2_idx2_name;
+eval select * from $test2_idx3_name;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

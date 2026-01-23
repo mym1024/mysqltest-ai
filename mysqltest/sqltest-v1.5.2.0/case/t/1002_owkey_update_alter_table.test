@@ -1,0 +1,68 @@
+####################################必填######################################################
+###1.测试功能点：主键更新的alter_table测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：
+###6.编写/修改人：张二宝
+###7.编写/修改日期：2019-11-04
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database rowkey_database;
+using database rowkey_database;
+sleep 5;
+
+
+###建表，插入数据
+create table if not exists t1(id1 int primary key, col1 int);
+create table if not exists t2(id1 int primary key, col1 int, col2 int);
+
+replace into t1 values(0,0);
+replace into t1 values(1,0);
+replace into t1 values(2,0);
+select * from t1;
+
+replace into t2 values(0,0,0);
+replace into t2 values(1,0,0);
+replace into t2 values(2,0,0);
+select * from t2;
+
+
+###2-1 修改表结构，增加字段，单行更新
+alter table t1 add column col2 int;
+alter table t1 add column col3 int;
+select table_id,max_used_column_id from __first_tablet_entry where table_name='t1';
+
+update t1 set id1=3 where id1=0;
+select * from t1;
+
+###2-2 修改表结构，增加字段，多行更新
+update t1 set id1=id1+10 where id1>=0;
+select * from t1;
+
+###2-3 修改表结构，删除字段，单行更新
+alter table t2 drop column col1;
+select table_id,max_used_column_id from __first_tablet_entry where table_name='t2';
+
+update t2 set id1=4 where id1=1;
+select * from t2;
+
+###2-4 修改表结构，删除字段，多行更新
+update t2 set id1=id1+10 where id1>=0;
+select * from t2;
+
+drop table if exists t1;
+drop table if exists t2;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

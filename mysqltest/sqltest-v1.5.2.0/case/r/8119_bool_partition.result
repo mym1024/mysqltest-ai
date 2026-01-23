@@ -1,0 +1,56 @@
+drop table if exists a1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+1';
+create table a1(rowkey_suffix int primary key,price int) partition by(ta1,h1,rowkey_suffix);
+insert into a1(rowkey_suffix,price) values(0,0),(1,1),(2,2);
+select * from a1 where not(price and 1);
+rowkey_suffix	price
+0	0
+select * from a1 where not(1 and price);
+rowkey_suffix	price
+0	0
+select * from a1 where not(price and 1)=0;
+rowkey_suffix	price
+1	1
+2	2
+select * from a1 where not(1 and price)=0;
+rowkey_suffix	price
+1	1
+2	2
+select * from a1 where not(1 and price)=1;
+rowkey_suffix	price
+0	0
+select * from a1 where not(1 and price)=1 is null;
+rowkey_suffix	price
+1	1
+2	2
+select * from a1 where not price between 2 and 3;
+rowkey_suffix	price
+0	0
+1	1
+select * from a1 where not price between 2 and 3;
+rowkey_suffix	price
+0	0
+1	1
+select rowkey_suffix,price is false,price is true,price is unknown from a1;
+rowkey_suffix	price is false	price is true	price is unknown
+0	1	0	0
+1	0	1	0
+2	0	1	0
+select rowkey_suffix,price is not false,price is not true,price is not unknown from a1;
+rowkey_suffix	price is not false	price is not true	price is not unknown
+0	0	1	1
+1	1	0	1
+2	1	0	1
+drop table a1;
+drop partition function h1;
+drop table if exists yao_new_sql_test;
+create enum partition function e1(x)'[(1)],[(2)],[(3)]';
+create table yao_new_sql_test(c0 varchar(20),c1 int primary key) partition by (yb1,e1,c1);
+insert into yao_new_sql_test(c0,c1) values('hello',3);
+insert into yao_new_sql_test(c0,c1) values('hello',1);
+select * from yao_new_sql_test where c1= false;
+c0	c1
+drop table yao_new_sql_test;
+drop partition function e1;

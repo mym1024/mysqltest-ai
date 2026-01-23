@@ -1,0 +1,168 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：查询优化器两个单表fromItem隐式JOIN，左右表倾斜率均大于0.5，高频值平均重复次数之积大于10000
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/merge_requests/531
+###4.问题号：432-feature_statistic_info_and_optimizer
+###5.预计运行时间：xxx
+###6.编写/修改人：曹俊，张二宝
+###7.编写/修改日期：20200903
+###8.其他（选填）：xxx
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+create database opt;
+using database opt;
+sleep 5;
+
+###打开查询优化器开关
+set yao_enable_query_optimizer=true;
+
+###设置合并参数
+
+###建表插数据
+create table if not exists t1(id int primary key, c1 Decimal(5,2), c2 int);
+create table if not exists t2(id int primary key, c1 Decimal(5,2), c2 int);
+
+###t1表
+###高频值不同值个数：10，高频值平均重复次数：40，低频值不同值个数：50，低频值平均重复次数：12
+--let $row_num = 0
+--let $HD = 1
+--let $LD = 11
+while ($HD < 11)
+{
+  let $number = 0;
+  while ($number < 40)
+  {
+    eval replace into t1 values($row_num, $HD, $HD);
+    inc $number;
+    inc $row_num;
+  }
+
+  if ($number == 40)
+  {
+    inc $HD;
+  }
+}
+
+while ($LD < 61)
+{
+  let $number = 0;
+  while ($number < 12)
+  {
+    eval replace into t1 values($row_num, $LD, $LD);
+    inc $number;
+    inc $row_num;
+  }
+
+  if ($number == 12)
+  {
+    inc $LD;
+  }
+}
+
+###t2表
+###高频值不同值个数：10，高频值平均重复次数：400，低频值不同值个数：300，低频值平均重复次数：20
+--let $row_num = 0
+--let $HD = 1
+--let $LD = 11
+while ($HD < 11)
+{
+  let $number = 0;
+  while ($number < 400)
+  {
+    eval replace into t2 values($row_num, $HD, $HD);
+    inc $number;
+    inc $row_num;
+  }
+
+  if ($number == 400)
+  {
+    inc $HD;
+  }
+}
+
+while ($LD < 311)
+{
+  let $number = 0;
+  while ($number < 20)
+  {
+    eval replace into t2 values($row_num, $LD, $LD);
+    inc $number;
+    inc $row_num;
+  }
+  
+  if ($number == 20)
+  {
+    inc $LD;
+  }
+}
+
+###合并
+--echo “merge”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700 
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+###生成统计任务
+gather statistics t1(c1, c2);
+gather statistics t2(c1, c2);
+
+###查看收集任务
+select * from __all_udi_monitor_list;
+
+###启动收集命令
+--echo “statistics”
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT gather_statistics | tail -1;
+--real_sleep 10 
+
+###查看统计信息
+select * from __all_statistic_info;
+
+###检查左右表数据行数
+select count(*) from t1;
+select count(*) from t2;
+
+###2-1：join列为Decimal
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，merge join
+select count(*) from t1, t2 where t1.c1 = t2.c1;
+explain select count(*) from t1, t2 where t1.c1 = t2.c1 ;
+
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，左表过滤后行数小于200，左表不同值个数小于右表，semi join
+select count(*) from t1, t2 where t1.c1 = t2.c1 and (t1.c1 <= 2 or t1.c1 = 11);
+explain select count(*) from t1, t2 where t1.c1 = t2.c1 and (t1.c1 <= 2 or t1.c1 = 11);
+
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，右表过滤后行数小于200，右表不同值个数小于左表，semi join
+select count(*) from t2, t1 where t2.c1 = t1.c1 and (t1.c1 <= 2 or t1.c1 = 11);
+explain select count(*) from t2, t1 where t2.c1 = t1.c1 and (t1.c1 <= 2 or t1.c1 = 11);
+
+###2-2：join列为非 Decimal
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，merge join
+select count(*) from t1, t2 where t1.c2 = t2.c2;
+explain select count(*) from t1, t2 where t1.c2 = t2.c2;
+
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，左表过滤后行数小于200，左表不同值个数小于右表，semi join
+select count(*) from t1, t2 where t1.c2 = t2.c2 and (t1.c2 <= 2 or t1.c2 = 11);
+explain select count(*) from t1, t2 where t1.c2 = t2.c2 and (t1.c2 <= 2 or t1.c2 = 11);
+
+###左表倾斜率>0.5，右表倾斜率>0.5，左表高频值x右表高频值 > 10000，右表过滤后行数小于200，右表不同值个数小于左表，semi join
+select count(*) from t2, t1 where t2.c2 = t1.c2 and (t1.c2 <= 2 or t1.c2 = 11);
+explain select count(*) from t2, t1 where t2.c2 = t1.c2 and (t1.c2 <= 2 or t1.c2 = 11);
+
+
+###删表删库
+drop table if exists t1;
+drop table if exists t2;
+drop database opt;
+
+########################################################################################################

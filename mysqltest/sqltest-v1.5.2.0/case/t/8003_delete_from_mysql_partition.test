@@ -1,0 +1,140 @@
+
+####################################必填######################################################
+###1.测试功能点：有分区时delete功能的测试
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：45s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql####################################################
+
+#
+#Check for problems with delete
+#
+
+###2-1 哈希分区时从表中删除数据
+--disable_warnings
+drop table if exists t1,t2,t3,t11,t12;
+--real_sleep 3
+--error 5077
+drop partition function h1;
+--enable_warnings
+create hash partition function h1(x,y) 'x+y+1';
+create TABLE t1 (a int, b int, c int, primary key(a,b)) partition by(ta1,h1,a,b);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+INSERT INTO t1 VALUES(1,1,0);
+# junyue: ob does not support LOW_PRIORITY
+
+INSERT INTO t1 VALUES(1,2,0);
+INSERT INTO t1 VALUES(1,3,0);
+
+DELETE from t1 where a=1 and b=1;
+
+INSERT INTO t1 VALUES(1,1,0);
+DELETE from t1 where a=1 and b=1;
+DELETE from t1 where a=1 and b=2;
+DELETE from t1 where a=1 and b=3;
+
+INSERT INTO t1 VALUES(1,2,0);
+DELETE from t1 where a=1 and b=2;
+
+INSERT INTO t1 VALUES(1,2,0);
+
+DELETE from t1 where a=1 and b=2;
+
+drop table t1;
+--real_sleep 3
+drop partition function h1;
+
+#
+#Test of delete when the delete will cause a node to disappear and reappear
+# (This assumes a block size of 1024)
+#
+###2-2 range分区时从表中删除除主键外全为默认值的数据
+create table t1 (
+	a bigint not null,
+	b bigint not null default 0,
+	c bigint not null default 0,
+	d bigint not null default 0,
+	e bigint not null default 0,
+	f bigint not null default 0,
+	g bigint not null default 0,
+	h bigint not null default 0,
+	i bigint not null default 0,
+	j bigint not null default 0,
+	primary key (a)) partition by range(a)(partition r1 values less than(10),partition r2 values less than(20),partition r3 values less than(30),partition r4 values less than maxvalue);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+
+insert into t1 (a) values (2),(4),(6),(8),(10),(12),(14),(16),(18),(20),(22),(24),(26),(23);
+--real_sleep 5
+delete from t1 where a=26;
+drop table t1;
+--real_sleep 3
+
+create table t1 (
+	a bigint not null,
+	b bigint not null default 0,
+	c bigint not null default 0,
+	d bigint not null default 0,
+        	e bigint not null default 0,
+	f bigint not null default 0,
+	g bigint not null default 0,
+	h bigint not null default 0,
+	i bigint not null default 0,
+	j bigint not null default 0,
+	primary key (a)) partition by list(a)(partition a1 values in(2,4,6,8,10,12,14),partition a2 values in(16,18,20,22,24,26,23,27));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+
+insert into t1 (a) values (2),(4),(6),(8),(10),(12),(14),(16),(18),(20),(22),(24),(26),(23),(27);
+--real_sleep 5
+delete from t1 where a=27;
+drop table t1;
+--real_sleep 3
+#
+#CHAR(0) bug - not actually DELETE bug, but anyway...
+#
+
+###2-3 枚举分区时以NULL值为过滤条件删除
+--error 5077
+drop partition function e1;
+create enum partition function e1(x)'[(a)],[(b)],[(c)],[(d)]';
+CREATE TABLE t1 (
+  bool1 char(0) default NULL,
+  not_null varchar(20) NOT NULL default '',
+  misc integer not null,
+  PRIMARY KEY (not_null)
+) partition by(ta1,e1,not_null) ;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+--real_sleep 3
+INSERT INTO t1 VALUES (NULL, 'a',4), (NULL, 'b',5), (NULL, 'c',6), (NULL, 'd',7);
+--real_sleep 2
+select * from t1 where misc > 5 and bool1 is null;
+delete   from t1 where not_null='c';
+delete   from t1 where not_null='d';
+select * from t1 where misc > 5 and bool1 is null;
+
+select count(*) from t1;
+select count(*) from t1;
+select count(*) from t1;
+
+drop table t1;
+--real_sleep 3
+drop partition function e1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1; 
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

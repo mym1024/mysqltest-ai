@@ -1,0 +1,147 @@
+##############################################################################################
+###1.测试功能点：测试系统函数if
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：15s
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database d1;
+using database d1;
+sleep 5;
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+#创建不同数据类型的不同分区类型的表
+--echo create table
+create table t1 (pid int primary key, name varchar(30), salary float, c1 bool, c2 bool, c3 int);
+create table t2 (pid int primary key, name varchar(30));
+
+#初始化各个表
+--real_sleep 5
+--echo insert data
+insert into t1 (pid, name, salary, c1, c2) values(1, 'xiaowang', 15498.26, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(2, 'xiaozeng', 16666.54, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(3, 'xiaoming', 16267.86, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(4, 'xiaochen', 17566.78, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(5, 'xiaoli', 9751.85, true, false);
+insert into t1 (pid, name, salary, c1, c2) values(6, 'xiaozhao', 14958.64, true, false);
+insert into t2 (pid, name) values(1, 'xiaosun');
+insert into t2 (pid, name) values(2, 'xiaoqian');
+insert into t2 (pid, name) values(3, 'xiaohua');
+insert into t2 (pid, name) values(4, 'xiaowu');
+insert into t2 (pid, name) values(5, 'xiaopang');
+insert into t2 (pid, name) values(6, 'xiaogao');
+
+#测试if函数
+--echo start if
+##2-1:基础类型
+select if(c1,pid,name) from t1 where pid = 2;
+select if(true,pid,name) from t1 where pid = 2;
+select if(1,pid,name) from t1 where pid = 2;
+select if(c2,pid,name) from t1 where pid = 2;
+select if(false,pid,name) from t1 where pid = 2;
+select if(0,pid,name) from t1 where pid = 2;
+
+##2-2:含有比较运算
+select if(5>3,pid,name) from t1 where pid = 3;
+select if(3>5,pid,name) from t1 where pid = 3;
+select if(5=3,pid,name) from t1 where pid = 3;
+select if(5=5,pid,name) from t1 where pid = 3;
+select if(-1>1,pid,name) from t1 where pid = 3;
+select if(-1<1,pid,name) from t1 where pid = 3;
+select if(-0.25>-0.11,pid,name) from t1 where pid = 3;
+select if(-0.25<-0.11,pid,name) from t1 where pid = 3;
+
+##2-3:参数为空
+select if(c3,pid,name) from t1 where pid = 2;
+select if(c3,c3,name) from t1 where pid = 2;
+select if(c3,c3,c3) from t1 where pid = 2;
+select if(c3,pid,c3) from t1 where pid = 2;
+select if(c1,c3,c3) from t1 where pid = 2;
+select if(c2,c3,c3) from t1 where pid = 2;
+
+##2-4:参数类型相同
+select if(pid,6,9) from t1 where pid = 3;
+select if(name,'abc','def') from t1 where pid = 3;
+select if(salary,cast(3.141 as float),cast(23.4687 as float)) from t1 where pid = 3;
+select if(2.25,3.15,4.45) from t1 where pid=3;
+
+##2-5:参数类型不同
+select if(pid,name,salary) from t1;
+select if(name,c2,pid) from t1;
+select if(name,salary,c1) from t1;
+select if(salary,name,pid) from t1;
+
+##2-6:含有四则运算
+select if(pid+10,name,salary) from t1;
+select if(pid-1,name,salary) from t1;
+select if(pid/10,name,salary) from t1;
+select if(pid*10,name,salary) from t1;
+select if((10)mod(pid),name,salary) from t1;
+
+##2-7:含有函数运算
+select if(1,max(pid),min(pid)) from t1;
+select if(0,max(pid),min(pid)) from t1;
+select if(1,sum(pid),avg(pid)) from t1;
+select if(0,sum(pid),avg(pid)) from t1;
+select if(max(pid),sum(pid),avg(pid)) from t1;
+
+##2-8:函数位置不同
+update t1 set name='xiaozhou' where pid=if(false,5,6);
+update t1 set salary=if(pid,if(1,cast(15463.98 as float),2),2) where pid=1;
+select name from t1 having if(0,1,1)>0;
+select name from t1 where pid=2 or pid=if(2,if(1>5,3,4),5) order by pid;
+insert into t1 (pid, name, salary, c1, c2) values(7,if(0,'xiaoliu','xiaoding'),13156.21,true,false);
+delete from t1 where pid=if(if(pid,4,1),7,6);
+
+##2-9集合操作
+(select name from t1 where pid= if(0,2,3)) union (select name from t1 where pid=4);
+(select name from t1 where pid= if(1,2,1)) intersect (select name from t1 where pid=2);
+(select name from t1 where pid= if(1,1,2)) except (select name from t1 where pid=3);
+
+##2-10含有系统函数
+select pid from t1 where name = if(c1,substr('xxxiaowanggg',3,8),c2);
+select name from t1 where pid = if(c2,c1,nvl(3,4));
+
+##2-11多表测试
+select t1.pid,if(t1.pid, t2.name, t1.salary) from t1,t2;
+select t1.name,if(t1.c2, t1.name, t2.name) from t1,t2;
+select distinct t1.pid from t1,t2 where if(t1.c1, t2.name, t1.name);
+
+##2-12栈为空
+--error 5001
+select if() from t1 where pid=1;
+##2-13参数异常
+--error 5054
+select if(pid) from t1 where pid=1;
+--error 5054
+select if(c1,pid,c2,name) from t1 where pid=1;
+--error 5009
+select if(abc+def,pid,name) from t1 where pid=1;
+
+##其它
+select IF(1<2,1,0);
+select if(1<2,1,0) AS c1;
+select if(if(1>5,1,0)>1,1,0) AS c1;
+
+
+drop table t1,t2;
+drop database d1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

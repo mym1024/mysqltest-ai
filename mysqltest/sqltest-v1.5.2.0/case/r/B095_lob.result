@@ -1,0 +1,1006 @@
+set names utf8mb4;
+create table t1(b TinyText);
+create table t2(b Text);
+create table t3(b MediumText);
+create table t4(b LongText);
+create table t5(a int,b TinyText,c varchar(20));
+create table t6(a int,b Text,c varchar(20));
+create table t7(a int,b MediumText,c varchar(20));
+create table t8(a int,b LongText,c varchar(20));
+create table t9(a TinyText, b TinyText, c Text,d Text,e MediumText,f LongText);
+drop table t1,t2,t3,t4,t5,t6,t7,t8,t9;
+create table t1(a int,b TinyText(20),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b TinyText(0),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b TinyText(9999999999),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b Text(20),c varchar(20));
+create table t2(a int,b Text(0),c varchar(20));
+create table t3(a int,b Text(9999999999),c varchar(20));
+ERROR HY000: YAO-19: Display width out of range for column 'b' (max = 536870911)
+drop table t1,t2;
+create table t1(a int,b MediumText(20),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b MediumText(0),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b MediumText(9999999999),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b LongText(20),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b LongText(0),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b LongText(9999999999),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(b TinyText default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t2(b Text default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t3(b MediumText default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t4(b LongText default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t1(a int primary key,b TinyText not null,c varchar(20));
+create table t2(a int primary key,b Text not null,c varchar(20));
+create table t3(a int primary key,b MediumText not null,c varchar(20));
+create table t4(a int primary key,b LongText not null,c varchar(20));
+CREATE TABLE t5 (i int(11) NOT NULL default '0', c text NOT NULL, d varchar(1) NOT NULL DEFAULT ' ', PRIMARY KEY  (i), KEY (c,d));
+INSERT into t5 (i, c) VALUES (1,''),(2,''),(3,'asdfh'),(4,'');
+select max(i) from t5 where c = '';
+max(i)
+4
+drop table t1,t2,t3,t4,t5;
+create table t1(a int primary key,b TinyText,c varchar(20));
+create table t2(a int primary key,b Text,c varchar(20));
+create table t3(a int primary key,b MediumText,c varchar(20));
+create table t4(a int primary key,b LongText,c varchar(20));
+drop table t1,t2,t3,t4;
+create table t1(a int ,b TinyText primary key,c varchar(20));
+ERROR HY000: YAO-5006: tinytext column 'b' can not be primary key
+create table t2(a int ,b Text primary key,c varchar(20));
+ERROR HY000: YAO-5006: text column 'b' can not be primary key
+create table t3(a int ,b MediumText primary key,c varchar(20));
+ERROR HY000: YAO-5006: mediumtext column 'b' can not be primary key
+create table t4(a int ,b LongText primary key,c varchar(20));
+ERROR HY000: YAO-5006: longtext column 'b' can not be primary key
+create table t1(a int ,b TinyText(20) primary key,c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t2(a int ,b Text(0) primary key,c varchar(20));
+ERROR HY000: YAO-5006: tinytext column 'b' can not be primary key
+create table t3(a int ,b MediumText(99999999999) primary key,c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t4(a int ,b LongText primary key,c varchar(20));
+ERROR HY000: YAO-5006: longtext column 'b' can not be primary key
+create table t1(a int,b TinyText,c varchar(20),d Text,e MediumText,f LongText,j json,h bit(1));
+create index idx1 on t1(a);
+create index idx2 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx2 on t1(a,b(20));
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx3 on t1(d(20));
+ERROR HY000: YAO-6001: Index Columns d is LOB type. Can not be index colum!
+create index idx4 on t1(e);
+ERROR HY000: YAO-6001: Index Columns e is LOB type. Can not be index colum!
+create index idx5 on t1(f);
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+create unique index idx6 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create unique index idx7 on t1(c);
+create unique index idx8 on t1(f(20));
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1');
+drop table t1;
+create table t1(a int primary key,b tinytext,c varchar(20),d Text,e MediumText,f LongText,j json,h bit(1),k tinytext);
+create index idx1 on t1(a);
+create index idx2 on t1(a,b(20));
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx2 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx3 on t1(d(20));
+ERROR HY000: YAO-6001: Index Columns d is LOB type. Can not be index colum!
+create index idx4 on t1(e);
+ERROR HY000: YAO-6001: Index Columns e is LOB type. Can not be index colum!
+create unique index idx5 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create unique index idx6 on t1(c);
+create unique index idx7 on t1(f(20));
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1','testaaa');
+update t1 set b='a' where a =1;
+select * from t1;
+a	b	c	d	e	f	j	h	k
+1	a	abc	abc	abc	abc	{"abc": 1, "def": null, "hig": "aaa", "bool": false}		testaaa
+select * from t1 where b='a';
+a	b	c	d	e	f	j	h	k
+1	a	abc	abc	abc	abc	{"abc": 1, "def": null, "hig": "aaa", "bool": false}		testaaa
+delete from t1 where b='a';
+select * from t1;
+a	b	c	d	e	f	j	h	k
+alter table t1 drop d;
+alter table t1 drop e;
+alter table t1 drop f;
+alter table t1 drop k;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+b	tinytext	YES		NULL	
+c	varchar(20)	YES	UNI	NULL	
+j	json	YES		NULL	
+h	bit(1)	YES		NULL	
+alter table t1 add dd Text;
+alter table t1 add ee MediumText;
+alter table t1 add ff MediumText;
+alter table t1 add kk tinytext;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+b	tinytext	YES		NULL	
+c	varchar(20)	YES	UNI	NULL	
+j	json	YES		NULL	
+h	bit(1)	YES		NULL	
+dd	text	YES		NULL	
+ee	mediumtext	YES		NULL	
+ff	mediumtext	YES		NULL	
+kk	tinytext	YES		NULL	
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+a INT(10),
+b tinytext COLLATE 'utf8mb4_general_ci',
+c VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+j JSON,
+h BIT,
+dd text COLLATE 'utf8mb4_general_ci',
+ee mediumtext COLLATE 'utf8mb4_general_ci',
+ff mediumtext COLLATE 'utf8mb4_general_ci',
+kk tinytext COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(a),
+ UNIQUE KEY idx6(c),
+ KEY idx1(a)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show full columns from t1;
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+a	int(10)	NULL	YES	PRI	NULL		select,insert,update,references	
+b	tinytext	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+c	varchar(20)	utf8mb4_general_ci	YES	MUL	NULL		select,insert,update,references	
+j	json	NULL	YES		NULL		select,insert,update,references	
+h	bit(1)	NULL	YES		NULL		select,insert,update,references	
+dd	text	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+ee	mediumtext	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+ff	mediumtext	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+kk	tinytext	utf8mb4_general_ci	YES		NULL		select,insert,update,references	
+drop table t1;
+create table t1(a tinytext,b mediumtext,c longtext,d text,e text(20));
+insert into t1 values(null,null,null,null,null);
+insert into t1 values('','','','','');
+insert into t1 values('a','a','a','a','a');
+insert into t1 values('1','1','1','1','1');
+insert into t1 values('1.1','1.1','1.1','1.1','1.1');
+insert into t1 values(cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double));
+update t1 set b=null where a ='1';
+select * from t1;
+a	b	c	d	e
+NULL	NULL	NULL	NULL	NULL
+				
+a	a	a	a	a
+1	NULL	1	1	1
+1.1	1.1	1.1	1.1	1.1
+1.100000	1.100000	1.100000	1.100000	1.100000
+update t1 set b=1;
+update t1 set b=1.1;
+update t1 set b=cast(1.1 as double);
+update t1 set b=cast(1.1 as float);
+update t1 set b=cast('2024-07-15' as date);
+update t1 set c='' where a ='1.1';
+select * from t1;
+a	b	c	d	e
+NULL	2024-07-15	NULL	NULL	NULL
+	2024-07-15			
+a	2024-07-15	a	a	a
+1	2024-07-15	1	1	1
+1.1	2024-07-15		1.1	1.1
+1.100000	2024-07-15	1.100000	1.100000	1.100000
+update t1 set d='a' where a ='1';
+select * from t1;
+a	b	c	d	e
+NULL	2024-07-15	NULL	NULL	NULL
+	2024-07-15			
+a	2024-07-15	a	a	a
+1	2024-07-15	1	a	1
+1.1	2024-07-15		1.1	1.1
+1.100000	2024-07-15	1.100000	1.100000	1.100000
+drop table t1;
+create table t1 (b tinytext,c tinytext);
+insert into t1 values('a','b');
+update t1 set c='a' where b ='a';
+insert into t1 values('aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc','kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc');
+select * from t1;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc	kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc
+create table t2 (b text,c text);
+insert into t2 values('a','b');
+update t2 set c='a' where b ='a';
+insert into t2 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t2;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+create table t3 (b mediumtext,c mediumtext);
+insert into t3 values('a','b');
+update t3 set c='a' where b ='a';
+insert into t3 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t3;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+create table t4 (b longtext,c longtext);
+insert into t4 values('a','b');
+update t4 set c='a' where b ='a';
+insert into t4 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t4;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+update t1 set c=concat(b,c);
+ERROR 25S03: YAO-119: Lob is too long, tname[test.t1], cname[c], clength[257]
+delete from t1 where b='a';
+delete from t2 where b='a';
+delete from t3 where b='a';
+delete from t4 where b='a';
+drop table t1,t2,t3,t4;
+create table t1 (a int primary key,b tinytext);
+insert into t1 (a,b) values(1,'abc');
+select * from t1 where b='abc';
+a	b
+1	abc
+create table t2 (a int primary key,b text);
+insert into t2 (a,b) values(1,'abc');
+select * from t2 where b='abc';
+a	b
+1	abc
+create table t3 (a int primary key,b mediumtext);
+insert into t3 (a,b) values(1,'abc');
+select * from t3 where b='abc';
+a	b
+1	abc
+create table t4 (a int primary key,b longtext);
+insert into t4 (a,b) values(1,'abc');
+select * from t4 where b='abc';
+a	b
+1	abc
+select b from t4 order by b desc ;
+b
+abc
+insert into t1 values(2,'1'),(3,'abc');
+select b from t1 where b not in (select b from t1 where b='1');
+b
+abc
+abc
+insert into t2 values(2,'1'),(3,'abc');
+select b from t2 where b not in (select b from t2 where b='1');
+b
+abc
+abc
+insert into t2 values(4,'1'),(5,'abc');
+select 2 from t2 where b in(select b from t2) ;
+2
+2
+2
+2
+2
+2
+drop table t3,t4;
+create table t3(b mediumtext);
+insert into t3 values('abc'),('def');
+select count(*)from t3 where b in (select b  from t3 bb where bb.b='abc');
+count(*)
+1
+create table t4(b longtext);
+insert into t4 values('abc'),('def');
+select count(*)from t4 where b in (select b  from t4 bb where bb.b='abc');
+count(*)
+1
+create table t5(a int primary key,b tinytext);
+create table t5_1(a int primary key,b tinytext);
+insert into t5(a,b) values(1,'1'),(2,'abc');
+insert into t5_1(a,b) values(1,'abc');
+select count(*)from t5 where b in (select b from t5_1);
+count(*)
+1
+create table t6(a int primary key,b text);
+create table t6_1(a int primary key,b text);
+insert into t6(a,b) values(1,'1'),(2,'abc');
+insert into t6_1(a,b) values(1,'abc');
+select count(*)from t6 where b in (select b from t6_1);
+count(*)
+1
+create table t7(a int primary key,b mediumtext);
+create table t7_1(a int primary key,b mediumtext);
+insert into t7(a,b) values(1,'1'),(2,'abc');
+insert into t7_1(a,b) values(1,'abc');
+select count(*)from t7 where b in (select b from t7_1);
+count(*)
+1
+create table t8(a int primary key,b longtext);
+create table t8_1(a int primary key,b longtext);
+insert into t8(a,b) values(1,'1'),(2,'abc');
+insert into t8_1(a,b) values(1,'abc');
+select count(*)from t8 where b in (select b from t8_1);
+count(*)
+1
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+create table t1(a int primary key,b tinytext,c text,d mediumtext,e longtext);
+insert into t1 values(1,'abc','abc','abc','abc');
+select count(*)from t1 where b in (select ord(b) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(c) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(d) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(e) from t1);
+count(*)
+0
+insert into t1 values(2,'testaaa','testaaa','testaaa','testaaa');
+insert into t1 values(3,'testaaa','testaaa','testaaa','testaaa');
+select b,c,ord(b),ord(c) from t1;
+b	c	ord(b)	ord(c)
+abc	abc	97	97
+testaaa	testaaa	116	116
+testaaa	testaaa	116	116
+select max(b),max(c),max(d),max(e) from t1;
+max(b)	max(c)	max(d)	max(e)
+testaaa	testaaa	testaaa	testaaa
+select min(b),min(c),min(d),min(e) from t1 ;
+min(b)	min(c)	min(d)	min(e)
+abc	abc	abc	abc
+select sum(b) from t1;
+sum(b)
+0
+select avg(b) from t1 ;
+avg(b)
+0
+select b,instr(b, 'a') from t1;
+b	instr(b, 'a')
+abc	1
+testaaa	5
+testaaa	5
+select b,left(b, 3),c,right(c,2) from t1;
+b	left(b, 3)	c	right(c,2)
+abc	abc	abc	bc
+testaaa	tes	testaaa	aa
+testaaa	tes	testaaa	aa
+select b,c,substr(b,2),substr(c,2,3) from t1;
+b	c	substr(b,2)	substr(c,2,3)
+abc	abc	bc	bc
+testaaa	testaaa	estaaa	est
+testaaa	testaaa	estaaa	est
+select b,c,concat(b,c),concat(b,' qwe'),concat('ghy ',c) from t1;
+b	c	concat(b,c)	concat(b,' qwe')	concat('ghy ',c)
+abc	abc	abcabc	abc qwe	ghy abc
+testaaa	testaaa	testaaatestaaa	testaaa qwe	ghy testaaa
+testaaa	testaaa	testaaatestaaa	testaaa qwe	ghy testaaa
+select b from t1 group by b;
+b
+abc
+testaaa
+select b from t1 having sum(b)<4;
+b
+abc
+drop table t1;
+create table t1(b tinytext);
+insert into t1(b) values('1'),('abc'),('def');
+select * from t1 where b='1' or b = 'abc' ;
+b
+1
+abc
+create table t2(b text);
+insert into t2(b) values('1'),('abc'),('def');
+select * from t2 where b='2' or b = 'abc' ;
+b
+abc
+create table t3(b text ,c mediumtext);
+create table t4(a text, b tinytext,c longtext);
+insert into t3 values(1,'1'),(2,'abc');
+insert into t4 values(1,'abc','abc');
+select b from t3  union select a from t4;
+b
+1
+2
+select b from t3  except select a from t4;
+b
+2
+select count(*)  from t3 right join t4 on t3.b = t4.b;
+count(*)
+1
+select count(*)  from t3 left join t4 on t3.b = t4.b;
+count(*)
+2
+select b from t3 where b between '1' and 'abc';
+b
+1
+2
+select b from t1 where b is not null;
+b
+1
+abc
+def
+select b from t2 where b is not null;
+b
+1
+abc
+def
+select b is not null from t3;
+b is not null
+1
+1
+select b is not null from t4;
+b is not null
+1
+drop table t1,t2,t3,t4;
+create table t1(b TinyBlob);
+create table t2(b Blob);
+create table t3(b MediumBlob);
+create table t4(b LongBlob);
+create table t5(a int,b TinyBlob,c varchar(20));
+create table t6(a int,b Blob,c varchar(20));
+create table t7(a int,b MediumBlob,c varchar(20));
+create table t8(a int,b LongBlob,c varchar(20));
+create table t9(b TinyBlob, c TinyBlob, d Blob,e MediumBlob,f LongBlob);
+drop table t1,t2,t3,t4,t5,t6,t7,t8,t9;
+create table t1(a int,b TinyBlob(20),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b MediumBlob(0),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b LongBlob(9999999999),c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int,b Blob(20),c Blob(0),d Blob(9999999999));
+ERROR HY000: YAO-19: Display width out of range for column 'd' (max = 536870911)
+create table t1(b TinyBlob default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t1(b Blob default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t1(b MediumBlob default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t1(b LongBlob default '1');
+ERROR HY000: YAO-6003: BLOB/TEXT column 'b' can't have a default value
+create table t1(a int primary key,b TinyBlob not null,c varchar(20));
+create table t2(a int primary key,b Blob not null,c varchar(20));
+create table t3(a int primary key,b MediumBlob not null,c varchar(20));
+create table t4(a int primary key,b LongBlob not null,c varchar(20));
+create table t5(a int primary key,b TinyBlob,c varchar(20));
+create table t6(a int primary key,b Blob,c varchar(20));
+create table t7(a int primary key,b LongBlob,c varchar(20));
+create table t8(a int primary key,b MediumBlob,c varchar(20));
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+create table t1(a int ,b TinyBlob primary key,c varchar(20));
+ERROR HY000: YAO-5006: tinytext column 'b' can not be primary key
+create table t1(a int ,b Blob primary key,c varchar(20));
+ERROR HY000: YAO-5006: text column 'b' can not be primary key
+create table t1(a int ,b MediumBlob primary key,c varchar(20));
+ERROR HY000: YAO-5006: mediumtext column 'b' can not be primary key
+create table t1(a int ,b LongBlob primary key,c varchar(20));
+ERROR HY000: YAO-5006: longtext column 'b' can not be primary key
+create table t1(a int ,b TinyBlob(20) primary key,c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int ,b Blob(0) primary key,c varchar(20));
+ERROR HY000: YAO-5006: tinytext column 'b' can not be primary key
+create table t1(a int ,b MediumBlob(99999999999) primary key,c varchar(20));
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create table t1(a int ,b LongBlob primary key,c varchar(20));
+ERROR HY000: YAO-5006: longtext column 'b' can not be primary key
+create table t1(a int,b TinyBlob,c varchar(20),d Blob,e MediumBlob,f LongBlob,j json,h bit(1));
+create index idx1 on t1(a);
+create index idx2 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx2 on t1(a,b(20));
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx3 on t1(d(20));
+ERROR HY000: YAO-6001: Index Columns d is LOB type. Can not be index colum!
+create index idx4 on t1(e);
+ERROR HY000: YAO-6001: Index Columns e is LOB type. Can not be index colum!
+create index idx5 on t1(f);
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+create unique index idx6 on t1(a,b(20));
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create unique index idx7 on t1(c);
+create unique index idx8 on t1(f);
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1');
+drop table t1;
+create table t1(a int primary key,b tinyblob,c varchar(20),d blob,e mediumblob,f longblob,j json,h bit(1),k tinytext);
+create index idx1 on t1(a);
+create index idx2 on t1(a,b(20));
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create index idx3 on t1(d);
+ERROR HY000: YAO-6001: Index Columns d is LOB type. Can not be index colum!
+create index idx4 on t1(e(20));
+ERROR HY000: YAO-6001: Index Columns e is LOB type. Can not be index colum!
+create unique index idx5 on t1(a,b);
+ERROR HY000: YAO-6001: Index Columns b is LOB type. Can not be index colum!
+create unique index idx6 on t1(c);
+create unique index idx7 on t1(f(20));
+ERROR HY000: YAO-6001: Index Columns f is LOB type. Can not be index colum!
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1','testaaa');
+update t1 set b='a' where a =1;
+show create index on t1;
+index_definition
+CREATE INDEX idx1 ON t1 (a );
+CREATE UNIQUE INDEX idx6 ON t1 (c );
+select * from t1;
+a	b	c	d	e	f	j	h	k
+1	a	abc	abc	abc	abc	{"abc": 1, "def": null, "hig": "aaa", "bool": false}		testaaa
+select * from t1 where b='a';
+a	b	c	d	e	f	j	h	k
+1	a	abc	abc	abc	abc	{"abc": 1, "def": null, "hig": "aaa", "bool": false}		testaaa
+delete from t1 where b='a';
+select * from t1;
+a	b	c	d	e	f	j	h	k
+alter table t1 drop d;
+alter table t1 drop e;
+alter table t1 drop f;
+alter table t1 drop k;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+b	tinyblob	YES		NULL	
+c	varchar(20)	YES	UNI	NULL	
+j	json	YES		NULL	
+h	bit(1)	YES		NULL	
+alter table t1 add dd Blob;
+alter table t1 add ee MediumBlob;
+alter table t1 add ff LongBlob;
+alter table t1 add kk TinyBlob;
+desc t1;
+Field	Type	Null	Key	Default	Extra
+a	int(10)	YES	PRI	NULL	
+b	tinyblob	YES		NULL	
+c	varchar(20)	YES	UNI	NULL	
+j	json	YES		NULL	
+h	bit(1)	YES		NULL	
+dd	blob	YES		NULL	
+ee	mediumblob	YES		NULL	
+ff	longblob	YES		NULL	
+kk	tinyblob	YES		NULL	
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+a INT(10),
+b tinyblob,
+c VARCHAR (20) COLLATE 'utf8mb4_general_ci',
+j JSON,
+h BIT,
+dd blob,
+ee mediumblob,
+ff longblob,
+kk tinyblob,
+ PRIMARY KEY(a),
+ UNIQUE KEY idx6(c),
+ KEY idx1(a)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+show full columns from t1;
+Field	Type	Collation	Null	Key	Default	Extra	Privileges	Comment
+a	int(10)	NULL	YES	PRI	NULL		select,insert,update,references	
+b	tinyblob	binary	YES		NULL		select,insert,update,references	
+c	varchar(20)	utf8mb4_general_ci	YES	MUL	NULL		select,insert,update,references	
+j	json	NULL	YES		NULL		select,insert,update,references	
+h	bit(1)	NULL	YES		NULL		select,insert,update,references	
+dd	blob	binary	YES		NULL		select,insert,update,references	
+ee	mediumblob	binary	YES		NULL		select,insert,update,references	
+ff	longblob	binary	YES		NULL		select,insert,update,references	
+kk	tinyblob	binary	YES		NULL		select,insert,update,references	
+drop table t1;
+create table t1(a tinyblob,b mediumblob,c longblob,d blob,e blob(20));
+insert into t1 values(null,null,null,null,null);
+insert into t1 values('','','','','');
+insert into t1 values('a','a','a','a','a');
+insert into t1 values('1','1','1','1','1');
+insert into t1 values('1.1','1.1','1.1','1.1','1.1');
+insert into t1 values(cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double));
+update t1 set b=null where a ='1';
+select * from t1;
+a	b	c	d	e
+NULL	NULL	NULL	NULL	NULL
+				
+a	a	a	a	a
+1	NULL	1	1	1
+1.1	1.1	1.1	1.1	1.1
+1.100000	1.100000	1.100000	1.100000	1.100000
+update t1 set c='' where a ='1.1';
+select * from t1;
+a	b	c	d	e
+NULL	NULL	NULL	NULL	NULL
+				
+a	a	a	a	a
+1	NULL	1	1	1
+1.1	1.1		1.1	1.1
+1.100000	1.100000	1.100000	1.100000	1.100000
+update t1 set d='a' where a ='1';
+select * from t1;
+a	b	c	d	e
+NULL	NULL	NULL	NULL	NULL
+				
+a	a	a	a	a
+1	NULL	1	a	1
+1.1	1.1		1.1	1.1
+1.100000	1.100000	1.100000	1.100000	1.100000
+drop table t1;
+create table t1 (b tinyblob,c tinyblob);
+insert into t1 values('a','b');
+update t1 set c='a' where b ='a';
+insert into t1 values('aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc','kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc');
+select * from t1;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc	kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc
+create table t2 (b blob,c blob);
+insert into t2 values('a','b');
+update t2 set c='a' where b ='a';
+insert into t2 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t2;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+create table t3 (b mediumblob,c mediumblob);
+insert into t3 values('a','b');
+update t3 set c='a' where b ='a';
+insert into t3 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t3;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+create table t4 (b mediumblob,c mediumblob);
+insert into t4 values('a','b');
+update t4 set c='a' where b ='a';
+insert into t4 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t4;
+b	c
+a	a
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+update t1 set c=concat(b,c);
+ERROR 25S03: YAO-119: Lob is too long, tname[test.t1], cname[c], clength[257]
+delete from t1 where b='a';
+delete from t2 where b='a';
+delete from t3 where b='a';
+delete from t4 where b='a';
+drop table t1,t2,t3,t4;
+create table t1 (a int primary key,b tinyblob);
+insert into t1 (a,b) values(1,'abc');
+select * from t1 where b='abc';
+a	b
+1	abc
+select b from t1 order by b desc ;
+b
+abc
+create table t2 (a int primary key,b blob);
+insert into t2 (a,b) values(1,'abc');
+select * from t2 where b='abc';
+a	b
+1	abc
+select b from t2 order by b desc ;
+b
+abc
+create table t3 (a int primary key,b mediumblob);
+insert into t3 (a,b) values(1,'abc');
+select * from t3 where b='abc';
+a	b
+1	abc
+select b from t3 order by b desc ;
+b
+abc
+create table t4 (a int primary key,b longblob);
+insert into t4 (a,b) values(1,'abc');
+select * from t4 where b='abc';
+a	b
+1	abc
+select b from t4 order by b desc ;
+b
+abc
+insert into t1 values(2,'1'),(3,'abc');
+select b from t1 where b not in (select b from t1 where b='1');
+b
+abc
+abc
+insert into t2 values(2,'1'),(3,'abc');
+select b from t2 where b not in (select b from t2 where b='1');
+b
+abc
+abc
+insert into t2 values(4,'1'),(5,'abc');
+select 2 from t2 where b in(select b from t2) ;
+2
+2
+2
+2
+2
+2
+drop table t3,t4;
+create table t3(b mediumtext);
+insert into t3 values('abc'),('def');
+select count(*)from t3 where b in (select b  from t3 bb where bb.b='abc');
+count(*)
+1
+create table t4(b longtext);
+insert into t4 values('abc'),('def');
+select count(*)from t4 where b in (select b  from t4 bb where bb.b='abc');
+count(*)
+1
+drop table t5_1,t6_1,t7_1,t8_1;
+create table t5(a int primary key,b tinyblob);
+create table t5_1(a int primary key,b tinyblob);
+insert into t5(a,b) values(1,'1'),(2,'abc');
+insert into t5_1(a,b) values(1,'abc');
+select count(*)from t5 where b in (select b from t5_1);
+count(*)
+1
+create table t6(a int primary key,b blob);
+create table t6_1(a int primary key,b blob);
+insert into t6(a,b) values(1,'1'),(2,'abc');
+insert into t6_1(a,b) values(1,'abc');
+select count(*)from t6 where b in (select b from t6_1);
+count(*)
+1
+create table t7(a int primary key,b mediumblob);
+create table t7_1(a int primary key,b mediumblob);
+insert into t7(a,b) values(1,'1'),(2,'abc');
+insert into t7_1(a,b) values(1,'abc');
+select count(*)from t7 where b in (select b from t7_1);
+count(*)
+1
+create table t8(a int primary key,b longblob);
+create table t8_1(a int primary key,b longblob);
+insert into t8(a,b) values(1,'1'),(2,'abc');
+insert into t8_1(a,b) values(1,'abc');
+select count(*)from t8 where b in (select b from t8_1);
+count(*)
+1
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+create table t1(a int primary key,b tinyblob,c blob,d mediumblob,e longblob);
+insert into t1 values(1,'abc','abc','abc','abc');
+select count(*)from t1 where b in (select ord(b) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(c) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(d) from t1);
+count(*)
+0
+select count(*)from t1 where b in (select ord(e) from t1);
+count(*)
+0
+insert into t1 values(2,'testaaa','testaaa','testaaa','testaaa');
+insert into t1 values(3,'testaaa','testaaa','testaaa','testaaa');
+select b,c,ord(b),ord(c) from t1;
+b	c	ord(b)	ord(c)
+abc	abc	97	97
+testaaa	testaaa	116	116
+testaaa	testaaa	116	116
+select max(b),max(c),max(d),max(e) from t1;
+max(b)	max(c)	max(d)	max(e)
+testaaa	testaaa	testaaa	testaaa
+select min(b),min(c),min(d),min(e) from t1 ;
+min(b)	min(c)	min(d)	min(e)
+abc	abc	abc	abc
+select sum(b) from t1;
+sum(b)
+0
+select avg(b) from t1 ;
+avg(b)
+0
+select b,instr(b, 'a') from t1;
+b	instr(b, 'a')
+abc	1
+testaaa	5
+testaaa	5
+select b,left(b, 3),c,right(c,2) from t1;
+b	left(b, 3)	c	right(c,2)
+abc	abc	abc	bc
+testaaa	tes	testaaa	aa
+testaaa	tes	testaaa	aa
+select b,c,substr(b,2),substr(c,2,3) from t1;
+b	c	substr(b,2)	substr(c,2,3)
+abc	abc	bc	bc
+testaaa	testaaa	estaaa	est
+testaaa	testaaa	estaaa	est
+select b,c,concat(b,c),concat(b,' qwe'),concat('ghy ',c) from t1;
+b	c	concat(b,c)	concat(b,' qwe')	concat('ghy ',c)
+abc	abc	abcabc	abc qwe	ghy abc
+testaaa	testaaa	testaaatestaaa	testaaa qwe	ghy testaaa
+testaaa	testaaa	testaaatestaaa	testaaa qwe	ghy testaaa
+select 2 from t1 where b in(select b from t1) ;
+2
+2
+2
+2
+select b from t1 group by b;
+b
+abc
+testaaa
+select b from t1 having sum(b)<4;
+b
+abc
+drop table t1;
+create table t1(b tinyblob);
+insert into t1(b) values('1'),('abc'),('def');
+select * from t1 where b='5' or b = 'abc' ;
+b
+abc
+create table t2(b blob);
+insert into t2(b) values('1'),('abc'),('def');
+select * from t2 where b='6' or b = 'abc' ;
+b
+abc
+create table t3(b text ,c mediumblob);
+create table t4(a text,b tinytext,c longblob);
+insert into t3 values(1,'1'),(2,'abc');
+insert into t4 values(1,'abc','abc');
+select b from t3  union select a from t4;
+b
+1
+2
+select b from t3  except select a from t4;
+b
+2
+select count(*) from t3 right join t4 on t3.b = t4.b;
+count(*)
+1
+select count(*) from t3 left join t4 on t3.b = t4.b;
+count(*)
+2
+select b from t3 where b between '1' and 'abc';
+b
+1
+2
+select * from t3 where c like 'a%';
+b	c
+2	abc
+select b from t1 where b is not null;
+b
+1
+abc
+def
+select b from t2 where b is not null;
+b
+1
+abc
+def
+select b is not null from t3;
+b is not null
+1
+1
+select b is not null from t4;
+b is not null
+1
+drop table t1,t2,t3,t4;
+CREATE TABLE t1 (c1 INT PRIMARY KEY,c2 TEXT);
+CREATE TABLE tt1 (article_id INT PRIMARY KEY,title VARCHAR(255),c1 INT,FOREIGN KEY (c1) REFERENCES t1(c1));
+INSERT INTO t1 (c1, c2) VALUES (1, 'This is the c2 of Article 1.');
+INSERT INTO tt1 (article_id, title, c1) VALUES (1, 'Article 1 Title', 1);
+SELECT ac.c2, am.title FROM t1 ac JOIN tt1 am ON ac.c1 = am.c1 WHERE am.article_id = 1;
+c2	title
+This is the c2 of Article 1.	Article 1 Title
+DELETE FROM tt1 WHERE article_id = 1;
+drop table tt1,t1;
+CREATE TABLE t1 (c1 INT PRIMARY KEY,c2 VARCHAR(100),c3 INT);
+CREATE TABLE t2 (c1 INT PRIMARY KEY,c2 TEXT);
+insert into  t1 values(1,'aaaaa',1),(2,'bbbbb',2);
+insert into  t2 values(1,'ccccc'),(2,'dddddd'),(3,'eeeee');
+CREATE VIEW v AS SELECT am.c1,ac.c2 FROM t1 am JOIN t2 ac ON am.c3 = ac.c1;
+SELECT * FROM v;
+c1	c2
+1	ccccc
+2	dddddd
+UPDATE t2 SET c2 = 'Updated c2 for Article 1' WHERE c1 = 1;
+SELECT * FROM v;
+c1	c2
+1	Updated c2 for Article 1
+2	dddddd
+CREATE TABLE t3 (
+t1_id int NOT NULL auto_increment,
+_field_72 varchar(128) NOT NULL,
+_field_95 varchar(32),
+_field_115 text NOT NULL,
+_field_122 text NOT NULL,
+_field_126 text,
+_field_134 text,
+PRIMARY KEY (t1_id),
+UNIQUE _field_72 (_field_72),
+KEY _field_115 (_field_115),
+KEY _field_122 (_field_122)
+);
+INSERT INTO t3 VALUES (1,'admin','21232f297a57a5a743894a0e4a801fc3','1111111111111','1111111111111','1111111111111','1111111111111');
+INSERT INTO t3 VALUES (2,'hroberts','7415275a8c95952901e42b13a6b78566','1111111111111','1111111111111','1111111111111','1111111111111');
+INSERT INTO t3 VALUES (3,'guest','d41d8cd98f00b204e9800998ecf8427e','1111111111111','1111111111111','1111111111111','1111111111111');
+select count(*) from t3 where _field_72='admin';
+count(*)
+1
+drop table t1,t2,t3;
+create table t1(
+c1 TinyText character set utf8 comment 'TinyText',
+c2 Text comment 'Text',
+c3 MediumText charset 'gbk' collate 'gbk_bin'  NOT NULL COMMENT 'MediumText',
+c4 LongText  comment 'LongText',
+c5 TinyBlob comment 'TinyBlob',
+c6 Blob NULL comment '二进制',
+c7 MediumBlob comment 'MediumBlob',
+c8 LongBlob comment 'LongBlob',
+c9 json comment 'json', 
+c10 bit(1) DEFAULT b'0' comment 'bit',
+c11 date comment '时间',
+c12 varchar(30) comment '字符串',
+c13 float comment '浮点类型')CHARACTER SET gbk comment = 'table comment';
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c1 tinytext COLLATE 'utf8mb4_general_ci' COMMENT 'TinyText' ,
+c2 text COLLATE 'gbk_chinese_ci' COMMENT 'Text' ,
+c3 mediumtext COLLATE 'gbk_bin' NOT NULL COMMENT 'MediumText' ,
+c4 longtext COLLATE 'gbk_chinese_ci' COMMENT 'LongText' ,
+c5 tinyblob COMMENT 'TinyBlob' ,
+c6 blob COMMENT '二进制' ,
+c7 mediumblob COMMENT 'MediumBlob' ,
+c8 longblob COMMENT 'LongBlob' ,
+c9 JSON COMMENT 'json' ,
+c10 BIT DEFAULT 0 COMMENT 'bit' ,
+c11 date COMMENT '时间' ,
+c12 VARCHAR (30) COLLATE 'gbk_chinese_ci' COMMENT '字符串' ,
+c13 FLOAT COMMENT '浮点类型' 
+) COMMENT = 'table comment', COLLATE = 'gbk_chinese_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t2 (a tinytext character set latin1);
+alter table t2 convert to character set utf8;
+show create table t2;
+Table	Create Table
+test.t2	CREATE TABLE t2 (
+a tinytext COLLATE 'latin1_swedish_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+create table t3 (a mediumtext character set latin1);
+alter table t3 convert to character set utf8;
+show create table t3;
+Table	Create Table
+test.t3	CREATE TABLE t3 (
+a mediumtext COLLATE 'latin1_swedish_ci'
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+drop table t1,t2,t3;
+DROP TABLE IF EXISTS date_table;
+CREATE TABLE date_table (
+id INT  PRIMARY KEY COMMENT '主键',
+datetime_value DATETIME COMMENT '日期和时间类型',
+timestamp_value TIMESTAMP COMMENT '时间戳类型，自动更新',
+date_value DATE DEFAULT '1970-01-01' COMMENT '日期类型'
+) COMMENT='包含日期和时间类型的示例表';
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (1, '2014-11-17 12:43:26', '2001-04-02 07:12:47', '2011-10-08');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (2, '2012-09-28 02:15:34', '2022-10-20 21:26:18', '2014-03-15');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (3, '2007-11-20 22:14:07', '2008-12-26 17:33:32', '2008-05-14');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (4, '2021-05-12 13:17:37', '2007-08-30 05:21:12', '2012-05-26');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (5, '2016-06-13 11:49:08', '2009-10-28 05:58:49', '2022-05-06');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (6, '2019-08-27 22:41:17', '2003-12-29 23:09:51', '2015-10-01');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (7, '2018-12-18 14:03:42', '2005-03-21 10:21:57', '2017-05-02');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (8, '2006-08-12 08:25:25', '2010-07-20 14:36:27', '2005-07-25');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (9, '2011-12-12 06:02:31', '2003-07-03 17:42:13', '2001-04-02');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (10, '2012-10-30 06:43:14', '2017-05-17 06:16:27', '2003-08-18');
+show create table date_table;
+Table	Create Table
+test.date_table	CREATE TABLE date_table (
+id INT(10) COMMENT '主键' ,
+datetime_value DATETIME COMMENT '日期和时间类型' ,
+timestamp_value DATETIME COMMENT '时间戳类型，自动更新' ,
+date_value date DEFAULT '1970-01-01' COMMENT '日期类型' ,
+ PRIMARY KEY(id)
+) COMMENT = '包含日期和时间类型的示例表', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+CREATE FUNCTION f1() RETURNS TINYBLOB 
+BEGIN
+RETURN 1;
+end//
+CREATE FUNCTION merge_blobs(blob1 BLOB, blob2 BLOB)RETURNS BLOB
+BEGIN
+DECLARE aaa BLOB;
+SELECT CONCAT(blob1, blob2) INTO aaa;
+RETURN aaa;
+END;//
+select merge_blobs('aaa','bbb')//
+merge_blobs('aaa','bbb')
+aaabbb

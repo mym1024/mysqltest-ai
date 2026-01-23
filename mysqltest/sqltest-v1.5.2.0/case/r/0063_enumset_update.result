@@ -1,0 +1,240 @@
+CREATE TABLE t_update_parent (
+parent_id INT PRIMARY KEY,
+parent_status ENUM('valid', 'invalid')
+);
+CREATE TABLE t_update_enum_set (
+id INT AUTO_INCREMENT,
+category ENUM('cat_a', 'cat_b', 'cat_c') NOT NULL DEFAULT 'cat_a',
+flags SET('flag1', 'flag2', 'flag3', 'flag4') NOT NULL,
+level ENUM('low', 'medium', 'high') DEFAULT 'medium',
+description VARCHAR(100),
+ref_id INT,
+PRIMARY KEY (id),
+KEY idx_category (category),
+KEY idx_flags (flags),
+CONSTRAINT fk_update_parent FOREIGN KEY (ref_id) REFERENCES t_update_parent(parent_id)
+);
+CREATE TABLE t_update_with_pk (
+pk_enum ENUM('pk_val1', 'pk_val2') PRIMARY KEY,
+pk_set SET('pk_s1', 'pk_s2') UNIQUE KEY,
+data VARCHAR(50)
+);
+INSERT INTO t_update_parent VALUES (1, 'valid'), (2, 'invalid');
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+SELECT * FROM t_update_enum_set ORDER BY id;
+id	category	flags	level	description	ref_id
+1	cat_a	flag1,flag3	high	Initial record 1	1
+2	cat_b	flag2	low	Initial record 2	2
+3	cat_a		medium	Initial record 3	1
+4	cat_c	flag1,flag2,flag4	high	Initial record 4	1
+5	cat_b	flag3,flag4	low	Initial record 5	2
+SELECT * FROM t_update_with_pk ORDER BY pk_enum;
+pk_enum	pk_set	data
+pk_val1	pk_s1	Data 1
+pk_val2	pk_s2	Data 2
+UPDATE t_update_enum_set SET category = 'cat_c', flags = 'flag2,flag4', level = 'low', description = 'Updated record 1' WHERE id = 1;
+Warnings:
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+SELECT * FROM t_update_enum_set WHERE id = 1;
+id	category	flags	level	description	ref_id
+1	cat_c	flag2,flag4	low	Updated record 1	1
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET level = 'high', description = CONCAT(description, ' - Upgraded') WHERE category = 'cat_b';
+SELECT * FROM t_update_enum_set WHERE category = 'cat_b';
+id	category	flags	level	description	ref_id
+2	cat_b	flag2	high	Initial record 2 - Upgraded	2
+5	cat_b	flag3,flag4	high	Initial record 5 - Upgraded	2
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET category = 2 WHERE id = 3;
+Warnings:
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	yaotxnsvr warning: subschema not exist in subschema mapping, subschema_id:16133, ret:-18
+SELECT * FROM t_update_enum_set WHERE id = 3;
+id	category	flags	level	description	ref_id
+3	cat_b		medium	Initial record 3	1
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET flags = CONCAT(flags, ',flag1') WHERE id = 2 AND NOT FIND_IN_SET('flag1', flags);
+Warnings:
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	yaotxnsvr warning: subschema not exist in subschema mapping, subschema_id:16133, ret:-18
+UPDATE t_update_enum_set SET flags = 'flag1,flag2,flag3' WHERE id = 2;
+Warnings:
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	yaotxnsvr warning: subschema not exist in subschema mapping, subschema_id:16133, ret:-18
+SELECT * FROM t_update_enum_set WHERE id = 2;
+id	category	flags	level	description	ref_id
+2	cat_b	flag1,flag2,flag3	low	Initial record 2	2
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET flags = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', flags, ','), ',flag3,', ',')) WHERE id = 4;
+Warnings:
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	failed to get subschema id by udt_id, ret:-16
+Warning	99999	yaotxnsvr warning: subschema not exist in subschema mapping, subschema_id:16133, ret:-18
+SELECT * FROM t_update_enum_set WHERE id = 4;
+id	category	flags	level	description	ref_id
+4	cat_c	flag1,flag2,flag4	high	Initial record 4	1
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET level = 'critical' WHERE id = 5;
+ERROR HY000: YAO-2: Invalid argument
+SELECT * FROM t_update_enum_set WHERE id = 5;
+id	category	flags	level	description	ref_id
+5	cat_b	flag3,flag4	low	Initial record 5	2
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET flags = 'flag2,invalid_flag' WHERE id = 5;
+ERROR HY000: YAO-5337: ERR DATA TRUNCATED
+SELECT * FROM t_update_enum_set WHERE id = 5;
+id	category	flags	level	description	ref_id
+5	cat_b	flag3,flag4	low	Initial record 5	2
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET ref_id = NULL, description = 'FK set to NULL' WHERE id = 1;
+SELECT id, ref_id, description FROM t_update_enum_set WHERE id = 1;
+id	ref_id	description
+1	NULL	FK set to NULL
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'Only description changed' WHERE id = 3;
+SELECT * FROM t_update_enum_set WHERE id = 3;
+id	category	flags	level	description	ref_id
+3	cat_a		medium	Only description changed	1
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'Category A processed' WHERE category = 'cat_a';
+SELECT * FROM t_update_enum_set WHERE category = 'cat_a';
+id	category	flags	level	description	ref_id
+1	cat_a	flag1,flag3	high	Category A processed	1
+3	cat_a		medium	Category A processed	1
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET level = 'medium' WHERE FIND_IN_SET('flag4', flags) > 0;
+SELECT * FROM t_update_enum_set WHERE FIND_IN_SET('flag4', flags) > 0;
+id	category	flags	level	description	ref_id
+4	cat_c	flag1,flag2,flag4	medium	Initial record 4	1
+5	cat_b	flag3,flag4	medium	Initial record 5	2
+truncate table t_update_enum_set;
+INSERT INTO t_update_enum_set (category, flags, level, description, ref_id) VALUES
+('cat_a', 'flag1,flag3', 'high', 'Initial record 1', 1),
+('cat_b', 'flag2', 'low', 'Initial record 2', 2),
+('cat_a', '', 'medium', 'Initial record 3', 1),
+('cat_c', 'flag1,flag2,flag4', 'high', 'Initial record 4', 1),
+('cat_b', 'flag3,flag4', 'low', 'Initial record 5', 2);
+UPDATE t_update_enum_set SET description = 'High priority flag1 item' WHERE level = 'high' AND FIND_IN_SET('flag1', flags) > 0;
+SELECT * FROM t_update_enum_set WHERE level = 'high' AND FIND_IN_SET('flag1', flags) > 0;
+id	category	flags	level	description	ref_id
+1	cat_a	flag1,flag3	high	High priority flag1 item	1
+4	cat_c	flag1,flag2,flag4	high	High priority flag1 item	1
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+SELECT * FROM t_update_with_pk WHERE pk_enum = 'pk_val1';
+pk_enum	pk_set	data
+pk_val1	pk_s1	Data 1
+UPDATE t_update_with_pk SET pk_enum = 'pk_val1_updated';
+ERROR 25S03: YAO-119: Invalid argument, error code = -2
+SELECT * FROM t_update_with_pk WHERE pk_enum = 'pk_val1';
+pk_enum	pk_set	data
+pk_val1	pk_s1	Data 1
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+SELECT * FROM t_update_with_pk WHERE pk_set = 'pk_s2';
+pk_enum	pk_set	data
+pk_val2	pk_s2	Data 2
+UPDATE t_update_with_pk SET data = 'Data 2 Updated' WHERE pk_set = 'pk_s2';
+SELECT * FROM t_update_with_pk WHERE pk_set = 'pk_s2';
+pk_enum	pk_set	data
+pk_val2	pk_s2	Data 2 Updated
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+UPDATE t_update_with_pk SET pk_enum = 'pk_val1' WHERE pk_enum = 'pk_val2';
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+UPDATE t_update_with_pk SET pk_set = 'pk_s1' WHERE pk_enum = 'pk_val2';
+ERROR 25S03: YAO-119: Duplicated primary key, error code = -5024
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+UPDATE t_update_enum_set SET ref_id = 9999 WHERE id = 2;
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+truncate table t_update_with_pk;
+INSERT INTO t_update_with_pk VALUES ('pk_val1', 'pk_s1', 'Data 1'), ('pk_val2', 'pk_s2', 'Data 2');
+UPDATE t_update_enum_set SET flags = NULL  WHERE id = 1;
+ERROR HY000: YAO-5501: add setoperator failed, err=-5501
+SELECT * FROM t_update_enum_set ORDER BY id;
+id	category	flags	level	description	ref_id
+1	cat_a	flag1,flag3	high	High priority flag1 item	1
+2	cat_b	flag2	low	Initial record 2	2
+3	cat_a		medium	Initial record 3	1
+4	cat_c	flag1,flag2,flag4	high	High priority flag1 item	1
+5	cat_b	flag3,flag4	low	Initial record 5	2
+SELECT * FROM t_update_with_pk ORDER BY pk_enum;
+pk_enum	pk_set	data
+pk_val1	pk_s1	Data 1
+pk_val2	pk_s2	Data 2
+DROP TABLE t_update_with_pk;
+DROP TABLE t_update_enum_set;
+DROP TABLE t_update_parent;

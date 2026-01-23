@@ -1,0 +1,921 @@
+##############################################################################################
+###1.测试功能点：测试存储过程循环控制功能
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：wubw
+###7.编写/修改日期：2024-03-22
+###8.其他（选填）：新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+
+connection conn1;
+--disable_warnings
+
+###准备表数据
+create table proc_test(id int  primary key, age int, name varchar(20)); 
+insert into proc_test values(2,2,'a'),(3,3,'a'),(4,4,'a');
+select * from proc_test;
+
+###2-1、WHILE语句
+#WHILE语句中批量insert语句
+delimiter //;
+create procedure p() 
+begin 
+declare i int default 7; 
+declare j int default 8;
+while i<10 do insert into proc_test values(i,i,'a'),(j,j,'b'); 
+set i=i+2,j=j+2;
+end while;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 简单update语句,update语句修改非主键列
+create procedure p() 
+begin 
+declare i int default 1;
+while i<3 do update proc_test set age = i+7 where id = i;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 简单update语句,update语句修改主键列
+create procedure p() 
+begin 
+declare i int default 1;
+while i<3 do update proc_test set id = i+10 where id = i;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中delete语句
+create procedure p() 
+begin declare i int default 1;
+while i<3 do delete from proc_test where id = i+10;
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句where子句简单子查询
+create procedure p() 
+begin 
+declare a int default 11; 
+declare i int default 1;
+while i<3 do select * from proc_test where id = (select age from proc_test where id = 3);
+set i=i+1;
+end while;
+select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句where子句and条件与in子查询
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from proc_test where age = a-6 and id in (select age from proc_test where id < 5); 
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句where子句嵌套多层子查询
+create procedure p() 
+begin 
+declare a int default 9; 
+declare i int default 1; 
+while i<3 do select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test)); 
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句where子句join连接子查询
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test));
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句from子句嵌套子查询
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1; 
+while i<3 do select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 6 and id in (select age from proc_test where age in (select age from proc_test));
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句from子句嵌套子查询,group by,order by,limit
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1;
+while i<3 do select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 2 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句union
+create procedure p() 
+begin 
+declare a int default 9;
+declare i int default 1;
+while i<3 do select * from proc_test union select * from proc_test;
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 select语句union all
+create procedure p() 
+begin 
+declare a int default 10;
+declare i int default 1;
+while i<3 do select * from proc_test union all select * from proc_test;
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式为多个子查询组成
+create procedure p() 
+begin 
+declare a int default 1; 
+declare b int default 2; 
+declare i int default 1; 
+while i<3 do if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) and b = (select count(1) from proc_test where id = (select count(1) from proc_test)) + 1 then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if a = (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式为纯子查询，子查询结果不为0
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式为纯子查询，子查询结果为0  
+create procedure p() 
+begin 
+declare a int default 1; 
+declare i int default 1; 
+while i<3 do if (select count(1)-1 from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中row_count函数
+create procedure p() 
+begin 
+declare i int default 1; 
+while i<3 do update proc_test set name = 'b' where id = 3; 
+if row_count() = 1 then select 1; 
+else select 2; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中locate函数
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+declare a int default 7; 
+if locate(str,a)=4 then delete from proc_test where id = a+1 ; 
+select * from proc_test; 
+else select 6 ; 
+end if; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中substring函数
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if substring(str,4) = 't' then select 1; 
+else select 2; 
+end if; 
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中substring_index函数
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default '10.68.14.152';
+while i<3 do if '10'=substring_index(str,'.',1) then select 1; 
+else select 2;
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中convert函数
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default '0';
+while i<3 do if convert(str,int) then select 1; 
+else select 2; 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中instr函数
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if instr(str,'t') = 1 then select 1; 
+else select 2; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句表达式中char_length函数
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+while i<3 do if char_length(str) = 4 then select 1; 
+else select 2; 
+end if;
+set i=i+1;
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中批量insert语句
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 13;
+while i<3 do if char_length(str) = 4 then insert into proc_test values(a,a+1,'a'),(a+1,a+2,'a');
+select * from proc_test;
+else select 3; 
+end if; 
+set a=a+2; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中简单update语句,update语句修改非主键列
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then update proc_test set age = 18 where id = a;
+select * from proc_test;
+else select 3; 
+end if; 
+set i=i+1; 
+set a=a+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中简单update语句,update语句修改主键列
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 16;
+declare i int default 1;
+while i<3 do if char_length(str) = 4 then update proc_test set id = a+1 where id = a;
+select * from proc_test;
+else select 5; 
+end if;
+set i=i+1; 
+set a=a-1;
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中delete语句
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 2;
+declare i int default 1; 
+while i<3 do if char_length(str) = 4 then delete from proc_test where id = a+1;
+select * from proc_test;else select 6; 
+end if;
+set i=i+1;
+set a=a+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句where子句in子查询
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then select * from proc_test where id in (select age from proc_test where id < a);
+else select 8; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句where子句嵌套多层子查询
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test';
+declare a int default 15;
+while i<3 do if char_length(str) = 4 then select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+else select 9; 
+end if; 
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句where子句join连接子查询
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test'; 
+declare a int default 15;
+while i<3 do if char_length(str) = 4 then select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test)); 
+end if; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句from子句嵌套子查询
+create procedure p() 
+begin 
+declare i int default 1;
+declare str varchar(20) default 'test'; 
+declare a int default 16;
+while i<3 do if char_length(str) = 4 then select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+else select 12;
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句from子句嵌套子查询,group by,order by,limit
+create procedure p() 
+begin 
+declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 13;
+while i<3 do if char_length(str) = 4 then select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+else select 15; 
+end if;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 IF语句中select语句union
+create procedure p() 
+begin declare i int default 1; 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+while i<3 do if char_length(str) = 4 then select * from proc_test union select * from proc_test;
+else select 16; 
+end if;
+set i=i+1;
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 CASE语句case表达式为子查询类型
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1;
+while i<3 do case (select count(1) from proc_test where id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case;
+set i=i+1; 
+end while; 
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中 CASE语句when表达式为子查询类型
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1;
+while i<3 do case a when (select count(1) from proc_test where id = (select count(1) from proc_test))  then select 1 from dual;
+else select 3 from dual; 
+end case; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中CASE语句case表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare i int default 1;
+declare a int default 1; 
+while i<3 do case (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+set i=i+1;
+end while;
+end;//
+call p()//
+drop procedure p//
+
+#WHILE语句中CASE语句when表达式为嵌套子查询,inner join
+create procedure p() 
+begin 
+declare i int default 1; 
+declare a int default 1;
+while i<3 do case a when (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 3 from dual; 
+end case; 
+set i=i+1; 
+end while;
+end;//
+call p()//
+drop procedure p//
+
+###2-2、LEAVE语句
+#leave语句出现在存储过程case..when..语句中，begin前有标签，且标签名和leave对应
+create procedure p()
+lb:begin 
+  case when 1=1 
+    then leave lb;
+  end case;
+end;//
+call p()//
+drop procedure p//
+
+#leave语句出现在while循环中，while前有标签，且标签名和leave标签名对应
+create procedure p()
+begin 
+  declare a int default 1;
+  lp:while a<3 
+       do leave lp;
+       leave lp;
+     end while;
+end;//
+call p()//
+drop procedure p//
+
+#leave语句出现在while循环中，while前无标签，loop、repeat语句前有标签，且和leave标签名一样
+create procedure p()
+begin 
+  declare a int default 1;
+  lp:loop set a=a+1;
+     leave lp;
+     end loop;
+     repeat set a=a+1; 
+       until a=3 
+     end repeat;
+     while a<3 
+       do leave lp;
+     end while;
+end;//
+call p()//
+drop procedure p//
+
+#leave语句出现在while循环、if..then语句中
+create procedure p() 
+begin
+  declare i int default 1;
+  a :while i < 10 do  
+       select i;
+    if i > 0 then
+      leave a;
+    end if;
+    set i = i+1;
+     end while ;
+end //
+call p()//
+drop procedure p//
+
+###2-3、ITERATE语句
+#iterate语句出现在存储过程case..when..语句中，begin前有标签，且标签名和iterate对应
+create procedure p()
+lb:begin 
+   case when 1=1 
+     then iterate lp;
+   end case;
+end;//
+--error 16
+call p()//
+drop procedure p//
+
+#iterate语句出现在loop循环中，loop前有标签，且标签名和iterate标签名对应
+create procedure p()
+begin 
+  declare a int default 1;
+  lp:loop 
+       if a=1 
+         then set a=a+1;
+         iterate lp;
+       end if;
+       leave lp;
+       set a=a+1;
+     end loop;
+end//
+call p()//
+drop procedure p//
+
+#iterate语句出现在repeat循环中，repeat前无标签，loop语句前有标签，且和iterate对应
+create procedure p()
+begin 
+  declare a int default 1;
+  lp:loop set a=a+1;
+       leave lp;
+     end loop;
+     repeat iterate lp;
+       until 1=1 
+     end repeat;
+end;//
+--error 16
+call p()//
+drop procedure p//
+
+#iterate语句出现在while循环中，while前有标签，begin前有标签，三者标签名一样
+create procedure p()
+lb:begin 
+     declare a int default 1;
+		 set a=a+1;
+     lb:while a<3 do 
+          iterate lb;
+        end while;
+end;//
+--error 6000
+call p();//
+drop procedure p//
+
+#iterate语句出现在while循环中，while前无标签，loop、repeat语句前有标签，且和iterate标签名一样
+create procedure p()
+begin 
+  declare a int default 1;
+  lp:loop set a=a+1;
+       leave lp;
+     end loop;
+     repeat set a=a+1; 
+       until a=3 
+     end repeat;
+     while a<3 do 
+       iterate lp;
+     end while;
+     select a;
+end;//
+call p()//
+drop procedure p//
+
+#iterate语句出现在while循环、if..then语句中
+create procedure p() 
+begin
+  declare i int default 1;
+  a :while i < 10 do 
+       set i = i+1;
+       if i < 9 
+         then iterate a;
+       end if;
+       select i;
+     end while ;
+end //
+call p()//
+drop procedure p//
+
+###2-4、LOOP语句
+#loop语句过程体为空
+create procedure p()
+begin 
+  loop 
+  end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为open，fetch，close游标语句
+create procedure p() 
+lb:begin 
+   declare a,b int;
+   declare csr cursor for select * from proc_test; 
+     loop 
+       open csr;
+       fetch csr into a,b;
+       close csr;
+       leave lb;   
+     end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为replace语句
+create procedure p() 
+lb:begin 
+   loop 
+     replace into proc_test values(1,1,'b');
+     leave lb;
+   end loop;
+   select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为case语句
+create procedure p() 
+lb:begin 
+   loop 
+     case when 1=1 then select 1;
+     end case;
+     leave lb;
+   end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为if..then语句
+create procedure p() 
+lb:begin 
+   loop 
+     if 1=1 
+       then select 1;
+     end if;
+     leave lb;
+   end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为while语句
+create procedure p() 
+lb:begin 
+   declare a int default 1;
+   loop 
+     while a<2 do set a=a+1;
+       select a;
+     end while;
+     leave lb;
+   end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为loop语句
+create procedure p()
+lb:begin
+   declare a int default 1;
+   loop 
+     lp:loop set a=a+1;
+     if a=3 
+       then leave lp;
+     end if;
+     end loop;
+    leave lb;
+   end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop无标签，begin前有标签，过程体语句为多条语句
+create procedure p()
+lb:begin 
+   loop 
+     delete from proc_test where id=2;
+     select * from proc_test;
+     leave lb;
+   end loop;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop前有标签，end loop后有同名标签，过程体语句为leave语句
+create procedure p() 
+begin 
+  declare a int default 1;
+  lp:loop leave lp;
+  end loop lp;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，loop前有标签，end loop后有同名标签，过程体语句为iterate语句
+create procedure p() 
+begin
+  declare i int default 1;
+  label1: loop
+  set i = i+1;
+  if i < 10 then
+    iterate label1;
+  end if;
+  leave label1;
+  end loop label1;
+  select i;
+end;//
+call p()//
+drop procedure p//
+
+#loop语句过程体非空，循环10次
+truncate table proc_test;//
+create procedure p() 
+begin 
+ declare a int default 0;
+ lp:loop set a=a+1;
+    delete from proc_test where id=4;
+    insert into proc_test values(a,5,'b');
+    if a=10 
+      then leave lp;
+    end if;
+ end loop lp;
+    select * from proc_test;
+end;//
+call p()//
+drop procedure p//
+
+###2-5、REPEAT语句
+#repeat语句过程体为空，until表达式非空
+create procedure p()
+begin 
+  declare a int;
+  set a =1;
+  repeat 
+    until a=1 
+  end repeat;
+end//
+call p()//
+drop procedure p//
+
+#repeat语句非空，until表达式为加减乘除表达式
+create procedure p()
+begin 
+  declare a int default 0;
+  repeat 
+    select a;
+    until 1+2*3 
+  end repeat;
+end//
+call p()//
+drop procedure p//
+
+#repeat语句非空，repeat无标签，begin前有标签，过程体语句为open，fetch，close游标语句
+create procedure p()
+lb:begin 
+  declare a,b int;
+  declare csr cursor for select * from proc_test; 
+  repeat open csr;
+  fetch csr into a,b;
+  close csr;
+  leave lb;
+    until 1=1 
+  end repeat;
+end;//
+call p()//
+drop procedure p//
+
+#repeat语句非空，until表达式为大于表达式
+create procedure p() 
+begin
+  declare i int default 1;
+  repeat
+    set i = i+1;
+    until i > 10 
+  end repeat;
+  select i;
+end;//
+call p()//
+drop procedure p//
+
+#repeat语句过程体非空，until表达式使循环10次
+create procedure p() 
+begin 
+  declare a int default 0;
+  lp:repeat 
+    set a=a+1;
+    until a=10 
+  end repeat;
+  select a;
+end;//
+call p()//
+drop procedure p//
+
+###2-6、多循环语句出现在其他循环语句中
+#iterate、leave语句同时出现在repeat循环中，iterate、leave、repeat前标签名一样
+create procedure p()
+lb:begin 
+  declare a int default 1;
+  lp:repeat set a=a+1;
+     iterate lb;
+     leave lp;
+       until 1=1  
+     end repeat;
+end;//
+--error 16
+call p()//
+drop procedure p//
+
+#iterate、leave语句同时出现在loop循环中，leave、loop前标签名一样，iterate标签名和begin前标签名一样
+create procedure p()
+lb:begin 
+  declare a int default 1;
+  lp:loop set a=a+1;
+       iterate lb;
+       leave lp;
+     end loop;
+end;//
+--error 16
+call p()//
+drop procedure p//

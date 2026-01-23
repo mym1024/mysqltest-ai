@@ -1,0 +1,56 @@
+#######################################################
+####1.测试功能点：两张表mgrge_join,表的主键是单主键或联合主键;一个或多个连接条件，连接字段为两表的联合主键中的一个或多个；等值连接；
+#######################################################
+--disable_warnings
+drop table if exists t1,t2,t3,t4;
+--enable_warnings
+
+create table t1(id int, c1 int, c2 int, c3 int, c4 int, c5 int, c6 int,primary key(id,c1,c2));
+insert into t1 values(1,5,2,4,4,3,22);
+insert into t1 values(3,5,2,4,4,9,13);
+
+create table t2(id int primary key,c1 int, c2 int);
+insert into t2 values(3,5,2);
+insert into t2 values(7,4,5);
+
+create table t3(id int, c1 int, c2 int, c3 int, c4 int,primary key(id,c1,c2));
+insert into t3 values(1,2,3,4,5);
+insert into t3 values(2,5,2,2,1);
+insert into t3 values(3,4,8,2,3);
+insert into t3 values(4,1,2,6,8);
+
+create table t4(id int, c1 int, c2 int, c3 int, c4 int,primary key(id,c1,c2));
+insert into t4 values(2,5,2,4,4);
+insert into t4 values(5,5,2,5,4);
+insert into t4 values(6,5,2,5,9);
+
+###2-1:两张表merge join，一张表的主键为单主键，一张表为联合主键；一个连接条件，连接字段为一张表的主键和另一张表的联合主键中的一个字段
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.id=t2.id;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.id=t2.id;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.id=t2.id;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.id=t2.id;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.id=t2.id;
+
+###2-2:两张表merge join，两张表均为联合主键；一个连接条件，连接字段为两张表的联合主键中的一个字段
+#select /*+ join(hash_join_single) */* from t3 full join t4 on t3.id=t4.id;
+select /*+ join(merge_join) */* from t3 inner join t4 on t3.id=t4.id;
+select /*+ join(merge_join) */* from t3 left join t4 on t3.id=t4.id;
+select /*+ join(merge_join) */* from t3 right join t4 on t3.id=t4.id;
+select /*+ join(merge_join) */* from t3 full join t4 on t3.id=t4.id;
+
+###2-3:两张表merge join，两张表均为联合主键；两个连接条件，连接字段为两张表的联合主键中的两个字段
+#select /*+ join(hash_join_single) */* from t3 full join t4 on t3.id=t4.id and t3.c1=t4.c1;
+select /*+ join(merge_join) */* from t3 inner join t4 on t3.id=t4.id and t3.c1=t4.c1;
+select /*+ join(merge_join) */* from t3 left join t4 on t3.id=t4.id and t3.c1=t4.c1;
+select /*+ join(merge_join) */* from t3 right join t4 on t3.id=t4.id and t3.c1=t4.c1;
+select /*+ join(merge_join) */* from t3 full join t4 on t3.id=t4.id and t3.c1=t4.c1;
+
+###2-4:两张表merge join，两张表均为联合主键；三个连接条件，连接字段为两张表的联合主键中的全部字段
+#select /*+ join(hash_join_single) */* from t3 full join t4 on t3.id=t4.id and t3.c1=t4.c1 and t3.c2=t4.c2;
+select /*+ join(merge_join) */* from t3 inner join t4 on t3.id=t4.id and t3.c1=t4.c1 and t3.c2=t4.c2;
+select /*+ join(merge_join) */* from t3 left join t4 on t3.id=t4.id and t3.c1=t4.c1 and t3.c2=t4.c2;
+select /*+ join(merge_join) */* from t3 right join t4 on t3.id=t4.id and t3.c1=t4.c1 and t3.c2=t4.c2;
+select /*+ join(merge_join) */* from t3 full join t4 on t3.id=t4.id and t3.c1=t4.c1 and t3.c2=t4.c2;
+
+drop table t1,t2,t3,t4;
+#############################################################################

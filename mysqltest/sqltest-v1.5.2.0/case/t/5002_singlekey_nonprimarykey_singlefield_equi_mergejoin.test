@@ -1,0 +1,64 @@
+#######################################################
+####1.测试功能点:两张表merge_join，表的主键为单主键；仅有一个连接条件，连接字段为两表的非主键；等值连接
+#######################################################
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+CREATE TABLE t1 (
+id int,
+count int,
+qty int,
+phone char(10),
+primary key(id)
+);
+
+INSERT INTO t1 VALUES(21,3,7800,'n');
+INSERT INTO t1 VALUES(22,4,5000,'y');
+INSERT INTO t1 VALUES(18,3,13200,'b');
+INSERT INTO t1 VALUES(1,4,15000,'s2');
+INSERT INTO t1 VALUES(16,3,13200,'b');
+INSERT INTO t1 VALUES(26,5,1500,'b');
+INSERT INTO t1 VALUES(4,3,5400,'y');
+INSERT INTO t1 VALUES(25,4,6500,'y');
+INSERT INTO t1 VALUES(27,3,6200,'b');
+INSERT INTO t1 VALUES(3,3,5400,'y');
+INSERT INTO t1 VALUES(29,4,17700,'s5');
+
+CREATE TABLE t2 (
+id int,
+category int,
+county int,
+state int,
+phones int,
+nophones int,
+primary key(id)
+);
+
+insert into t2 values(3,2,11,12,5400,7800);
+insert into t2 values(4,2,25,12,6500,11200);
+insert into t2 values(5,1,37,6,10000,12000);
+
+create table t3 (
+id int,
+name varchar(255) default NULL,
+primary key(id)
+);
+
+insert into t3 values(1,'s1'),(2,'s2'),(3,'s3'),(4,'s4'),(5,'s5');
+
+###2-1:���ű�merge join����������Ϊ������������һ�����������������ֶ�Ϊ��������������ֵ����
+#select /*+ join(hash_join_single) */* from t1 full join t2 on t1.qty=t2.phones;
+select /*+ join(merge_join) */* from t1 inner join t2 on t1.qty=t2.phones;
+select /*+ join(merge_join) */* from t1 left join t2 on t1.qty=t2.phones;
+select /*+ join(merge_join) */* from t1 right join t2 on t1.qty=t2.phones;
+select /*+ join(merge_join) */* from t1 full join t2 on t1.qty=t2.phones;
+
+#select /*+ join(hash_join_single) */* from t1 full join t3 on t1.phones=t3.name;
+select /*+ join(merge_join) */* from t1 inner join t3 on t1.phone=t3.name;
+select /*+ join(merge_join) */* from t1 left join t3 on t1.phone=t3.name;
+select /*+ join(merge_join) */* from t1 right join t3 on t1.phone=t3.name;
+select /*+ join(merge_join) */* from t1 full join t3 on t1.phone=t3.name;
+
+drop table t1,t2,t3;
+#############################################################################

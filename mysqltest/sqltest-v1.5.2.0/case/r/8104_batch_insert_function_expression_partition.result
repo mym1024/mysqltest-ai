@@ -1,0 +1,115 @@
+drop table if exists trange1;
+create table trange1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by range(c1) (partition r0 values less than(200),partition r1 values less than maxvalue);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	trange1	1	trange1#r0,trange1#r1	__range@3001	c1
+insert into trange1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from trange1;
+c1	c2	c3
+123	2015-04-06 12:56:45.000000	123
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+drop table if exists list1;
+create table list1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by list(c1) (partition q0 values in(123));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	trange1	1	trange1#r0,trange1#r1	__range@3001	c1
+3002	2	list1	1	list1#q0	__list@3002	c1
+insert into list1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from list1;
+c1	c2	c3
+123	2015-04-06 12:56:45.000000	123
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+list1#q0	2	0	NULL
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+drop table if exists t11;
+drop partition function e;
+ERROR HY000: YAO-5077: partition function 'e' doesn't exist
+create enum partition function e(x) '[(123)]';
+create table t11(c1 int primary key,c2 datetime,c3 varchar(30)) partition by (em,e,c1);
+insert into t11 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from t11;
+c1	c2	c3
+123	2015-04-06 12:56:45.000000	123
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+list1#q0	2	0	NULL
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+drop table if exists t1,t2;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(c1 int primary key,c2 datetime,c3 varchar(30)) partition by (hs,h,c1);
+insert into t1 select cast('123' as int),cast('2015-04-06 12:56:45' as datetime),cast(123 as varchar(30));
+select * from t11;
+c1	c2	c3
+123	2015-04-06 12:56:45.000000	123
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+list1#q0	2	0	NULL
+trange1#r0	2	0	NULL
+trange1#r1	2	1	NULL
+insert into t1(c1,c2) select 2,current_timestamp();
+select c1,c3 from t1;
+c1	c3
+2	NULL
+123	123
+insert into t1(c1,c3) select length('hash'),substr('123456789',2,4);
+select c1,c3 from t1;
+c1	c3
+2	NULL
+4	2345
+123	123
+drop table if exists t1,t2;
+create table t1(c1 int,c2 int,c3 datetime,c4 varchar(30),primary key(c1,c2));
+create table t2(c1 int primary key,c2 int);
+insert into t2 values(1,1),(2,2),(3,3),(4,4);
+select * from t2;
+c1	c2
+1	1
+2	2
+3	3
+4	4
+insert into t1(c1,c2) select avg(c1),count(*) from t2;
+insert into t1(c1,c2) select sum(c2),max(c1) from t2;
+select * from t1;
+c1	c2	c3	c4
+2	4	NULL	NULL
+10	4	NULL	NULL
+insert into t1(c1,c2) select max(c1),min(c1) from t2;
+select * from t1;
+c1	c2	c3	c4
+2	4	NULL	NULL
+4	1	NULL	NULL
+10	4	NULL	NULL
+drop table if exists t1;
+create table t1(c1 int primary key,c2 decimal(5,4),c3 varchar(30));
+insert into t1 select 1+1+5,5.06*1.02,'maosi'||'yu';
+insert into t1(c1,c2) select 1*89,8.9205/2.0314;
+insert into t1(c1,c2) select 1*89 % 7,8.697*54.25 mod 7;
+insert into t1(c1,c2) select 1>=2,3 between 1 and 5;
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 decimal(5,4),c3 varchar(30),c4 bool);
+create table t2(c1 int primary key,c2 decimal(5,4),c3 varchar(30),c4 bool);
+insert into t2 values (1,1.256,'maosy',0),(2,8.256,'si',1);
+insert into t1 select c1+45,avg(c2),c3||'yu',c4 from t2;

@@ -1,0 +1,403 @@
+##############################################################################################
+###1.测试功能点：各种类型分区的事务自动提交测试
+##
+#
+###2.测试项：
+###2.问题网址：
+###3.问题号：
+###4.预计运行时间：200 s
+###5.编写/修改人：chensy
+###6.编写/修改日期：2019-11-04
+###7.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql####################################################
+
+###2-1 hash分区中，自动提交为1，显式开启事务并提交
+# init status (autocommit=1, not_trx)
+show variables like 'autocommit';
+
+--echo case 1: (autocommit=1, not_trx) // start transaction
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create hash partition function h1(x) 'x*2';
+create table t1 (c1 int primary key, c2 int)partition by(ta1,h1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+start transaction;
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+--real_sleep 5
+select * from t1;
+drop table t1;
+--real_sleep 3
+drop partition function h1;
+disconnect conn1;
+
+###2-2 list分区中，自动提交为1，不显式开启事务但提交
+--echo case 2: (autocommit=1, not_trx) // commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,2),partition ta2 values in(3,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 3
+commit;
+select * from t1;
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+--real_sleep 5
+
+###2-3 range分区中，显式设置自动提交为1，显式开启事务并提交
+--echo case 3: (autocommit=1, not_trx) // autocommit=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by range(c1)(partition q1 values less than(1),partition q2 values less than(4),partition q3 values less than maxvalue);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=1;
+show variables like 'autocommit';
+start transaction;
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-4 枚举分区中，显式设置自动提交为0，不显式开启事务但提交
+--echo case 4: (autocommit=1, not_trx) // autocommit=0
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create enum partition function e1(x) '[(1)],[(2)],[(3)],[(4)]';
+create table t1 (c1 int primary key, c2 int)partition by(ta1,e1,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+show variables like 'autocommit';
+--real_sleep 3
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+drop partition function e1;
+commit;
+disconnect conn1;
+
+###2-5 hash分区中，自动提交为1，显式开启事务并提交，两次显式开启事务
+--echo case 5: (autocommit=1, in_trx) // start transaction
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create hash partition function h2(x) 'x*2+1';
+create table t1 (c1 int primary key, c2 int)partition by(th2,h2,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+start transaction;
+# (autocommit=1, in_trx)
+#--error 5060
+start transaction;
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+drop table t1;
+--real_sleep 3
+drop partition function h2;
+disconnect conn1;
+
+###2-6 list分区中，自动提交为0，显式开启事务并提交
+--echo case 6: (autocommit=1, in_trx) // commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,4),partition ta2 values in(2,3));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+start transaction;
+# (autocommit=1, in_trx)
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+start transaction;
+show variables like 'autocommit';
+commit;
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-7 hash分区中，显式开启事务后显式设置自动提交为1，然后提交事务
+--echo case 7: (autocommit=1, in_trx) // set autocommit=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create hash partition function h3(x) 'x-2+3';
+create table t1 (c1 int primary key, c2 int)partition by(ht3,h3,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+start transaction;
+# (autocommit=1, in_trx)
+set autocommit=1;
+show variables like 'autocommit';
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+drop table t1;
+--real_sleep 3
+drop partition function h3;
+disconnect conn1;
+
+###2-8 list分区中，显式开启事务后显式设置自动提交为0，然后提交事务
+--echo case 8: (autocommit=1, in_trx) // set autocommit=0
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,2),partition ta2 values in(3,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+start transaction;
+# (autocommit=1, in_trx)
+set autocommit=0;
+show variables like 'autocommit';
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-9 list分区中，设置自动提交为0，两次显示开启事务后，然后提交事务
+--echo case 9: (autocommit=0, not_trx) // start transaction
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,2),partition ta2 values in(3,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+show variables like 'autocommit';
+# (autocommit=0, not_trx)
+start transaction;
+#--error 5060
+start transaction;
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-10 range分区中，设置自动提交为0，然后提交事务
+--echo case 10: (autocommit=0, not_trx) // commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by range(c1)(partition a1 values less than(2),partition a2 values less than maxvalue);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+show variables like 'autocommit';
+# (autocommit=0, not_trx)
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+insert into t1 values (2, 3);
+select * from t1 where c1 = 2 for update;
+rollback;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-11 list分区中，设置自动提交为0后重新设置自动提交为1，然后提交事务，再回滚事务
+--echo case 11: (autocommit=0, not_trx) // set autocommit=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,2),partition ta2 values in(3,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+show variables like 'autocommit';
+# (autocommit=0, not_trx)
+set autocommit=1;
+show variables like 'autocommit';
+commit;
+rollback;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-12 list分区中，两次设置自动提交为0，然后两次提交事务
+--echo case 12: (autocommit=0, not_trx) // commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,3),partition ta2 values in(2,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+show variables like 'autocommit';
+# (autocommit=0, not_trx)
+set autocommit=0;
+show variables like 'autocommit';
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+insert into t1 values (2, 3);
+select * from t1 where c1 = 2 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-13 list分区中，设置自动提交为0，显式开启事务后再次显式开启事务，然后提交事务
+--echo case 13: (autocommit=0, in_trx) // start transaction
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,3),partition ta2 values in(2,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+start transaction;
+show variables like 'autocommit';
+# (autocommit=0, in_trx)
+#--error 5060
+start transaction;
+commit;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-14 list分区中，设置自动提交为0，显式开启事务后提交事务
+--echo case 14: (autocommit=0, in_trx) // commit
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,3),partition ta2 values in(2,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+start transaction;
+show variables like 'autocommit';
+# (autocommit=0, in_trx)
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-15 list分区中，设置自动提交为0，显式开启事务后设置自动提交为1，然后提交事务
+--echo case 15: (autocommit=0, in_trx) // set autocommit=1
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition ta1 values in(1,3),partition ta2 values in(2,4));
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+start transaction;
+show variables like 'autocommit';
+# (autocommit=0, in_trx)
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+set autocommit=1;
+select * from t1;
+show variables like 'autocommit';
+# are we in (autocommit=1, not_trx) ?
+commit;
+drop table t1;
+--real_sleep 3
+disconnect conn1;
+
+###2-16 hash分区中，设置自动提交为0，显式开启事务后再次设置自动提交为0，然后两次提交事务
+--echo case 16: (autocommit=0, in_trx) // set autocommit=0
+connect (conn1,$OBMYSQL_MS0,admin,admin,test,$OBMYSQL_PORT);
+connection conn1;
+show variables like 'autocommit';
+drop table if exists t1;
+--real_sleep 3
+create hash partition function h4(x)'x%2+3';
+create table t1 (c1 int primary key, c2 int)partition by(ht4,h4,c1);
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+--real_sleep 5
+set autocommit=0;
+start transaction;
+show variables like 'autocommit';
+# (autocommit=0, in_trx)
+set autocommit=0;
+insert into t1 values (1, 2);
+select * from t1 where c1 = 1 for update;
+commit;
+select * from t1;
+show variables like 'autocommit';
+commit;
+drop table t1;
+--real_sleep 3
+drop partition function h4;
+commit;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT refresh_schema | tail -1;
+disconnect conn1;
+
+###///新添测试项///###
+###2-x：（新增测试项说明）
+#do sql
+#####################################Do sql####################################################

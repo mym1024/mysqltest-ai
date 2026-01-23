@@ -1,0 +1,430 @@
+drop table if exists t1,t2;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x)'x+1';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(em,h,c1);
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+insert into t1 select * from t2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+insert into t1 select * from t2 where c6='maosuy';
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function f;
+ERROR HY000: YAO-5077: partition function 'f' doesn't exist
+create hash partition function f(x)'x+1';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,f,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,f,c1);
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2;
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g;
+ERROR HY000: YAO-5077: partition function 'g' doesn't exist
+create hash partition function g(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g,c1);
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(hs,g,c1);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+insert into t1 (c1,c4,c2) select * from t2;
+insert into t2 values(3,8.35,7.899);
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+3	8.35	7.899
+insert into t1 (c1,c4,c2) select * from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+3	7.899	NULL	8.35	NULL	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g2;
+ERROR HY000: YAO-5077: partition function 'g2' doesn't exist
+create hash partition function g2(x)'x+2';
+create table t1 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(hs,g2,c1);
+create table t2 (c1 int primary key ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30)) partition by(hs,g2,c1);
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'hahaha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahaha');
+insert into t1 select * from t2 multi_batch;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+insert into t1 select * from t2 where c6='maosuy' multi_batch ;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	hahaha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahaha
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g3;
+ERROR HY000: YAO-5077: partition function 'g3' doesn't exist
+create hash partition function g3(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g3,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g3,c1);
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 MULTI_BATCH;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2 MULTI_BATCH;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g4;
+ERROR HY000: YAO-5077: partition function 'g4' doesn't exist
+create hash partition function g4(x)'x*2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g4,c1);
+create table t2 (c1 int primary key ,c2 decimal(3,2),c3 real) partition by(hs,g4,c1);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+insert into t1 (c1,c4,c2) select * from t2 MULTI_BATCH;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+insert into t2 values(3,8.35,7.899);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+3	8.35	7.899
+insert into t1 (c1,c4,c2) select * from t2 where c1>2 MULTI_BATCH;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g5;
+ERROR HY000: YAO-5077: partition function 'g5' doesn't exist
+create hash partition function g5(x)'x+2';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g5,c1);
+create table t2 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g5,c1);
+insert into t1 select * from t2;
+insert into t2 values(NULL,1.25,'2015-08-08 12:45:54',2.32,0,'HEHE');
+insert into t1 select * from t2;
+insert into t2 values(1,NULL,NULL,NULL,NULL,NULL);
+insert into t1 select * from t2 where c1 is not null ;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	NULL	NULL	NULL
+NULL	1.25	2015-08-08 12:45:54.000000	2.32	0	HEHE
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	NULL	NULL	NULL
+NULL	1.25	2015-08-08 12:45:54.000000	2.32	0	HEHE
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g6;
+ERROR HY000: YAO-5077: partition function 'g6' doesn't exist
+create hash partition function g6(x)'x+1';
+create table t1 (c1 int ,c2 float ,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4)) partition by(hs,g6,c1);
+insert into t1 select * from t1;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+create table t2 (c1 int primary key ,c2 decimal(3,2) ,c3 real) partition by(hs,g6,c1);
+insert into t2 values(1,1.25,4.562);
+insert into t1(c1 ,c4,c2) select * from t2;
+insert into t1(c1 ,c4,c2) values(2,2.35,2.564);
+insert into t2 select c1 ,c4,c2 from t1 where c1=2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	4.562	NULL	1.25	NULL	NULL
+2	2.564	NULL	2.35	NULL	NULL
+select * from t2;
+c1	c2	c3
+1	1.25	4.562
+2	2.35	2.563999891281128
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	0	NULL
+em#1	2	1	NULL
+em#10	2	0	NULL
+em#11	2	1	NULL
+em#12	2	0	NULL
+em#2	2	0	NULL
+em#3	2	1	NULL
+em#4	2	0	NULL
+em#5	2	1	NULL
+em#6	2	0	NULL
+em#7	2	1	NULL
+em#8	2	0	NULL
+em#9	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL

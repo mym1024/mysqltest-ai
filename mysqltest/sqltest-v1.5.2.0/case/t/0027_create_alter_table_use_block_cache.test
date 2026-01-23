@@ -1,0 +1,78 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：create table,alter table中指定use_block_cache参数
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/466
+###4.问题号：466
+###5.预计运行时间：180 s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2020-06-08
+###8.其他（选填）：测试集群中要求必须只有一台cs
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+alter system set min_drop_cache_wait_time='2s' server_type=yaodatasvr;
+
+#指定use_block_cache为true
+create table t1(c1 int primary key, c2 varchar(8), c3 varchar(8)) use_block_cache=true;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t1',load_type,1)
+--echo $n
+
+#指定use_block_cache为false
+create table t2(c1 int primary key, c2 varchar(8), c3 varchar(8)) use_block_cache=false;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t2',load_type,1)
+--echo $n
+
+#关键字大写
+create table t3(c1 int primary key, c2 varchar(8), c3 varchar(8)) USE_BLOCK_CACHE=TRUE;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t3',load_type,1)
+--echo $n
+
+#alter修改原表
+create index i1 on t1(c2);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 600
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t1',load_type,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=true;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t1',load_type,1)
+--echo $n
+
+alter table t1 alter current use_block_cache=false;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='t1',load_type,1)
+--echo $n
+
+#alter修改索引表
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='__3001__idx__i1',load_type,1)
+--echo $n
+
+alter table __3001__idx__i1 alter current use_block_cache=true;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='__3001__idx__i1',load_type,1)
+--echo $n
+
+alter table __3001__idx__i1 alter current use_block_cache=false;
+--let $n=query_get_value(select load_type from __first_tablet_entry where table_name='__3001__idx__i1',load_type,1)
+--echo $n
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

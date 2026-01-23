@@ -1,0 +1,7 @@
+drop table if exists t1,t2,t3,t4;
+set password for = 'pass11';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+set password '' for = 'pass11';
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+set password for '' = 'pass11';
+ERROR HY000: YAO-42: User not exist

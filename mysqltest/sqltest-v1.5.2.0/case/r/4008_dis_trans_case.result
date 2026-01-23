@@ -1,0 +1,437 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set enable_dist_trans='False' server_type=yaosqlsvr;
+drop table if exists t1;
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x)'x+1';
+create table t1(c1 int primary key,c2 int,c3 varchar(30)) partition by(hs,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	t1	1	hs	h1	c1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+insert into t1 values(1,1,'aaaaa');
+insert into t1 values(2,2,'iiiii');
+insert into t1 values(3,3,'iiiii');
+insert into t1 values(4,4,'iiiii');
+insert into t1 values(13,13,'iiiii'),(15,15,'iiiii'),(17,17,'iiiii');
+replace into t1 values(12,12,'aaa'),(14,14,'aaa'),(16,16,'aaa');
+replace into t1 values(5,5,'aaa');
+replace into t1 values(6,6,'aaa');
+replace into t1 values(7,7,'aaa');
+replace into t1 values(16,16,'bbb'),(12,12,'bbb'),(14,14,'bbb');
+select * from t1;
+c1	c2	c3
+1	1	aaaaa
+2	2	iiiii
+3	3	iiiii
+4	4	iiiii
+5	5	aaa
+6	6	aaa
+7	7	aaa
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+select * from t1 where c1 between 2 and 5;
+c1	c2	c3
+2	2	iiiii
+3	3	iiiii
+4	4	iiiii
+5	5	aaa
+update t1 set c3='zzzzz' where c1=2;
+update t1 set c3='zzzzz' where c1=3;
+update t1 set c3='zzzzz' where c1=5 or c1=7;
+update t1 set c3='zzzzz' where c1=4 or c1=6;
+select * from t1;
+c1	c2	c3
+1	1	aaaaa
+2	2	zzzzz
+3	3	zzzzz
+4	4	zzzzz
+5	5	zzzzz
+6	6	zzzzz
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+delete from t1 where c1=1 or c1=3 or c1=5;
+delete from t1 where c1 in (2,4,6);
+select * from t1;
+c1	c2	c3
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+insert into t1 values(1,1,'aaaaa'),(2,2,'bbbbb'),(3,3,'ccccc'),(4,4,'ddddd'),(5,5,'eeeee'),(6,6,'fffff');
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+replace into t1 values(1,1,'aaaaaaaa'),(2,2,'bbbbbbb'),(3,3,'cccccccc'),(4,4,'dddddddd');
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+replace into t1 values(9,9,'ccc'),(11,11,'ccc'),(13,13,'ccc');
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+select * from t1;
+c1	c2	c3
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+update t1 set c3='ooooo' where c1 between 7 and 13;
+ERROR 25S03: YAO-119: distributed transaction switch close,now not allow use distributed transaction, error code = -5087
+select * from t1 where c1<=10;
+c1	c2	c3
+7	7	zzzzz
+select * from t1;
+c1	c2	c3
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+begin;
+insert into t1 values(1,1,'ppp');
+insert into t1 values(3,3,'ppp'),(5,5,'ppp');
+commit;
+select * from t1;
+c1	c2	c3
+1	1	ppp
+3	3	ppp
+5	5	ppp
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	iiiii
+16	16	bbb
+17	17	iiiii
+begin;
+replace into t1 values(15,15,'ppp');
+replace into t1 values(17,17,'ppp'),(19,19,'ppp');
+commit;
+select * from t1;
+c1	c2	c3
+1	1	ppp
+3	3	ppp
+5	5	ppp
+7	7	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+update t1 set c2=c2*10 where c1=1;
+update t1 set c2=c2*10 where c1 in (3,7);
+commit;
+select * from t1;
+c1	c2	c3
+1	10	ppp
+3	30	ppp
+5	5	ppp
+7	70	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+delete from t1 where c1=1;
+delete from t1 where c1 in (3,5);
+commit;
+select * from t1;
+c1	c2	c3
+7	70	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+insert into t1 values(1,1,'zzzzz');
+replace into t1 values(3,3,'zzzzz'),(5,5,'zzzzz');
+update t1 set c2=c2*10 where c1 in (1,3);
+commit;
+select * from t1;
+c1	c2	c3
+1	10	zzzzz
+3	30	zzzzz
+5	5	zzzzz
+7	70	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+insert into t1 values(21,21,'iiiii');
+insert into t1 values(22,22,'iiiii'),(23,23,'iiiii');
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+update t1 set c3='fffff';
+ERROR 25S03: YAO-119: distributed transaction switch close,now not allow use distributed transaction, error code = -5087
+commit;
+select * from t1;
+c1	c2	c3
+1	10	zzzzz
+3	30	zzzzz
+5	5	zzzzz
+7	70	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+update t1 set c2=c2*2 where c1=1;
+update t1 set c2=c2*2 where c1=2;
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+commit;
+select * from t1;
+c1	c2	c3
+1	10	zzzzz
+3	30	zzzzz
+5	5	zzzzz
+7	70	zzzzz
+12	12	bbb
+13	13	iiiii
+14	14	bbb
+15	15	ppp
+16	16	bbb
+17	17	ppp
+19	19	ppp
+begin;
+delete from t1 where c1=1;
+delete from t1 where c1=2;
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+delete from t1 where c1 in(3,4);
+commit;
+drop table if exists t1;
+drop partition function h1;
+select  * from t1;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+select * from t1 where c1 between 1 and 5;
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+create enum partition function e(x)'[(1)],[(3)],[(5)]';
+create table t1 (c1 int, c2 varchar(30), c3 int, c4 varchar(30), primary key(c1,c2)) partition by(em,e,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	t1	1	em	e	c1
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+em#0	2	1	NULL
+em#1	2	0	NULL
+em#2	2	1	NULL
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+insert into t1 values(1,'aaaaa',1,'aaaaa'),(2,'bbbbb',2,'bbbbb'),(3,'ccccc',3,'ccccc'),(4,'ddddd',4,'ddddd'),(5,'eeeee',5,'eeeee');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+select * from t1;
+c1	c2	c3	c4
+insert into t1 values(1,'aaaaa',1,'aaaaa'),(1,'bbbbbb',1,'bbbbbb'),(3,'ccccc',3,'ccccc'),(5,'eeeee',5,'eeeee');
+ERROR HY000: YAO-5087: enable_dis_trans is false, now not allow use dis trans
+select * from t1;
+c1	c2	c3	c4
+select * from t1 where c1 between 1 and 5;
+c1	c2	c3	c4
+insert into t1 values(1,'aaaaa',1,'aaaaa');
+insert into t1 values(2,'bbbbb',2,'bbbbb');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t1 values(3,'ccccc',3,'ccccc');
+insert into t1 values(4,'ddddd',4,'ddddd');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t1 values(5,'eeeee',5,'eeeee');
+select * from t1;
+c1	c2	c3	c4
+1	aaaaa	1	aaaaa
+3	ccccc	3	ccccc
+5	eeeee	5	eeeee
+select * from t1 where c1 between 1 and 5;
+c1	c2	c3	c4
+1	aaaaa	1	aaaaa
+3	ccccc	3	ccccc
+5	eeeee	5	eeeee
+update t1 set c2='zzzzz',c3=66 where c1 between 1 and 5;
+ERROR 25S03: YAO-119: distributed transaction switch close,now not allow use distributed transaction, error code = -5087
+select * from t1;
+c1	c2	c3	c4
+1	aaaaa	1	aaaaa
+3	ccccc	3	ccccc
+5	eeeee	5	eeeee
+update t1 set c2='yyyyy' where c1=2;
+update t1 set c2='uuuuu' where c1=3;
+select * from t1 where c1 between 1 and 5;
+c1	c2	c3	c4
+1	aaaaa	1	aaaaa
+3	uuuuu	3	ccccc
+5	eeeee	5	eeeee
+delete from t1;
+ERROR 25S03: YAO-119: distributed transaction switch close,now not allow use distributed transaction, error code = -5087
+delete from t1 where c1=1;
+select *from t1;
+c1	c2	c3	c4
+3	uuuuu	3	ccccc
+5	eeeee	5	eeeee
+begin;
+insert into t1 values(7,'rrrrr',7,'rrrrr'),(8,'ooooo',8,'ooooo'),(9,'tttttt',9,'ttttt');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t1 values(10,'ggggg',10,'ggggg');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+insert into t1 values(11,'vvvvv',11,'vvvvv');
+ERROR HY000: YAO-5702: Table has no partition for given value.
+delete from t1 where c1=11;
+commit;
+select * from t1;
+c1	c2	c3	c4
+3	uuuuu	3	ccccc
+5	eeeee	5	eeeee
+begin;
+insert into t1 values(1,'vvvvv',1,'vvvvv');
+update t1 set c4='rrrrr' where c1=7;
+commit;
+select * from t1;
+c1	c2	c3	c4
+1	vvvvv	1	vvvvv
+3	uuuuu	3	ccccc
+5	eeeee	5	eeeee
+begin;
+delete from t1 where c1=3;
+update t1 set c3=c3*10 where c1=2;
+commit;
+begin;
+replace into t1 values(3,'ggggg',3,'ggggg');
+update t1 set c3=c3+10 where c1=2;
+commit;
+select * from t1;
+c1	c2	c3	c4
+1	vvvvv	1	vvvvv
+3	ggggg	3	ggggg
+5	eeeee	5	eeeee
+show tables;
+table_name_in_test
+t1
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	t1	1	em	e	c1
+drop table if exists t2;
+alter system set enable_dist_trans='true' server_type=yaosqlsvr;
+create hash partition function h1(x)'x+1';
+create table t2(c1 int, c2 int,c3 int, c4 varchar(20), primary key(c1,c2,c3)) partition by(hs,h1,c1);
+insert into t2 values(1,1,1,'aaaaa'),(2,2,2,'bbbbb'),(3,3,3,'ccccc'),(4,4,4,'ddddd'),(5,5,5,'eeeee'),(6,6,6,'fffff');
+select * from t2;
+c1	c2	c3	c4
+1	1	1	aaaaa
+2	2	2	bbbbb
+3	3	3	ccccc
+4	4	4	ddddd
+5	5	5	eeeee
+6	6	6	fffff
+insert into t2 values(7,7,7,'aaaaa');
+insert into t2 values(8,8,8,'bbbbb');
+insert into t2 values(9,9,9,'ccccc');
+insert into t2 values(10,10,10,'ddddd');
+select * from t2;
+c1	c2	c3	c4
+1	1	1	aaaaa
+2	2	2	bbbbb
+3	3	3	ccccc
+4	4	4	ddddd
+5	5	5	eeeee
+6	6	6	fffff
+7	7	7	aaaaa
+8	8	8	bbbbb
+9	9	9	ccccc
+10	10	10	ddddd
+show tables;
+table_name_in_test
+t1
+t2
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	t1	1	em	e	c1
+3003	2	t2	1	hs	h1	c1
+begin;
+insert into t2 values(11,11,11,'fffff');
+replace into t2 values(12,12,12,'ggggg'),(10,10,10,'hhhhh');
+commit;
+select * from t2;
+c1	c2	c3	c4
+1	1	1	aaaaa
+2	2	2	bbbbb
+3	3	3	ccccc
+4	4	4	ddddd
+5	5	5	eeeee
+6	6	6	fffff
+7	7	7	aaaaa
+8	8	8	bbbbb
+9	9	9	ccccc
+10	10	10	hhhhh
+11	11	11	fffff
+12	12	12	ggggg
+begin;
+update t2 set c3=c3*10 where c1=2;
+delete from t2 where c1=1;
+commit;
+select * from t2;
+c1	c2	c3	c4
+2	2	20	bbbbb
+3	3	3	ccccc
+4	4	4	ddddd
+5	5	5	eeeee
+6	6	6	fffff
+7	7	7	aaaaa
+8	8	8	bbbbb
+9	9	9	ccccc
+10	10	10	hhhhh
+11	11	11	fffff
+12	12	12	ggggg

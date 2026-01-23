@@ -1,0 +1,50 @@
+##############################################################################################
+###1.测试功能点：ups连续两次切主，不会造成内存数据丢失
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：15s
+###6.编写/修改人： gaohuanyu
+###7.编写/修改日期：2019-11-07
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+select svr_type from __all_server where svr_type='yaotxnsvr';
+
+--disable_abort_on_error
+--disable_warnings
+drop table if exists t1,t2;
+--enable_warnings
+
+###2-1:ups连续两次切主，测试内存中的数据是否丢失
+create table t1(pk int primary key,a int);
+
+insert into t1 values(1,0),(2,0),(0,0);
+
+if($NEW_MASTER_UPS_IP == None)
+{
+   --echo two update servers are required
+   --exit
+}
+
+
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT change_ups_master -o ups_ip=$NEW_MASTER_UPS_IP -O ups_port=$NEW_MASTER_UPS_PORT > /dev/null 2>&1;
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT change_ups_master -o ups_ip=$MASTER_UPS_IP -O ups_port=$MASTER_UPS_PORT > /dev/null 2>&1;
+
+--real_sleep 10
+insert into t1 values(3,0),(5,0),(4,0);
+insert into t1 values(1,0),(2,0),(0,0);
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

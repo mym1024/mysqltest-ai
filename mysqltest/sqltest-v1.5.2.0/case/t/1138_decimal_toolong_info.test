@@ -1,0 +1,99 @@
+####################################必填######################################################
+###1.测试功能点：decimal超长信息增加
+##
+#
+###2.测试项：(每新添一测试项, 需在添加前注明测试项, 注释填写在新添sq1前, 不填在此处, 如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/486
+###4.问题号：486
+###5.预计运行时间：
+###6.编写/修改人：pantong
+###7.编写/修改日期：2020-06-12
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+#
+#####################################Do sql###################################################
+#--disable_warnings
+drop table if exists t1,t2,t3,t4;
+#--enable_warnings
+#
+####2-1：（非主键为decimal类型，insert,replace语句）
+create table if not exists t1(c1 int primary key,c2 decimal(5,1));
+--error 58
+insert into t1 values (1,12345.5);
+--error 58
+insert into t1 values (1,23),(3,34),(2,1435455.0);
+
+--error 58
+replace into t1 values (1,12345.5);
+--error 58
+replace into t1 values (1,23),(3,34),(2,1435455.0);
+select * from t1;
+drop table if exists t1;
+
+####2-2：（非主键为decimal类型，update语句）
+create table if not exists t1(c1 int primary key,c2 decimal(5,1));
+insert into t1 values (1,12.5);
+--error 119
+update t1 set c2=123456;
+insert into t1 values (2,2345),(3,123);
+--error 119
+update t1 set c2=123456;
+select * from t1;
+drop table if exists t1;
+
+####2-3：（非主键为decimal类型,insert...select语句）
+create table if not exists t1(c1 int primary key,c2 decimal(3,1));
+create table if not exists t2(c1 int primary key,c2 decimal(5,1));
+insert into t2 values (1,1234.2);
+--error 119
+insert into t1 select * from t2;
+delete from t2 where c1=1;
+insert into t2 values (1,123),(2,1234.5);
+--error 119
+insert into t1 select * from t2;
+select * from t1;
+drop table if exists t1;
+select * from t2;
+drop table if exists t2;
+
+####2-4：（主键为decimal类型，insert,replace语句）
+create table if not exists t1(c1 int,c2 decimal(5,1) primary key);
+--error 58
+insert into t1 values (1,123456);
+--error 58
+insert into t1 values (1,23),(1,12),(3,123456);
+--error 58
+replace into t1 values (1,123456);
+--error 58
+replace into t1 values (1,23),(1,12),(3,123456);
+select * from t1;
+drop table if exists t1;
+
+####2-5：（主键为decimal类型,update语句）
+create table if not exists t1(c1 int,c2 decimal(5,1) primary key);
+insert into t1 values (1,12.2);
+--error 119
+update t1 set c2=123456.7;
+select * from t1;
+drop table if exists t1;
+####2-6：（主键为decimal类型,insert...select语句）
+create table if not exists t1(c1 int,c2 decimal(3,1) primary key);
+create table if not exists t2(c1 int,c2 decimal(5,1)primary key);
+insert into t2 values (1,1234.2);
+--error 119
+insert into t1 select * from t2;
+delete from t2 where c1=1;
+insert into t2 values (1,123),(2,1234.5);
+--error 119
+insert into t1 select * from t2;
+select * from t1;
+drop table if exists t1;
+select * from t2;
+drop table if exists t2;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+#####################################Do sql###################################################

@@ -1,0 +1,326 @@
+create table proc_test(id int  primary key, age int, name varchar(20));
+insert into proc_test values(2,2,'a'),(3,3,'a'),(4,4,'a');
+select * from proc_test;
+id	age	name
+2	2	a
+3	3	a
+4	4	a
+create procedure p() 
+begin 
+declare a int default 1;
+if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual;
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+declare b int default 2;
+if a = (select count(1) from proc_test where id = (select count(1) from proc_test)) and b = (select count(1) from proc_test where id = (select count(1) from proc_test)) + 1 then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+if a = (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+if (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual;
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+if (select count(1)-1 from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;
+else select 2 from dual; 
+end if; 
+end;//
+call p()//
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+update proc_test set name = 'b' where id = 2; if row_count() = 1 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if substring(str,4) = 't' then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if (str REGEXP 't') then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default '0';
+if convert(str,int) then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+2
+2
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default '0';
+if convert(str using utf8) then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if instr(str,'t') = 1 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test';
+if char_length(str) = 4 then select 1; 
+else select 2; 
+end if; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 6;
+if char_length(str) = 4 then insert into proc_test values(a,a+1,'a'),(7,a+1,'a');
+select * from proc_test;
+else select 3; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+6	7	a
+7	7	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then update proc_test set age = 18 where id = a;
+select * from proc_test;
+else select 4; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+6	7	a
+7	18	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then update proc_test set id = a+1 where id = a;
+select * from proc_test;
+else select 5; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+6	7	a
+8	18	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then delete from proc_test where id = a+1;
+select * from proc_test;
+else select 6; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+6	7	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then select * from proc_test where id in (select age from proc_test where id < a);
+else select 8; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from proc_test where age = a-6 and id in (select age from proc_test where age in (select age from proc_test));
+else select 9; 
+end if; 
+end;//
+call p()//
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from proc_test where age in (select t1.age from proc_test t1 join (select age from proc_test) t2 on t1.id = a-6) and id in (select age from proc_test where age in (select age from proc_test)); 
+end if; 
+end;//
+call p()//
+id	age	name
+3	3	a
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select * from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age = a- 7 and id in (select age from proc_test where age in (select age from proc_test));
+else select 12; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 9;
+if char_length(str) = 4 then select id,sum(age) from (select * from (select * from proc_test) t1 where t1.id < 100) proc_test where age < a- 1 and id in (select age from proc_test where age in (select age from proc_test)) group by id order by id desc limit 2;
+else select 15; 
+end if; 
+end;//
+call p()//
+id	sum(age)
+4	4
+3	3
+drop procedure p//
+create procedure p() 
+begin 
+declare str varchar(20) default 'test'; 
+declare a int default 7;
+if char_length(str) = 4 then select * from proc_test union select * from proc_test;
+else select 16; 
+end if; 
+end;//
+call p()//
+id	age	name
+2	2	b
+3	3	a
+4	4	a
+6	7	a
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1;
+case  (select count(1) from proc_test where id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1;
+case a when (select count(1) from proc_test where id = (select count(1) from proc_test))  then select 1 from dual;
+else select 3 from dual; 
+end case; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+case (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) when a then select 1 from dual;
+else select 2 from dual; 
+end case; 
+end;//
+call p()//
+1
+1
+drop procedure p//
+create procedure p() 
+begin 
+declare a int default 1; 
+case a when (select count(1) from proc_test t1 inner join (select * from proc_test) t2 on t1.id = t2.id where t1.id = (select count(1) from proc_test)) then select 1 from dual;else select 3 from dual; 
+end case; 
+end;//
+call p()//
+1
+1
+drop procedure p//

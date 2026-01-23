@@ -1,0 +1,153 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210120
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:只含有const列
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create view v1 as select c1+c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2));
+create view v2 as select 1*2,'current_string()' from dual;
+desc v1;
+desc v2;
+select * from v1;
+select c1+c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2));
+select * from v2;
+select 1*2,'current_string()' from dual;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-2:const列与数据表的列混合运算，含有算术运算符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t2.c1+t1.c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2)) t2,t1;
+create view v2 as select 1*2,'current_string()' from t1;
+create view v3 as select 1*3*c1,c1+5+c2*c3/2-c6,2657879 from t1;
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select t2.c1+t1.c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2)) t2,t1;
+select * from v2;
+select 1*2,'current_string()' from t1;
+select * from v3;
+select 1*3*c1,c1+5+c2*c3/2-c6,2657879 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-3:const列与数据表的列混合运算，含有逻辑运算符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select t2.c1+t1.c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2)) t2,(select c2,15*38.258 from t1) t1 where 1<10 or 20.134 <159 or 2.356798789 *23326 >=3;
+create view v2 as select 1*2 as c1,'current_string()' as c2 from t1 where c1<=10 and length(c2) >=15;
+create view v3 as select 1*3 *c1,c1+5+c2*c3/2-c6,2657879 from t1 where 2.3598 in(1,2.3598,54787) or 12121 between 10 and 1000000;
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select t2.c1+t1.c2 from (select 1.236*2.78 as c1,c2 from (select 15.23333 as c2)) t2,(select c2,15*38.258 from t1) t1 where 1<10 or 20.134 <159 or 2.356798789 *23326 >=3;
+select * from v2;
+select 1*2 as c1,'current_string()' as c2 from t1 where c1<=10 and length(c2) >=15;
+select * from v3;
+select 1*3 *c1,c1+5+c2*c3/2-c6,2657879 from t1 where 2.3598 in(1,2.3598,54787) or 12121 between 10 and 1000000;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-4:const列与数据表的列混合运算，含有拼接运算符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select 'c1' || '_' || 'c2' as c1 from dual where length('2112') > 17;
+create view v2 as select 1*2 || 5,'__' || 'sup';
+create view v3 as select 1*3 *c1 || 'su' || 'view' ,2657879 from t1;
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select 'c1' || '_' || 'c2' as c1 from dual where length('2112') > 17;
+select * from v2;
+select 1*2 || 5,'__' || 'sup';
+select * from v3;
+select 1*3 *c1 || 'su' || 'view' ,2657879 from t1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-5:const列与数据表的列混合运算，含有比较运算符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select length('c1') <= length('c2') as c1,c2 from t1 where length(c1) >17 or c2>=c1;
+create view v2 as select 159*951 < 121212,15>=3,12=12,12!=13;
+desc v1;
+desc v2;
+select * from v1;
+select length('c1') <= length('c2') as c1,c2 from t1 where length(c1) >17 or c2>=c1;
+select * from v2;
+select 159*951 < 121212,15>=3,12=12,12!=13;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:const列与数据表的列混合运算，使用limit子句
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select 15*12+12 as c1,2.35698978 as c2 from t1 where length(c1) >17 or c2>=c1 limit 1;
+create view v2 as select 1 limit 1;
+desc v1;
+desc v2;
+select * from v1;
+select 15*12+12 as c1,2.35698978 as c2 from t1 where length(c1) >17 or c2>=c1 limit 1;
+select * from v2;
+select 1 limit 1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+
+
+

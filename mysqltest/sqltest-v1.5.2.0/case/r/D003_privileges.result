@@ -1,0 +1,24 @@
+create user 'u1' identified by 'pass1', 'u2' identified by 'pass2', 'u3' identified by 'pass3', 'u4' identified by 'pass4';
+ERROR HY000: YAO-5091: Your password must contain letters, numbers and special characters, more than 8 digits
+drop user 'u1', 'u2';
+ERROR 01007: YAO-5035: delete user failed
+set password = 'lala';
+ERROR HY000: YAO-5091: Your password must contain letters, numbers and special characters, more than 8 digits
+set password for 'u3' = 'kaka';
+ERROR HY000: YAO-5091: Your password must contain letters, numbers and special characters, more than 8 digits
+alter user 'u4' identified by 'u4pass';
+ERROR HY000: YAO-5091: Your password must contain letters, numbers and special characters, more than 8 digits
+alter user 'u4' locked;
+ERROR 01007: YAO-5035: user not exist
+alter user 'u4' unlocked;
+ERROR 01007: YAO-5035: user not exist
+rename user 'u4' to 'admin2', 'u3' to 'admin3';
+ERROR 01007: YAO-5035: user not exist
+grant SELECT, CREATE USER on * to 'admin2', 'admin3';
+ERROR 01007: YAO-5035: user not exists
+grant UPDATE, GRANT OPTION on __first_tablet_entry to 'admin2';
+ERROR 01007: YAO-5035: user not exists
+revoke CREATE USER on * from 'admin2';
+ERROR 01007: YAO-5035: user not exists
+revoke ALL PRIVILEGES, GRANT OPTION from 'admin2', 'admin3';
+ERROR 01007: YAO-5035: user not exists

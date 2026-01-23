@@ -1,0 +1,137 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：插入不同类型的数据时，索引表的更新变化
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：1316s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-10
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+set yao_query_timeout=900000000;
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+create table t1(id int primary key,c1 decimal(5,4),c2 int,c3 varchar(20),c4 datetime,c5 bool,c6 double);
+
+--disable_query_log
+--enable_query_log
+
+insert into t1 values(1,1.2345,3,'maos','2901-12-22 12:00:00',1,23.345),(2,2.3545,4,'dfdff','2301-02-13 12:00:00',0,3434),(3,1.3445,34,'fcf','1234-01-12 21:00:00',0,12.43);
+select * from t1;
+create index il0 on t1(c1,c3) storing(c5,c6);
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 700
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end =__idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+eval select * from $table_name;
+
+###2-1:插入int和decimal类型数据
+insert into t1(id,c1) values(4,7.3433),(6,3.4541),(7,3.9080),(8,8.3433);
+--error 58
+insert into t1(id,c1) values (111,32.12);
+insert into t1(id,c1) values (111,2.12);
+eval select * from $table_name;
+
+###2-2:插入int和varchar类型数据
+insert into t1(id,c3) values(9,'nfndf'),(10,'fde3');
+insert into t1(id,c3) values(11,'dsfdfdsdsdsfsd');
+eval select * from $table_name;
+
+###2-3:插入int和datetime类型数据
+insert into t1(id,c4) values(18,'1234-2-2 12:00:00'),(12,'1234-2-2 12:00:00'),(13,'1234-2-2 12:00:00');
+--error 5102
+insert into t1(id,c4) values(14,'13224-09-12123 324:32:2343');
+eval select * from $table_name;
+###2-4:插入int和bool类型数据
+insert into t1(id,c5) values(15,1),(16,0);
+insert into t1(id,c5) values(17,9);
+eval select * from $table_name;
+
+###2-5:插入int and decimal and varchar类型数据
+insert into t1(id,c1,c3) values(20,1.2345,'mmmmmm'),(22,1.2345,'mmmmmm'),(23,1.2345,'mmmmmm'),(24,1.2345,'mmmmmm'),(25,1.2345,'mmmmmm');
+eval select * from $table_name;
+
+###2-6:插入int and decimal and datetime 类型数据
+--error 5102
+insert into t1(id,c1,c4) values(26,2.2345,'cdcdcdcdcd'),(27,2.2345,'cdcdcdcdcd'),(28,2.2345,'cdcdcdcdcd'),(29,2.2345,'cdcdcdcdcd'),(30,2.2345,'cdcdcdcdcd'),(31,2.2345,'cdcdcdcdcd');
+eval select * from $table_name;
+
+###2-7:插入int and datetime and bool 类型数据
+insert into t1(id,c4,c5) values(32,'3024-04-24 2:00:00','frfrfrfr'),(34,'3024-04-24 2:00:00','frfrfrfr'),(35,'3024-04-24 2:00:00','frfrfrfr'),(36,'3024-04-24 2:00:00','frfrfrfr'),(37,'3024-04-24 2:00:00','frfrfrfr');
+eval select * from $table_name;
+drop table t1;
+
+create table t1 (id int primary key,c1 createtime,c2 modifytime,c3 timestamp,c4 real);
+create index il0 on t1(c3) storing(c1,c2,c4);
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on t1;
+
+let $n=query_get_value(select table_id from __first_tablet_entry where table_name='t1',table_id,1);
+--let $table_head =__
+--let $table_end =__idx__il0
+--let $table_name=$table_head$n$table_end
+echo $table_name;
+eval select * from $table_name;
+
+###2-8:插入int和createtime类型数据
+--error 5056
+insert into t1(id,c1) values(1,'2019-08-29 13:26:47.326624');
+eval select * from $table_name;
+
+###2-9:插入int和modifytime类型数据
+--error 5056
+insert into t1(id,c2) values(1,'2019-08-29 13:26:47.326624');
+eval select * from $table_name;
+
+###2-10:插入int and timestamp类型数据
+insert into t1(id,c3) values(3,'2019-08-29 13:26:47.326624');
+insert into t1(id,c3) values(4,'2019-08-29 13:30:07.997919');
+insert into t1(id,c3) values(5,'2019-08-29 13:28:47.875477');
+insert into t1(id,c3) values(6,'2019-08-29');
+eval select count(*) from $table_name;
+
+###2-11:插入int and real类型数据
+insert into t1(id,c4) values(7,1.232434333);
+insert into t1(id,c4) values(8,43.232434333);
+#--error 58
+insert into t1(id,c4) values(9,1.2324343999999999999999999999999999999933);
+insert into t1(id,c4) values(10,1);
+insert into t1(id,c4) values(11,0);
+
+eval select count(*) from $table_name;
+create index il1 on t1(c3,c4) storing(c2,c1);
+insert into t1(id,c3,c4) values(12,'2019-08-29 13:30:07.997919','2019-08-29 13:30:07.997919');
+insert into t1(id,c3,c4) values(13,'2019-08-29 13:30:07.997919','2019-08-29 13:30:07.997919');
+eval select count(*) from $table_name;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

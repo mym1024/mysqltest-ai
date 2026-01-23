@@ -1,0 +1,180 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3;
+alter system set min_drop_cache_wait_time='2s' server_type=yaodatasvr;
+create table t1(c1 int primary key, c2 varchar(8), c3 varchar(8));
+create index i1 on t1(c2);
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__i1	1	0
+alter table t1 alter current use_block_cache=true;
+insert into t1 values(1,'b1','c1');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:1' for key 'PRIMARY'
+0
+1
+insert into t1 values(2,'b1','c1');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:2' for key 'PRIMARY'
+1
+1
+alter table t1 alter current use_block_cache=false;
+insert into t1 values(3,'b1','c1');
+ERROR 23000: YAO-5024: Duplicate entry ' <3001.16>=int32:3' for key 'PRIMARY'
+1
+1
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+update t1 set c3='w' where c1=1;
+1
+2
+update t1 set c3='w' where c1=2;
+2
+2
+alter table t1 alter current use_block_cache=false;
+update t1 set c3='w' where c1=3;
+2
+2
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+update t1 set c3='w' where c3='c1';
+2
+3
+update t1 set c3='w' where c3='c2';
+3
+3
+alter table t1 alter current use_block_cache=false;
+update t1 set c3='w' where c3='c3';
+3
+3
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+update t1 set c3='w' where c2='b1';
+3
+5
+update t1 set c3='w' where c2='b2';
+5
+5
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+update t1 set c3='w' where c2='b3';
+5
+5
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+update t1 set c2='d4' where c2='b1';
+5
+6
+update t1 set c2='d5' where c2='b2';
+6
+6
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+update t1 set c2='d6' where c2='b3';
+6
+6
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+update t1 set c1=4 where c2='b1';
+7
+8
+update t1 set c1=5 where c2='b2';
+10
+8
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+update t1 set c1=6 where c2='b3';
+10
+8
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+replace into t1 values(1,'b1','c1');
+10
+9
+replace into t1 values(2,'b2','c2');
+11
+9
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+replace into t1 values(3,'b3','c3');
+11
+9
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+delete  from t1 where c1=1;
+11
+10
+delete  from t1 where c1=2;
+12
+10
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+delete  from t1 where c1=3;
+12
+10
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+delete  from t1 where c2='b1';
+12
+11
+delete  from t1 where c2='b2';
+13
+11
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+delete  from t1 where c2='b3';
+13
+11

@@ -1,0 +1,102 @@
+####################################必填######################################################
+###1.测试功能点：测试alter table varchar column
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-20
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database test_alter;
+using database test_alter;
+sleep 5;
+
+###2-1：无索引，进行alter table varchar column
+#do sql
+create table if not exists t1(c1 int primary key, c2 varchar(10));
+desc t1;
+insert into t1 values(1,'');
+insert into t1 values(2,'1');
+insert into t1 values(3,'123456789');
+insert into t1 values(4,'1234567890');
+--error 5611
+insert into t1 values(5,'12345678901');
+
+alter table t1 alter column c2 set data type varchar(15);
+desc t1;
+insert into t1 values(6,'');
+insert into t1 values(7,'1');
+insert into t1 values(8,'12345678901');
+insert into t1 values(10,'123456789');
+insert into t1 values(11,'1234567890');
+insert into t1 values(12,'12345678901234');
+insert into t1 values(13,'123456789012345');
+--error 5611
+insert into t1 values(14,'1234567890123456');
+
+--error 5014
+alter table t1 alter column c2 set data type varchar(10);
+desc t1;
+insert into t1 values(15,'');
+insert into t1 values(16,'1');
+insert into t1 values(17,'123456789');
+insert into t1 values(18,'1234567890');
+insert into t1 values(19,'12345678901');
+insert into t1 values(20,'12345678901234');
+insert into t1 values(21,'123456789012345');
+--error 5611
+insert into t1 values(22,'1234567890123456');
+
+--real_sleep 3
+
+
+###2-2：有索引，在索引为生效时alter table
+#do sql
+drop table t1;
+create table if not exists t1(c1 int primary key, c2 varchar(10));
+desc t1;
+insert into t1 values(1,'');
+insert into t1 values(2,'1');
+insert into t1 values(3,'123456789');
+insert into t1 values(4,'1234567890');
+--error 5611
+insert into t1 values(5,'12345678901');
+
+create index testindex on t1(c2);
+alter table t1 alter column c2 set data type varchar(15);
+desc t1;
+insert into t1 values(6,'');
+insert into t1 values(7,'1');
+insert into t1 values(8,'12345678901');
+insert into t1 values(10,'123456789');
+insert into t1 values(11,'1234567890');
+insert into t1 values(12,'12345678901234');
+insert into t1 values(13,'123456789012345');
+--error 5611
+insert into t1 values(14,'1234567890123456');
+
+--error 5014
+alter table t1 alter column c2 set data type varchar(10);
+desc t1;
+insert into t1 values(15,'');
+insert into t1 values(16,'1');
+insert into t1 values(17,'123456789');
+insert into t1 values(18,'1234567890');
+insert into t1 values(19,'12345678901');
+
+drop table if exists t1;
+drop database test_alter;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

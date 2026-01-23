@@ -1,0 +1,235 @@
+CREATE TABLE t_complex_ddl_parent (
+parent_id INT PRIMARY KEY,
+parent_tag VARCHAR(20) UNIQUE
+);
+INSERT INTO t_complex_ddl_parent VALUES (100, 'parent_tag_a'), (200, 'parent_tag_b');
+CREATE TABLE t_complex_ddl_enum_set (
+pk_enum ENUM('type_a', 'type_b', 'type_c'),
+pk_id INT,
+status_set SET('active', 'inactive', 'pending', 'archived') NOT NULL,
+detail_enum ENUM('low', 'medium', 'high') DEFAULT 'medium',
+description VARCHAR(100),
+fk_parent_id INT,
+PRIMARY KEY (pk_enum, pk_id),
+UNIQUE KEY uk_set_enum (status_set, detail_enum),
+KEY idx_set (status_set),
+CONSTRAINT chk_status_not_empty CHECK (status_set != ''),
+CONSTRAINT chk_detail_valid CHECK (detail_enum IN ('low', 'medium', 'high')),
+CONSTRAINT fk_enum_set_to_parent FOREIGN KEY (fk_parent_id) REFERENCES t_complex_ddl_parent(parent_id)
+);
+CREATE TABLE t_insert_source (
+src_enum ENUM('type_a', 'type_b'),
+src_id INT,
+src_set SET('active', 'pending'),
+src_detail ENUM('low', 'high'),
+src_desc VARCHAR(50),
+src_fk INT
+);
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description) VALUES ('type_a', 1, 'active,pending', 'high', 'First record');
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	1	active,pending	high	First record	NULL
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES
+('type_b', 1, 'inactive', 'low', 'Second record', 200),
+('type_a', 2, 'archived', 'medium', 'Third record', 100),
+('type_c', 1, 'pending,active', DEFAULT, 'Fourth record with default enum', 200);
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	2	archived	medium	Third record	100
+type_b	1	inactive	low	Second record	200
+type_c	1	active,pending	medium	Fourth record with default enum	200
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES (3, 2, 'active', 1, 'ENUM by index', 100);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 2;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_c	2	active	low	ENUM by index	100
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_b', 2, 'pending,archived', 'medium', 'SET by names', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_b' AND pk_id = 2;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_b	2	pending,archived	medium	SET by names	200
+TRUNCATE TABLE t_complex_ddl_enum_set;
+SET @old_sql_mode = @@sql_mode;
+SET sql_mode = '';
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 99, 'active', 'invalid_detail', 'Invalid ENUM', 100);
+ERROR HY000: YAO-5047: No rowkey column specified
+SET sql_mode = @old_sql_mode;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 99, 'active', 'invalid_detail', 'Invalid ENUM', 100);
+ERROR HY000: YAO-5047: No rowkey column specified
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 98, 'active,nonexistent_member', 'high', 'Invalid SET member', 100);
+ERROR HY000: YAO-5047: No rowkey column specified
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 3, 'inactive,pending', 'medium', 'NULL FK allowed?', NULL);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 3;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_c	3	inactive,pending	medium	NULL FK allowed?	NULL
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, fk_parent_id) 
+VALUES ('type_b', 3, 'archived', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_b' AND pk_id = 3;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_b	3	archived	medium	NULL	200
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_insert_source VALUES
+('type_a', 1, 'active', 'low', 'Source 1', 100),
+('type_b', 2, 'pending', 'high', 'Source 2', 200),
+('type_a', 3, 'active,pending', 'low', 'Source 3', 100);
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+SELECT src_enum, src_id, src_set, src_detail, src_desc, src_fk FROM t_insert_source;
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	1	active	low	Source 1	100
+type_a	3	active,pending	low	Source 3	100
+type_b	2	pending	high	Source 2	200
+TRUNCATE TABLE t_complex_ddl_enum_set;
+PREPARE stmt_insert_enum_set FROM
+'INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES (?, ?, ?, ?, ?, ?)';
+SET @p_enum = 'type_c';
+SET @p_id = 4;
+SET @p_set = 'active,inactive';
+SET @p_detail = 'high';
+SET @p_desc = 'Prepared Stmt Insert';
+SET @p_fk = 100;
+EXECUTE stmt_insert_enum_set USING @p_enum, @p_id, @p_set, @p_detail, @p_desc, @p_fk;
+ERROR HY000: YAO-6: The object is not initialized
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_c' AND pk_id = 4;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+DEALLOCATE PREPARE stmt_insert_enum_set;
+truncate table t_complex_ddl_enum_set;
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES ('type_a', 10, 'pending', 'low', 'New row via REPLACE', 200);
+ERROR 0A000: YAO-7: Not supported feature or function
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 10;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+TRUNCATE TABLE t_complex_ddl_enum_set;
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 1, 'active,pending', 'high', 'First record', 100);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	1	active,pending	high	First record	100
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_a', 1, 'archived', 'low', 'REPLACED original row', 200);
+ERROR 0A000: YAO-7: Not supported feature or function
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 1;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	1	active,pending	high	First record	100
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id) VALUES
+('type_b', 1, 'inactive', 'low', 'Second record', 200),
+('type_a', 2, 'archived', 'medium', 'Third record', 100),
+('type_c', 1, 'pending,active', DEFAULT, 'Fourth record with default enum', 200);
+SELECT * FROM t_complex_ddl_enum_set WHERE pk_enum = 'type_a' AND pk_id = 2;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	2	archived	medium	Third record	100
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_b', 99, 'archived', 'medium', 'UK conflict on REPLACE', 100);
+ERROR 0A000: YAO-7: Not supported feature or function
+REPLACE INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 99, 'active', 'invalid_on_replace', 'Invalid ENUM on REPLACE', 100);
+ERROR 0A000: YAO-7: Not supported feature or function
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 5, 'active', 'super_high', 'Violates ENUM CHECK', 100);
+ERROR HY000: YAO-5047: No rowkey column specified
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 6, '', 'low', 'Violates SET CHECK (empty)', 100);
+ERROR HY000: YAO-5689: Check constraint 'chk_status_not_empty' is violated
+INSERT INTO t_complex_ddl_enum_set (pk_enum, pk_id, status_set, detail_enum, description, fk_parent_id)
+VALUES ('type_c', 7, 'pending', 'high', 'Violates FK', 9999);
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+SELECT * FROM t_complex_ddl_enum_set ORDER BY pk_enum, pk_id;
+pk_enum	pk_id	status_set	detail_enum	description	fk_parent_id
+type_a	1	active,pending	high	First record	100
+type_a	2	archived	medium	Third record	100
+type_b	1	inactive	low	Second record	200
+type_c	1	active,pending	medium	Fourth record with default enum	200
+DROP TABLE t_complex_ddl_enum_set;
+DROP TABLE t_complex_ddl_parent;
+DROP TABLE t_insert_source;
+DROP TABLE IF EXISTS t_replace_no_constraints, t_replace_pk_no_uk;
+CREATE TABLE t_replace_no_constraints (
+id INT,
+data_enum ENUM('alpha', 'beta', 'gamma'),
+data_set SET('x', 'y', 'z'),
+description VARCHAR(50),
+KEY idx_enum (data_enum),
+KEY idx_set (data_set)
+);
+SHOW CREATE TABLE t_replace_no_constraints;
+Table	Create Table
+test.t_replace_no_constraints	CREATE TABLE t_replace_no_constraints (
+id INT(10),
+data_enum enum ('alpha','beta','gamma') COLLATE 'utf8mb4_general_ci',
+data_set set ('x','y','z') COLLATE 'utf8mb4_general_ci',
+description VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+ KEY idx_enum(data_enum),
+ KEY idx_set(data_set)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (1, 'alpha', 'x,z', 'First row');
+SELECT * FROM t_replace_no_constraints;
+id	data_enum	data_set	description
+1	alpha	x,z	First row
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (2, 'alpha', 'x,z', 'Second row, same enum/set values');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+id	data_enum	data_set	description
+2	alpha	x,z	Second row, same enum/set values
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (3, 'alpha', 'x,z', 'Third row, identical values');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+id	data_enum	data_set	description
+3	alpha	x,z	Third row, identical values
+REPLACE INTO t_replace_no_constraints (id, data_enum, data_set, description)
+VALUES (1, 'beta', 'y', 'Fourth row, using id=1');
+SELECT * FROM t_replace_no_constraints ORDER BY id;
+id	data_enum	data_set	description
+1	beta	y	Fourth row, using id=1
+SELECT COUNT(*) AS total_rows FROM t_replace_no_constraints;
+total_rows
+1
+DROP TABLE t_replace_no_constraints;
+CREATE TABLE t_replace_pk_no_uk (
+pk_id INT PRIMARY KEY,
+data_enum ENUM('red', 'green', 'blue'),
+data_set SET('read', 'write', 'execute'),
+description VARCHAR(50),
+KEY idx_enum (data_enum) 
+);
+SHOW CREATE TABLE t_replace_pk_no_uk;
+Table	Create Table
+test.t_replace_pk_no_uk	CREATE TABLE t_replace_pk_no_uk (
+pk_id INT(10),
+data_enum enum ('red','green','blue') COLLATE 'utf8mb4_general_ci',
+data_set set ('read','write','execute') COLLATE 'utf8mb4_general_ci',
+description VARCHAR (50) COLLATE 'utf8mb4_general_ci',
+ PRIMARY KEY(pk_id),
+ KEY idx_enum(data_enum, pk_id)
+) COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'none', REPLICA_NUM = 3 ;
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (10, 'red', 'read,write', 'PK Row 1');
+SELECT * FROM t_replace_pk_no_uk;
+pk_id	data_enum	data_set	description
+10	red	read,write	PK Row 1
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (10, 'blue', 'execute', 'PK Row 1 - REPLACED');
+SELECT * FROM t_replace_pk_no_uk;
+pk_id	data_enum	data_set	description
+10	blue	execute	PK Row 1 - REPLACED
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (20, 'red', 'read', 'PK Row 2');
+SELECT * FROM t_replace_pk_no_uk ORDER BY pk_id;
+pk_id	data_enum	data_set	description
+10	blue	execute	PK Row 1 - REPLACED
+20	red	read	PK Row 2
+REPLACE INTO t_replace_pk_no_uk (pk_id, data_enum, data_set, description)
+VALUES (30, 'red', 'write', 'PK Row 3, also data_enum=red');
+SELECT * FROM t_replace_pk_no_uk ORDER BY pk_id;
+pk_id	data_enum	data_set	description
+10	blue	execute	PK Row 1 - REPLACED
+20	red	read	PK Row 2
+30	red	write	PK Row 3, also data_enum=red
+SELECT COUNT(*) AS total_rows FROM t_replace_pk_no_uk;
+total_rows
+3
+DROP TABLE t_replace_pk_no_uk;

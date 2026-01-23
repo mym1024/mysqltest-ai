@@ -1,0 +1,6 @@
+set @@global.autocommit=1;
+ERROR 0A000: YAO-7: Not support set global autocommit
+set @@global.autocommit='1';
+ERROR 0A000: YAO-7: Not support set global autocommit
+set @@session.autocommit='1';
+ERROR HY004: YAO-1: type not match

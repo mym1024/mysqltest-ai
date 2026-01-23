@@ -1,0 +1,31 @@
+select 12 + 45 from dual;
+12 + 45
+57
+select 12 + 45 from dual where 10 > 5;
+12 + 45
+57
+select c1 from dual;
+ERROR 42S22: YAO-5009: Unkown column name c1
+select 12 + 45 from dual where 10 > 5 limit 10;
+12 + 45
+57
+select 12 + 45 from dual where 10 > 5 limit 0;
+12 + 45
+select 12 + 45 from dual limit 0;
+12 + 45
+select 12 + 45;
+12 + 45
+57
+select 12 + 45 where 10 > 5;
+12 + 45
+57
+select 12 + 45  limit 10;
+12 + 45
+57
+select 12 + 45  limit 0;
+12 + 45
+select c1 ;
+ERROR 42S22: YAO-5009: Unkown column name c1
+select length('asdfg');
+length('asdfg')
+5

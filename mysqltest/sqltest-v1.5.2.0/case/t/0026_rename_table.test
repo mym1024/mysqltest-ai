@@ -1,0 +1,83 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：表名重命名功能
+##               修复bug：测试当表名重命名后，系统表_all_table_rules中对应的表名是否更新
+##               测试场景：1.不同数据库下，相同表名进行重命名
+##                         2.在多版本上对某张表更改分区规则，之后再重命名
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：http://182.119.80.93/cbase_dev/cbase/issues/469
+###4.问题号：469
+###5.预计运行时间：408 s
+###6.编写/修改人：yuanzhuping
+###7.编写/修改日期：2020-05-06
+###8.其他（选填）：case格式标准化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+--disable_warnings
+drop table if exists t1,t2,t3;
+
+--enable_warnings
+
+#对表t1,t2进行重命名，然后观察__all_table_rules，表名也进行相应更改
+create table t1(c1 int primary key, c2 int);
+create table t2(c1 int primary key, c2 int);
+
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+--error 5019
+rename table t1 to t2;
+rename table t1 to test1;
+
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+#在不同数据库，对相同表名的进行重命名，__all_table_rules对应的表名会更改
+show current database;
+create database test1;
+using database test1;
+create table t2(c1 int primary key, c2 int); 
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+rename table t2 to test2;
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+#在多个版本更改分区规则和重命名
+create range partition function r1(x) '(40),(80),(maxvalue)';
+alter table test2 partition rule to(rr,r1,c1);
+rename table test2 to t2;
+
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 500
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+create range partition function r2(x) '(30),(60),(maxvalue)';
+alter table t2 partition rule to(rr,r2,c1);
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+rename table t2 to test2;
+show table rules;
+select table_id,start_version,table_name,partition_type from __all_table_rules;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

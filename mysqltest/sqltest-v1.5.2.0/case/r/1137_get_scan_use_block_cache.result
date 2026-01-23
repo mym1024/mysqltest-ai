@@ -1,0 +1,169 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists t1,t2,t3;
+alter system set min_drop_cache_wait_time='2s' server_type=yaodatasvr;
+create table t1(c1 int primary key, c2 varchar(8), c3 varchar(8));
+create index i1 on t1(c2);
+replace into t1 values (1,'b1','c1');
+replace into t1 values (2,'b2','c2');
+replace into t1 values (3,'b3','c3');
+"merge"
+major_freeze...
+merge: DONE
+show index on t1;
+index_name	status	index_type
+__3001__idx__i1	1	0
+alter table t1 alter current use_block_cache=true;
+select * from t1 where c1=1;
+c1	c2	c3
+1	b1	c1
+0
+1
+select * from t1 where c1=2;
+c1	c2	c3
+2	b2	c2
+1
+1
+alter table t1 alter current use_block_cache=false;
+select * from t1 where c1=3;
+c1	c2	c3
+3	b3	c3
+1
+1
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+select * from t1 where c2='b1';
+c1	c2	c3
+1	b1	c1
+1
+2
+select * from t1 where c2='b2';
+c1	c2	c3
+2	b2	c2
+2
+2
+alter table t1 alter current use_block_cache=false;
+select * from t1 where c2='b3';
+c1	c2	c3
+3	b3	c3
+2
+2
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+select * from t1;
+c1	c2	c3
+1	b1	c1
+2	b2	c2
+3	b3	c3
+2
+3
+select * from t1;
+c1	c2	c3
+1	b1	c1
+2	b2	c2
+3	b3	c3
+3
+3
+alter table t1 alter current use_block_cache=false;
+select * from t1;
+c1	c2	c3
+1	b1	c1
+2	b2	c2
+3	b3	c3
+3
+3
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b1';
+c1	c2	c3
+1	b1	c1
+3
+5
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b2';
+c1	c2	c3
+2	b2	c2
+5
+5
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select /*+INDEX(t1 i1)*/ * from t1 where c2='b3';
+c1	c2	c3
+3	b3	c3
+5
+5
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select  * from t1 where c2='b1';
+c1	c2	c3
+1	b1	c1
+5
+7
+select * from t1 where c2='b2';
+c1	c2	c3
+2	b2	c2
+7
+7
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select * from t1 where c2='b3';
+c1	c2	c3
+3	b3	c3
+7
+7
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b1';
+c1
+1
+7
+8
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b2';
+c1
+2
+8
+8
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select /*+INDEX(t1 i1)*/ c1 from t1 where c2='b3';
+c1
+3
+8
+8
+"merge"
+major_freeze...
+merge: DONE
+alter table t1 alter current use_block_cache=true;
+alter table __3001__idx__i1 alter current use_block_cache=true;
+select   c1 from t1 where c2='b1';
+c1
+1
+8
+9
+select   c1 from t1 where c2='b2';
+c1
+2
+9
+9
+alter table t1 alter current use_block_cache=false;
+alter table __3001__idx__i1 alter current use_block_cache=false;
+select   c1 from t1 where c2='b3';
+c1
+3
+9
+9

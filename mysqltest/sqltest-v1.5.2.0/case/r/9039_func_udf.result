@@ -1,0 +1,622 @@
+create table student(id int,name varchar(20),score int);
+insert into student values(1,'a',60);
+insert into student values(2,'b',90);
+insert into student values(3,'c',91);
+insert into student values(4,'d',53);
+insert into student values(5,'e',15);
+create table t2(c1 int primary key,c2 int not null,unique idx_1 (c2));
+insert into t2 values(1,1),(2,2);
+create view v1  as select c1,c2 from t2;
+CREATE TABLE t3(a INT, b INT);
+INSERT INTO t3 values (1,1),(2,2);
+CREATE TABLE t4 (a INT);
+CREATE TABLE t5 (a INT PRIMARY KEY);
+INSERT INTO t4 VALUES (4),(3),(2),(1);
+INSERT INTO t5 SELECT * FROM t4;
+create table t1(c1 int)//
+insert into t1 values(1),(2)//
+create function func1() returns int
+begin 
+declare a int default 1;
+select sum(c1) into a from t1;
+return a; 
+end//
+select func1()//
+func1()
+3
+create function func2() returns int
+begin 
+declare a double;
+return 1; 
+end//
+select func2(NULL)//
+ERROR HY093: YAO-5053: Incorrect number of arguments for function 'func2', need 0 arguments
+create function func3() returns int  CALLED ON NULL INPUT
+begin 
+declare a int default 1;
+return a; 
+end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+create function func4() returns int  NOT DETERMINISTIC
+begin return 1; end//
+select func4()//
+func4()
+1
+create function func5() returns int
+begin 
+declare a int default 1;
+declare A double default 0.8;
+set a = A;
+return a; 
+end//
+select func5()//
+ERROR HY000: YAO-5724: Duplicate variable: A
+create function func6() returns int
+begin 
+declare a int default 1;
+set a:=1.1;
+return a; 
+end//
+select func6()//
+func6()
+1
+create function func7(f float) returns float 
+begin 
+set @a = 2; 
+set @b := @a + 2;
+return @b; 
+end//
+select func7(NULL)//
+func7(NULL)
+4
+create function func8() returns int
+begin 
+select @d := 1;
+select @c := count(c1)+@d from t1; 
+return @c; 
+end//
+select func8()//
+func8()
+3
+create function func9() returns varchar(50)
+return now()//
+create function func10() returns int
+begin
+declare num int default 0;
+select count(*) into num from (select * from (select * from student where score <100) t where id =1) t1 where score > 60 group by score order by id desc limit 1;
+return num;
+end//
+select * from student//
+id	name	score
+1	a	60
+2	b	90
+3	c	91
+4	d	53
+5	e	15
+select func10()//
+func10()
+0
+create function func11() returns int
+begin
+declare num int default 0;
+select count(*) into num from student union (select * from student);
+return num;
+end//
+select * from student//
+id	name	score
+1	a	60
+2	b	90
+3	c	91
+4	d	53
+5	e	15
+select func11()//
+ERROR HY000: YAO-55: The used SELECT statements have a different number of columns
+create function func_if1() returns int  CONTAINS SQL
+begin declare a int default 1;
+case a 
+when 1 
+then set a = 2;
+end case;
+return a; 
+end//
+select func_if1()//
+func_if1()
+2
+create function func_if2() returns int  READS SQL DATA
+begin 
+declare a int default 1;
+if 1 then set a = 2;
+end if;
+return a; 
+end//
+select func_if2()//
+func_if2()
+2
+create function func_if3(n int,m int)returns varchar(50)
+begin
+declare s varchar(50);
+if n = m then set s = 'equals';
+else
+if n>m then set s = 'greater';
+else set s = 'less';
+end if;
+set s = concat('is ',s,' than');
+end if;
+set s = concat(n,' ',s,' ',m,'.');
+return s;
+end//
+select func_if3(39,17)//
+func_if3(39,17)
+39 is greater than 17.
+select func_if3(39,47)//
+func_if3(39,47)
+39 is less than 47.
+create function func_if4(age int)returns bool
+begin
+declare vaild bool;
+if age>=18 then set vaild=true;
+else set vaild=false;
+end if;
+return vaild;
+end//
+select func_if4(1)//
+func_if4(1)
+0
+create function func_if5(n int,m int)returns varchar(20)
+begin
+declare s varchar(20);
+if n>m then set s = '>';
+elseif n=m then set s = '=';
+else set s='<';
+end if;
+set s = concat(n,' ',s,' ',m);
+return s;
+end//
+select func_if5(1,9)//
+func_if5(1,9)
+1 < 9
+select func_if5(111,520)//
+func_if5(111,520)
+111 < 520
+create function if_test1()
+returns int
+begin
+declare n int default 1;
+declare str varchar(20) default 'test';
+if (str REGEXP 't') then set n = 2;
+end if;
+return n;
+end//
+select if_test1()//
+if_test1()
+2
+create function if_test2()
+returns int
+begin
+declare n int default 1;
+declare str varchar(20) default '0';
+if convert(str using utf8) then set n = 2;
+end if;
+return n;
+end//
+select if_test2()//
+if_test2()
+2
+create function if_test3()
+returns int
+begin
+declare n int default 1;
+declare str varchar(20) default 'test';
+if char_length(str)=4 then set n = 2;
+end if;
+return n;
+end//
+select if_test3()//
+if_test3()
+2
+create function case_test1()
+returns int
+begin
+declare n int default 0;
+case n
+when (select count(1) from student t1 inner join (select id from student where score=0) t2 on t1.id = 1) then set n = 2;
+end case;
+return n;
+end//
+select case_test1()//
+case_test1()
+2
+create function func_while() returns int  MODIFIES SQL DATA
+begin 
+declare a int default 1;
+while a<3 
+do set a = a+1;
+end while;
+return a; 
+end//
+select func_while()//
+func_while()
+3
+create function func_repeat(f float) returns float 
+begin 
+declare a int default 1;
+repeat set a=a+1;
+until a=3
+end repeat;
+return a; 
+end//
+select func_repeat(NULL)//
+func_repeat(NULL)
+3
+create function func_loop(f float) returns float 
+begin 
+declare a int default 1;
+lp:loop
+set a=a+1;
+leave lp;
+end loop;
+return 1; 
+end//
+select func_loop(NULL)//
+func_loop(NULL)
+1
+create function testIterate() returns varchar(255)
+begin
+declare i,j int default 0;
+loop1: while (i<=5) do
+set i = i + 1;
+set j = 0;
+while (j<=i) do
+if(j = 3) then
+iterate loop1;
+end if;
+set j = j + 1;
+end while;
+end while loop1;
+return concat('i: ', i, ' j:', j);
+end//
+select testIterate()//
+testIterate()
+i: 6 j:3
+create function while_test1()
+returns int
+begin
+declare a int default 1;
+declare i,s int default 1;
+declare str varchar(20) default 'test';
+while i<3 do 
+case(select count(1) from student where id = (select count(1) from student))
+when 1
+then select count(*) into s from student;
+end case;
+set i=i+1;
+end while;
+return s;
+end//
+select test.while_test1()//
+test.while_test1()
+5
+create function while_test2()
+returns int
+begin
+declare a int default 5;
+declare i,s int default 1;
+while i<3 do 
+if a = (select count(1) from student t1 inner join (select * from student) t2 on t1.id = t2.id)
+then select count(*) into s from (select * from (select * from student) where id <100 group by id ) stu where id<10 order by id limit 3;
+end if;
+set i=i+1;
+end while;
+return s;
+end//
+select while_test2()//
+while_test2()
+5
+create function while_test3()
+returns int
+begin
+declare a int default 9;
+declare i,s int default 1;
+while i<3 do 
+select count(*) into s from student where id = a-6 and id in (select id from student where id in (select id from student));
+set i=i+1;
+end while;
+return s;
+end//
+select while_test3()//
+while_test3()
+1
+create function fun_ddl()returns int
+begin
+insert into t2 values(10,11);
+update t2 set c1 =9 where c1=2;
+delete from t2 where c1=1;
+return 1;
+end//
+select fun_ddl()//
+fun_ddl()
+1
+select * from t2//
+c1	c2
+9	2
+10	11
+select * from v1//
+c1	c2
+9	2
+10	11
+CREATE FUNCTION fn(a int) RETURNS int DETERMINISTIC
+BEGIN
+RETURN a;
+END||
+CREATE VIEW v2 AS SELECT a, fn(MIN(b)) as c FROM t3 GROUP BY a;
+SELECT a,c FROM v2;
+a	c
+1	1
+2	2
+SELECT a, fn(MIN(b)) as c FROM t3 GROUP BY a;
+a	c
+1	1
+2	2
+EXPLAIN SELECT test.fn(MIN(b)) as c FROM t3 GROUP BY a;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3005,"TableName":"test.t3","AliasName":"NULL","Type":"BASE_TABLE","RefId":3005}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"b","TableRef":3005},
+                    {"Num":1,"ColumnId":16,"ColumnName":"a","TableRef":3005}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"3005","ColumnId":16,
+            "RawExprs":[
+               {"RefTableId":3005, "RefColumnId":16}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65509>=[COL<NULL,65509>|]])(sequence_values_=[])
+AddProject(columns=[expr<NULL,65509>=[COL<NULL,65519>|udf_db:test udf:fn|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; GroupBy=<GroupBy(group_cols=[<3005,16>], aggr_cols=[expr<NULL,65519>=MIN([COL<NULL,65518>|])], partition_cols=[], anal_cols=[])
+>, Sort=<Sort(columns=[<3005,16,ASC>])
+>, rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, GroupBy(group_cols=[<3005,16>], aggr_cols=[expr<NULL,65518>=MIN([COL<3005,17>|])], partition_cols=[], anal_cols=[])Sort(columns=[<3005,16,ASC>])Project(columns=[expr<3005,17>=[COL<3005,17>|],expr<3005,16>=[COL<3005,16>|]])(sequence_values_=[])>)
+
+SELECT test.fn(MIN(b)) as c FROM t3 GROUP BY a;
+c
+1
+2
+DROP VIEW v2;
+DROP TABLE t3;
+create function udf4() returns varchar,int begin return 'aaa',1; end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+alter table student rename column score to score1$$
+create function udf5() returns int
+begin
+declare num int default 0;
+select count(*) into num from (select * from student where score <800); 
+return num;
+end$$
+select * from student$$
+id	name	score1
+1	a	60
+2	b	90
+3	c	91
+4	d	53
+5	e	15
+select udf5()$$
+ERROR HY000: YAO-55: Unkown column name score
+set @@yao_audit_open=true|
+audit select on table student|
+create function udf_audit() returns int
+begin
+declare aa int default true;
+select count(*) into aa from t1;
+select * from t1;
+return aa;
+end|
+select udf_audit()|
+udf_audit()
+2
+select count(*) from student|
+count(*)
+5
+CREATE TABLE users (user_id INT PRIMARY KEY,username VARCHAR(50) NOT NULL)$$
+CREATE TABLE orders (order_id INT PRIMARY KEY,user_id INT,order_date DATE,FOREIGN KEY (user_id) REFERENCES users(user_id))$$
+CREATE FUNCTION check_order_limit(user_id INT) 
+RETURNS INT
+BEGIN
+DECLARE order_count INT;
+SELECT COUNT(*) INTO order_count FROM orders WHERE user_id = user_id;
+RETURN order_count;
+END$$
+SELECT check_order_limit(1)//
+check_order_limit(1)
+0
+INSERT INTO orders (order_id, user_id, order_date) VALUES (1, 100, '2024-03-25')//
+ERROR HY000: YAO-5209: Cannot add or update this row: a foreign key constraint fails!, error code = -5209
+INSERT INTO users (user_id,username) VALUES (1,'aaa')//
+INSERT INTO orders (order_id, user_id, order_date) VALUES (1, 1, '2024-03-25')//
+SELECT check_order_limit(1)//
+check_order_limit(1)
+1
+drop table orders,users//
+CREATE TABLE tbl (c1 INT,c2 DATE,c3 INT,primary key (c3))
+partition by range(c3) (
+PARTITION p0 VALUES LESS THAN (100),PARTITION p1 VALUES LESS THAN (500),     
+PARTITION p2 VALUES LESS THAN (1000),     
+PARTITION p3 VALUES LESS THAN (MAXVALUE))//
+INSERT INTO tbl (c1, c2, c3) VALUES(1, '2024-03-22', 50),(2, '2024-03-23', 200),(3, '2024-03-24', 700),(4, '2024-03-25', 1200)//
+CREATE FUNCTION fun_range(c3 INT) RETURNS double
+BEGIN
+DECLARE total_amount double;
+-- 根据订单数量计算总金额，这里只是一个简单的示例，您可根据实际需求扩展逻辑
+SET total_amount = c3 * 10.0; -- 假设每个订单单价为 10
+RETURN total_amount;
+END//
+SELECT c1, c2, c3, fun_range(c3)  FROM tbl WHERE c1 = 1//
+c1	c2	c3	fun_range(c3)
+1	2024-03-22	50	500
+SELECT c1, c2, c3, fun_range(c3) AS total_amount FROM tbl WHERE c1 = 1//
+c1	c2	c3	total_amount
+1	2024-03-22	50	500
+create procedure p()
+begin
+create table proc_test(id int  primary key, age int);
+end//
+create function proc()returns int
+begin
+call p();
+end//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE FUNCTION MY_KILL(tid INT) RETURNS INT
+BEGIN
+DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN END;
+KILL tid;
+RETURN (SELECT COUNT(*) = 0 FROM INFORMATION_SCHEMA.PROCESSLIST WHERE ID = tid);
+END//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+CREATE TABLE users (id INT PRIMARY KEY,name VARCHAR(255),age INT)//
+INSERT INTO users (id, name, age) VALUES(1, 'Alice', 25),(2, 'Bob', 30),(3, 'Charlie', 28),(4, 'David', 25),(5, 'Eve', 30)//
+CREATE FUNCTION get_user_name_by_age(user_age INT) RETURNS VARCHAR(255)
+BEGIN
+DECLARE user_name VARCHAR(255);
+SET @sql_query = CONCAT('SELECT name FROM users WHERE age = ?');
+PREPARE stmt FROM @sql_query;
+EXECUTE stmt USING user_age;
+FETCH stmt INTO user_name;
+DEALLOCATE PREPARE stmt;
+RETURN user_name;
+END//
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+set @@sql_mode = 'NO_ANSI_QUOTES'//
+create function func_mode(name varchar(25)) returns varchar(25)
+begin
+declare a varchar(25);
+set a=name;
+return a;
+end//
+select func_mode("测试")//
+ERROR 42S22: YAO-5009: Unkown column name 测试
+set @@sql_mode ='ANTI_ANSI_AS_QUOTE'//
+select func_mode("测试")//
+func_mode("测试")
+测试
+set @@sql_mode = ''//
+select func_mode("测试")//
+ERROR 42S22: YAO-5009: Unkown column name 测试
+set @@sql_mode ='NO_PIPES_AS_CONCAT'//
+select func_mode((1>2)||(3>2))//
+func_mode((1>2)||(3>2))
+1
+set @@sql_mode = ''//
+select func_mode((1>2)||(3>2))//
+func_mode((1>2)||(3>2))
+1
+CREATE definer=admin FUNCTION fun_definer ()returns int 
+begin 
+return 1; 
+end//
+CREATE USER 'test1' IDENTIFIED BY '122qqq...A'//
+GRANT SELECT ON test.* TO 'test1'//
+CREATE FUNCTION calculate_total_price(quantity INT, price DECIMAL(10, 2))RETURNS DECIMAL(10, 2) DETERMINISTIC
+BEGIN
+RETURN quantity * price;
+END//
+select calculate_total_price(1,3)//
+calculate_total_price(1,3)
+3
+select calculate_total_price(1,3)//
+calculate_total_price(1,3)
+3
+GRANT ALL PRIVILEGES, GRANT OPTION ON *.* TO 'test1'//
+select calculate_total_price(1,3)//
+calculate_total_price(1,3)
+3
+create function f1(p1 varchar(255))
+returns varchar(255)
+begin
+return p1;
+end//
+create function f2(p1 varchar(255))
+returns double
+begin
+return p1;
+end//
+create function f3(p1 varchar(255))
+returns double
+begin
+return p1;
+end//
+select f3(NULL);
+f3(NULL)
+NULL
+select f2(NULL);
+f2(NULL)
+NULL
+select f1(NULL);
+f1(NULL)
+NULL
+set @@sql_mode = 'ANTI_ANSI_AS_QUOTE';
+CREATE TABLE const_len_bug (
+str_const varchar(4000),
+result1 varchar(4000),
+result2 varchar(4000)
+);
+CREATE FUNCTION check_const_len(txt varchar(25)) RETURNS varchar(25) 
+begin
+declare a varchar(25);
+set a = upper(txt);
+return a;
+end|
+create procedure check_const_len_sp(str_const VARCHAR(25))
+BEGIN
+DECLARE re VARCHAR(25);
+SET re = check_const_len(str_const);
+insert into const_len_bug values(str_const, re, " ");
+END |
+CALL check_const_len_sp('foo');
+SELECT * from const_len_bug;
+str_const	result1	result2
+foo	FOO	 
+set sql_mode='';
+set yao_enable_query_optimizer=false;
+CREATE FUNCTION sequence1() RETURNS INT 
+begin
+return 1;
+end//
+SELECT sequence1() AS seq FROM t1 ORDER BY seq ASC;
+seq
+1
+1
+SELECT sequence1() AS seq FROM t1 ORDER BY seq DESC;
+seq
+1
+1
+SELECT * FROM t4 WHERE a = sequence1();
+a
+1
+SELECT * FROM t5 WHERE a = sequence1();
+a
+1

@@ -1,0 +1,195 @@
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t1 select * from t2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+insert into t1 select * from t2 where c6='maosuy';
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+create table t2(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2;
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+create table t2(c1 int primary key,c2 decimal(3,2),c3 real);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+insert into t1 (c1,c4,c2) select * from t2;
+insert into t2 values(3,8.35,7.899);
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+3	8.35	7.899
+insert into t1 (c1,c4,c2) select * from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+3	7.899	NULL	8.35	NULL	NULL
+drop table if exists t1,t2;
+create table t1(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+create table t2(c1 int primary key,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30));
+insert into t2 values(1,1.232,'2015-07-07 12:00:00',2.33,0,'hahhaha'),(2,1.2582,'2015-07-09 21:00:00',2.33,0,'ha211haha'),(3,45.232,'2015-07-04 12:00:00',2.33,0,'hahhaha');
+insert into t1 select * from t2 multi_batch;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+insert into t2 values(4,45.56,'2014-08-09 15:25:56',5.698,1,'maosuy');
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+4	45.56	2014-08-09 15:25:56.000000	5.698	1	maosuy
+insert into t1 select * from t2 where c6='maosuy' multi_batch;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.232	2015-07-07 12:00:00.000000	2.33	0	hahhaha
+2	1.2582	2015-07-09 21:00:00.000000	2.33	0	ha211haha
+3	45.232	2015-07-04 12:00:00.000000	2.33	0	hahhaha
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+create table t2(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+insert into t2 (c1,c4,c5) values(1,1.256,1),(2,4.598,0);
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 MULTI_BATCH;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+insert into t2 (c1,c4,c5) values(3,7.365,1),(4,8.356,0);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+3	NULL	NULL	7.365	1	NULL
+4	NULL	NULL	8.356	0	NULL
+insert into t1 (c1,c4,c5) select c1,c4,c5 from t2 where c1>2 MULTI_BATCH;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	1.256	1	NULL
+2	NULL	NULL	4.598	0	NULL
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+create table t2(c1 int primary key,c2 decimal(3,2),c3 real);
+insert into t2 values(1,1.23,1.2356),(2,4.35,8.06847);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+insert into t1 (c1,c4,c2) select * from t2 MULTI_BATCH;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+insert into t2 values(3,8.35,7.899);
+select * from t2;
+c1	c2	c3
+1	1.23	1.2356
+2	4.35	8.06847
+3	8.35	7.899
+insert into t1 (c1,c4,c2) select * from t2 where c1>2 MULTI_BATCH;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	1.2356	NULL	1.23	NULL	NULL
+2	8.06847	NULL	4.35	NULL	NULL
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+create table t2(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+insert into t1 select * from t2;
+insert into t2 values(NULL,1.25,'2015-08-08 12:45:54',2.32,0,'HEHE');
+insert into t1 select * from t2;
+insert into t2 values(1,NULL,NULL,NULL,NULL,NULL);
+insert into t1 select * from t2 where c1 is not null;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	NULL	NULL	NULL
+NULL	1.25	2015-08-08 12:45:54.000000	2.32	0	HEHE
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	NULL	NULL	NULL	NULL	NULL
+NULL	1.25	2015-08-08 12:45:54.000000	2.32	0	HEHE
+drop table if exists t1,t2;
+create table t1(c1 int,c2 float,c3 datetime,c4 decimal(5,3),c5 bool,c6 varchar(30),primary key(c1,c4));
+insert into t1 select * from t1;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+create table t2(c1 int primary key,c2 decimal(3,2),c3 real);
+insert into t2 values(1,1.25,4.562);
+insert into t1(c1,c4,c2) select * from t2;
+insert into t1(c1,c4,c2) values(2,2.35,2.564);
+insert into t2 select c1,c4,c2 from t1 where c1=2;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+1	4.562	NULL	1.25	NULL	NULL
+2	2.564	NULL	2.35	NULL	NULL
+select * from t2;
+c1	c2	c3
+1	1.25	4.562
+2	2.35	2.563999891281128

@@ -1,0 +1,3330 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+create database opt;
+using database opt;
+set yao_enable_query_optimizer=true;
+create table if not exists t1(id int primary key, c1 Decimal(5,2), c2 int);
+create table if not exists t2(id int primary key, c1 Decimal(5,2), c2 int);
+replace into t1 values(0, 1, 1);
+replace into t1 values(1, 1, 1);
+replace into t1 values(2, 1, 1);
+replace into t1 values(3, 1, 1);
+replace into t1 values(4, 1, 1);
+replace into t1 values(5, 1, 1);
+replace into t1 values(6, 1, 1);
+replace into t1 values(7, 1, 1);
+replace into t1 values(8, 1, 1);
+replace into t1 values(9, 1, 1);
+replace into t1 values(10, 1, 1);
+replace into t1 values(11, 1, 1);
+replace into t1 values(12, 1, 1);
+replace into t1 values(13, 1, 1);
+replace into t1 values(14, 1, 1);
+replace into t1 values(15, 1, 1);
+replace into t1 values(16, 1, 1);
+replace into t1 values(17, 1, 1);
+replace into t1 values(18, 1, 1);
+replace into t1 values(19, 1, 1);
+replace into t1 values(20, 1, 1);
+replace into t1 values(21, 1, 1);
+replace into t1 values(22, 1, 1);
+replace into t1 values(23, 1, 1);
+replace into t1 values(24, 1, 1);
+replace into t1 values(25, 1, 1);
+replace into t1 values(26, 1, 1);
+replace into t1 values(27, 1, 1);
+replace into t1 values(28, 1, 1);
+replace into t1 values(29, 1, 1);
+replace into t1 values(30, 1, 1);
+replace into t1 values(31, 1, 1);
+replace into t1 values(32, 1, 1);
+replace into t1 values(33, 1, 1);
+replace into t1 values(34, 1, 1);
+replace into t1 values(35, 1, 1);
+replace into t1 values(36, 1, 1);
+replace into t1 values(37, 1, 1);
+replace into t1 values(38, 1, 1);
+replace into t1 values(39, 1, 1);
+replace into t1 values(40, 2, 2);
+replace into t1 values(41, 2, 2);
+replace into t1 values(42, 2, 2);
+replace into t1 values(43, 2, 2);
+replace into t1 values(44, 2, 2);
+replace into t1 values(45, 2, 2);
+replace into t1 values(46, 2, 2);
+replace into t1 values(47, 2, 2);
+replace into t1 values(48, 2, 2);
+replace into t1 values(49, 2, 2);
+replace into t1 values(50, 2, 2);
+replace into t1 values(51, 2, 2);
+replace into t1 values(52, 2, 2);
+replace into t1 values(53, 2, 2);
+replace into t1 values(54, 2, 2);
+replace into t1 values(55, 2, 2);
+replace into t1 values(56, 2, 2);
+replace into t1 values(57, 2, 2);
+replace into t1 values(58, 2, 2);
+replace into t1 values(59, 2, 2);
+replace into t1 values(60, 2, 2);
+replace into t1 values(61, 2, 2);
+replace into t1 values(62, 2, 2);
+replace into t1 values(63, 2, 2);
+replace into t1 values(64, 2, 2);
+replace into t1 values(65, 2, 2);
+replace into t1 values(66, 2, 2);
+replace into t1 values(67, 2, 2);
+replace into t1 values(68, 2, 2);
+replace into t1 values(69, 2, 2);
+replace into t1 values(70, 2, 2);
+replace into t1 values(71, 2, 2);
+replace into t1 values(72, 2, 2);
+replace into t1 values(73, 2, 2);
+replace into t1 values(74, 2, 2);
+replace into t1 values(75, 2, 2);
+replace into t1 values(76, 2, 2);
+replace into t1 values(77, 2, 2);
+replace into t1 values(78, 2, 2);
+replace into t1 values(79, 2, 2);
+replace into t1 values(80, 3, 3);
+replace into t1 values(81, 3, 3);
+replace into t1 values(82, 3, 3);
+replace into t1 values(83, 3, 3);
+replace into t1 values(84, 3, 3);
+replace into t1 values(85, 3, 3);
+replace into t1 values(86, 3, 3);
+replace into t1 values(87, 3, 3);
+replace into t1 values(88, 3, 3);
+replace into t1 values(89, 3, 3);
+replace into t1 values(90, 3, 3);
+replace into t1 values(91, 3, 3);
+replace into t1 values(92, 3, 3);
+replace into t1 values(93, 3, 3);
+replace into t1 values(94, 3, 3);
+replace into t1 values(95, 3, 3);
+replace into t1 values(96, 3, 3);
+replace into t1 values(97, 3, 3);
+replace into t1 values(98, 3, 3);
+replace into t1 values(99, 3, 3);
+replace into t1 values(100, 3, 3);
+replace into t1 values(101, 3, 3);
+replace into t1 values(102, 3, 3);
+replace into t1 values(103, 3, 3);
+replace into t1 values(104, 3, 3);
+replace into t1 values(105, 3, 3);
+replace into t1 values(106, 3, 3);
+replace into t1 values(107, 3, 3);
+replace into t1 values(108, 3, 3);
+replace into t1 values(109, 3, 3);
+replace into t1 values(110, 3, 3);
+replace into t1 values(111, 3, 3);
+replace into t1 values(112, 3, 3);
+replace into t1 values(113, 3, 3);
+replace into t1 values(114, 3, 3);
+replace into t1 values(115, 3, 3);
+replace into t1 values(116, 3, 3);
+replace into t1 values(117, 3, 3);
+replace into t1 values(118, 3, 3);
+replace into t1 values(119, 3, 3);
+replace into t1 values(120, 4, 4);
+replace into t1 values(121, 4, 4);
+replace into t1 values(122, 4, 4);
+replace into t1 values(123, 4, 4);
+replace into t1 values(124, 4, 4);
+replace into t1 values(125, 4, 4);
+replace into t1 values(126, 4, 4);
+replace into t1 values(127, 4, 4);
+replace into t1 values(128, 4, 4);
+replace into t1 values(129, 4, 4);
+replace into t1 values(130, 4, 4);
+replace into t1 values(131, 4, 4);
+replace into t1 values(132, 4, 4);
+replace into t1 values(133, 4, 4);
+replace into t1 values(134, 4, 4);
+replace into t1 values(135, 4, 4);
+replace into t1 values(136, 4, 4);
+replace into t1 values(137, 4, 4);
+replace into t1 values(138, 4, 4);
+replace into t1 values(139, 4, 4);
+replace into t1 values(140, 4, 4);
+replace into t1 values(141, 4, 4);
+replace into t1 values(142, 4, 4);
+replace into t1 values(143, 4, 4);
+replace into t1 values(144, 4, 4);
+replace into t1 values(145, 4, 4);
+replace into t1 values(146, 4, 4);
+replace into t1 values(147, 4, 4);
+replace into t1 values(148, 4, 4);
+replace into t1 values(149, 4, 4);
+replace into t1 values(150, 4, 4);
+replace into t1 values(151, 4, 4);
+replace into t1 values(152, 4, 4);
+replace into t1 values(153, 4, 4);
+replace into t1 values(154, 4, 4);
+replace into t1 values(155, 4, 4);
+replace into t1 values(156, 4, 4);
+replace into t1 values(157, 4, 4);
+replace into t1 values(158, 4, 4);
+replace into t1 values(159, 4, 4);
+replace into t1 values(160, 5, 5);
+replace into t1 values(161, 5, 5);
+replace into t1 values(162, 5, 5);
+replace into t1 values(163, 5, 5);
+replace into t1 values(164, 5, 5);
+replace into t1 values(165, 5, 5);
+replace into t1 values(166, 5, 5);
+replace into t1 values(167, 5, 5);
+replace into t1 values(168, 5, 5);
+replace into t1 values(169, 5, 5);
+replace into t1 values(170, 5, 5);
+replace into t1 values(171, 5, 5);
+replace into t1 values(172, 5, 5);
+replace into t1 values(173, 5, 5);
+replace into t1 values(174, 5, 5);
+replace into t1 values(175, 5, 5);
+replace into t1 values(176, 5, 5);
+replace into t1 values(177, 5, 5);
+replace into t1 values(178, 5, 5);
+replace into t1 values(179, 5, 5);
+replace into t1 values(180, 5, 5);
+replace into t1 values(181, 5, 5);
+replace into t1 values(182, 5, 5);
+replace into t1 values(183, 5, 5);
+replace into t1 values(184, 5, 5);
+replace into t1 values(185, 5, 5);
+replace into t1 values(186, 5, 5);
+replace into t1 values(187, 5, 5);
+replace into t1 values(188, 5, 5);
+replace into t1 values(189, 5, 5);
+replace into t1 values(190, 5, 5);
+replace into t1 values(191, 5, 5);
+replace into t1 values(192, 5, 5);
+replace into t1 values(193, 5, 5);
+replace into t1 values(194, 5, 5);
+replace into t1 values(195, 5, 5);
+replace into t1 values(196, 5, 5);
+replace into t1 values(197, 5, 5);
+replace into t1 values(198, 5, 5);
+replace into t1 values(199, 5, 5);
+replace into t1 values(200, 6, 6);
+replace into t1 values(201, 6, 6);
+replace into t1 values(202, 6, 6);
+replace into t1 values(203, 6, 6);
+replace into t1 values(204, 6, 6);
+replace into t1 values(205, 6, 6);
+replace into t1 values(206, 6, 6);
+replace into t1 values(207, 6, 6);
+replace into t1 values(208, 6, 6);
+replace into t1 values(209, 6, 6);
+replace into t1 values(210, 6, 6);
+replace into t1 values(211, 6, 6);
+replace into t1 values(212, 6, 6);
+replace into t1 values(213, 6, 6);
+replace into t1 values(214, 6, 6);
+replace into t1 values(215, 6, 6);
+replace into t1 values(216, 6, 6);
+replace into t1 values(217, 6, 6);
+replace into t1 values(218, 6, 6);
+replace into t1 values(219, 6, 6);
+replace into t1 values(220, 6, 6);
+replace into t1 values(221, 6, 6);
+replace into t1 values(222, 6, 6);
+replace into t1 values(223, 6, 6);
+replace into t1 values(224, 6, 6);
+replace into t1 values(225, 6, 6);
+replace into t1 values(226, 6, 6);
+replace into t1 values(227, 6, 6);
+replace into t1 values(228, 6, 6);
+replace into t1 values(229, 6, 6);
+replace into t1 values(230, 6, 6);
+replace into t1 values(231, 6, 6);
+replace into t1 values(232, 6, 6);
+replace into t1 values(233, 6, 6);
+replace into t1 values(234, 6, 6);
+replace into t1 values(235, 6, 6);
+replace into t1 values(236, 6, 6);
+replace into t1 values(237, 6, 6);
+replace into t1 values(238, 6, 6);
+replace into t1 values(239, 6, 6);
+replace into t1 values(240, 7, 7);
+replace into t1 values(241, 7, 7);
+replace into t1 values(242, 7, 7);
+replace into t1 values(243, 7, 7);
+replace into t1 values(244, 7, 7);
+replace into t1 values(245, 7, 7);
+replace into t1 values(246, 7, 7);
+replace into t1 values(247, 7, 7);
+replace into t1 values(248, 7, 7);
+replace into t1 values(249, 7, 7);
+replace into t1 values(250, 7, 7);
+replace into t1 values(251, 7, 7);
+replace into t1 values(252, 7, 7);
+replace into t1 values(253, 7, 7);
+replace into t1 values(254, 7, 7);
+replace into t1 values(255, 7, 7);
+replace into t1 values(256, 7, 7);
+replace into t1 values(257, 7, 7);
+replace into t1 values(258, 7, 7);
+replace into t1 values(259, 7, 7);
+replace into t1 values(260, 7, 7);
+replace into t1 values(261, 7, 7);
+replace into t1 values(262, 7, 7);
+replace into t1 values(263, 7, 7);
+replace into t1 values(264, 7, 7);
+replace into t1 values(265, 7, 7);
+replace into t1 values(266, 7, 7);
+replace into t1 values(267, 7, 7);
+replace into t1 values(268, 7, 7);
+replace into t1 values(269, 7, 7);
+replace into t1 values(270, 7, 7);
+replace into t1 values(271, 7, 7);
+replace into t1 values(272, 7, 7);
+replace into t1 values(273, 7, 7);
+replace into t1 values(274, 7, 7);
+replace into t1 values(275, 7, 7);
+replace into t1 values(276, 7, 7);
+replace into t1 values(277, 7, 7);
+replace into t1 values(278, 7, 7);
+replace into t1 values(279, 7, 7);
+replace into t1 values(280, 8, 8);
+replace into t1 values(281, 8, 8);
+replace into t1 values(282, 8, 8);
+replace into t1 values(283, 8, 8);
+replace into t1 values(284, 8, 8);
+replace into t1 values(285, 8, 8);
+replace into t1 values(286, 8, 8);
+replace into t1 values(287, 8, 8);
+replace into t1 values(288, 8, 8);
+replace into t1 values(289, 8, 8);
+replace into t1 values(290, 8, 8);
+replace into t1 values(291, 8, 8);
+replace into t1 values(292, 8, 8);
+replace into t1 values(293, 8, 8);
+replace into t1 values(294, 8, 8);
+replace into t1 values(295, 8, 8);
+replace into t1 values(296, 8, 8);
+replace into t1 values(297, 8, 8);
+replace into t1 values(298, 8, 8);
+replace into t1 values(299, 8, 8);
+replace into t1 values(300, 8, 8);
+replace into t1 values(301, 8, 8);
+replace into t1 values(302, 8, 8);
+replace into t1 values(303, 8, 8);
+replace into t1 values(304, 8, 8);
+replace into t1 values(305, 8, 8);
+replace into t1 values(306, 8, 8);
+replace into t1 values(307, 8, 8);
+replace into t1 values(308, 8, 8);
+replace into t1 values(309, 8, 8);
+replace into t1 values(310, 8, 8);
+replace into t1 values(311, 8, 8);
+replace into t1 values(312, 8, 8);
+replace into t1 values(313, 8, 8);
+replace into t1 values(314, 8, 8);
+replace into t1 values(315, 8, 8);
+replace into t1 values(316, 8, 8);
+replace into t1 values(317, 8, 8);
+replace into t1 values(318, 8, 8);
+replace into t1 values(319, 8, 8);
+replace into t1 values(320, 9, 9);
+replace into t1 values(321, 9, 9);
+replace into t1 values(322, 9, 9);
+replace into t1 values(323, 9, 9);
+replace into t1 values(324, 9, 9);
+replace into t1 values(325, 9, 9);
+replace into t1 values(326, 9, 9);
+replace into t1 values(327, 9, 9);
+replace into t1 values(328, 9, 9);
+replace into t1 values(329, 9, 9);
+replace into t1 values(330, 9, 9);
+replace into t1 values(331, 9, 9);
+replace into t1 values(332, 9, 9);
+replace into t1 values(333, 9, 9);
+replace into t1 values(334, 9, 9);
+replace into t1 values(335, 9, 9);
+replace into t1 values(336, 9, 9);
+replace into t1 values(337, 9, 9);
+replace into t1 values(338, 9, 9);
+replace into t1 values(339, 9, 9);
+replace into t1 values(340, 9, 9);
+replace into t1 values(341, 9, 9);
+replace into t1 values(342, 9, 9);
+replace into t1 values(343, 9, 9);
+replace into t1 values(344, 9, 9);
+replace into t1 values(345, 9, 9);
+replace into t1 values(346, 9, 9);
+replace into t1 values(347, 9, 9);
+replace into t1 values(348, 9, 9);
+replace into t1 values(349, 9, 9);
+replace into t1 values(350, 9, 9);
+replace into t1 values(351, 9, 9);
+replace into t1 values(352, 9, 9);
+replace into t1 values(353, 9, 9);
+replace into t1 values(354, 9, 9);
+replace into t1 values(355, 9, 9);
+replace into t1 values(356, 9, 9);
+replace into t1 values(357, 9, 9);
+replace into t1 values(358, 9, 9);
+replace into t1 values(359, 9, 9);
+replace into t1 values(360, 10, 10);
+replace into t1 values(361, 10, 10);
+replace into t1 values(362, 10, 10);
+replace into t1 values(363, 10, 10);
+replace into t1 values(364, 10, 10);
+replace into t1 values(365, 10, 10);
+replace into t1 values(366, 10, 10);
+replace into t1 values(367, 10, 10);
+replace into t1 values(368, 10, 10);
+replace into t1 values(369, 10, 10);
+replace into t1 values(370, 10, 10);
+replace into t1 values(371, 10, 10);
+replace into t1 values(372, 10, 10);
+replace into t1 values(373, 10, 10);
+replace into t1 values(374, 10, 10);
+replace into t1 values(375, 10, 10);
+replace into t1 values(376, 10, 10);
+replace into t1 values(377, 10, 10);
+replace into t1 values(378, 10, 10);
+replace into t1 values(379, 10, 10);
+replace into t1 values(380, 10, 10);
+replace into t1 values(381, 10, 10);
+replace into t1 values(382, 10, 10);
+replace into t1 values(383, 10, 10);
+replace into t1 values(384, 10, 10);
+replace into t1 values(385, 10, 10);
+replace into t1 values(386, 10, 10);
+replace into t1 values(387, 10, 10);
+replace into t1 values(388, 10, 10);
+replace into t1 values(389, 10, 10);
+replace into t1 values(390, 10, 10);
+replace into t1 values(391, 10, 10);
+replace into t1 values(392, 10, 10);
+replace into t1 values(393, 10, 10);
+replace into t1 values(394, 10, 10);
+replace into t1 values(395, 10, 10);
+replace into t1 values(396, 10, 10);
+replace into t1 values(397, 10, 10);
+replace into t1 values(398, 10, 10);
+replace into t1 values(399, 10, 10);
+replace into t1 values(400, 11, 11);
+replace into t1 values(401, 11, 11);
+replace into t1 values(402, 11, 11);
+replace into t1 values(403, 11, 11);
+replace into t1 values(404, 11, 11);
+replace into t1 values(405, 11, 11);
+replace into t1 values(406, 11, 11);
+replace into t1 values(407, 11, 11);
+replace into t1 values(408, 11, 11);
+replace into t1 values(409, 11, 11);
+replace into t1 values(410, 12, 12);
+replace into t1 values(411, 12, 12);
+replace into t1 values(412, 12, 12);
+replace into t1 values(413, 12, 12);
+replace into t1 values(414, 12, 12);
+replace into t1 values(415, 12, 12);
+replace into t1 values(416, 12, 12);
+replace into t1 values(417, 12, 12);
+replace into t1 values(418, 12, 12);
+replace into t1 values(419, 12, 12);
+replace into t1 values(420, 13, 13);
+replace into t1 values(421, 13, 13);
+replace into t1 values(422, 13, 13);
+replace into t1 values(423, 13, 13);
+replace into t1 values(424, 13, 13);
+replace into t1 values(425, 13, 13);
+replace into t1 values(426, 13, 13);
+replace into t1 values(427, 13, 13);
+replace into t1 values(428, 13, 13);
+replace into t1 values(429, 13, 13);
+replace into t1 values(430, 14, 14);
+replace into t1 values(431, 14, 14);
+replace into t1 values(432, 14, 14);
+replace into t1 values(433, 14, 14);
+replace into t1 values(434, 14, 14);
+replace into t1 values(435, 14, 14);
+replace into t1 values(436, 14, 14);
+replace into t1 values(437, 14, 14);
+replace into t1 values(438, 14, 14);
+replace into t1 values(439, 14, 14);
+replace into t1 values(440, 15, 15);
+replace into t1 values(441, 15, 15);
+replace into t1 values(442, 15, 15);
+replace into t1 values(443, 15, 15);
+replace into t1 values(444, 15, 15);
+replace into t1 values(445, 15, 15);
+replace into t1 values(446, 15, 15);
+replace into t1 values(447, 15, 15);
+replace into t1 values(448, 15, 15);
+replace into t1 values(449, 15, 15);
+replace into t1 values(450, 16, 16);
+replace into t1 values(451, 16, 16);
+replace into t1 values(452, 16, 16);
+replace into t1 values(453, 16, 16);
+replace into t1 values(454, 16, 16);
+replace into t1 values(455, 16, 16);
+replace into t1 values(456, 16, 16);
+replace into t1 values(457, 16, 16);
+replace into t1 values(458, 16, 16);
+replace into t1 values(459, 16, 16);
+replace into t1 values(460, 17, 17);
+replace into t1 values(461, 17, 17);
+replace into t1 values(462, 17, 17);
+replace into t1 values(463, 17, 17);
+replace into t1 values(464, 17, 17);
+replace into t1 values(465, 17, 17);
+replace into t1 values(466, 17, 17);
+replace into t1 values(467, 17, 17);
+replace into t1 values(468, 17, 17);
+replace into t1 values(469, 17, 17);
+replace into t1 values(470, 18, 18);
+replace into t1 values(471, 18, 18);
+replace into t1 values(472, 18, 18);
+replace into t1 values(473, 18, 18);
+replace into t1 values(474, 18, 18);
+replace into t1 values(475, 18, 18);
+replace into t1 values(476, 18, 18);
+replace into t1 values(477, 18, 18);
+replace into t1 values(478, 18, 18);
+replace into t1 values(479, 18, 18);
+replace into t1 values(480, 19, 19);
+replace into t1 values(481, 19, 19);
+replace into t1 values(482, 19, 19);
+replace into t1 values(483, 19, 19);
+replace into t1 values(484, 19, 19);
+replace into t1 values(485, 19, 19);
+replace into t1 values(486, 19, 19);
+replace into t1 values(487, 19, 19);
+replace into t1 values(488, 19, 19);
+replace into t1 values(489, 19, 19);
+replace into t1 values(490, 20, 20);
+replace into t1 values(491, 20, 20);
+replace into t1 values(492, 20, 20);
+replace into t1 values(493, 20, 20);
+replace into t1 values(494, 20, 20);
+replace into t1 values(495, 20, 20);
+replace into t1 values(496, 20, 20);
+replace into t1 values(497, 20, 20);
+replace into t1 values(498, 20, 20);
+replace into t1 values(499, 20, 20);
+replace into t1 values(500, 21, 21);
+replace into t1 values(501, 21, 21);
+replace into t1 values(502, 21, 21);
+replace into t1 values(503, 21, 21);
+replace into t1 values(504, 21, 21);
+replace into t1 values(505, 21, 21);
+replace into t1 values(506, 21, 21);
+replace into t1 values(507, 21, 21);
+replace into t1 values(508, 21, 21);
+replace into t1 values(509, 21, 21);
+replace into t1 values(510, 22, 22);
+replace into t1 values(511, 22, 22);
+replace into t1 values(512, 22, 22);
+replace into t1 values(513, 22, 22);
+replace into t1 values(514, 22, 22);
+replace into t1 values(515, 22, 22);
+replace into t1 values(516, 22, 22);
+replace into t1 values(517, 22, 22);
+replace into t1 values(518, 22, 22);
+replace into t1 values(519, 22, 22);
+replace into t1 values(520, 23, 23);
+replace into t1 values(521, 23, 23);
+replace into t1 values(522, 23, 23);
+replace into t1 values(523, 23, 23);
+replace into t1 values(524, 23, 23);
+replace into t1 values(525, 23, 23);
+replace into t1 values(526, 23, 23);
+replace into t1 values(527, 23, 23);
+replace into t1 values(528, 23, 23);
+replace into t1 values(529, 23, 23);
+replace into t1 values(530, 24, 24);
+replace into t1 values(531, 24, 24);
+replace into t1 values(532, 24, 24);
+replace into t1 values(533, 24, 24);
+replace into t1 values(534, 24, 24);
+replace into t1 values(535, 24, 24);
+replace into t1 values(536, 24, 24);
+replace into t1 values(537, 24, 24);
+replace into t1 values(538, 24, 24);
+replace into t1 values(539, 24, 24);
+replace into t1 values(540, 25, 25);
+replace into t1 values(541, 25, 25);
+replace into t1 values(542, 25, 25);
+replace into t1 values(543, 25, 25);
+replace into t1 values(544, 25, 25);
+replace into t1 values(545, 25, 25);
+replace into t1 values(546, 25, 25);
+replace into t1 values(547, 25, 25);
+replace into t1 values(548, 25, 25);
+replace into t1 values(549, 25, 25);
+replace into t1 values(550, 26, 26);
+replace into t1 values(551, 26, 26);
+replace into t1 values(552, 26, 26);
+replace into t1 values(553, 26, 26);
+replace into t1 values(554, 26, 26);
+replace into t1 values(555, 26, 26);
+replace into t1 values(556, 26, 26);
+replace into t1 values(557, 26, 26);
+replace into t1 values(558, 26, 26);
+replace into t1 values(559, 26, 26);
+replace into t1 values(560, 27, 27);
+replace into t1 values(561, 27, 27);
+replace into t1 values(562, 27, 27);
+replace into t1 values(563, 27, 27);
+replace into t1 values(564, 27, 27);
+replace into t1 values(565, 27, 27);
+replace into t1 values(566, 27, 27);
+replace into t1 values(567, 27, 27);
+replace into t1 values(568, 27, 27);
+replace into t1 values(569, 27, 27);
+replace into t1 values(570, 28, 28);
+replace into t1 values(571, 28, 28);
+replace into t1 values(572, 28, 28);
+replace into t1 values(573, 28, 28);
+replace into t1 values(574, 28, 28);
+replace into t1 values(575, 28, 28);
+replace into t1 values(576, 28, 28);
+replace into t1 values(577, 28, 28);
+replace into t1 values(578, 28, 28);
+replace into t1 values(579, 28, 28);
+replace into t1 values(580, 29, 29);
+replace into t1 values(581, 29, 29);
+replace into t1 values(582, 29, 29);
+replace into t1 values(583, 29, 29);
+replace into t1 values(584, 29, 29);
+replace into t1 values(585, 29, 29);
+replace into t1 values(586, 29, 29);
+replace into t1 values(587, 29, 29);
+replace into t1 values(588, 29, 29);
+replace into t1 values(589, 29, 29);
+replace into t1 values(590, 30, 30);
+replace into t1 values(591, 30, 30);
+replace into t1 values(592, 30, 30);
+replace into t1 values(593, 30, 30);
+replace into t1 values(594, 30, 30);
+replace into t1 values(595, 30, 30);
+replace into t1 values(596, 30, 30);
+replace into t1 values(597, 30, 30);
+replace into t1 values(598, 30, 30);
+replace into t1 values(599, 30, 30);
+replace into t1 values(600, 31, 31);
+replace into t1 values(601, 31, 31);
+replace into t1 values(602, 31, 31);
+replace into t1 values(603, 31, 31);
+replace into t1 values(604, 31, 31);
+replace into t1 values(605, 31, 31);
+replace into t1 values(606, 31, 31);
+replace into t1 values(607, 31, 31);
+replace into t1 values(608, 31, 31);
+replace into t1 values(609, 31, 31);
+replace into t1 values(610, 32, 32);
+replace into t1 values(611, 32, 32);
+replace into t1 values(612, 32, 32);
+replace into t1 values(613, 32, 32);
+replace into t1 values(614, 32, 32);
+replace into t1 values(615, 32, 32);
+replace into t1 values(616, 32, 32);
+replace into t1 values(617, 32, 32);
+replace into t1 values(618, 32, 32);
+replace into t1 values(619, 32, 32);
+replace into t1 values(620, 33, 33);
+replace into t1 values(621, 33, 33);
+replace into t1 values(622, 33, 33);
+replace into t1 values(623, 33, 33);
+replace into t1 values(624, 33, 33);
+replace into t1 values(625, 33, 33);
+replace into t1 values(626, 33, 33);
+replace into t1 values(627, 33, 33);
+replace into t1 values(628, 33, 33);
+replace into t1 values(629, 33, 33);
+replace into t1 values(630, 34, 34);
+replace into t1 values(631, 34, 34);
+replace into t1 values(632, 34, 34);
+replace into t1 values(633, 34, 34);
+replace into t1 values(634, 34, 34);
+replace into t1 values(635, 34, 34);
+replace into t1 values(636, 34, 34);
+replace into t1 values(637, 34, 34);
+replace into t1 values(638, 34, 34);
+replace into t1 values(639, 34, 34);
+replace into t1 values(640, 35, 35);
+replace into t1 values(641, 35, 35);
+replace into t1 values(642, 35, 35);
+replace into t1 values(643, 35, 35);
+replace into t1 values(644, 35, 35);
+replace into t1 values(645, 35, 35);
+replace into t1 values(646, 35, 35);
+replace into t1 values(647, 35, 35);
+replace into t1 values(648, 35, 35);
+replace into t1 values(649, 35, 35);
+replace into t1 values(650, 36, 36);
+replace into t1 values(651, 36, 36);
+replace into t1 values(652, 36, 36);
+replace into t1 values(653, 36, 36);
+replace into t1 values(654, 36, 36);
+replace into t1 values(655, 36, 36);
+replace into t1 values(656, 36, 36);
+replace into t1 values(657, 36, 36);
+replace into t1 values(658, 36, 36);
+replace into t1 values(659, 36, 36);
+replace into t1 values(660, 37, 37);
+replace into t1 values(661, 37, 37);
+replace into t1 values(662, 37, 37);
+replace into t1 values(663, 37, 37);
+replace into t1 values(664, 37, 37);
+replace into t1 values(665, 37, 37);
+replace into t1 values(666, 37, 37);
+replace into t1 values(667, 37, 37);
+replace into t1 values(668, 37, 37);
+replace into t1 values(669, 37, 37);
+replace into t1 values(670, 38, 38);
+replace into t1 values(671, 38, 38);
+replace into t1 values(672, 38, 38);
+replace into t1 values(673, 38, 38);
+replace into t1 values(674, 38, 38);
+replace into t1 values(675, 38, 38);
+replace into t1 values(676, 38, 38);
+replace into t1 values(677, 38, 38);
+replace into t1 values(678, 38, 38);
+replace into t1 values(679, 38, 38);
+replace into t1 values(680, 39, 39);
+replace into t1 values(681, 39, 39);
+replace into t1 values(682, 39, 39);
+replace into t1 values(683, 39, 39);
+replace into t1 values(684, 39, 39);
+replace into t1 values(685, 39, 39);
+replace into t1 values(686, 39, 39);
+replace into t1 values(687, 39, 39);
+replace into t1 values(688, 39, 39);
+replace into t1 values(689, 39, 39);
+replace into t1 values(690, 40, 40);
+replace into t1 values(691, 40, 40);
+replace into t1 values(692, 40, 40);
+replace into t1 values(693, 40, 40);
+replace into t1 values(694, 40, 40);
+replace into t1 values(695, 40, 40);
+replace into t1 values(696, 40, 40);
+replace into t1 values(697, 40, 40);
+replace into t1 values(698, 40, 40);
+replace into t1 values(699, 40, 40);
+replace into t1 values(700, 41, 41);
+replace into t1 values(701, 41, 41);
+replace into t1 values(702, 41, 41);
+replace into t1 values(703, 41, 41);
+replace into t1 values(704, 41, 41);
+replace into t1 values(705, 41, 41);
+replace into t1 values(706, 41, 41);
+replace into t1 values(707, 41, 41);
+replace into t1 values(708, 41, 41);
+replace into t1 values(709, 41, 41);
+replace into t1 values(710, 42, 42);
+replace into t1 values(711, 42, 42);
+replace into t1 values(712, 42, 42);
+replace into t1 values(713, 42, 42);
+replace into t1 values(714, 42, 42);
+replace into t1 values(715, 42, 42);
+replace into t1 values(716, 42, 42);
+replace into t1 values(717, 42, 42);
+replace into t1 values(718, 42, 42);
+replace into t1 values(719, 42, 42);
+replace into t1 values(720, 43, 43);
+replace into t1 values(721, 43, 43);
+replace into t1 values(722, 43, 43);
+replace into t1 values(723, 43, 43);
+replace into t1 values(724, 43, 43);
+replace into t1 values(725, 43, 43);
+replace into t1 values(726, 43, 43);
+replace into t1 values(727, 43, 43);
+replace into t1 values(728, 43, 43);
+replace into t1 values(729, 43, 43);
+replace into t1 values(730, 44, 44);
+replace into t1 values(731, 44, 44);
+replace into t1 values(732, 44, 44);
+replace into t1 values(733, 44, 44);
+replace into t1 values(734, 44, 44);
+replace into t1 values(735, 44, 44);
+replace into t1 values(736, 44, 44);
+replace into t1 values(737, 44, 44);
+replace into t1 values(738, 44, 44);
+replace into t1 values(739, 44, 44);
+replace into t1 values(740, 45, 45);
+replace into t1 values(741, 45, 45);
+replace into t1 values(742, 45, 45);
+replace into t1 values(743, 45, 45);
+replace into t1 values(744, 45, 45);
+replace into t1 values(745, 45, 45);
+replace into t1 values(746, 45, 45);
+replace into t1 values(747, 45, 45);
+replace into t1 values(748, 45, 45);
+replace into t1 values(749, 45, 45);
+replace into t1 values(750, 46, 46);
+replace into t1 values(751, 46, 46);
+replace into t1 values(752, 46, 46);
+replace into t1 values(753, 46, 46);
+replace into t1 values(754, 46, 46);
+replace into t1 values(755, 46, 46);
+replace into t1 values(756, 46, 46);
+replace into t1 values(757, 46, 46);
+replace into t1 values(758, 46, 46);
+replace into t1 values(759, 46, 46);
+replace into t1 values(760, 47, 47);
+replace into t1 values(761, 47, 47);
+replace into t1 values(762, 47, 47);
+replace into t1 values(763, 47, 47);
+replace into t1 values(764, 47, 47);
+replace into t1 values(765, 47, 47);
+replace into t1 values(766, 47, 47);
+replace into t1 values(767, 47, 47);
+replace into t1 values(768, 47, 47);
+replace into t1 values(769, 47, 47);
+replace into t1 values(770, 48, 48);
+replace into t1 values(771, 48, 48);
+replace into t1 values(772, 48, 48);
+replace into t1 values(773, 48, 48);
+replace into t1 values(774, 48, 48);
+replace into t1 values(775, 48, 48);
+replace into t1 values(776, 48, 48);
+replace into t1 values(777, 48, 48);
+replace into t1 values(778, 48, 48);
+replace into t1 values(779, 48, 48);
+replace into t1 values(780, 49, 49);
+replace into t1 values(781, 49, 49);
+replace into t1 values(782, 49, 49);
+replace into t1 values(783, 49, 49);
+replace into t1 values(784, 49, 49);
+replace into t1 values(785, 49, 49);
+replace into t1 values(786, 49, 49);
+replace into t1 values(787, 49, 49);
+replace into t1 values(788, 49, 49);
+replace into t1 values(789, 49, 49);
+replace into t1 values(790, 50, 50);
+replace into t1 values(791, 50, 50);
+replace into t1 values(792, 50, 50);
+replace into t1 values(793, 50, 50);
+replace into t1 values(794, 50, 50);
+replace into t1 values(795, 50, 50);
+replace into t1 values(796, 50, 50);
+replace into t1 values(797, 50, 50);
+replace into t1 values(798, 50, 50);
+replace into t1 values(799, 50, 50);
+replace into t1 values(800, 51, 51);
+replace into t1 values(801, 51, 51);
+replace into t1 values(802, 51, 51);
+replace into t1 values(803, 51, 51);
+replace into t1 values(804, 51, 51);
+replace into t1 values(805, 51, 51);
+replace into t1 values(806, 51, 51);
+replace into t1 values(807, 51, 51);
+replace into t1 values(808, 51, 51);
+replace into t1 values(809, 51, 51);
+replace into t1 values(810, 52, 52);
+replace into t1 values(811, 52, 52);
+replace into t1 values(812, 52, 52);
+replace into t1 values(813, 52, 52);
+replace into t1 values(814, 52, 52);
+replace into t1 values(815, 52, 52);
+replace into t1 values(816, 52, 52);
+replace into t1 values(817, 52, 52);
+replace into t1 values(818, 52, 52);
+replace into t1 values(819, 52, 52);
+replace into t1 values(820, 53, 53);
+replace into t1 values(821, 53, 53);
+replace into t1 values(822, 53, 53);
+replace into t1 values(823, 53, 53);
+replace into t1 values(824, 53, 53);
+replace into t1 values(825, 53, 53);
+replace into t1 values(826, 53, 53);
+replace into t1 values(827, 53, 53);
+replace into t1 values(828, 53, 53);
+replace into t1 values(829, 53, 53);
+replace into t1 values(830, 54, 54);
+replace into t1 values(831, 54, 54);
+replace into t1 values(832, 54, 54);
+replace into t1 values(833, 54, 54);
+replace into t1 values(834, 54, 54);
+replace into t1 values(835, 54, 54);
+replace into t1 values(836, 54, 54);
+replace into t1 values(837, 54, 54);
+replace into t1 values(838, 54, 54);
+replace into t1 values(839, 54, 54);
+replace into t1 values(840, 55, 55);
+replace into t1 values(841, 55, 55);
+replace into t1 values(842, 55, 55);
+replace into t1 values(843, 55, 55);
+replace into t1 values(844, 55, 55);
+replace into t1 values(845, 55, 55);
+replace into t1 values(846, 55, 55);
+replace into t1 values(847, 55, 55);
+replace into t1 values(848, 55, 55);
+replace into t1 values(849, 55, 55);
+replace into t1 values(850, 56, 56);
+replace into t1 values(851, 56, 56);
+replace into t1 values(852, 56, 56);
+replace into t1 values(853, 56, 56);
+replace into t1 values(854, 56, 56);
+replace into t1 values(855, 56, 56);
+replace into t1 values(856, 56, 56);
+replace into t1 values(857, 56, 56);
+replace into t1 values(858, 56, 56);
+replace into t1 values(859, 56, 56);
+replace into t1 values(860, 57, 57);
+replace into t1 values(861, 57, 57);
+replace into t1 values(862, 57, 57);
+replace into t1 values(863, 57, 57);
+replace into t1 values(864, 57, 57);
+replace into t1 values(865, 57, 57);
+replace into t1 values(866, 57, 57);
+replace into t1 values(867, 57, 57);
+replace into t1 values(868, 57, 57);
+replace into t1 values(869, 57, 57);
+replace into t1 values(870, 58, 58);
+replace into t1 values(871, 58, 58);
+replace into t1 values(872, 58, 58);
+replace into t1 values(873, 58, 58);
+replace into t1 values(874, 58, 58);
+replace into t1 values(875, 58, 58);
+replace into t1 values(876, 58, 58);
+replace into t1 values(877, 58, 58);
+replace into t1 values(878, 58, 58);
+replace into t1 values(879, 58, 58);
+replace into t1 values(880, 59, 59);
+replace into t1 values(881, 59, 59);
+replace into t1 values(882, 59, 59);
+replace into t1 values(883, 59, 59);
+replace into t1 values(884, 59, 59);
+replace into t1 values(885, 59, 59);
+replace into t1 values(886, 59, 59);
+replace into t1 values(887, 59, 59);
+replace into t1 values(888, 59, 59);
+replace into t1 values(889, 59, 59);
+replace into t1 values(890, 60, 60);
+replace into t1 values(891, 60, 60);
+replace into t1 values(892, 60, 60);
+replace into t1 values(893, 60, 60);
+replace into t1 values(894, 60, 60);
+replace into t1 values(895, 60, 60);
+replace into t1 values(896, 60, 60);
+replace into t1 values(897, 60, 60);
+replace into t1 values(898, 60, 60);
+replace into t1 values(899, 60, 60);
+replace into t1 values(900, 61, 61);
+replace into t1 values(901, 61, 61);
+replace into t1 values(902, 61, 61);
+replace into t1 values(903, 61, 61);
+replace into t1 values(904, 61, 61);
+replace into t1 values(905, 61, 61);
+replace into t1 values(906, 61, 61);
+replace into t1 values(907, 61, 61);
+replace into t1 values(908, 61, 61);
+replace into t1 values(909, 61, 61);
+replace into t1 values(910, 62, 62);
+replace into t1 values(911, 62, 62);
+replace into t1 values(912, 62, 62);
+replace into t1 values(913, 62, 62);
+replace into t1 values(914, 62, 62);
+replace into t1 values(915, 62, 62);
+replace into t1 values(916, 62, 62);
+replace into t1 values(917, 62, 62);
+replace into t1 values(918, 62, 62);
+replace into t1 values(919, 62, 62);
+replace into t1 values(920, 63, 63);
+replace into t1 values(921, 63, 63);
+replace into t1 values(922, 63, 63);
+replace into t1 values(923, 63, 63);
+replace into t1 values(924, 63, 63);
+replace into t1 values(925, 63, 63);
+replace into t1 values(926, 63, 63);
+replace into t1 values(927, 63, 63);
+replace into t1 values(928, 63, 63);
+replace into t1 values(929, 63, 63);
+replace into t1 values(930, 64, 64);
+replace into t1 values(931, 64, 64);
+replace into t1 values(932, 64, 64);
+replace into t1 values(933, 64, 64);
+replace into t1 values(934, 64, 64);
+replace into t1 values(935, 64, 64);
+replace into t1 values(936, 64, 64);
+replace into t1 values(937, 64, 64);
+replace into t1 values(938, 64, 64);
+replace into t1 values(939, 64, 64);
+replace into t1 values(940, 65, 65);
+replace into t1 values(941, 65, 65);
+replace into t1 values(942, 65, 65);
+replace into t1 values(943, 65, 65);
+replace into t1 values(944, 65, 65);
+replace into t1 values(945, 65, 65);
+replace into t1 values(946, 65, 65);
+replace into t1 values(947, 65, 65);
+replace into t1 values(948, 65, 65);
+replace into t1 values(949, 65, 65);
+replace into t1 values(950, 66, 66);
+replace into t1 values(951, 66, 66);
+replace into t1 values(952, 66, 66);
+replace into t1 values(953, 66, 66);
+replace into t1 values(954, 66, 66);
+replace into t1 values(955, 66, 66);
+replace into t1 values(956, 66, 66);
+replace into t1 values(957, 66, 66);
+replace into t1 values(958, 66, 66);
+replace into t1 values(959, 66, 66);
+replace into t1 values(960, 67, 67);
+replace into t1 values(961, 67, 67);
+replace into t1 values(962, 67, 67);
+replace into t1 values(963, 67, 67);
+replace into t1 values(964, 67, 67);
+replace into t1 values(965, 67, 67);
+replace into t1 values(966, 67, 67);
+replace into t1 values(967, 67, 67);
+replace into t1 values(968, 67, 67);
+replace into t1 values(969, 67, 67);
+replace into t1 values(970, 68, 68);
+replace into t1 values(971, 68, 68);
+replace into t1 values(972, 68, 68);
+replace into t1 values(973, 68, 68);
+replace into t1 values(974, 68, 68);
+replace into t1 values(975, 68, 68);
+replace into t1 values(976, 68, 68);
+replace into t1 values(977, 68, 68);
+replace into t1 values(978, 68, 68);
+replace into t1 values(979, 68, 68);
+replace into t1 values(980, 69, 69);
+replace into t1 values(981, 69, 69);
+replace into t1 values(982, 69, 69);
+replace into t1 values(983, 69, 69);
+replace into t1 values(984, 69, 69);
+replace into t1 values(985, 69, 69);
+replace into t1 values(986, 69, 69);
+replace into t1 values(987, 69, 69);
+replace into t1 values(988, 69, 69);
+replace into t1 values(989, 69, 69);
+replace into t1 values(990, 70, 70);
+replace into t1 values(991, 70, 70);
+replace into t1 values(992, 70, 70);
+replace into t1 values(993, 70, 70);
+replace into t1 values(994, 70, 70);
+replace into t1 values(995, 70, 70);
+replace into t1 values(996, 70, 70);
+replace into t1 values(997, 70, 70);
+replace into t1 values(998, 70, 70);
+replace into t1 values(999, 70, 70);
+replace into t1 values(1000, 71, 71);
+replace into t1 values(1001, 71, 71);
+replace into t1 values(1002, 71, 71);
+replace into t1 values(1003, 71, 71);
+replace into t1 values(1004, 71, 71);
+replace into t1 values(1005, 71, 71);
+replace into t1 values(1006, 71, 71);
+replace into t1 values(1007, 71, 71);
+replace into t1 values(1008, 71, 71);
+replace into t1 values(1009, 71, 71);
+replace into t1 values(1010, 72, 72);
+replace into t1 values(1011, 72, 72);
+replace into t1 values(1012, 72, 72);
+replace into t1 values(1013, 72, 72);
+replace into t1 values(1014, 72, 72);
+replace into t1 values(1015, 72, 72);
+replace into t1 values(1016, 72, 72);
+replace into t1 values(1017, 72, 72);
+replace into t1 values(1018, 72, 72);
+replace into t1 values(1019, 72, 72);
+replace into t1 values(1020, 73, 73);
+replace into t1 values(1021, 73, 73);
+replace into t1 values(1022, 73, 73);
+replace into t1 values(1023, 73, 73);
+replace into t1 values(1024, 73, 73);
+replace into t1 values(1025, 73, 73);
+replace into t1 values(1026, 73, 73);
+replace into t1 values(1027, 73, 73);
+replace into t1 values(1028, 73, 73);
+replace into t1 values(1029, 73, 73);
+replace into t1 values(1030, 74, 74);
+replace into t1 values(1031, 74, 74);
+replace into t1 values(1032, 74, 74);
+replace into t1 values(1033, 74, 74);
+replace into t1 values(1034, 74, 74);
+replace into t1 values(1035, 74, 74);
+replace into t1 values(1036, 74, 74);
+replace into t1 values(1037, 74, 74);
+replace into t1 values(1038, 74, 74);
+replace into t1 values(1039, 74, 74);
+replace into t1 values(1040, 75, 75);
+replace into t1 values(1041, 75, 75);
+replace into t1 values(1042, 75, 75);
+replace into t1 values(1043, 75, 75);
+replace into t1 values(1044, 75, 75);
+replace into t1 values(1045, 75, 75);
+replace into t1 values(1046, 75, 75);
+replace into t1 values(1047, 75, 75);
+replace into t1 values(1048, 75, 75);
+replace into t1 values(1049, 75, 75);
+replace into t1 values(1050, 76, 76);
+replace into t1 values(1051, 76, 76);
+replace into t1 values(1052, 76, 76);
+replace into t1 values(1053, 76, 76);
+replace into t1 values(1054, 76, 76);
+replace into t1 values(1055, 76, 76);
+replace into t1 values(1056, 76, 76);
+replace into t1 values(1057, 76, 76);
+replace into t1 values(1058, 76, 76);
+replace into t1 values(1059, 76, 76);
+replace into t1 values(1060, 77, 77);
+replace into t1 values(1061, 77, 77);
+replace into t1 values(1062, 77, 77);
+replace into t1 values(1063, 77, 77);
+replace into t1 values(1064, 77, 77);
+replace into t1 values(1065, 77, 77);
+replace into t1 values(1066, 77, 77);
+replace into t1 values(1067, 77, 77);
+replace into t1 values(1068, 77, 77);
+replace into t1 values(1069, 77, 77);
+replace into t1 values(1070, 78, 78);
+replace into t1 values(1071, 78, 78);
+replace into t1 values(1072, 78, 78);
+replace into t1 values(1073, 78, 78);
+replace into t1 values(1074, 78, 78);
+replace into t1 values(1075, 78, 78);
+replace into t1 values(1076, 78, 78);
+replace into t1 values(1077, 78, 78);
+replace into t1 values(1078, 78, 78);
+replace into t1 values(1079, 78, 78);
+replace into t1 values(1080, 79, 79);
+replace into t1 values(1081, 79, 79);
+replace into t1 values(1082, 79, 79);
+replace into t1 values(1083, 79, 79);
+replace into t1 values(1084, 79, 79);
+replace into t1 values(1085, 79, 79);
+replace into t1 values(1086, 79, 79);
+replace into t1 values(1087, 79, 79);
+replace into t1 values(1088, 79, 79);
+replace into t1 values(1089, 79, 79);
+replace into t1 values(1090, 80, 80);
+replace into t1 values(1091, 80, 80);
+replace into t1 values(1092, 80, 80);
+replace into t1 values(1093, 80, 80);
+replace into t1 values(1094, 80, 80);
+replace into t1 values(1095, 80, 80);
+replace into t1 values(1096, 80, 80);
+replace into t1 values(1097, 80, 80);
+replace into t1 values(1098, 80, 80);
+replace into t1 values(1099, 80, 80);
+replace into t1 values(1100, 81, 81);
+replace into t1 values(1101, 81, 81);
+replace into t1 values(1102, 81, 81);
+replace into t1 values(1103, 81, 81);
+replace into t1 values(1104, 81, 81);
+replace into t1 values(1105, 81, 81);
+replace into t1 values(1106, 81, 81);
+replace into t1 values(1107, 81, 81);
+replace into t1 values(1108, 81, 81);
+replace into t1 values(1109, 81, 81);
+replace into t1 values(1110, 82, 82);
+replace into t1 values(1111, 82, 82);
+replace into t1 values(1112, 82, 82);
+replace into t1 values(1113, 82, 82);
+replace into t1 values(1114, 82, 82);
+replace into t1 values(1115, 82, 82);
+replace into t1 values(1116, 82, 82);
+replace into t1 values(1117, 82, 82);
+replace into t1 values(1118, 82, 82);
+replace into t1 values(1119, 82, 82);
+replace into t1 values(1120, 83, 83);
+replace into t1 values(1121, 83, 83);
+replace into t1 values(1122, 83, 83);
+replace into t1 values(1123, 83, 83);
+replace into t1 values(1124, 83, 83);
+replace into t1 values(1125, 83, 83);
+replace into t1 values(1126, 83, 83);
+replace into t1 values(1127, 83, 83);
+replace into t1 values(1128, 83, 83);
+replace into t1 values(1129, 83, 83);
+replace into t1 values(1130, 84, 84);
+replace into t1 values(1131, 84, 84);
+replace into t1 values(1132, 84, 84);
+replace into t1 values(1133, 84, 84);
+replace into t1 values(1134, 84, 84);
+replace into t1 values(1135, 84, 84);
+replace into t1 values(1136, 84, 84);
+replace into t1 values(1137, 84, 84);
+replace into t1 values(1138, 84, 84);
+replace into t1 values(1139, 84, 84);
+replace into t1 values(1140, 85, 85);
+replace into t1 values(1141, 85, 85);
+replace into t1 values(1142, 85, 85);
+replace into t1 values(1143, 85, 85);
+replace into t1 values(1144, 85, 85);
+replace into t1 values(1145, 85, 85);
+replace into t1 values(1146, 85, 85);
+replace into t1 values(1147, 85, 85);
+replace into t1 values(1148, 85, 85);
+replace into t1 values(1149, 85, 85);
+replace into t1 values(1150, 86, 86);
+replace into t1 values(1151, 86, 86);
+replace into t1 values(1152, 86, 86);
+replace into t1 values(1153, 86, 86);
+replace into t1 values(1154, 86, 86);
+replace into t1 values(1155, 86, 86);
+replace into t1 values(1156, 86, 86);
+replace into t1 values(1157, 86, 86);
+replace into t1 values(1158, 86, 86);
+replace into t1 values(1159, 86, 86);
+replace into t1 values(1160, 87, 87);
+replace into t1 values(1161, 87, 87);
+replace into t1 values(1162, 87, 87);
+replace into t1 values(1163, 87, 87);
+replace into t1 values(1164, 87, 87);
+replace into t1 values(1165, 87, 87);
+replace into t1 values(1166, 87, 87);
+replace into t1 values(1167, 87, 87);
+replace into t1 values(1168, 87, 87);
+replace into t1 values(1169, 87, 87);
+replace into t1 values(1170, 88, 88);
+replace into t1 values(1171, 88, 88);
+replace into t1 values(1172, 88, 88);
+replace into t1 values(1173, 88, 88);
+replace into t1 values(1174, 88, 88);
+replace into t1 values(1175, 88, 88);
+replace into t1 values(1176, 88, 88);
+replace into t1 values(1177, 88, 88);
+replace into t1 values(1178, 88, 88);
+replace into t1 values(1179, 88, 88);
+replace into t1 values(1180, 89, 89);
+replace into t1 values(1181, 89, 89);
+replace into t1 values(1182, 89, 89);
+replace into t1 values(1183, 89, 89);
+replace into t1 values(1184, 89, 89);
+replace into t1 values(1185, 89, 89);
+replace into t1 values(1186, 89, 89);
+replace into t1 values(1187, 89, 89);
+replace into t1 values(1188, 89, 89);
+replace into t1 values(1189, 89, 89);
+replace into t1 values(1190, 90, 90);
+replace into t1 values(1191, 90, 90);
+replace into t1 values(1192, 90, 90);
+replace into t1 values(1193, 90, 90);
+replace into t1 values(1194, 90, 90);
+replace into t1 values(1195, 90, 90);
+replace into t1 values(1196, 90, 90);
+replace into t1 values(1197, 90, 90);
+replace into t1 values(1198, 90, 90);
+replace into t1 values(1199, 90, 90);
+replace into t1 values(1200, 91, 91);
+replace into t1 values(1201, 91, 91);
+replace into t1 values(1202, 91, 91);
+replace into t1 values(1203, 91, 91);
+replace into t1 values(1204, 91, 91);
+replace into t1 values(1205, 91, 91);
+replace into t1 values(1206, 91, 91);
+replace into t1 values(1207, 91, 91);
+replace into t1 values(1208, 91, 91);
+replace into t1 values(1209, 91, 91);
+replace into t1 values(1210, 92, 92);
+replace into t1 values(1211, 92, 92);
+replace into t1 values(1212, 92, 92);
+replace into t1 values(1213, 92, 92);
+replace into t1 values(1214, 92, 92);
+replace into t1 values(1215, 92, 92);
+replace into t1 values(1216, 92, 92);
+replace into t1 values(1217, 92, 92);
+replace into t1 values(1218, 92, 92);
+replace into t1 values(1219, 92, 92);
+replace into t1 values(1220, 93, 93);
+replace into t1 values(1221, 93, 93);
+replace into t1 values(1222, 93, 93);
+replace into t1 values(1223, 93, 93);
+replace into t1 values(1224, 93, 93);
+replace into t1 values(1225, 93, 93);
+replace into t1 values(1226, 93, 93);
+replace into t1 values(1227, 93, 93);
+replace into t1 values(1228, 93, 93);
+replace into t1 values(1229, 93, 93);
+replace into t1 values(1230, 94, 94);
+replace into t1 values(1231, 94, 94);
+replace into t1 values(1232, 94, 94);
+replace into t1 values(1233, 94, 94);
+replace into t1 values(1234, 94, 94);
+replace into t1 values(1235, 94, 94);
+replace into t1 values(1236, 94, 94);
+replace into t1 values(1237, 94, 94);
+replace into t1 values(1238, 94, 94);
+replace into t1 values(1239, 94, 94);
+replace into t1 values(1240, 95, 95);
+replace into t1 values(1241, 95, 95);
+replace into t1 values(1242, 95, 95);
+replace into t1 values(1243, 95, 95);
+replace into t1 values(1244, 95, 95);
+replace into t1 values(1245, 95, 95);
+replace into t1 values(1246, 95, 95);
+replace into t1 values(1247, 95, 95);
+replace into t1 values(1248, 95, 95);
+replace into t1 values(1249, 95, 95);
+replace into t1 values(1250, 96, 96);
+replace into t1 values(1251, 96, 96);
+replace into t1 values(1252, 96, 96);
+replace into t1 values(1253, 96, 96);
+replace into t1 values(1254, 96, 96);
+replace into t1 values(1255, 96, 96);
+replace into t1 values(1256, 96, 96);
+replace into t1 values(1257, 96, 96);
+replace into t1 values(1258, 96, 96);
+replace into t1 values(1259, 96, 96);
+replace into t1 values(1260, 97, 97);
+replace into t1 values(1261, 97, 97);
+replace into t1 values(1262, 97, 97);
+replace into t1 values(1263, 97, 97);
+replace into t1 values(1264, 97, 97);
+replace into t1 values(1265, 97, 97);
+replace into t1 values(1266, 97, 97);
+replace into t1 values(1267, 97, 97);
+replace into t1 values(1268, 97, 97);
+replace into t1 values(1269, 97, 97);
+replace into t1 values(1270, 98, 98);
+replace into t1 values(1271, 98, 98);
+replace into t1 values(1272, 98, 98);
+replace into t1 values(1273, 98, 98);
+replace into t1 values(1274, 98, 98);
+replace into t1 values(1275, 98, 98);
+replace into t1 values(1276, 98, 98);
+replace into t1 values(1277, 98, 98);
+replace into t1 values(1278, 98, 98);
+replace into t1 values(1279, 98, 98);
+replace into t1 values(1280, 99, 99);
+replace into t1 values(1281, 99, 99);
+replace into t1 values(1282, 99, 99);
+replace into t1 values(1283, 99, 99);
+replace into t1 values(1284, 99, 99);
+replace into t1 values(1285, 99, 99);
+replace into t1 values(1286, 99, 99);
+replace into t1 values(1287, 99, 99);
+replace into t1 values(1288, 99, 99);
+replace into t1 values(1289, 99, 99);
+replace into t1 values(1290, 100, 100);
+replace into t1 values(1291, 100, 100);
+replace into t1 values(1292, 100, 100);
+replace into t1 values(1293, 100, 100);
+replace into t1 values(1294, 100, 100);
+replace into t1 values(1295, 100, 100);
+replace into t1 values(1296, 100, 100);
+replace into t1 values(1297, 100, 100);
+replace into t1 values(1298, 100, 100);
+replace into t1 values(1299, 100, 100);
+replace into t1 values(1300, 101, 101);
+replace into t1 values(1301, 101, 101);
+replace into t1 values(1302, 101, 101);
+replace into t1 values(1303, 101, 101);
+replace into t1 values(1304, 101, 101);
+replace into t1 values(1305, 101, 101);
+replace into t1 values(1306, 101, 101);
+replace into t1 values(1307, 101, 101);
+replace into t1 values(1308, 101, 101);
+replace into t1 values(1309, 101, 101);
+replace into t1 values(1310, 102, 102);
+replace into t1 values(1311, 102, 102);
+replace into t1 values(1312, 102, 102);
+replace into t1 values(1313, 102, 102);
+replace into t1 values(1314, 102, 102);
+replace into t1 values(1315, 102, 102);
+replace into t1 values(1316, 102, 102);
+replace into t1 values(1317, 102, 102);
+replace into t1 values(1318, 102, 102);
+replace into t1 values(1319, 102, 102);
+replace into t1 values(1320, 103, 103);
+replace into t1 values(1321, 103, 103);
+replace into t1 values(1322, 103, 103);
+replace into t1 values(1323, 103, 103);
+replace into t1 values(1324, 103, 103);
+replace into t1 values(1325, 103, 103);
+replace into t1 values(1326, 103, 103);
+replace into t1 values(1327, 103, 103);
+replace into t1 values(1328, 103, 103);
+replace into t1 values(1329, 103, 103);
+replace into t1 values(1330, 104, 104);
+replace into t1 values(1331, 104, 104);
+replace into t1 values(1332, 104, 104);
+replace into t1 values(1333, 104, 104);
+replace into t1 values(1334, 104, 104);
+replace into t1 values(1335, 104, 104);
+replace into t1 values(1336, 104, 104);
+replace into t1 values(1337, 104, 104);
+replace into t1 values(1338, 104, 104);
+replace into t1 values(1339, 104, 104);
+replace into t1 values(1340, 105, 105);
+replace into t1 values(1341, 105, 105);
+replace into t1 values(1342, 105, 105);
+replace into t1 values(1343, 105, 105);
+replace into t1 values(1344, 105, 105);
+replace into t1 values(1345, 105, 105);
+replace into t1 values(1346, 105, 105);
+replace into t1 values(1347, 105, 105);
+replace into t1 values(1348, 105, 105);
+replace into t1 values(1349, 105, 105);
+replace into t1 values(1350, 106, 106);
+replace into t1 values(1351, 106, 106);
+replace into t1 values(1352, 106, 106);
+replace into t1 values(1353, 106, 106);
+replace into t1 values(1354, 106, 106);
+replace into t1 values(1355, 106, 106);
+replace into t1 values(1356, 106, 106);
+replace into t1 values(1357, 106, 106);
+replace into t1 values(1358, 106, 106);
+replace into t1 values(1359, 106, 106);
+replace into t1 values(1360, 107, 107);
+replace into t1 values(1361, 107, 107);
+replace into t1 values(1362, 107, 107);
+replace into t1 values(1363, 107, 107);
+replace into t1 values(1364, 107, 107);
+replace into t1 values(1365, 107, 107);
+replace into t1 values(1366, 107, 107);
+replace into t1 values(1367, 107, 107);
+replace into t1 values(1368, 107, 107);
+replace into t1 values(1369, 107, 107);
+replace into t1 values(1370, 108, 108);
+replace into t1 values(1371, 108, 108);
+replace into t1 values(1372, 108, 108);
+replace into t1 values(1373, 108, 108);
+replace into t1 values(1374, 108, 108);
+replace into t1 values(1375, 108, 108);
+replace into t1 values(1376, 108, 108);
+replace into t1 values(1377, 108, 108);
+replace into t1 values(1378, 108, 108);
+replace into t1 values(1379, 108, 108);
+replace into t1 values(1380, 109, 109);
+replace into t1 values(1381, 109, 109);
+replace into t1 values(1382, 109, 109);
+replace into t1 values(1383, 109, 109);
+replace into t1 values(1384, 109, 109);
+replace into t1 values(1385, 109, 109);
+replace into t1 values(1386, 109, 109);
+replace into t1 values(1387, 109, 109);
+replace into t1 values(1388, 109, 109);
+replace into t1 values(1389, 109, 109);
+replace into t1 values(1390, 110, 110);
+replace into t1 values(1391, 110, 110);
+replace into t1 values(1392, 110, 110);
+replace into t1 values(1393, 110, 110);
+replace into t1 values(1394, 110, 110);
+replace into t1 values(1395, 110, 110);
+replace into t1 values(1396, 110, 110);
+replace into t1 values(1397, 110, 110);
+replace into t1 values(1398, 110, 110);
+replace into t1 values(1399, 110, 110);
+replace into t2 values(0, 1, 1);
+replace into t2 values(1, 1, 1);
+replace into t2 values(2, 1, 1);
+replace into t2 values(3, 1, 1);
+replace into t2 values(4, 1, 1);
+replace into t2 values(5, 1, 1);
+replace into t2 values(6, 1, 1);
+replace into t2 values(7, 1, 1);
+replace into t2 values(8, 1, 1);
+replace into t2 values(9, 1, 1);
+replace into t2 values(10, 1, 1);
+replace into t2 values(11, 1, 1);
+replace into t2 values(12, 1, 1);
+replace into t2 values(13, 1, 1);
+replace into t2 values(14, 1, 1);
+replace into t2 values(15, 1, 1);
+replace into t2 values(16, 1, 1);
+replace into t2 values(17, 1, 1);
+replace into t2 values(18, 1, 1);
+replace into t2 values(19, 1, 1);
+replace into t2 values(20, 1, 1);
+replace into t2 values(21, 1, 1);
+replace into t2 values(22, 1, 1);
+replace into t2 values(23, 1, 1);
+replace into t2 values(24, 1, 1);
+replace into t2 values(25, 1, 1);
+replace into t2 values(26, 1, 1);
+replace into t2 values(27, 1, 1);
+replace into t2 values(28, 1, 1);
+replace into t2 values(29, 1, 1);
+replace into t2 values(30, 1, 1);
+replace into t2 values(31, 1, 1);
+replace into t2 values(32, 1, 1);
+replace into t2 values(33, 1, 1);
+replace into t2 values(34, 1, 1);
+replace into t2 values(35, 1, 1);
+replace into t2 values(36, 1, 1);
+replace into t2 values(37, 1, 1);
+replace into t2 values(38, 1, 1);
+replace into t2 values(39, 1, 1);
+replace into t2 values(40, 2, 2);
+replace into t2 values(41, 2, 2);
+replace into t2 values(42, 2, 2);
+replace into t2 values(43, 2, 2);
+replace into t2 values(44, 2, 2);
+replace into t2 values(45, 2, 2);
+replace into t2 values(46, 2, 2);
+replace into t2 values(47, 2, 2);
+replace into t2 values(48, 2, 2);
+replace into t2 values(49, 2, 2);
+replace into t2 values(50, 2, 2);
+replace into t2 values(51, 2, 2);
+replace into t2 values(52, 2, 2);
+replace into t2 values(53, 2, 2);
+replace into t2 values(54, 2, 2);
+replace into t2 values(55, 2, 2);
+replace into t2 values(56, 2, 2);
+replace into t2 values(57, 2, 2);
+replace into t2 values(58, 2, 2);
+replace into t2 values(59, 2, 2);
+replace into t2 values(60, 2, 2);
+replace into t2 values(61, 2, 2);
+replace into t2 values(62, 2, 2);
+replace into t2 values(63, 2, 2);
+replace into t2 values(64, 2, 2);
+replace into t2 values(65, 2, 2);
+replace into t2 values(66, 2, 2);
+replace into t2 values(67, 2, 2);
+replace into t2 values(68, 2, 2);
+replace into t2 values(69, 2, 2);
+replace into t2 values(70, 2, 2);
+replace into t2 values(71, 2, 2);
+replace into t2 values(72, 2, 2);
+replace into t2 values(73, 2, 2);
+replace into t2 values(74, 2, 2);
+replace into t2 values(75, 2, 2);
+replace into t2 values(76, 2, 2);
+replace into t2 values(77, 2, 2);
+replace into t2 values(78, 2, 2);
+replace into t2 values(79, 2, 2);
+replace into t2 values(80, 3, 3);
+replace into t2 values(81, 3, 3);
+replace into t2 values(82, 3, 3);
+replace into t2 values(83, 3, 3);
+replace into t2 values(84, 3, 3);
+replace into t2 values(85, 3, 3);
+replace into t2 values(86, 3, 3);
+replace into t2 values(87, 3, 3);
+replace into t2 values(88, 3, 3);
+replace into t2 values(89, 3, 3);
+replace into t2 values(90, 3, 3);
+replace into t2 values(91, 3, 3);
+replace into t2 values(92, 3, 3);
+replace into t2 values(93, 3, 3);
+replace into t2 values(94, 3, 3);
+replace into t2 values(95, 3, 3);
+replace into t2 values(96, 3, 3);
+replace into t2 values(97, 3, 3);
+replace into t2 values(98, 3, 3);
+replace into t2 values(99, 3, 3);
+replace into t2 values(100, 3, 3);
+replace into t2 values(101, 3, 3);
+replace into t2 values(102, 3, 3);
+replace into t2 values(103, 3, 3);
+replace into t2 values(104, 3, 3);
+replace into t2 values(105, 3, 3);
+replace into t2 values(106, 3, 3);
+replace into t2 values(107, 3, 3);
+replace into t2 values(108, 3, 3);
+replace into t2 values(109, 3, 3);
+replace into t2 values(110, 3, 3);
+replace into t2 values(111, 3, 3);
+replace into t2 values(112, 3, 3);
+replace into t2 values(113, 3, 3);
+replace into t2 values(114, 3, 3);
+replace into t2 values(115, 3, 3);
+replace into t2 values(116, 3, 3);
+replace into t2 values(117, 3, 3);
+replace into t2 values(118, 3, 3);
+replace into t2 values(119, 3, 3);
+replace into t2 values(120, 4, 4);
+replace into t2 values(121, 4, 4);
+replace into t2 values(122, 4, 4);
+replace into t2 values(123, 4, 4);
+replace into t2 values(124, 4, 4);
+replace into t2 values(125, 4, 4);
+replace into t2 values(126, 4, 4);
+replace into t2 values(127, 4, 4);
+replace into t2 values(128, 4, 4);
+replace into t2 values(129, 4, 4);
+replace into t2 values(130, 4, 4);
+replace into t2 values(131, 4, 4);
+replace into t2 values(132, 4, 4);
+replace into t2 values(133, 4, 4);
+replace into t2 values(134, 4, 4);
+replace into t2 values(135, 4, 4);
+replace into t2 values(136, 4, 4);
+replace into t2 values(137, 4, 4);
+replace into t2 values(138, 4, 4);
+replace into t2 values(139, 4, 4);
+replace into t2 values(140, 4, 4);
+replace into t2 values(141, 4, 4);
+replace into t2 values(142, 4, 4);
+replace into t2 values(143, 4, 4);
+replace into t2 values(144, 4, 4);
+replace into t2 values(145, 4, 4);
+replace into t2 values(146, 4, 4);
+replace into t2 values(147, 4, 4);
+replace into t2 values(148, 4, 4);
+replace into t2 values(149, 4, 4);
+replace into t2 values(150, 4, 4);
+replace into t2 values(151, 4, 4);
+replace into t2 values(152, 4, 4);
+replace into t2 values(153, 4, 4);
+replace into t2 values(154, 4, 4);
+replace into t2 values(155, 4, 4);
+replace into t2 values(156, 4, 4);
+replace into t2 values(157, 4, 4);
+replace into t2 values(158, 4, 4);
+replace into t2 values(159, 4, 4);
+replace into t2 values(160, 5, 5);
+replace into t2 values(161, 5, 5);
+replace into t2 values(162, 5, 5);
+replace into t2 values(163, 5, 5);
+replace into t2 values(164, 5, 5);
+replace into t2 values(165, 5, 5);
+replace into t2 values(166, 5, 5);
+replace into t2 values(167, 5, 5);
+replace into t2 values(168, 5, 5);
+replace into t2 values(169, 5, 5);
+replace into t2 values(170, 5, 5);
+replace into t2 values(171, 5, 5);
+replace into t2 values(172, 5, 5);
+replace into t2 values(173, 5, 5);
+replace into t2 values(174, 5, 5);
+replace into t2 values(175, 5, 5);
+replace into t2 values(176, 5, 5);
+replace into t2 values(177, 5, 5);
+replace into t2 values(178, 5, 5);
+replace into t2 values(179, 5, 5);
+replace into t2 values(180, 5, 5);
+replace into t2 values(181, 5, 5);
+replace into t2 values(182, 5, 5);
+replace into t2 values(183, 5, 5);
+replace into t2 values(184, 5, 5);
+replace into t2 values(185, 5, 5);
+replace into t2 values(186, 5, 5);
+replace into t2 values(187, 5, 5);
+replace into t2 values(188, 5, 5);
+replace into t2 values(189, 5, 5);
+replace into t2 values(190, 5, 5);
+replace into t2 values(191, 5, 5);
+replace into t2 values(192, 5, 5);
+replace into t2 values(193, 5, 5);
+replace into t2 values(194, 5, 5);
+replace into t2 values(195, 5, 5);
+replace into t2 values(196, 5, 5);
+replace into t2 values(197, 5, 5);
+replace into t2 values(198, 5, 5);
+replace into t2 values(199, 5, 5);
+replace into t2 values(200, 6, 6);
+replace into t2 values(201, 6, 6);
+replace into t2 values(202, 6, 6);
+replace into t2 values(203, 6, 6);
+replace into t2 values(204, 6, 6);
+replace into t2 values(205, 6, 6);
+replace into t2 values(206, 6, 6);
+replace into t2 values(207, 6, 6);
+replace into t2 values(208, 6, 6);
+replace into t2 values(209, 6, 6);
+replace into t2 values(210, 6, 6);
+replace into t2 values(211, 6, 6);
+replace into t2 values(212, 6, 6);
+replace into t2 values(213, 6, 6);
+replace into t2 values(214, 6, 6);
+replace into t2 values(215, 6, 6);
+replace into t2 values(216, 6, 6);
+replace into t2 values(217, 6, 6);
+replace into t2 values(218, 6, 6);
+replace into t2 values(219, 6, 6);
+replace into t2 values(220, 6, 6);
+replace into t2 values(221, 6, 6);
+replace into t2 values(222, 6, 6);
+replace into t2 values(223, 6, 6);
+replace into t2 values(224, 6, 6);
+replace into t2 values(225, 6, 6);
+replace into t2 values(226, 6, 6);
+replace into t2 values(227, 6, 6);
+replace into t2 values(228, 6, 6);
+replace into t2 values(229, 6, 6);
+replace into t2 values(230, 6, 6);
+replace into t2 values(231, 6, 6);
+replace into t2 values(232, 6, 6);
+replace into t2 values(233, 6, 6);
+replace into t2 values(234, 6, 6);
+replace into t2 values(235, 6, 6);
+replace into t2 values(236, 6, 6);
+replace into t2 values(237, 6, 6);
+replace into t2 values(238, 6, 6);
+replace into t2 values(239, 6, 6);
+replace into t2 values(240, 7, 7);
+replace into t2 values(241, 7, 7);
+replace into t2 values(242, 7, 7);
+replace into t2 values(243, 7, 7);
+replace into t2 values(244, 7, 7);
+replace into t2 values(245, 7, 7);
+replace into t2 values(246, 7, 7);
+replace into t2 values(247, 7, 7);
+replace into t2 values(248, 7, 7);
+replace into t2 values(249, 7, 7);
+replace into t2 values(250, 7, 7);
+replace into t2 values(251, 7, 7);
+replace into t2 values(252, 7, 7);
+replace into t2 values(253, 7, 7);
+replace into t2 values(254, 7, 7);
+replace into t2 values(255, 7, 7);
+replace into t2 values(256, 7, 7);
+replace into t2 values(257, 7, 7);
+replace into t2 values(258, 7, 7);
+replace into t2 values(259, 7, 7);
+replace into t2 values(260, 7, 7);
+replace into t2 values(261, 7, 7);
+replace into t2 values(262, 7, 7);
+replace into t2 values(263, 7, 7);
+replace into t2 values(264, 7, 7);
+replace into t2 values(265, 7, 7);
+replace into t2 values(266, 7, 7);
+replace into t2 values(267, 7, 7);
+replace into t2 values(268, 7, 7);
+replace into t2 values(269, 7, 7);
+replace into t2 values(270, 7, 7);
+replace into t2 values(271, 7, 7);
+replace into t2 values(272, 7, 7);
+replace into t2 values(273, 7, 7);
+replace into t2 values(274, 7, 7);
+replace into t2 values(275, 7, 7);
+replace into t2 values(276, 7, 7);
+replace into t2 values(277, 7, 7);
+replace into t2 values(278, 7, 7);
+replace into t2 values(279, 7, 7);
+replace into t2 values(280, 8, 8);
+replace into t2 values(281, 8, 8);
+replace into t2 values(282, 8, 8);
+replace into t2 values(283, 8, 8);
+replace into t2 values(284, 8, 8);
+replace into t2 values(285, 8, 8);
+replace into t2 values(286, 8, 8);
+replace into t2 values(287, 8, 8);
+replace into t2 values(288, 8, 8);
+replace into t2 values(289, 8, 8);
+replace into t2 values(290, 8, 8);
+replace into t2 values(291, 8, 8);
+replace into t2 values(292, 8, 8);
+replace into t2 values(293, 8, 8);
+replace into t2 values(294, 8, 8);
+replace into t2 values(295, 8, 8);
+replace into t2 values(296, 8, 8);
+replace into t2 values(297, 8, 8);
+replace into t2 values(298, 8, 8);
+replace into t2 values(299, 8, 8);
+replace into t2 values(300, 8, 8);
+replace into t2 values(301, 8, 8);
+replace into t2 values(302, 8, 8);
+replace into t2 values(303, 8, 8);
+replace into t2 values(304, 8, 8);
+replace into t2 values(305, 8, 8);
+replace into t2 values(306, 8, 8);
+replace into t2 values(307, 8, 8);
+replace into t2 values(308, 8, 8);
+replace into t2 values(309, 8, 8);
+replace into t2 values(310, 8, 8);
+replace into t2 values(311, 8, 8);
+replace into t2 values(312, 8, 8);
+replace into t2 values(313, 8, 8);
+replace into t2 values(314, 8, 8);
+replace into t2 values(315, 8, 8);
+replace into t2 values(316, 8, 8);
+replace into t2 values(317, 8, 8);
+replace into t2 values(318, 8, 8);
+replace into t2 values(319, 8, 8);
+replace into t2 values(320, 9, 9);
+replace into t2 values(321, 9, 9);
+replace into t2 values(322, 9, 9);
+replace into t2 values(323, 9, 9);
+replace into t2 values(324, 9, 9);
+replace into t2 values(325, 9, 9);
+replace into t2 values(326, 9, 9);
+replace into t2 values(327, 9, 9);
+replace into t2 values(328, 9, 9);
+replace into t2 values(329, 9, 9);
+replace into t2 values(330, 9, 9);
+replace into t2 values(331, 9, 9);
+replace into t2 values(332, 9, 9);
+replace into t2 values(333, 9, 9);
+replace into t2 values(334, 9, 9);
+replace into t2 values(335, 9, 9);
+replace into t2 values(336, 9, 9);
+replace into t2 values(337, 9, 9);
+replace into t2 values(338, 9, 9);
+replace into t2 values(339, 9, 9);
+replace into t2 values(340, 9, 9);
+replace into t2 values(341, 9, 9);
+replace into t2 values(342, 9, 9);
+replace into t2 values(343, 9, 9);
+replace into t2 values(344, 9, 9);
+replace into t2 values(345, 9, 9);
+replace into t2 values(346, 9, 9);
+replace into t2 values(347, 9, 9);
+replace into t2 values(348, 9, 9);
+replace into t2 values(349, 9, 9);
+replace into t2 values(350, 9, 9);
+replace into t2 values(351, 9, 9);
+replace into t2 values(352, 9, 9);
+replace into t2 values(353, 9, 9);
+replace into t2 values(354, 9, 9);
+replace into t2 values(355, 9, 9);
+replace into t2 values(356, 9, 9);
+replace into t2 values(357, 9, 9);
+replace into t2 values(358, 9, 9);
+replace into t2 values(359, 9, 9);
+replace into t2 values(360, 10, 10);
+replace into t2 values(361, 10, 10);
+replace into t2 values(362, 10, 10);
+replace into t2 values(363, 10, 10);
+replace into t2 values(364, 10, 10);
+replace into t2 values(365, 10, 10);
+replace into t2 values(366, 10, 10);
+replace into t2 values(367, 10, 10);
+replace into t2 values(368, 10, 10);
+replace into t2 values(369, 10, 10);
+replace into t2 values(370, 10, 10);
+replace into t2 values(371, 10, 10);
+replace into t2 values(372, 10, 10);
+replace into t2 values(373, 10, 10);
+replace into t2 values(374, 10, 10);
+replace into t2 values(375, 10, 10);
+replace into t2 values(376, 10, 10);
+replace into t2 values(377, 10, 10);
+replace into t2 values(378, 10, 10);
+replace into t2 values(379, 10, 10);
+replace into t2 values(380, 10, 10);
+replace into t2 values(381, 10, 10);
+replace into t2 values(382, 10, 10);
+replace into t2 values(383, 10, 10);
+replace into t2 values(384, 10, 10);
+replace into t2 values(385, 10, 10);
+replace into t2 values(386, 10, 10);
+replace into t2 values(387, 10, 10);
+replace into t2 values(388, 10, 10);
+replace into t2 values(389, 10, 10);
+replace into t2 values(390, 10, 10);
+replace into t2 values(391, 10, 10);
+replace into t2 values(392, 10, 10);
+replace into t2 values(393, 10, 10);
+replace into t2 values(394, 10, 10);
+replace into t2 values(395, 10, 10);
+replace into t2 values(396, 10, 10);
+replace into t2 values(397, 10, 10);
+replace into t2 values(398, 10, 10);
+replace into t2 values(399, 10, 10);
+replace into t2 values(400, 11, 11);
+replace into t2 values(401, 11, 11);
+replace into t2 values(402, 11, 11);
+replace into t2 values(403, 11, 11);
+replace into t2 values(404, 11, 11);
+replace into t2 values(405, 11, 11);
+replace into t2 values(406, 11, 11);
+replace into t2 values(407, 11, 11);
+replace into t2 values(408, 11, 11);
+replace into t2 values(409, 11, 11);
+replace into t2 values(410, 12, 12);
+replace into t2 values(411, 12, 12);
+replace into t2 values(412, 12, 12);
+replace into t2 values(413, 12, 12);
+replace into t2 values(414, 12, 12);
+replace into t2 values(415, 12, 12);
+replace into t2 values(416, 12, 12);
+replace into t2 values(417, 12, 12);
+replace into t2 values(418, 12, 12);
+replace into t2 values(419, 12, 12);
+replace into t2 values(420, 13, 13);
+replace into t2 values(421, 13, 13);
+replace into t2 values(422, 13, 13);
+replace into t2 values(423, 13, 13);
+replace into t2 values(424, 13, 13);
+replace into t2 values(425, 13, 13);
+replace into t2 values(426, 13, 13);
+replace into t2 values(427, 13, 13);
+replace into t2 values(428, 13, 13);
+replace into t2 values(429, 13, 13);
+replace into t2 values(430, 14, 14);
+replace into t2 values(431, 14, 14);
+replace into t2 values(432, 14, 14);
+replace into t2 values(433, 14, 14);
+replace into t2 values(434, 14, 14);
+replace into t2 values(435, 14, 14);
+replace into t2 values(436, 14, 14);
+replace into t2 values(437, 14, 14);
+replace into t2 values(438, 14, 14);
+replace into t2 values(439, 14, 14);
+replace into t2 values(440, 15, 15);
+replace into t2 values(441, 15, 15);
+replace into t2 values(442, 15, 15);
+replace into t2 values(443, 15, 15);
+replace into t2 values(444, 15, 15);
+replace into t2 values(445, 15, 15);
+replace into t2 values(446, 15, 15);
+replace into t2 values(447, 15, 15);
+replace into t2 values(448, 15, 15);
+replace into t2 values(449, 15, 15);
+replace into t2 values(450, 16, 16);
+replace into t2 values(451, 16, 16);
+replace into t2 values(452, 16, 16);
+replace into t2 values(453, 16, 16);
+replace into t2 values(454, 16, 16);
+replace into t2 values(455, 16, 16);
+replace into t2 values(456, 16, 16);
+replace into t2 values(457, 16, 16);
+replace into t2 values(458, 16, 16);
+replace into t2 values(459, 16, 16);
+replace into t2 values(460, 17, 17);
+replace into t2 values(461, 17, 17);
+replace into t2 values(462, 17, 17);
+replace into t2 values(463, 17, 17);
+replace into t2 values(464, 17, 17);
+replace into t2 values(465, 17, 17);
+replace into t2 values(466, 17, 17);
+replace into t2 values(467, 17, 17);
+replace into t2 values(468, 17, 17);
+replace into t2 values(469, 17, 17);
+replace into t2 values(470, 18, 18);
+replace into t2 values(471, 18, 18);
+replace into t2 values(472, 18, 18);
+replace into t2 values(473, 18, 18);
+replace into t2 values(474, 18, 18);
+replace into t2 values(475, 18, 18);
+replace into t2 values(476, 18, 18);
+replace into t2 values(477, 18, 18);
+replace into t2 values(478, 18, 18);
+replace into t2 values(479, 18, 18);
+replace into t2 values(480, 19, 19);
+replace into t2 values(481, 19, 19);
+replace into t2 values(482, 19, 19);
+replace into t2 values(483, 19, 19);
+replace into t2 values(484, 19, 19);
+replace into t2 values(485, 19, 19);
+replace into t2 values(486, 19, 19);
+replace into t2 values(487, 19, 19);
+replace into t2 values(488, 19, 19);
+replace into t2 values(489, 19, 19);
+replace into t2 values(490, 20, 20);
+replace into t2 values(491, 20, 20);
+replace into t2 values(492, 20, 20);
+replace into t2 values(493, 20, 20);
+replace into t2 values(494, 20, 20);
+replace into t2 values(495, 20, 20);
+replace into t2 values(496, 20, 20);
+replace into t2 values(497, 20, 20);
+replace into t2 values(498, 20, 20);
+replace into t2 values(499, 20, 20);
+replace into t2 values(500, 21, 21);
+replace into t2 values(501, 21, 21);
+replace into t2 values(502, 21, 21);
+replace into t2 values(503, 21, 21);
+replace into t2 values(504, 21, 21);
+replace into t2 values(505, 21, 21);
+replace into t2 values(506, 21, 21);
+replace into t2 values(507, 21, 21);
+replace into t2 values(508, 21, 21);
+replace into t2 values(509, 21, 21);
+replace into t2 values(510, 22, 22);
+replace into t2 values(511, 22, 22);
+replace into t2 values(512, 22, 22);
+replace into t2 values(513, 22, 22);
+replace into t2 values(514, 22, 22);
+replace into t2 values(515, 22, 22);
+replace into t2 values(516, 22, 22);
+replace into t2 values(517, 22, 22);
+replace into t2 values(518, 22, 22);
+replace into t2 values(519, 22, 22);
+replace into t2 values(520, 23, 23);
+replace into t2 values(521, 23, 23);
+replace into t2 values(522, 23, 23);
+replace into t2 values(523, 23, 23);
+replace into t2 values(524, 23, 23);
+replace into t2 values(525, 23, 23);
+replace into t2 values(526, 23, 23);
+replace into t2 values(527, 23, 23);
+replace into t2 values(528, 23, 23);
+replace into t2 values(529, 23, 23);
+replace into t2 values(530, 24, 24);
+replace into t2 values(531, 24, 24);
+replace into t2 values(532, 24, 24);
+replace into t2 values(533, 24, 24);
+replace into t2 values(534, 24, 24);
+replace into t2 values(535, 24, 24);
+replace into t2 values(536, 24, 24);
+replace into t2 values(537, 24, 24);
+replace into t2 values(538, 24, 24);
+replace into t2 values(539, 24, 24);
+replace into t2 values(540, 25, 25);
+replace into t2 values(541, 25, 25);
+replace into t2 values(542, 25, 25);
+replace into t2 values(543, 25, 25);
+replace into t2 values(544, 25, 25);
+replace into t2 values(545, 25, 25);
+replace into t2 values(546, 25, 25);
+replace into t2 values(547, 25, 25);
+replace into t2 values(548, 25, 25);
+replace into t2 values(549, 25, 25);
+replace into t2 values(550, 26, 26);
+replace into t2 values(551, 26, 26);
+replace into t2 values(552, 26, 26);
+replace into t2 values(553, 26, 26);
+replace into t2 values(554, 26, 26);
+replace into t2 values(555, 26, 26);
+replace into t2 values(556, 26, 26);
+replace into t2 values(557, 26, 26);
+replace into t2 values(558, 26, 26);
+replace into t2 values(559, 26, 26);
+replace into t2 values(560, 27, 27);
+replace into t2 values(561, 27, 27);
+replace into t2 values(562, 27, 27);
+replace into t2 values(563, 27, 27);
+replace into t2 values(564, 27, 27);
+replace into t2 values(565, 27, 27);
+replace into t2 values(566, 27, 27);
+replace into t2 values(567, 27, 27);
+replace into t2 values(568, 27, 27);
+replace into t2 values(569, 27, 27);
+replace into t2 values(570, 28, 28);
+replace into t2 values(571, 28, 28);
+replace into t2 values(572, 28, 28);
+replace into t2 values(573, 28, 28);
+replace into t2 values(574, 28, 28);
+replace into t2 values(575, 28, 28);
+replace into t2 values(576, 28, 28);
+replace into t2 values(577, 28, 28);
+replace into t2 values(578, 28, 28);
+replace into t2 values(579, 28, 28);
+replace into t2 values(580, 29, 29);
+replace into t2 values(581, 29, 29);
+replace into t2 values(582, 29, 29);
+replace into t2 values(583, 29, 29);
+replace into t2 values(584, 29, 29);
+replace into t2 values(585, 29, 29);
+replace into t2 values(586, 29, 29);
+replace into t2 values(587, 29, 29);
+replace into t2 values(588, 29, 29);
+replace into t2 values(589, 29, 29);
+replace into t2 values(590, 30, 30);
+replace into t2 values(591, 30, 30);
+replace into t2 values(592, 30, 30);
+replace into t2 values(593, 30, 30);
+replace into t2 values(594, 30, 30);
+replace into t2 values(595, 30, 30);
+replace into t2 values(596, 30, 30);
+replace into t2 values(597, 30, 30);
+replace into t2 values(598, 30, 30);
+replace into t2 values(599, 30, 30);
+replace into t2 values(600, 31, 31);
+replace into t2 values(601, 31, 31);
+replace into t2 values(602, 31, 31);
+replace into t2 values(603, 31, 31);
+replace into t2 values(604, 31, 31);
+replace into t2 values(605, 31, 31);
+replace into t2 values(606, 31, 31);
+replace into t2 values(607, 31, 31);
+replace into t2 values(608, 31, 31);
+replace into t2 values(609, 31, 31);
+replace into t2 values(610, 32, 32);
+replace into t2 values(611, 32, 32);
+replace into t2 values(612, 32, 32);
+replace into t2 values(613, 32, 32);
+replace into t2 values(614, 32, 32);
+replace into t2 values(615, 32, 32);
+replace into t2 values(616, 32, 32);
+replace into t2 values(617, 32, 32);
+replace into t2 values(618, 32, 32);
+replace into t2 values(619, 32, 32);
+replace into t2 values(620, 33, 33);
+replace into t2 values(621, 33, 33);
+replace into t2 values(622, 33, 33);
+replace into t2 values(623, 33, 33);
+replace into t2 values(624, 33, 33);
+replace into t2 values(625, 33, 33);
+replace into t2 values(626, 33, 33);
+replace into t2 values(627, 33, 33);
+replace into t2 values(628, 33, 33);
+replace into t2 values(629, 33, 33);
+replace into t2 values(630, 34, 34);
+replace into t2 values(631, 34, 34);
+replace into t2 values(632, 34, 34);
+replace into t2 values(633, 34, 34);
+replace into t2 values(634, 34, 34);
+replace into t2 values(635, 34, 34);
+replace into t2 values(636, 34, 34);
+replace into t2 values(637, 34, 34);
+replace into t2 values(638, 34, 34);
+replace into t2 values(639, 34, 34);
+replace into t2 values(640, 35, 35);
+replace into t2 values(641, 35, 35);
+replace into t2 values(642, 35, 35);
+replace into t2 values(643, 35, 35);
+replace into t2 values(644, 35, 35);
+replace into t2 values(645, 35, 35);
+replace into t2 values(646, 35, 35);
+replace into t2 values(647, 35, 35);
+replace into t2 values(648, 35, 35);
+replace into t2 values(649, 35, 35);
+replace into t2 values(650, 36, 36);
+replace into t2 values(651, 36, 36);
+replace into t2 values(652, 36, 36);
+replace into t2 values(653, 36, 36);
+replace into t2 values(654, 36, 36);
+replace into t2 values(655, 36, 36);
+replace into t2 values(656, 36, 36);
+replace into t2 values(657, 36, 36);
+replace into t2 values(658, 36, 36);
+replace into t2 values(659, 36, 36);
+replace into t2 values(660, 37, 37);
+replace into t2 values(661, 37, 37);
+replace into t2 values(662, 37, 37);
+replace into t2 values(663, 37, 37);
+replace into t2 values(664, 37, 37);
+replace into t2 values(665, 37, 37);
+replace into t2 values(666, 37, 37);
+replace into t2 values(667, 37, 37);
+replace into t2 values(668, 37, 37);
+replace into t2 values(669, 37, 37);
+replace into t2 values(670, 38, 38);
+replace into t2 values(671, 38, 38);
+replace into t2 values(672, 38, 38);
+replace into t2 values(673, 38, 38);
+replace into t2 values(674, 38, 38);
+replace into t2 values(675, 38, 38);
+replace into t2 values(676, 38, 38);
+replace into t2 values(677, 38, 38);
+replace into t2 values(678, 38, 38);
+replace into t2 values(679, 38, 38);
+replace into t2 values(680, 39, 39);
+replace into t2 values(681, 39, 39);
+replace into t2 values(682, 39, 39);
+replace into t2 values(683, 39, 39);
+replace into t2 values(684, 39, 39);
+replace into t2 values(685, 39, 39);
+replace into t2 values(686, 39, 39);
+replace into t2 values(687, 39, 39);
+replace into t2 values(688, 39, 39);
+replace into t2 values(689, 39, 39);
+replace into t2 values(690, 40, 40);
+replace into t2 values(691, 40, 40);
+replace into t2 values(692, 40, 40);
+replace into t2 values(693, 40, 40);
+replace into t2 values(694, 40, 40);
+replace into t2 values(695, 40, 40);
+replace into t2 values(696, 40, 40);
+replace into t2 values(697, 40, 40);
+replace into t2 values(698, 40, 40);
+replace into t2 values(699, 40, 40);
+replace into t2 values(700, 41, 41);
+replace into t2 values(701, 41, 41);
+replace into t2 values(702, 41, 41);
+replace into t2 values(703, 41, 41);
+replace into t2 values(704, 41, 41);
+replace into t2 values(705, 41, 41);
+replace into t2 values(706, 41, 41);
+replace into t2 values(707, 41, 41);
+replace into t2 values(708, 41, 41);
+replace into t2 values(709, 41, 41);
+replace into t2 values(710, 42, 42);
+replace into t2 values(711, 42, 42);
+replace into t2 values(712, 42, 42);
+replace into t2 values(713, 42, 42);
+replace into t2 values(714, 42, 42);
+replace into t2 values(715, 42, 42);
+replace into t2 values(716, 42, 42);
+replace into t2 values(717, 42, 42);
+replace into t2 values(718, 42, 42);
+replace into t2 values(719, 42, 42);
+replace into t2 values(720, 43, 43);
+replace into t2 values(721, 43, 43);
+replace into t2 values(722, 43, 43);
+replace into t2 values(723, 43, 43);
+replace into t2 values(724, 43, 43);
+replace into t2 values(725, 43, 43);
+replace into t2 values(726, 43, 43);
+replace into t2 values(727, 43, 43);
+replace into t2 values(728, 43, 43);
+replace into t2 values(729, 43, 43);
+replace into t2 values(730, 44, 44);
+replace into t2 values(731, 44, 44);
+replace into t2 values(732, 44, 44);
+replace into t2 values(733, 44, 44);
+replace into t2 values(734, 44, 44);
+replace into t2 values(735, 44, 44);
+replace into t2 values(736, 44, 44);
+replace into t2 values(737, 44, 44);
+replace into t2 values(738, 44, 44);
+replace into t2 values(739, 44, 44);
+replace into t2 values(740, 45, 45);
+replace into t2 values(741, 45, 45);
+replace into t2 values(742, 45, 45);
+replace into t2 values(743, 45, 45);
+replace into t2 values(744, 45, 45);
+replace into t2 values(745, 45, 45);
+replace into t2 values(746, 45, 45);
+replace into t2 values(747, 45, 45);
+replace into t2 values(748, 45, 45);
+replace into t2 values(749, 45, 45);
+replace into t2 values(750, 46, 46);
+replace into t2 values(751, 46, 46);
+replace into t2 values(752, 46, 46);
+replace into t2 values(753, 46, 46);
+replace into t2 values(754, 46, 46);
+replace into t2 values(755, 46, 46);
+replace into t2 values(756, 46, 46);
+replace into t2 values(757, 46, 46);
+replace into t2 values(758, 46, 46);
+replace into t2 values(759, 46, 46);
+replace into t2 values(760, 47, 47);
+replace into t2 values(761, 47, 47);
+replace into t2 values(762, 47, 47);
+replace into t2 values(763, 47, 47);
+replace into t2 values(764, 47, 47);
+replace into t2 values(765, 47, 47);
+replace into t2 values(766, 47, 47);
+replace into t2 values(767, 47, 47);
+replace into t2 values(768, 47, 47);
+replace into t2 values(769, 47, 47);
+replace into t2 values(770, 48, 48);
+replace into t2 values(771, 48, 48);
+replace into t2 values(772, 48, 48);
+replace into t2 values(773, 48, 48);
+replace into t2 values(774, 48, 48);
+replace into t2 values(775, 48, 48);
+replace into t2 values(776, 48, 48);
+replace into t2 values(777, 48, 48);
+replace into t2 values(778, 48, 48);
+replace into t2 values(779, 48, 48);
+replace into t2 values(780, 49, 49);
+replace into t2 values(781, 49, 49);
+replace into t2 values(782, 49, 49);
+replace into t2 values(783, 49, 49);
+replace into t2 values(784, 49, 49);
+replace into t2 values(785, 49, 49);
+replace into t2 values(786, 49, 49);
+replace into t2 values(787, 49, 49);
+replace into t2 values(788, 49, 49);
+replace into t2 values(789, 49, 49);
+replace into t2 values(790, 50, 50);
+replace into t2 values(791, 50, 50);
+replace into t2 values(792, 50, 50);
+replace into t2 values(793, 50, 50);
+replace into t2 values(794, 50, 50);
+replace into t2 values(795, 50, 50);
+replace into t2 values(796, 50, 50);
+replace into t2 values(797, 50, 50);
+replace into t2 values(798, 50, 50);
+replace into t2 values(799, 50, 50);
+replace into t2 values(800, 51, 51);
+replace into t2 values(801, 51, 51);
+replace into t2 values(802, 51, 51);
+replace into t2 values(803, 51, 51);
+replace into t2 values(804, 51, 51);
+replace into t2 values(805, 51, 51);
+replace into t2 values(806, 51, 51);
+replace into t2 values(807, 51, 51);
+replace into t2 values(808, 51, 51);
+replace into t2 values(809, 51, 51);
+replace into t2 values(810, 52, 52);
+replace into t2 values(811, 52, 52);
+replace into t2 values(812, 52, 52);
+replace into t2 values(813, 52, 52);
+replace into t2 values(814, 52, 52);
+replace into t2 values(815, 52, 52);
+replace into t2 values(816, 52, 52);
+replace into t2 values(817, 52, 52);
+replace into t2 values(818, 52, 52);
+replace into t2 values(819, 52, 52);
+replace into t2 values(820, 53, 53);
+replace into t2 values(821, 53, 53);
+replace into t2 values(822, 53, 53);
+replace into t2 values(823, 53, 53);
+replace into t2 values(824, 53, 53);
+replace into t2 values(825, 53, 53);
+replace into t2 values(826, 53, 53);
+replace into t2 values(827, 53, 53);
+replace into t2 values(828, 53, 53);
+replace into t2 values(829, 53, 53);
+replace into t2 values(830, 54, 54);
+replace into t2 values(831, 54, 54);
+replace into t2 values(832, 54, 54);
+replace into t2 values(833, 54, 54);
+replace into t2 values(834, 54, 54);
+replace into t2 values(835, 54, 54);
+replace into t2 values(836, 54, 54);
+replace into t2 values(837, 54, 54);
+replace into t2 values(838, 54, 54);
+replace into t2 values(839, 54, 54);
+replace into t2 values(840, 55, 55);
+replace into t2 values(841, 55, 55);
+replace into t2 values(842, 55, 55);
+replace into t2 values(843, 55, 55);
+replace into t2 values(844, 55, 55);
+replace into t2 values(845, 55, 55);
+replace into t2 values(846, 55, 55);
+replace into t2 values(847, 55, 55);
+replace into t2 values(848, 55, 55);
+replace into t2 values(849, 55, 55);
+replace into t2 values(850, 56, 56);
+replace into t2 values(851, 56, 56);
+replace into t2 values(852, 56, 56);
+replace into t2 values(853, 56, 56);
+replace into t2 values(854, 56, 56);
+replace into t2 values(855, 56, 56);
+replace into t2 values(856, 56, 56);
+replace into t2 values(857, 56, 56);
+replace into t2 values(858, 56, 56);
+replace into t2 values(859, 56, 56);
+replace into t2 values(860, 57, 57);
+replace into t2 values(861, 57, 57);
+replace into t2 values(862, 57, 57);
+replace into t2 values(863, 57, 57);
+replace into t2 values(864, 57, 57);
+replace into t2 values(865, 57, 57);
+replace into t2 values(866, 57, 57);
+replace into t2 values(867, 57, 57);
+replace into t2 values(868, 57, 57);
+replace into t2 values(869, 57, 57);
+replace into t2 values(870, 58, 58);
+replace into t2 values(871, 58, 58);
+replace into t2 values(872, 58, 58);
+replace into t2 values(873, 58, 58);
+replace into t2 values(874, 58, 58);
+replace into t2 values(875, 58, 58);
+replace into t2 values(876, 58, 58);
+replace into t2 values(877, 58, 58);
+replace into t2 values(878, 58, 58);
+replace into t2 values(879, 58, 58);
+replace into t2 values(880, 59, 59);
+replace into t2 values(881, 59, 59);
+replace into t2 values(882, 59, 59);
+replace into t2 values(883, 59, 59);
+replace into t2 values(884, 59, 59);
+replace into t2 values(885, 59, 59);
+replace into t2 values(886, 59, 59);
+replace into t2 values(887, 59, 59);
+replace into t2 values(888, 59, 59);
+replace into t2 values(889, 59, 59);
+replace into t2 values(890, 60, 60);
+replace into t2 values(891, 60, 60);
+replace into t2 values(892, 60, 60);
+replace into t2 values(893, 60, 60);
+replace into t2 values(894, 60, 60);
+replace into t2 values(895, 60, 60);
+replace into t2 values(896, 60, 60);
+replace into t2 values(897, 60, 60);
+replace into t2 values(898, 60, 60);
+replace into t2 values(899, 60, 60);
+replace into t2 values(900, 61, 61);
+replace into t2 values(901, 61, 61);
+replace into t2 values(902, 61, 61);
+replace into t2 values(903, 61, 61);
+replace into t2 values(904, 61, 61);
+replace into t2 values(905, 61, 61);
+replace into t2 values(906, 61, 61);
+replace into t2 values(907, 61, 61);
+replace into t2 values(908, 61, 61);
+replace into t2 values(909, 61, 61);
+replace into t2 values(910, 62, 62);
+replace into t2 values(911, 62, 62);
+replace into t2 values(912, 62, 62);
+replace into t2 values(913, 62, 62);
+replace into t2 values(914, 62, 62);
+replace into t2 values(915, 62, 62);
+replace into t2 values(916, 62, 62);
+replace into t2 values(917, 62, 62);
+replace into t2 values(918, 62, 62);
+replace into t2 values(919, 62, 62);
+replace into t2 values(920, 63, 63);
+replace into t2 values(921, 63, 63);
+replace into t2 values(922, 63, 63);
+replace into t2 values(923, 63, 63);
+replace into t2 values(924, 63, 63);
+replace into t2 values(925, 63, 63);
+replace into t2 values(926, 63, 63);
+replace into t2 values(927, 63, 63);
+replace into t2 values(928, 63, 63);
+replace into t2 values(929, 63, 63);
+replace into t2 values(930, 64, 64);
+replace into t2 values(931, 64, 64);
+replace into t2 values(932, 64, 64);
+replace into t2 values(933, 64, 64);
+replace into t2 values(934, 64, 64);
+replace into t2 values(935, 64, 64);
+replace into t2 values(936, 64, 64);
+replace into t2 values(937, 64, 64);
+replace into t2 values(938, 64, 64);
+replace into t2 values(939, 64, 64);
+replace into t2 values(940, 65, 65);
+replace into t2 values(941, 65, 65);
+replace into t2 values(942, 65, 65);
+replace into t2 values(943, 65, 65);
+replace into t2 values(944, 65, 65);
+replace into t2 values(945, 65, 65);
+replace into t2 values(946, 65, 65);
+replace into t2 values(947, 65, 65);
+replace into t2 values(948, 65, 65);
+replace into t2 values(949, 65, 65);
+replace into t2 values(950, 66, 66);
+replace into t2 values(951, 66, 66);
+replace into t2 values(952, 66, 66);
+replace into t2 values(953, 66, 66);
+replace into t2 values(954, 66, 66);
+replace into t2 values(955, 66, 66);
+replace into t2 values(956, 66, 66);
+replace into t2 values(957, 66, 66);
+replace into t2 values(958, 66, 66);
+replace into t2 values(959, 66, 66);
+replace into t2 values(960, 67, 67);
+replace into t2 values(961, 67, 67);
+replace into t2 values(962, 67, 67);
+replace into t2 values(963, 67, 67);
+replace into t2 values(964, 67, 67);
+replace into t2 values(965, 67, 67);
+replace into t2 values(966, 67, 67);
+replace into t2 values(967, 67, 67);
+replace into t2 values(968, 67, 67);
+replace into t2 values(969, 67, 67);
+replace into t2 values(970, 68, 68);
+replace into t2 values(971, 68, 68);
+replace into t2 values(972, 68, 68);
+replace into t2 values(973, 68, 68);
+replace into t2 values(974, 68, 68);
+replace into t2 values(975, 68, 68);
+replace into t2 values(976, 68, 68);
+replace into t2 values(977, 68, 68);
+replace into t2 values(978, 68, 68);
+replace into t2 values(979, 68, 68);
+replace into t2 values(980, 69, 69);
+replace into t2 values(981, 69, 69);
+replace into t2 values(982, 69, 69);
+replace into t2 values(983, 69, 69);
+replace into t2 values(984, 69, 69);
+replace into t2 values(985, 69, 69);
+replace into t2 values(986, 69, 69);
+replace into t2 values(987, 69, 69);
+replace into t2 values(988, 69, 69);
+replace into t2 values(989, 69, 69);
+replace into t2 values(990, 70, 70);
+replace into t2 values(991, 70, 70);
+replace into t2 values(992, 70, 70);
+replace into t2 values(993, 70, 70);
+replace into t2 values(994, 70, 70);
+replace into t2 values(995, 70, 70);
+replace into t2 values(996, 70, 70);
+replace into t2 values(997, 70, 70);
+replace into t2 values(998, 70, 70);
+replace into t2 values(999, 70, 70);
+replace into t2 values(1000, 71, 71);
+replace into t2 values(1001, 71, 71);
+replace into t2 values(1002, 71, 71);
+replace into t2 values(1003, 71, 71);
+replace into t2 values(1004, 71, 71);
+replace into t2 values(1005, 71, 71);
+replace into t2 values(1006, 71, 71);
+replace into t2 values(1007, 71, 71);
+replace into t2 values(1008, 71, 71);
+replace into t2 values(1009, 71, 71);
+replace into t2 values(1010, 72, 72);
+replace into t2 values(1011, 72, 72);
+replace into t2 values(1012, 72, 72);
+replace into t2 values(1013, 72, 72);
+replace into t2 values(1014, 72, 72);
+replace into t2 values(1015, 72, 72);
+replace into t2 values(1016, 72, 72);
+replace into t2 values(1017, 72, 72);
+replace into t2 values(1018, 72, 72);
+replace into t2 values(1019, 72, 72);
+replace into t2 values(1020, 73, 73);
+replace into t2 values(1021, 73, 73);
+replace into t2 values(1022, 73, 73);
+replace into t2 values(1023, 73, 73);
+replace into t2 values(1024, 73, 73);
+replace into t2 values(1025, 73, 73);
+replace into t2 values(1026, 73, 73);
+replace into t2 values(1027, 73, 73);
+replace into t2 values(1028, 73, 73);
+replace into t2 values(1029, 73, 73);
+replace into t2 values(1030, 74, 74);
+replace into t2 values(1031, 74, 74);
+replace into t2 values(1032, 74, 74);
+replace into t2 values(1033, 74, 74);
+replace into t2 values(1034, 74, 74);
+replace into t2 values(1035, 74, 74);
+replace into t2 values(1036, 74, 74);
+replace into t2 values(1037, 74, 74);
+replace into t2 values(1038, 74, 74);
+replace into t2 values(1039, 74, 74);
+replace into t2 values(1040, 75, 75);
+replace into t2 values(1041, 75, 75);
+replace into t2 values(1042, 75, 75);
+replace into t2 values(1043, 75, 75);
+replace into t2 values(1044, 75, 75);
+replace into t2 values(1045, 75, 75);
+replace into t2 values(1046, 75, 75);
+replace into t2 values(1047, 75, 75);
+replace into t2 values(1048, 75, 75);
+replace into t2 values(1049, 75, 75);
+replace into t2 values(1050, 76, 76);
+replace into t2 values(1051, 76, 76);
+replace into t2 values(1052, 76, 76);
+replace into t2 values(1053, 76, 76);
+replace into t2 values(1054, 76, 76);
+replace into t2 values(1055, 76, 76);
+replace into t2 values(1056, 76, 76);
+replace into t2 values(1057, 76, 76);
+replace into t2 values(1058, 76, 76);
+replace into t2 values(1059, 76, 76);
+replace into t2 values(1060, 77, 77);
+replace into t2 values(1061, 77, 77);
+replace into t2 values(1062, 77, 77);
+replace into t2 values(1063, 77, 77);
+replace into t2 values(1064, 77, 77);
+replace into t2 values(1065, 77, 77);
+replace into t2 values(1066, 77, 77);
+replace into t2 values(1067, 77, 77);
+replace into t2 values(1068, 77, 77);
+replace into t2 values(1069, 77, 77);
+replace into t2 values(1070, 78, 78);
+replace into t2 values(1071, 78, 78);
+replace into t2 values(1072, 78, 78);
+replace into t2 values(1073, 78, 78);
+replace into t2 values(1074, 78, 78);
+replace into t2 values(1075, 78, 78);
+replace into t2 values(1076, 78, 78);
+replace into t2 values(1077, 78, 78);
+replace into t2 values(1078, 78, 78);
+replace into t2 values(1079, 78, 78);
+replace into t2 values(1080, 79, 79);
+replace into t2 values(1081, 79, 79);
+replace into t2 values(1082, 79, 79);
+replace into t2 values(1083, 79, 79);
+replace into t2 values(1084, 79, 79);
+replace into t2 values(1085, 79, 79);
+replace into t2 values(1086, 79, 79);
+replace into t2 values(1087, 79, 79);
+replace into t2 values(1088, 79, 79);
+replace into t2 values(1089, 79, 79);
+replace into t2 values(1090, 80, 80);
+replace into t2 values(1091, 80, 80);
+replace into t2 values(1092, 80, 80);
+replace into t2 values(1093, 80, 80);
+replace into t2 values(1094, 80, 80);
+replace into t2 values(1095, 80, 80);
+replace into t2 values(1096, 80, 80);
+replace into t2 values(1097, 80, 80);
+replace into t2 values(1098, 80, 80);
+replace into t2 values(1099, 80, 80);
+replace into t2 values(1100, 81, 81);
+replace into t2 values(1101, 81, 81);
+replace into t2 values(1102, 81, 81);
+replace into t2 values(1103, 81, 81);
+replace into t2 values(1104, 81, 81);
+replace into t2 values(1105, 81, 81);
+replace into t2 values(1106, 81, 81);
+replace into t2 values(1107, 81, 81);
+replace into t2 values(1108, 81, 81);
+replace into t2 values(1109, 81, 81);
+replace into t2 values(1110, 82, 82);
+replace into t2 values(1111, 82, 82);
+replace into t2 values(1112, 82, 82);
+replace into t2 values(1113, 82, 82);
+replace into t2 values(1114, 82, 82);
+replace into t2 values(1115, 82, 82);
+replace into t2 values(1116, 82, 82);
+replace into t2 values(1117, 82, 82);
+replace into t2 values(1118, 82, 82);
+replace into t2 values(1119, 82, 82);
+replace into t2 values(1120, 83, 83);
+replace into t2 values(1121, 83, 83);
+replace into t2 values(1122, 83, 83);
+replace into t2 values(1123, 83, 83);
+replace into t2 values(1124, 83, 83);
+replace into t2 values(1125, 83, 83);
+replace into t2 values(1126, 83, 83);
+replace into t2 values(1127, 83, 83);
+replace into t2 values(1128, 83, 83);
+replace into t2 values(1129, 83, 83);
+replace into t2 values(1130, 84, 84);
+replace into t2 values(1131, 84, 84);
+replace into t2 values(1132, 84, 84);
+replace into t2 values(1133, 84, 84);
+replace into t2 values(1134, 84, 84);
+replace into t2 values(1135, 84, 84);
+replace into t2 values(1136, 84, 84);
+replace into t2 values(1137, 84, 84);
+replace into t2 values(1138, 84, 84);
+replace into t2 values(1139, 84, 84);
+replace into t2 values(1140, 85, 85);
+replace into t2 values(1141, 85, 85);
+replace into t2 values(1142, 85, 85);
+replace into t2 values(1143, 85, 85);
+replace into t2 values(1144, 85, 85);
+replace into t2 values(1145, 85, 85);
+replace into t2 values(1146, 85, 85);
+replace into t2 values(1147, 85, 85);
+replace into t2 values(1148, 85, 85);
+replace into t2 values(1149, 85, 85);
+replace into t2 values(1150, 86, 86);
+replace into t2 values(1151, 86, 86);
+replace into t2 values(1152, 86, 86);
+replace into t2 values(1153, 86, 86);
+replace into t2 values(1154, 86, 86);
+replace into t2 values(1155, 86, 86);
+replace into t2 values(1156, 86, 86);
+replace into t2 values(1157, 86, 86);
+replace into t2 values(1158, 86, 86);
+replace into t2 values(1159, 86, 86);
+replace into t2 values(1160, 87, 87);
+replace into t2 values(1161, 87, 87);
+replace into t2 values(1162, 87, 87);
+replace into t2 values(1163, 87, 87);
+replace into t2 values(1164, 87, 87);
+replace into t2 values(1165, 87, 87);
+replace into t2 values(1166, 87, 87);
+replace into t2 values(1167, 87, 87);
+replace into t2 values(1168, 87, 87);
+replace into t2 values(1169, 87, 87);
+replace into t2 values(1170, 88, 88);
+replace into t2 values(1171, 88, 88);
+replace into t2 values(1172, 88, 88);
+replace into t2 values(1173, 88, 88);
+replace into t2 values(1174, 88, 88);
+replace into t2 values(1175, 88, 88);
+replace into t2 values(1176, 88, 88);
+replace into t2 values(1177, 88, 88);
+replace into t2 values(1178, 88, 88);
+replace into t2 values(1179, 88, 88);
+replace into t2 values(1180, 89, 89);
+replace into t2 values(1181, 89, 89);
+replace into t2 values(1182, 89, 89);
+replace into t2 values(1183, 89, 89);
+replace into t2 values(1184, 89, 89);
+replace into t2 values(1185, 89, 89);
+replace into t2 values(1186, 89, 89);
+replace into t2 values(1187, 89, 89);
+replace into t2 values(1188, 89, 89);
+replace into t2 values(1189, 89, 89);
+replace into t2 values(1190, 90, 90);
+replace into t2 values(1191, 90, 90);
+replace into t2 values(1192, 90, 90);
+replace into t2 values(1193, 90, 90);
+replace into t2 values(1194, 90, 90);
+replace into t2 values(1195, 90, 90);
+replace into t2 values(1196, 90, 90);
+replace into t2 values(1197, 90, 90);
+replace into t2 values(1198, 90, 90);
+replace into t2 values(1199, 90, 90);
+replace into t2 values(1200, 91, 91);
+replace into t2 values(1201, 91, 91);
+replace into t2 values(1202, 91, 91);
+replace into t2 values(1203, 91, 91);
+replace into t2 values(1204, 91, 91);
+replace into t2 values(1205, 91, 91);
+replace into t2 values(1206, 91, 91);
+replace into t2 values(1207, 91, 91);
+replace into t2 values(1208, 91, 91);
+replace into t2 values(1209, 91, 91);
+replace into t2 values(1210, 92, 92);
+replace into t2 values(1211, 92, 92);
+replace into t2 values(1212, 92, 92);
+replace into t2 values(1213, 92, 92);
+replace into t2 values(1214, 92, 92);
+replace into t2 values(1215, 92, 92);
+replace into t2 values(1216, 92, 92);
+replace into t2 values(1217, 92, 92);
+replace into t2 values(1218, 92, 92);
+replace into t2 values(1219, 92, 92);
+replace into t2 values(1220, 93, 93);
+replace into t2 values(1221, 93, 93);
+replace into t2 values(1222, 93, 93);
+replace into t2 values(1223, 93, 93);
+replace into t2 values(1224, 93, 93);
+replace into t2 values(1225, 93, 93);
+replace into t2 values(1226, 93, 93);
+replace into t2 values(1227, 93, 93);
+replace into t2 values(1228, 93, 93);
+replace into t2 values(1229, 93, 93);
+replace into t2 values(1230, 94, 94);
+replace into t2 values(1231, 94, 94);
+replace into t2 values(1232, 94, 94);
+replace into t2 values(1233, 94, 94);
+replace into t2 values(1234, 94, 94);
+replace into t2 values(1235, 94, 94);
+replace into t2 values(1236, 94, 94);
+replace into t2 values(1237, 94, 94);
+replace into t2 values(1238, 94, 94);
+replace into t2 values(1239, 94, 94);
+replace into t2 values(1240, 95, 95);
+replace into t2 values(1241, 95, 95);
+replace into t2 values(1242, 95, 95);
+replace into t2 values(1243, 95, 95);
+replace into t2 values(1244, 95, 95);
+replace into t2 values(1245, 95, 95);
+replace into t2 values(1246, 95, 95);
+replace into t2 values(1247, 95, 95);
+replace into t2 values(1248, 95, 95);
+replace into t2 values(1249, 95, 95);
+replace into t2 values(1250, 96, 96);
+replace into t2 values(1251, 96, 96);
+replace into t2 values(1252, 96, 96);
+replace into t2 values(1253, 96, 96);
+replace into t2 values(1254, 96, 96);
+replace into t2 values(1255, 96, 96);
+replace into t2 values(1256, 96, 96);
+replace into t2 values(1257, 96, 96);
+replace into t2 values(1258, 96, 96);
+replace into t2 values(1259, 96, 96);
+replace into t2 values(1260, 97, 97);
+replace into t2 values(1261, 97, 97);
+replace into t2 values(1262, 97, 97);
+replace into t2 values(1263, 97, 97);
+replace into t2 values(1264, 97, 97);
+replace into t2 values(1265, 97, 97);
+replace into t2 values(1266, 97, 97);
+replace into t2 values(1267, 97, 97);
+replace into t2 values(1268, 97, 97);
+replace into t2 values(1269, 97, 97);
+replace into t2 values(1270, 98, 98);
+replace into t2 values(1271, 98, 98);
+replace into t2 values(1272, 98, 98);
+replace into t2 values(1273, 98, 98);
+replace into t2 values(1274, 98, 98);
+replace into t2 values(1275, 98, 98);
+replace into t2 values(1276, 98, 98);
+replace into t2 values(1277, 98, 98);
+replace into t2 values(1278, 98, 98);
+replace into t2 values(1279, 98, 98);
+replace into t2 values(1280, 99, 99);
+replace into t2 values(1281, 99, 99);
+replace into t2 values(1282, 99, 99);
+replace into t2 values(1283, 99, 99);
+replace into t2 values(1284, 99, 99);
+replace into t2 values(1285, 99, 99);
+replace into t2 values(1286, 99, 99);
+replace into t2 values(1287, 99, 99);
+replace into t2 values(1288, 99, 99);
+replace into t2 values(1289, 99, 99);
+replace into t2 values(1290, 100, 100);
+replace into t2 values(1291, 100, 100);
+replace into t2 values(1292, 100, 100);
+replace into t2 values(1293, 100, 100);
+replace into t2 values(1294, 100, 100);
+replace into t2 values(1295, 100, 100);
+replace into t2 values(1296, 100, 100);
+replace into t2 values(1297, 100, 100);
+replace into t2 values(1298, 100, 100);
+replace into t2 values(1299, 100, 100);
+replace into t2 values(1300, 101, 101);
+replace into t2 values(1301, 101, 101);
+replace into t2 values(1302, 101, 101);
+replace into t2 values(1303, 101, 101);
+replace into t2 values(1304, 101, 101);
+replace into t2 values(1305, 101, 101);
+replace into t2 values(1306, 101, 101);
+replace into t2 values(1307, 101, 101);
+replace into t2 values(1308, 101, 101);
+replace into t2 values(1309, 101, 101);
+replace into t2 values(1310, 102, 102);
+replace into t2 values(1311, 102, 102);
+replace into t2 values(1312, 102, 102);
+replace into t2 values(1313, 102, 102);
+replace into t2 values(1314, 102, 102);
+replace into t2 values(1315, 102, 102);
+replace into t2 values(1316, 102, 102);
+replace into t2 values(1317, 102, 102);
+replace into t2 values(1318, 102, 102);
+replace into t2 values(1319, 102, 102);
+replace into t2 values(1320, 103, 103);
+replace into t2 values(1321, 103, 103);
+replace into t2 values(1322, 103, 103);
+replace into t2 values(1323, 103, 103);
+replace into t2 values(1324, 103, 103);
+replace into t2 values(1325, 103, 103);
+replace into t2 values(1326, 103, 103);
+replace into t2 values(1327, 103, 103);
+replace into t2 values(1328, 103, 103);
+replace into t2 values(1329, 103, 103);
+replace into t2 values(1330, 104, 104);
+replace into t2 values(1331, 104, 104);
+replace into t2 values(1332, 104, 104);
+replace into t2 values(1333, 104, 104);
+replace into t2 values(1334, 104, 104);
+replace into t2 values(1335, 104, 104);
+replace into t2 values(1336, 104, 104);
+replace into t2 values(1337, 104, 104);
+replace into t2 values(1338, 104, 104);
+replace into t2 values(1339, 104, 104);
+replace into t2 values(1340, 105, 105);
+replace into t2 values(1341, 105, 105);
+replace into t2 values(1342, 105, 105);
+replace into t2 values(1343, 105, 105);
+replace into t2 values(1344, 105, 105);
+replace into t2 values(1345, 105, 105);
+replace into t2 values(1346, 105, 105);
+replace into t2 values(1347, 105, 105);
+replace into t2 values(1348, 105, 105);
+replace into t2 values(1349, 105, 105);
+replace into t2 values(1350, 106, 106);
+replace into t2 values(1351, 106, 106);
+replace into t2 values(1352, 106, 106);
+replace into t2 values(1353, 106, 106);
+replace into t2 values(1354, 106, 106);
+replace into t2 values(1355, 106, 106);
+replace into t2 values(1356, 106, 106);
+replace into t2 values(1357, 106, 106);
+replace into t2 values(1358, 106, 106);
+replace into t2 values(1359, 106, 106);
+replace into t2 values(1360, 107, 107);
+replace into t2 values(1361, 107, 107);
+replace into t2 values(1362, 107, 107);
+replace into t2 values(1363, 107, 107);
+replace into t2 values(1364, 107, 107);
+replace into t2 values(1365, 107, 107);
+replace into t2 values(1366, 107, 107);
+replace into t2 values(1367, 107, 107);
+replace into t2 values(1368, 107, 107);
+replace into t2 values(1369, 107, 107);
+replace into t2 values(1370, 108, 108);
+replace into t2 values(1371, 108, 108);
+replace into t2 values(1372, 108, 108);
+replace into t2 values(1373, 108, 108);
+replace into t2 values(1374, 108, 108);
+replace into t2 values(1375, 108, 108);
+replace into t2 values(1376, 108, 108);
+replace into t2 values(1377, 108, 108);
+replace into t2 values(1378, 108, 108);
+replace into t2 values(1379, 108, 108);
+replace into t2 values(1380, 109, 109);
+replace into t2 values(1381, 109, 109);
+replace into t2 values(1382, 109, 109);
+replace into t2 values(1383, 109, 109);
+replace into t2 values(1384, 109, 109);
+replace into t2 values(1385, 109, 109);
+replace into t2 values(1386, 109, 109);
+replace into t2 values(1387, 109, 109);
+replace into t2 values(1388, 109, 109);
+replace into t2 values(1389, 109, 109);
+replace into t2 values(1390, 110, 110);
+replace into t2 values(1391, 110, 110);
+replace into t2 values(1392, 110, 110);
+replace into t2 values(1393, 110, 110);
+replace into t2 values(1394, 110, 110);
+replace into t2 values(1395, 110, 110);
+replace into t2 values(1396, 110, 110);
+replace into t2 values(1397, 110, 110);
+replace into t2 values(1398, 110, 110);
+replace into t2 values(1399, 110, 110);
+“merge”
+major_freeze...
+merge: DONE
+gather statistics t1(c1, c2);
+gather statistics t2(c1, c2);
+select * from __all_udi_monitor_list;
+table_id	column_id	LOAD	UDI
+3001	17	0	0
+3001	18	0	0
+3002	17	0	0
+3002	18	0	0
+“statistics”
+Okay
+select * from __all_statistic_info;
+table_id	column_id	start_key	version	type	row_count	different_num	size	info	min_max
+3001	17	MIN	2	12	1400	110	204511	1.004010.00409.00408.00407.00406.00405.00404.00403.00402.0040	1.00110.00
+3001	18	MIN	2	16	1400	110	204511	1401040940840740640540440340240	1110
+3002	17	MIN	2	12	1400	110	204511	1.004010.00409.00408.00407.00406.00405.00404.00403.00402.0040	1.00110.00
+3002	18	MIN	2	16	1400	110	204511	1401040940840740640540440340240	1110
+select count(*) from t1;
+count(*)
+1400
+select count(*) from t2;
+count(*)
+1400
+select count(*) from t1, t2 where t1.c1 = t2.c1;
+count(*)
+26000
+explain select count(*) from t1, t2 where t1.c1 = t2.c1 ;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c1","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c1 = t2.c1 and t1.c1 <= 40;
+count(*)
+19000
+explain select count(*) from t1, t2 where t1.c1 = t2.c1 and t1.c1 <= 40;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c1","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3001,17>|COL<3002,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3001,17>|int:40|LE<2>|],])Project(columns=[expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c1 = t2.c1 and t2.c1 <= 40;
+count(*)
+19000
+explain select count(*) from t1, t2 where t1.c1 = t2.c1 and t2.c1 <= 40;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c1","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3002,17>|COL<3001,17>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3002,17>|int:40|LE<2>|],])Project(columns=[expr<3002,17>=[COL<3002,17>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c2 = t2.c2;
+count(*)
+26000
+explain select count(*) from t1, t2 where t1.c2 = t2.c2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":18,"ColumnName":"c2","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {"RefTableId":3002, "RefColumnId":18}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3001,18>|COL<3002,18>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,18>=[COL<3001,18>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,18>=[COL<3002,18>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c2 = t2.c2 and  t1.c2 <= 40;
+count(*)
+19000
+explain select count(*) from t1, t2 where t1.c2 = t2.c2 and  t1.c2 <= 40;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":18,"ColumnName":"c2","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {"RefTableId":3002, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3001,18>|COL<3002,18>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3001,18>|int:40|LE<2>|],])Project(columns=[expr<3001,18>=[COL<3001,18>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,18>=[COL<3002,18>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c2 = t2.c2 and  t2.c2 <= 40;
+count(*)
+19000
+explain select count(*) from t1, t2 where t1.c2 = t2.c2 and  t2.c2 <= 40;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":18,"ColumnName":"c2","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {"RefTableId":3002, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3002,18>|COL<3001,18>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3002,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3002,18>|int:40|LE<2>|],])Project(columns=[expr<3002,18>=[COL<3002,18>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3001,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,18>=[COL<3001,18>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c2 = t2.c2 and  t1.c2 <= 60;
+count(*)
+21000
+explain select count(*) from t1, t2 where t1.c2 = t2.c2 and  t1.c2 <= 60;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":18,"ColumnName":"c2","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {"RefTableId":3002, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3001,18>|COL<3002,18>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3001,18>|int:60|LE<2>|],])Project(columns=[expr<3001,18>=[COL<3001,18>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,18>=[COL<3002,18>|]])(sequence_values_=[])>)
+)
+select count(*) from t1, t2 where t1.c2 = t2.c2 and  t2.c2 <= 60;
+count(*)
+21000
+explain select count(*) from t1, t2 where t1.c2 = t2.c2 and  t2.c2 <= 60;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"opt.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"opt.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":18,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":18,"ColumnName":"c2","TableRef":3002}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":0, "RefColumnId":65519}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65509,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":18}
+               ,
+               {"RefTableId":3002, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65508,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<NULL,65519>|]])(sequence_values_=[])
+ScalarAggr(aggr_cols=[expr<NULL,65519>=COUNT(*)])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65509>=[COL<3002,18>|COL<3001,18>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3002,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65508>=[COL<3002,18>|int:60|LE<2>|],])Project(columns=[expr<3002,18>=[COL<3002,18>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3001,18,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,18>=[COL<3001,18>|]])(sequence_values_=[])>)
+)
+drop table if exists t1;
+drop table if exists t2;
+drop database opt;

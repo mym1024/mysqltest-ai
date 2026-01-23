@@ -1,0 +1,197 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create table t1(pk int primary key,b int);
+create table t2(pk int primary key,b int);
+insert into t1 values(1,1),(2,2);
+insert into t2 values(1,1);
+select sum(pk) as 总数,pk*b as 乘 from t1;
+总数	乘
+3	1
+select 表1.pk as 表1_PK,表2.pk as 表2_PK FROM t1 表1 JOIN t2 表2 on 表1.b = 表2.b;
+表1_PK	表2_PK
+1	1
+select b as 排序 from t1 order by 排序 desc;
+排序
+2
+1
+select 表1.pk,(SELECT COUNT(*) FROM t2 where b = 表1.b) as 子查询 from t1 表1;
+pk	子查询
+1	1
+2	0
+drop table t1,t2;
+create table test(id int,age int,score double,high float,name varchar(30),isgoodman bool,todaydate date);
+insert into test values(1,23,66.6,165,'aaa',true,'1997-08-19'),(2,28,99,180,'bbb',true,'2000-08-19'),(3,99,34,157,'ccc',false,'1996-08-19');
+select id as 序号 from test;
+序号
+1
+2
+3
+select score as 分数 from test;
+分数
+66.6
+99
+34
+select high as 身高 from test;
+身高
+165
+180
+157
+select name as 姓名 from test;
+姓名
+aaa
+bbb
+ccc
+select isgoodman as 是否好人 from test;
+是否好人
+1
+1
+0
+select count(*) as 总人数 from test;
+总人数
+3
+select todaydate as 日期 from test;
+日期
+1997-08-19
+2000-08-19
+1996-08-19
+select name as 姓 名 from test;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select age as 年龄,name as 姓名,todaydate as 日期 from test;
+年龄	姓名	日期
+23	aaa	1997-08-19
+28	bbb	2000-08-19
+99	ccc	1996-08-19
+select score as 得分,high as 身高,isgoodman as 是否好人 from test;
+得分	身高	是否好人
+66.6	165	1
+99	180	1
+34	157	0
+select id as 序号,score as 得分,high as 身高,isgoodman as 是否好人 ,name as 姓名, todaydate as 日期 from test;
+序号	得分	身高	是否好人	姓名	日期
+1	66.6	165	1	aaa	1997-08-19
+2	99	180	1	bbb	2000-08-19
+3	34	157	0	ccc	1996-08-19
+select count(*) as 总数,id as 序号,score as 得分,high as 身高,isgoodman as 是否好人 ,name as 姓名, todaydate as 日期 from test group by 身高;
+总数	序号	得分	身高	是否好人	姓名	日期
+1	3	34	157	0	ccc	1996-08-19
+1	1	66.6	165	1	aaa	1997-08-19
+1	2	99	180	1	bbb	2000-08-19
+select high as 身高 from test where 身高 < 170;
+身高
+165
+157
+select age as 年龄 ,count(*) from test group by  年龄;
+年龄	count(*)
+23	1
+28	1
+99	1
+select age as 年龄 ,count(*) from test group by  年龄 having 年龄<=20;
+年龄	count(*)
+select count(*) as 人数 from test where 人数 >1 group by age;
+ERROR HY000: YAO-5006: Invalid use of alias which contains group function
+select high as 身高 from test order by 身高;
+身高
+157
+165
+180
+select count(*) as 人数 from test where group by age order by 人数;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select id as my序号 from test;
+my序号
+1
+2
+3
+select id as 序号my from test;
+序号my
+1
+2
+3
+select id as 序my号 from test;
+序my号
+1
+2
+3
+select id as my序my号my序号 from test;
+my序my号my序号
+1
+2
+3
+select age as 111年龄 from test;
+111年龄
+23
+28
+99
+select age as 年龄222 from test;
+年龄222
+23
+28
+99
+select age as 年333龄 from test;
+年333龄
+23
+28
+99
+select age as 11年333龄22年 from test;
+11年333龄22年
+23
+28
+99
+select age as _年龄 from test;
+_年龄
+23
+28
+99
+select age as 年__龄 from test;
+年__龄
+23
+28
+99
+select age as 年龄__ from test;
+年龄__
+23
+28
+99
+select age as __年__龄__ from test;
+__年__龄__
+23
+28
+99
+select name as 123__11abc年__a1q_龄23__ from test;
+123__11abc年__a1q_龄23__
+aaa
+bbb
+ccc
+select name as _你125a_aq1年12ad_龄23_的_5 from test;
+_你125a_aq1年12ad_龄23_的_5
+aaa
+bbb
+ccc
+select name as 年龄414__as姓名12_abd__ from test;
+年龄414__as姓名12_abd__
+aaa
+bbb
+ccc
+create table t1(pk int primary key,b int, KEY index_1(b) USING BTREE);
+show index on t1;
+index_name	status	index_type
+__3004__idx__index_1	1	0
+insert into t1 values(1,1),(2,2);
+delete from t1 where b =2;
+select * from t1;
+pk	b
+1	1
+create index index_2 on t1(b);
+show index on t1;
+index_name	status	index_type
+__3004__idx__index_1	1	0
+__3004__idx__index_2	4	0
+DROP INDEX index_2 ON t1;
+show index on t1;
+index_name	status	index_type
+__3004__idx__index_1	1	0
+create table t2(pk int primary key,b int,c int, KEY index_1(b,c) USING BTREE);
+show index on t2;
+index_name	status	index_type
+__3007__idx__index_1	1	0
+drop table t1,t2;

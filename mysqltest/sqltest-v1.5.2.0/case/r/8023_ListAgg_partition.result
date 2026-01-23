@@ -1,0 +1,401 @@
+drop table if exists test_sy,test_s,test_y;
+drop partition function e1;
+ERROR HY000: YAO-5077: partition function 'e1' doesn't exist
+create table test_sy(id int primary key,age int ,name varchar(30)) partition by range(id)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than maxvalue);
+insert into test_sy values(1,1,'a'),(2,2,'b'),(3,3,'c'),(4,4,'d'),(5,5,'e');
+create table test_s(id int primary key,age int ,name varchar(30),sex char(1))partition by list(id)(partition b1 values in(1,3),partition b2 values in(2,4));
+insert into test_s values(1,10,'aa','0'),(2,22,'bb','1');
+create enum  partition function e1(x) '[(1)],[(2)],[(3)]';
+create table test_y(id int primary key,age int ,name varchar(30),sex char(1))partition by(ta1,e1,id);
+insert into test_y values(1,100,'aaa','0'),(2,222,'bbb','1');
+select * from test_sy;
+id	age	name
+1	1	a
+2	2	b
+3	3	c
+4	4	d
+5	5	e
+select * from test_s;
+id	age	name	sex
+1	10	aa	0
+2	22	bb	1
+select * from test_y;
+id	age	name	sex
+1	100	aaa	0
+2	222	bbb	1
+select listagg(name, ',')within group (order by id) as NAMES from test_sy;
+NAMES
+a,b,c,d,e
+select listagg(name, ',')as NAMES from test_sy;
+NAMES
+a,b,c,d,e
+select listagg(name, ',')within group (order by id) as NAMES from test_sy;
+NAMES
+a,b,c,d,e
+select listagg(name, ',') as NAMES from test_sy;
+NAMES
+a,b,c,d,e
+select listagg(name, '\n')within group (order by id) as NAMES from test_sy;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, '\n') as NAMES from test_sy;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, '\n')within group (order by id) as NAMES from test_sy group by age;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, '\n') as NAMES from test_sy group by age;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, '\n')within group (order by age) as NAMES from test_sy order by id;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, '\n')as NAMES from test_sy order by id;
+NAMES
+a
+b
+c
+d
+e
+select listagg(name, ',')within group (order by age) as NAMES,sum(id) from test_sy ;
+NAMES	sum(id)
+a,b,c,d,e	15
+select listagg(name, ',')as NAMES,sum(id) from test_sy ;
+NAMES	sum(id)
+a,b,c,d,e	15
+select listagg(name, ',')within group (order by id) as NAMES, avg(age) from test_sy ;
+NAMES	avg(age)
+a,b,c,d,e	3
+select listagg(name, ',')as NAMES, avg(age) from test_sy;
+NAMES	avg(age)
+a,b,c,d,e	3
+select listagg(name, ',')within group (order by id) as NAMES, max(age) from test_sy ;
+NAMES	max(age)
+a,b,c,d,e	5
+select listagg(name, ',')as NAMES, max(age) from test_sy;
+NAMES	max(age)
+a,b,c,d,e	5
+select listagg(name, ',')within group (order by id) as NAMES, count(*) from test_sy ;
+NAMES	count(*)
+a,b,c,d,e	5
+select listagg(name, ',')as NAMES, count(*) from test_sy;
+NAMES	count(*)
+a,b,c,d,e	5
+select listagg(name)within group (order by id) as NAMES from test_sy ;
+NAMES
+abcde
+select listagg(name) as NAMES from test_sy;
+NAMES
+abcde
+select listagg(name,'/')within group (order by id desc) as NAMES ,listagg(age,'s')within group (order by age) as AGES from test_sy ;
+NAMES	AGES
+e/d/c/b/a	5s4s3s2s1
+select listagg(name,'/')as NAMES ,listagg(age,'s')as AGES from test_sy;
+NAMES	AGES
+a/b/c/d/e	1s2s3s4s5
+select listagg(name,'/')as NAMES ,listagg(age,'s')within group (order by age) as AGES from test_sy ;
+NAMES	AGES
+a/b/c/d/e	1s2s3s4s5
+select listagg(name,'/')as NAMES ,listagg(age,'s')as AGES from test_sy order by id;
+NAMES	AGES
+a/b/c/d/e	1s2s3s4s5
+select listagg(name, '\t')within group (order by id) as NAMES from test_sy ;
+NAMES
+a	b	c	d	e
+select listagg(name, '\t') from test_sy;
+listagg(name, '\t')
+a	b	c	d	e
+select listagg(name,'/')within group (order by age,id) from test_sy order by id;
+listagg(name,'/')within group (order by age,id)
+a/b/c/d/e
+select listagg(name,'/')  from test_sy order by age,id desc;
+listagg(name,'/')
+a/b/c/d/e
+select listagg(distinct age,',')within group (order by id)from test_sy;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select listagg(distinct age,',') from test_sy;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select id, listagg(age,',')within group (order by id)from test_sy  group by age having age>1;
+id	listagg(age,',')within group (order by id)
+2	2
+3	3
+4	4
+5	5
+select id, listagg(age,',') from test_sy  group by age having age>1;
+id	listagg(age,',')
+2	2
+3	3
+4	4
+5	5
+select listagg(age,',')within group (order by id) from test_sy where id in (1,2,3,4,5);
+listagg(age,',')within group (order by id)
+1,2,3,4,5
+select listagg(age,',') from test_sy where id in (1,2,3,4,5);
+listagg(age,',')
+1,2,3,4,5
+select listagg(name,',')within group (order by id desc) from test_sy where age=2 or age =1;
+listagg(name,',')within group (order by id desc)
+b,a
+select listagg(name,',')from test_sy where age=2 or age =1;
+listagg(name,',')
+a,b
+select listagg(id,',')within group (order by id desc) from test_sy limit 1,2;
+listagg(id,',')within group (order by id desc)
+select listagg(id,',')from test_sy limit 1,2;
+listagg(id,',')
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) as NAME from test_sy inner join test_s on test_sy.id=test_s.id;
+NAME
+b,a
+select listagg(test_sy.name ,',') as NAME from test_sy inner join test_s on test_sy.id=test_s.id;
+NAME
+a,b
+select listagg(name ,',')within group (order by id desc) as NAMES ,listagg(name,','),listagg(name,',')from test_sy;
+NAMES	listagg(name,',')	listagg(name,',')
+e,d,c,b,a	e,d,c,b,a	e,d,c,b,a
+select listagg(name ,',')as NAMES ,listagg(name,','),listagg(name,',')from test_sy ;
+NAMES	listagg(name,',')	listagg(name,',')
+a,b,c,d,e	a,b,c,d,e	a,b,c,d,e
+select listagg(test_sy.name ,',')within group (order by test_sy.id desc) as NAME from test_sy left outer join test_s on test_sy.id=test_s.id;
+NAME
+e,d,c,b,a
+select listagg(test_sy.name ,',')within group (order by test_sy.id asc)  as NAME from test_sy left outer join test_s on test_sy.id=test_s.id;
+NAME
+a,b,c,d,e
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) as NAME from test_sy right outer join test_s on test_sy.id=test_s.id;
+NAME
+b,a
+select listagg(test_sy.name ,',') as NAME from test_sy right outer join test_s on test_sy.id=test_s.id;
+NAME
+a,b
+select listagg(test_sy.id ,',')within group (order by test_sy.id desc) as NAME from test_sy full join test_s on test_sy.id=test_s.id;
+NAME
+5,4,3,2,1
+select listagg(test_sy.id ,',')within group (order by test_sy.id asc) as NAME from test_sy full join test_s on test_sy.id=test_s.id;
+NAME
+1,2,3,4,5
+select listagg(name ,',')within group (order by id)from test_sy;
+listagg(name ,',')within group (order by id)
+a,b,c,d,e
+select listagg(name ,',')from test_sy;
+listagg(name ,',')
+a,b,c,d,e
+select listagg(name ,',')within group (order by id)from test_sy;
+listagg(name ,',')within group (order by id)
+a,b,c,d,e
+select listagg(name ,',')from test_sy;
+listagg(name ,',')
+a,b,c,d,e
+select listagg(name ,',')within group (order by id),listagg(age,',')as NAMES  from test_sy group by age;
+listagg(name ,',')within group (order by id)	NAMES
+a	1
+b	2
+c	3
+d	4
+e	5
+select listagg(name ,','),listagg(age,',')as NAMES  from test_sy group by age;
+listagg(name ,',')	NAMES
+a	1
+b	2
+c	3
+d	4
+e	5
+select listagg(name ,',',',',',')within group (order by id)from test_sy;
+ERROR HY000: YAO-5054: Wrong number of parameters
+select listagg(name ,',',',',',')from test_sy;
+ERROR HY000: YAO-5054: Wrong number of parameters
+select listagg(name ,',')within group (order by id)as NAMES  from test_sy;
+NAMES
+a,b,c,d,e
+select listagg(name ,',')from test_sy;
+listagg(name ,',')
+a,b,c,d,e
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy inner join test_s on test_sy.id=test_s.id group by test_sy.age;
+NAME
+a
+b
+select listagg(test_sy.name ,',')as NAME from test_sy inner join test_s on test_sy.id=test_s.id group by test_sy.age ;
+NAME
+a
+b
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy left outer join test_s on test_sy.id=test_s.id group by test_s.age limit 2;
+NAME
+a
+b
+select listagg(test_sy.name ,',')as NAME from test_sy left outer join test_s on test_sy.id=test_s.id group by test_s.age limit 2;
+NAME
+a
+b
+select listagg(test_sy.name ,',')within group (order by test_s.id desc)as NAME from test_sy right outer join test_s on test_sy.id=test_s.id group by test_s.sex;
+NAME
+a
+b
+select listagg(test_sy.age ,',')as NAMES,listagg(test_s.sex,',')as SEXS from test_sy,test_s where test_sy.id=test_s.id;
+NAMES	SEXS
+1,2	0,1
+select listagg(test_sy.name ,',')within group (order by test_sy.id desc) from test_sy  where test_sy.age =test_sy.age;
+listagg(test_sy.name ,',')within group (order by test_sy.id desc)
+e,d,c,b,a
+select listagg(test_sy.name ,',')as NAME from test_sy right outer join test_s on test_sy.id=test_s.id group by test_s.sex;
+NAME
+a
+b
+select listagg(test_sy.id ,',')within group (order by test_s.id desc)as NAME from test_sy full join test_s on test_sy.id=test_s.id group by test_sy.age;
+NAME
+1
+2
+3
+4
+5
+select listagg(test_sy.id ,',')as NAME from test_sy full join test_s on test_sy.id=test_s.id group by test_sy.age ;
+NAME
+1
+2
+3
+4
+5
+select listagg(test_sy.age,',')within group (order by test_sy.id desc) as NAMES,listagg(test_s.sex,',')as SEXS from test_sy,test_s where test_sy.id=test_s.id ;
+NAMES	SEXS
+2,1	1,0
+select listagg(test_sy.name ,',')from test_sy  where test_sy.age =test_sy.age;
+listagg(test_sy.name ,',')
+a,b,c,d,e
+select listagg(name,',')within group (order by id desc) from test_sy where name like '%y';
+listagg(name,',')within group (order by id desc)
+NULL
+select listagg(name,',')from test_sy where name like '%y';
+listagg(name,',')
+NULL
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 union select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+NAMES
+e,d,c,b
+e;d;c;b;a
+select listagg(name,',')as NAMES from test_sy where id>=2 union select listagg(name,';') as NAMES from test_sy where age<10;
+NAMES
+a;b;c;d;e
+b,c,d,e
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 intersect select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+NAMES
+select listagg(name,',')as NAMES from test_sy where id>=2 intersect select listagg(name,';') as NAMES from test_sy where age<10;
+NAMES
+select listagg(name,',')within group (order by id desc) as NAMES from test_sy where id>=2 except select listagg(name,';') within group (order by id desc) as NAMES from test_sy where age<10;
+NAMES
+e,d,c,b
+select listagg(name,',')as NAMES from test_sy where id>=2 except select listagg(name,';') as NAMES from test_sy where age<10;
+NAMES
+b,c,d,e
+(select listagg(name,',')from test_sy order by id) union( select listagg(name ,';') from test_sy order by id desc);
+listagg(name,',')
+a,b,c,d,e
+a;b;c;d;e
+select listagg(age-1,',')within group (order by id ) from test_sy;
+listagg(age-1,',')within group (order by id )
+0,1,2,3,4
+select listagg(age-1,',') from test_sy;
+listagg(age-1,',')
+0,1,2,3,4
+select listagg(name,'?')within group (order by id)from test_sy where id not in (1,2,3);
+listagg(name,'?')within group (order by id)
+d?e
+select listagg(name,'?')from test_sy where id not in (1,2,3);
+listagg(name,'?')
+d?e
+select listagg(name,',') within group (order by id) from test_sy where id>8;
+listagg(name,',') within group (order by id)
+NULL
+select listagg(name,',') from test_sy where id>8;
+listagg(name,',')
+NULL
+select listagg(name,',')within group (order by id desc) from test_sy where id>1 and age<4;
+listagg(name,',')within group (order by id desc)
+c,b
+select listagg(name,',')from test_sy where id>1 and age<4;
+listagg(name,',')
+b,c
+select listagg(name,',')within group (order by id desc) from test_sy group by age having count(*)>1;
+listagg(name,',')within group (order by id desc)
+select listagg(name,',')from test_sy group by age having count(*)>1;
+listagg(name,',')
+select listagg(name,';') within group (order by id desc) from test_sy where age between 1 and 4;
+listagg(name,';') within group (order by id desc)
+d;c;b;a
+select listagg(name,';') from test_sy where age between 1 and 4;
+listagg(name,';')
+a;b;c;d
+select listagg(name,';')within group (order by id desc) from test_sy where name not like '%y';
+listagg(name,';')within group (order by id desc)
+e;d;c;b;a
+select listagg(id,',')within group (order by id DESC) from test_sy where age IS NULL;
+listagg(id,',')within group (order by id DESC)
+NULL
+select listagg(id,',')from test_sy where age IS NULL;
+listagg(id,',')
+NULL
+select listagg(name,',') within group (order by id desc)from test_sy where id>1 and id <10 or age>3;
+listagg(name,',') within group (order by id desc)
+e,d,c,b
+select listagg(name,',')within group(order by id)from test_y;
+listagg(name,',')within group(order by id)
+aaa,bbb
+select listagg(name,',')from test_y;
+listagg(name,',')
+aaa,bbb
+select listagg(id,';')within group(order by name)from test_y;
+listagg(id,';')within group(order by name)
+1;2
+select listagg(id,';')from test_y;
+listagg(id,';')
+1;2
+select listagg(2015-id ,',')within group (order by id)from test_y;
+listagg(2015-id ,',')within group (order by id)
+2014,2013
+select listagg(2015-id ,',')from test_y;
+listagg(2015-id ,',')
+2014,2013
+select listagg(name,',')within group(order by id desc) as NAMES from test_sy where age is not null;
+NAMES
+e,d,c,b,a
+select listagg(name,',')as NAMES from test_sy where age is not null;
+NAMES
+a,b,c,d,e
+select listagg(name,',')within group (order by id desc)from test_sy where id not between 3 and 10;
+listagg(name,',')within group (order by id desc)
+b,a
+select listagg(name,',')from test_sy where id not between 3 and 10;
+listagg(name,',')
+a,b
+select listagg(test_sy.id ,',') within group (order by test_s.id desc) as NAME from test_sy ,test_s;
+NAME
+1,2,3,4,5,1,2,3,4,5
+select listagg(test_sy.id ,',')  as NAMES from test_sy ,test_s where test_sy.id>=test_s.id;
+NAMES
+1,2,2,3,3,4,4,5,5
+select listagg(test_sy.name ,',')within group (order by test_s.id desc) from test_sy,test_s where test_sy.id=test_s.id and test_sy.id>1;
+listagg(test_sy.name ,',')within group (order by test_s.id desc)
+b
+select listagg(test_sy.name ,',') from test_sy,test_s where test_sy.id=test_s.id and test_sy.id>1;
+listagg(test_sy.name ,',')
+b
+select listagg(name,',')within group (order by id desc)from test_sy where id>1 group by (age) having count(*)>1 order by id desc;
+listagg(name,',')within group (order by id desc)
+select listagg(name,',')from test_sy where id>1 group by (age) having count(*)>1 order by id desc;
+listagg(name,',')

@@ -1,0 +1,48 @@
+##############################################################################################
+###1.测试功能点：旧版本tablet数据清除
+##                  
+#                                     
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：600s
+###6.编写/修改人： gaohuanyu
+###7.编写/修改日期：2019-11-07
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists sbtest;
+--enable_warnings
+
+create table sbtest(id integer not null,k integer default 0 not null,c char(120) default '' not null,pad char(60) default '' not null,primary key(id));
+
+--echo insert 100 rows to ups
+--let $count=1
+while($count < 101)
+{
+   --let $stmt=insert into sbtest(id,k,c,pad) values($count,0,' ','qqqqqqqqqqwwwwwwwwwweeeeeeeeeerrrrrrrrrrtttttttttt')
+   eval $stmt;
+   inc $count;
+}
+
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 300
+
+exec $LOCAL_DIR/tools/ts_admin -a $MASTER_UPS_IP -p $MASTER_UPS_PORT -t drop | tail -1;
+--real_sleep 300
+
+delete from sbtest where id=1;
+select * from sbtest where id=1;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

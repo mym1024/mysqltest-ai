@@ -1,0 +1,238 @@
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select count(c1),count(c1+c2),count(c2+c1*c3),count(length(c3)),count(concat(c1,c2)) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+count(c1)	bigint	NO		NULL	
+count(c1+c2)	bigint	NO		NULL	
+count(c2+c1*c3)	bigint	NO		NULL	
+count(length(c3))	bigint	NO		NULL	
+count(concat(c1,c2))	bigint	NO		NULL	
+select * from v1;
+count(c1)	count(c1+c2)	count(c2+c1*c3)	count(length(c3))	count(concat(c1,c2))
+2	2	2	2	2
+select count(c1),count(c1+c2),count(c2+c1*c3),count(length(c3)),count(concat(c1,c2)) from t1;
+count(c1)	count(c1+c2)	count(c2+c1*c3)	count(length(c3))	count(concat(c1,c2))
+2	2	2	2	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3002	0	0	select count("test"."t1"."c1") as "count(c1)", count(("test"."t1"."c1" + "test"."t1"."c2")) as "count(c1+c2)", count(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "count(c2+c1*c3)", count(length("test"."t1"."c3")) as "count(length(c3))", count(concat("test"."t1"."c1", "test"."t1"."c2")) as "count(concat(c1,c2))" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select count("test"."t1"."c1") as "count(c1)", count(("test"."t1"."c1" + "test"."t1"."c2")) as "count(c1+c2)", count(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "count(c2+c1*c3)", count(length("test"."t1"."c3")) as "count(length(c3))", count(concat("test"."t1"."c1", "test"."t1"."c2")) as "count(concat(c1,c2))" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select sum(c1),sum(c1+c2),sum(c2+c1*c3),sum(length(c3)),sum(concat(c1,c2)) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+sum(c1)	bigint	NO		NULL	
+sum(c1+c2)	bigint	NO		NULL	
+sum(c2+c1*c3)	double	NO		NULL	
+sum(length(c3))	bigint	NO		NULL	
+sum(concat(c1,c2))	varchar(65536)	NO		NULL	
+select * from v1;
+sum(c1)	sum(c1+c2)	sum(c2+c1*c3)	sum(length(c3))	sum(concat(c1,c2))
+0	0	7.762300887921262e16	9	1.1089000932735283e17
+select sum(c1),sum(c1+c2),sum(c2+c1*c3),sum(length(c3)),sum(concat(c1,c2)) from t1;
+sum(c1)	sum(c1+c2)	sum(c2+c1*c3)	sum(length(c3))	sum(concat(c1,c2))
+0	0	7.762300887921262e16	9	1.1089000932735283e17
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3004	0	0	select sum("test"."t1"."c1") as "sum(c1)", sum(("test"."t1"."c1" + "test"."t1"."c2")) as "sum(c1+c2)", sum(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "sum(c2+c1*c3)", sum(length("test"."t1"."c3")) as "sum(length(c3))", sum(concat("test"."t1"."c1", "test"."t1"."c2")) as "sum(concat(c1,c2))" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select sum("test"."t1"."c1") as "sum(c1)", sum(("test"."t1"."c1" + "test"."t1"."c2")) as "sum(c1+c2)", sum(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "sum(c2+c1*c3)", sum(length("test"."t1"."c3")) as "sum(length(c3))", sum(concat("test"."t1"."c1", "test"."t1"."c2")) as "sum(concat(c1,c2))" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select avg(c5),avg(c1+c2),avg(c2+c1*c3),avg(c1*165+c2) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+avg(c5)	decimal(38,5)	NO		NULL	
+avg(c1+c2)	decimal(38,0)	NO		NULL	
+avg(c2+c1*c3)	double	NO		NULL	
+avg(c1*165+c2)	decimal(38,0)	NO		NULL	
+select * from v1;
+avg(c5)	avg(c1+c2)	avg(c2+c1*c3)	avg(c1*165+c2)
+0.09955	0	3.881150443960631e16	0
+select avg(c5),avg(c1+c2),avg(c2+c1*c3),avg(c1*165+c2) from t1;
+avg(c5)	avg(c1+c2)	avg(c2+c1*c3)	avg(c1*165+c2)
+0.09955	0	3.881150443960631e16	0
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3006	0	0	select avg("test"."t1"."c5") as "avg(c5)", avg(("test"."t1"."c1" + "test"."t1"."c2")) as "avg(c1+c2)", avg(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "avg(c2+c1*c3)", avg((("test"."t1"."c1" * 165) + "test"."t1"."c2")) as "avg(c1*165+c2)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select avg("test"."t1"."c5") as "avg(c5)", avg(("test"."t1"."c1" + "test"."t1"."c2")) as "avg(c1+c2)", avg(("test"."t1"."c2" + ("test"."t1"."c1" * "test"."t1"."c3"))) as "avg(c2+c1*c3)", avg((("test"."t1"."c1" * 165) + "test"."t1"."c2")) as "avg(c1*165+c2)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select max(c1),max(c2),max(c3),max(c4),max(c5),max(c6),max(c7) from t1;
+create view v2 as select max(c1*c2),max(c1+c2/3.12),max(c1*c2+c3/c4-c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+max(c1)	bigint	NO		NULL	
+max(c2)	int(10)	NO		NULL	
+max(c3)	float	NO		NULL	
+max(c4)	double	NO		NULL	
+max(c5)	decimal(10,5)	NO		NULL	
+max(c6)	varchar(100)	NO		NULL	
+max(c7)	int(1)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+max(c1*c2)	bigint	NO		NULL	
+max(c1+c2/3.12)	decimal(17,4)	NO		NULL	
+max(c1*c2+c3/c4-c5)	double	NO		NULL	
+select * from v1;
+max(c1)	max(c2)	max(c3)	max(c4)	max(c5)	max(c6)	max(c7)
+12321112147483647	2	3.15	5.57	77777.97687	12321321.123123	1
+select max(c1),max(c2),max(c3),max(c4),max(c5),max(c6),max(c7) from t1;
+max(c1)	max(c2)	max(c3)	max(c4)	max(c5)	max(c6)	max(c7)
+12321112147483647	2	3.15	5.57	77777.97687	12321321.123123	1
+select * from v2;
+max(c1*c2)	max(c1+c2/3.12)	max(c1*c2+c3/c4-c5)
+24642224294967294	12321112147483647.641	2.464222429504507e16
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3008	0	0	select max("test"."t1"."c1") as "max(c1)", max("test"."t1"."c2") as "max(c2)", max("test"."t1"."c3") as "max(c3)", max("test"."t1"."c4") as "max(c4)", max("test"."t1"."c5") as "max(c5)", max("test"."t1"."c6") as "max(c6)", max("test"."t1"."c7") as "max(c7)" from "test"."t1"
+3009	0	0	select max(("test"."t1"."c1" * "test"."t1"."c2")) as "max(c1*c2)", max(("test"."t1"."c1" + ("test"."t1"."c2" / 3.12))) as "max(c1+c2/3.12)", max(((("test"."t1"."c1" * "test"."t1"."c2") + ("test"."t1"."c3" / "test"."t1"."c4")) - "test"."t1"."c5")) as "max(c1*c2+c3/c4-c5)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select max("test"."t1"."c1") as "max(c1)", max("test"."t1"."c2") as "max(c2)", max("test"."t1"."c3") as "max(c3)", max("test"."t1"."c4") as "max(c4)", max("test"."t1"."c5") as "max(c5)", max("test"."t1"."c6") as "max(c6)", max("test"."t1"."c7") as "max(c7)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select max(("test"."t1"."c1" * "test"."t1"."c2")) as "max(c1*c2)", max(("test"."t1"."c1" + ("test"."t1"."c2" / 3.12))) as "max(c1+c2/3.12)", max(((("test"."t1"."c1" * "test"."t1"."c2") + ("test"."t1"."c3" / "test"."t1"."c4")) - "test"."t1"."c5")) as "max(c1*c2+c3/c4-c5)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select min(c1),min(c2),min(c3),min(c4),min(c5),min(c6),min(c7) from t1;
+create view v2 as select min(c1*c2),min(c1+c2/3.12),min(c1*c2+c3/c4-c5) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+min(c1)	bigint	NO		NULL	
+min(c2)	int(10)	NO		NULL	
+min(c3)	float	NO		NULL	
+min(c4)	double	NO		NULL	
+min(c5)	decimal(10,5)	NO		NULL	
+min(c6)	varchar(100)	NO		NULL	
+min(c7)	int(1)	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+min(c1*c2)	bigint	NO		NULL	
+min(c1+c2/3.12)	decimal(17,4)	NO		NULL	
+min(c1*c2+c3/c4-c5)	double	NO		NULL	
+select * from v1;
+min(c1)	min(c2)	min(c3)	min(c4)	min(c5)	min(c6)	min(c7)
+-12321112147483647	-2	-3.15	-5.5656	-77777.77777	-7878787.3569	0
+select min(c1),min(c2),min(c3),min(c4),min(c5),min(c6),min(c7) from t1;
+min(c1)	min(c2)	min(c3)	min(c4)	min(c5)	min(c6)	min(c7)
+-12321112147483647	-2	-3.15	-5.5656	-77777.77777	-7878787.3569	0
+select * from v2;
+min(c1*c2)	min(c1+c2/3.12)	min(c1*c2+c3/c4-c5)
+24642224294967294	-12321112147483647.641	2.464222429488952e16
+select min(c1*c2),min(c1+c2/3.12),min(c1*c2+c3/c4-c5) from t1;
+min(c1*c2)	min(c1+c2/3.12)	min(c1*c2+c3/c4-c5)
+24642224294967294	-12321112147483647.641	2.464222429488952e16
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3011	0	0	select min("test"."t1"."c1") as "min(c1)", min("test"."t1"."c2") as "min(c2)", min("test"."t1"."c3") as "min(c3)", min("test"."t1"."c4") as "min(c4)", min("test"."t1"."c5") as "min(c5)", min("test"."t1"."c6") as "min(c6)", min("test"."t1"."c7") as "min(c7)" from "test"."t1"
+3012	0	0	select min(("test"."t1"."c1" * "test"."t1"."c2")) as "min(c1*c2)", min(("test"."t1"."c1" + ("test"."t1"."c2" / 3.12))) as "min(c1+c2/3.12)", min(((("test"."t1"."c1" * "test"."t1"."c2") + ("test"."t1"."c3" / "test"."t1"."c4")) - "test"."t1"."c5")) as "min(c1*c2+c3/c4-c5)" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select min("test"."t1"."c1") as "min(c1)", min("test"."t1"."c2") as "min(c2)", min("test"."t1"."c3") as "min(c3)", min("test"."t1"."c4") as "min(c4)", min("test"."t1"."c5") as "min(c5)", min("test"."t1"."c6") as "min(c6)", min("test"."t1"."c7") as "min(c7)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select min(("test"."t1"."c1" * "test"."t1"."c2")) as "min(c1*c2)", min(("test"."t1"."c1" + ("test"."t1"."c2" / 3.12))) as "min(c1+c2/3.12)", min(((("test"."t1"."c1" * "test"."t1"."c2") + ("test"."t1"."c3" / "test"."t1"."c4")) - "test"."t1"."c5")) as "min(c1*c2+c3/c4-c5)" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1(c1,c2,r1,r2,r3,r4) as select c1,c2,row_number() over (partition by c2 order by c3),row_number() over (partition by c2),row_number() over (order by c3),row_number() over () from t1;
+create view v2(c1,c2,r1,r2,r3,r4) as select c1,c2,row_number() over (partition by c2,c3 order by c5,c6,c7),row_number() over (partition by c2,c3),row_number() over (order by c3,c5 desc),row_number() over () from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+r1	bigint	NO		NULL	
+r2	bigint	NO		NULL	
+r3	bigint	NO		NULL	
+r4	bigint	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+r1	bigint	NO		NULL	
+r2	bigint	NO		NULL	
+r3	bigint	NO		NULL	
+r4	bigint	NO		NULL	
+select * from v1;
+c1	c2	r1	r2	r3	r4
+-12321112147483647	-2	1	1	1	1
+12321112147483647	2	1	1	2	2
+select c1,c2,row_number() over (partition by c2 order by c3),row_number() over (partition by c2),row_number() over (order by c3),row_number() over () from t1;
+c1	c2	row_number() over (partition by c2 order by c3)	row_number() over (partition by c2)	row_number() over (order by c3)	row_number() over ()
+-12321112147483647	-2	1	1	1	1
+12321112147483647	2	1	1	2	2
+select * from v2;
+c1	c2	r1	r2	r3	r4
+-12321112147483647	-2	1	1	1	1
+12321112147483647	2	1	1	2	2
+select c1,c2,row_number() over (partition by c2,c3 order by c5,c6,c7),row_number() over (partition by c2,c3),row_number() over (order by c3,c5 desc),row_number() over () from t1;
+c1	c2	row_number() over (partition by c2,c3 order by c5,c6,c7)	row_number() over (partition by c2,c3)	row_number() over (order by c3,c5 desc)	row_number() over ()
+-12321112147483647	-2	1	1	1	1
+12321112147483647	2	1	1	2	2
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3014	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", row_number() over (partition by "test"."t1"."c2" order by "test"."t1"."c3" asc ) as "r1", row_number() over (partition by "test"."t1"."c2" ) as "r2", row_number() over ( order by "test"."t1"."c3" asc ) as "r3", row_number() over  () as "r4" from "test"."t1"
+3015	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", row_number() over (partition by "test"."t1"."c2", "test"."t1"."c3" order by "test"."t1"."c5" asc, "test"."t1"."c6" asc, "test"."t1"."c7" asc ) as "r1", row_number() over (partition by "test"."t1"."c2", "test"."t1"."c3" ) as "r2", row_number() over ( order by "test"."t1"."c3" asc, "test"."t1"."c5" desc ) as "r3", row_number() over  () as "r4" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", row_number() over (partition by "test"."t1"."c2" order by "test"."t1"."c3" asc ) as "r1", row_number() over (partition by "test"."t1"."c2" ) as "r2", row_number() over ( order by "test"."t1"."c3" asc ) as "r3", row_number() over  () as "r4" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+show create view v2;
+View	Create View	character_set_client	collation_connection
+test.v2	create view `test`.`v2` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", row_number() over (partition by "test"."t1"."c2", "test"."t1"."c3" order by "test"."t1"."c5" asc, "test"."t1"."c6" asc, "test"."t1"."c7" asc ) as "r1", row_number() over (partition by "test"."t1"."c2", "test"."t1"."c3" ) as "r2", row_number() over ( order by "test"."t1"."c3" asc, "test"."t1"."c5" desc ) as "r3", row_number() over  () as "r4" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create view v1 as select c1,c2,listagg(c1,',') within group (order by c2),listagg(c1,',') within group (order by c4,c5),listagg(c1,',') from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+listagg(c1,',') within group (order by c2)	varchar(65536)	NO		NULL	
+listagg(c1,',') within group (order by c4,c5)	varchar(65536)	NO		NULL	
+listagg(c1,',')	varchar(65536)	NO		NULL	
+select * from v1;
+c1	c2	listagg(c1,',') within group (order by c2)	listagg(c1,',') within group (order by c4,c5)	listagg(c1,',')
+-12321112147483647	-2	-12321112147483647,12321112147483647	-12321112147483647,12321112147483647	-12321112147483647,12321112147483647
+select c1,c2,listagg(c1,',') within group (order by c2),listagg(c1,',') within group (order by c4,c5),listagg(c1,',') from t1;
+c1	c2	listagg(c1,',') within group (order by c2)	listagg(c1,',') within group (order by c4,c5)	listagg(c1,',')
+-12321112147483647	-2	-12321112147483647,12321112147483647	-12321112147483647,12321112147483647	-12321112147483647,12321112147483647
+select * from __all_view;
+view_id	check_option	is_updatable	view_definition
+3017	0	0	select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',') within group (order by c2)", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',') within group (order by c4,c5)", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',')" from "test"."t1"
+show create view v1;
+View	Create View	character_set_client	collation_connection
+test.v1	create view `test`.`v1` as select "test"."t1"."c1" as "c1", "test"."t1"."c2" as "c2", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',') within group (order by c2)", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',') within group (order by c4,c5)", listagg ("test"."t1"."c1",',') within group (order by "test"."t1"."c2"asc) as "listagg(c1,',')" from "test"."t1"	utf8mb4	utf8mb4_general_ci
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;

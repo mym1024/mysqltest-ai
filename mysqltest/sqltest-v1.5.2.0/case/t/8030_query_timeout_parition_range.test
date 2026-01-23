@@ -1,0 +1,77 @@
+####################################必填######################################################
+###1.测试功能点：检验指定range分区的表中，查询操作的最低响应时间
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+drop table if exists t1;
+create table t1 (c1 int,c2 int,primary key (c1,c2),c3 int) partition by range columns(c1,c2)(partition a1 values less than (2,3),partition a2 values less than (4,5),partition a3 values less than (maxvalue,maxvalue));
+--real_sleep 1
+insert into t1 values(1,2,3);
+set yao_query_timeout=25000;
+--error 12
+select * from t1;
+
+drop table if exists t1;
+create table t1(c1 int primary key,c2 int) partition by range(c1)(partition q1 values less than (2),partition q2 values less than maxvalue);
+set yao_query_timeout=50000;
+sleep 3;
+replace into t1 values(1,1);
+
+--echo set query timeout to 500ms
+set yao_query_timeout=500000;
+
+--real_sleep 1
+select * from t1 where c1=1;
+select count(*) from t1;
+select * from t1 union select * from t1;
+update t1 set c2=2 where c1=1;
+
+--echo set query timeout to 100ms
+set yao_query_timeout=100000;
+
+select * from t1 where c1=1;
+select count(*) from t1;
+select * from t1 union select * from t1;
+update t1 set c2=2 where c1=1;
+
+--echo set query timeout to 25ms
+set yao_query_timeout=25000;
+--error 12
+select * from t1 where c1=1;
+--error 12
+select count(*) from t1;
+--error 12
+select * from t1 union select * from t1;
+
+set yao_query_timeout=30000;
+--real_sleep 2
+update t1 set c2=2 where c1=1;
+
+--echo set query timeout to 10ms
+set yao_query_timeout=10000;
+
+--error 12
+select count(*) from t1;
+--error 12
+select * from t1 union select * from t1;
+--error 12
+select * from t1 where c1=1;
+
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

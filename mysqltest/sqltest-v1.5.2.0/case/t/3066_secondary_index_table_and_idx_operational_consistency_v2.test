@@ -1,0 +1,223 @@
+--source merge.sql
+##############################################################################################
+###1.测试功能点：验证索引表与数据表的一致性操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：2479s
+###6.编写/修改人：wangsuxiang
+###7.编写/修改日期：2019-10-11
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+alter system set balance_max_concurrent_migrate_num=30 server_type=yaoadminsvr;
+alter system set balance_max_migrate_in_per_ds=6 server_type=yaoadminsvr;
+alter system set balance_max_migrate_out_per_ds=6 server_type=yaoadminsvr;
+alter system set max_migrate_task_count=6 server_type=yaodatasvr;
+
+--disable_warnings
+drop table if exists test1;
+--enable_warnings
+--disable_query_log
+alter system set min_drop_cache_wait_time='10s' server_type=yaodatasvr;
+--enable_query_log
+
+###2-1:在数据表中不同列上创建索引，并对数据表中数据进行增删改查，验证数据表与索引表是否同步变化
+create table test1(c1 int,c2 int,c3 int,c4 int,c5 int,primary key(c1,c2));
+create index idx01 on test1(c1);
+create index idx02 on test1(c1,c2);
+create index idx03 on test1(c1,c2) storing (c3);
+create index idx04 on test1(c2,c1);
+create index idx05 on test1(c2,c1) storing (c3);
+create index idx06 on test1(c1,c3);
+create index idx07 on test1(c1,c2,c3);
+create index idx08 on test1(c1,c2,c3) storing (c5);
+create index idx09 on test1(c3,c1,c2);
+create index idx10 on test1(c3,c1,c2) storing (c5);
+show index on test1;
+insert into test1 values(1,1,1,1,1),(2,2,2,2,2),(3,3,3,3,3);
+select * from test1;
+
+--echo "merge"
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT major_freeze | tail -1;
+--real_sleep 800
+exec $LOCAL_DIR/tools/as_admin -r $RS0_IP -p $RS0_PORT stat -o merge | tail -1;
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+update test1 set c3=666 where c1=1 or c2=2;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+show index on test1;
+
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+delete from test1 where c5=2;
+select * from test1;
+insert into test1 values(4,4,4,4,4);
+select * from test1;
+
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+delete from test1 where c1=1 or c1=3 or c1=4;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+show index on test1;
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+insert into test1(c1,c2) values(1,1);
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+delete from test1 where c1=1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+show index on test1;
+
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+insert into test1(c1,c2) values(1,1);
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+
+
+show index on test1;
+select * from test1;
+select * from __3001__idx__idx01;
+select * from __3001__idx__idx02;
+select * from __3001__idx__idx03;
+select * from __3001__idx__idx04;
+select * from __3001__idx__idx05;
+select * from __3001__idx__idx06;
+select * from __3001__idx__idx07;
+select * from __3001__idx__idx08;
+select * from __3001__idx__idx09;
+select * from __3001__idx__idx10;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

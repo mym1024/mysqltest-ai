@@ -1,0 +1,83 @@
+####################################必填######################################################
+###1.测试功能点：验证别名的使用功能
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+drop table if exists t1;
+--error 5077
+drop partition function h1;
+--enable_warnings
+
+###2-1：在虚表中测试别名的使用
+select 1+2 c1;
+select 1+2 as c1;
+select 1 c1;
+select 1 as c1;
+select 1+2 c1 from dual where 1=1;
+select 1+2 as c1 from dual where 1=1;
+select 1 c1 from dual where 1=1;
+select 1 as c1 from dual where NULL is NULL;
+
+###2-3：在hash分区规则下，测试别名的使用
+create hash partition function h1(x)'x*2-1';
+create table t1(c1 int primary key, c2 int) partition by (ta1, h1, c1);
+insert into t1 values(1,1),(2,1);
+select c2 +100 c3 from t1 where c1=1;
+select c2 -100 c3 from t1 where c1 in (1,2);
+drop table t1;
+drop partition function h1;
+
+###2-4：在enum分区规则下，测试别名的使用
+create enum partition function e1(x,y)'[(1,s)],[(2,w)]';
+create table t1(c1 int, c2 varchar(30), c3 float, c4 createtime, c5 int, c6 varchar(30), c7 float, primary key(c1, c2)) partition by (em, e1, c1, c2);
+insert into t1(c1,c2,c3,c5,c6,c7) values(1,'s',1.5,1,'t',2.5);
+select c5+1 c51, c6 c61,c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5;
+select c5+1 c51, c6 c61,c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1,2,3);
+drop table t1;
+drop partition function e1;
+
+create enum partition function e1(x)'[(1)],[(2)]';
+create table t1(c1 int primary key, c2 int) partition by(ta1, e1, c1);
+insert into t1 values(1,1),(2,1);
+select c2 +100 c3 from t1 where c1=1;
+select c2 -100 c3 from t1 where c1 in (1,2);
+drop table t1;
+drop partition function e1;
+
+###2-5：在range分区规则下，测试别名的使用
+create table t1(c1 int, c2 varchar(30),c3 float, c4 createtime, c5 int, c6 varchar(30), c7 float, primary key (c1, c2)) partition by range columns(c1, c2)(partition b1 values less than(2,'s'), partition b2 values less than(3,'t'), partition b3 values less than (maxvalue, maxvalue));
+insert into t1(c1, c2, c3, c5, c6, c7) values(1,'s',1.5,1,'t',2.5);
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5; 
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1, 2, 3);
+drop table t1;
+
+###2-6：在无分区规则下，在自定义的表中测试别名的使用
+create table t1(c1 int primary key, c2 int);
+insert into t1 values (1,1),(2,1);
+select c2+100 c3 from t1 where c1=1;
+select c2-100 c3 from t1 where c1 in (1,2);
+drop table t1;
+create table t1(c1 int, c2 varchar(30), c3 float, c4 createtime, c5 int, c6 varchar (30), c7 float, primary key (c1, c2, c3));
+insert into t1(c1,c2,c3,c5,c6,c7) values(1, 's', 1.5,1, 't', 2.5);
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5;
+select c5+1 c51, c6 c61, c7+1 c71 from t1 where c1=1 and c2='s' and c3=1.5 and c5 in (1,2,3);
+
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

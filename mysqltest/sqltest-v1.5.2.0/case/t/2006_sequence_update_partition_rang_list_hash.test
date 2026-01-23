@@ -1,0 +1,2925 @@
+####################################必填######################################################
+###1.测试功能点：对指定分区规则的表进行update操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间： s
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-10-18
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create or replace sequence seq1 as integer start with 0 increment by -2 minvalue 0 maxvalue 4 cycle;
+--disable_warnings
+drop table if exists t0,t1;
+--enable_warnings
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than(13),partition a4 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+create table t0(id int primary key,age int,name varchar(20)) partition by list(id)(partition b1 values in(1,3,5,7,9),partition b2 values in(2,4,6,8,10));
+--real_sleep 1
+insert into t0 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+--real_sleep 5
+select * from t0;
+select * from t1;
+
+###2-1:对指定range分区的表进行更新操作
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+sleep 1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+
+###2-2:对指定list分区规则的表进行更新操作
+select prevval for seq1 from t0;
+select * from t0;
+update t0 set age=prevval for seq1+nextval for seq1 where id=1;
+select prevval for seq1 from t0;
+select * from t0;
+update t0 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t0;
+select * from t0;
+update t0 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t0;
+select * from t0;
+update t0 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=1;
+select prevval for seq1 from t0;
+select * from t0;
+
+###2-3:对指定hash分区的表进行更新操作
+create or replace sequence seq1 as bigint start with -1 increment by -2 minvalue 0 maxvalue 4 cycle;
+drop table t1;
+
+create hash partition function h1(x) 'x*2-1';
+create table t1(id int primary key,age int,name varchar(20)) partition by(h1t,h1,id);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+create or replace sequence seq1 as smallint increment by -2 cycle;
+
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+create or replace sequence seq1 as integer start with 0 increment by -2 minvalue 0 maxvalue 4 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition c1 values less than(5),partition c2 values less than (8),partition c3 values less than(12),partition c4 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 2 minvalue 0 maxvalue 1000000000 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by list(id)(partition d1 values in(-1,1,3,5,7,9),partition d2 values in(2,4,6,8,10,0,11));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+sleep 2;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+sleep 2;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by -2 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by list(id)(partition d1 values in(-1,1,3,5,7,9),partition d2 values in(2,4,6,8,10,-21));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5702
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 1 minvalue 0 maxvalue 40000;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by list(id)(partition d1 values in(-1,1,3,5,7,9),partition d2 values in(2,4,6,8,10,0));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 1 minvalue 0 maxvalue 40000;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+select nextval for seq1 from t1;
+sleep 1;
+select prevval for seq1 from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+sleep 2;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 2;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by -2;
+drop table t1;
+sleep 1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as int;
+drop table t1;
+sleep 1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by -2 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by -2 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by -2 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 1 minvalue 101 maxvalue 10500 no cycle;
+drop table t1;
+sleep 1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 1 minvalue 1 maxvalue 105 no cycle;
+drop table t1;
+sleep 1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by -2 no cycle;
+drop table t1;
+sleep 1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 1 minvalue 10 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 1 minvalue 1 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by -2;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0);
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 4 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#--error 5006
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 2 minvalue 0 maxvalue 4 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 2 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 400 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 2 minvalue 0 maxvalue 400 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 2 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 2 minvalue 0 maxvalue 4000;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 2 minvalue 0 maxvalue 400;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 2;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as int;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 5
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 2 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create hash partition function h4(x)'x%2-1';
+create table t1(id int primary key,age int,name varchar(20)) partition by(h4t,h4,id);
+--real_sleep 5
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 2 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 2 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 2 minvalue 101 maxvalue 105 no cycle;
+drop table t1;
+--real_sleep 5
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 2 minvalue 101 maxvalue 105 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 2 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 2 minvalue 101 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 2 minvalue 101 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 2;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0);
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 0 minvalue 0 maxvalue 4 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 0 minvalue 0 maxvalue 4 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 0 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 0 minvalue 0 maxvalue 4 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 0 minvalue 0 maxvalue 4 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 0 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as integer start with 0 increment by 0 minvalue 0 maxvalue 4;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as bigint start with -1 increment by 0 minvalue 0 maxvalue 4;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as smallint increment by 0;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as int;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 0 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 0 minvalue 101 maxvalue 105 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 0 cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 0 minvalue 101 maxvalue 105 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 0 minvalue 101 maxvalue 105 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 0 no cycle;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with 0 increment by 0 minvalue 101 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+--real_sleep 5
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) start with -1 increment by 0 minvalue 101 maxvalue 105;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+create or replace sequence seq1 as decimal(5,0) increment by 0;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+#create or replace sequence seq1 as decimal(5,0);
+create or replace sequence seq1 as decimal(5,0) start with 1 increment by 2 minvalue 1 maxvalue 104;
+drop table t1;
+create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+--real_sleep 1
+insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+update t1 set age=nextval for seq1 where id=1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=-98 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+--error 5006
+update t1 set age=nextval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+--error 5006
+update t1 set age=prevval for seq1 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+sleep 1;
+select prevval for seq1 from t1;
+select * from t1;
+update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1+prevval for seq1;
+select prevval for seq1 from t1;
+--real_sleep 1
+select * from t1;
+update t1 set age=(nextval for seq1+prevval for seq1)*nextval for seq1 where id=prevval for seq1;
+select prevval for seq1 from t1;
+select * from t1;
+
+#create or replace sequence seq1 as decimal(5,0) start with 100 increment by 2 minvalue 100 maxvalue 104;
+#create or replace sequence seq2 as decimal(5,0) start with 200 increment by 2 minvalue 201 maxvalue 205;
+#--error 5001
+#create or replace sequence seq3 as decimal(5,0) start with -200 increment by 1 minvalue -200 maxvalue -300;
+#drop table t1;
+#create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+#--real_sleep 1
+#insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+#update t1 set age=nextval for seq1 where id=1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1 where id=1;
+##select prevval for seq2 from t1;
+##select * from t1;
+#update t1 set age=-98 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq2 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=prevval for seq1 where id=prevval for seq2;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq3 where id=nextval for seq2;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=prevval for seq2 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq1+nextval for seq2 where id=prevval for seq1+prevval for seq1;
+##select prevval for seq1 from t1;
+##select * from t1;
+##update t1 set age=(nextval for seq1+prevval for seq2)*nextval for seq3 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#
+#create or replace sequence seq1 as decimal(5,0) start with 100 increment by 2 minvalue 100 maxvalue 10400;
+##create or replace sequence seq2 as decimal(5,0) start with 200 increment by -2 minvalue 201 maxvalue 205;
+#create or replace sequence seq3 as decimal(5,0) start with -200 increment by -1 minvalue -200 maxvalue 1;
+#drop table t1;
+#create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+#--real_sleep 1
+#insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+#update t1 set age=nextval for seq1 where id=1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1 where id=1;
+##select prevval for seq2 from t1;
+#select * from t1;
+#update t1 set age=-98 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq2 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=prevval for seq1 where id=prevval for seq2;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq3 where id=nextval for seq2;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=prevval for seq2 where id=nextval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=nextval for seq1+nextval for seq2 where id=prevval for seq1+prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+##update t1 set age=(nextval for seq1+prevval for seq2)*nextval for seq3 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#
+#create or replace sequence seq1 as decimal(5,0) start with 100 increment by 2 minvalue 100 maxvalue 104;
+##create or replace sequence seq2 as decimal(5,0) start with 200 increment by -2 minvalue 201 maxvalue 205;
+#create or replace sequence seq3 as decimal(5,0) start with -200 increment by 1 minvalue -200 maxvalue 100;
+#drop table t1;
+#create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition r0 values less than(5),partition r1 values less than (10),partition r2 values less than maxvalue);
+#--real_sleep 5
+#insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+#update t1 set age=nextval for seq1 where id=1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1 where id=1;
+#select * from t1;
+#update t1 set age=-98 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#
+#create or replace sequence seq1 as decimal(5,0) start with 1 increment by 2 minvalue 100 maxvalue 104;
+#create or replace sequence seq3 as decimal(5,0) start with -2 increment by 1 minvalue -200 maxvalue 100;
+#drop table t1;
+#create table t1(id int primary key,age int,name varchar(20)) partition by range(id)(partition z1 values less than(4),partition z2 values less than(maxvalue));
+#--real_sleep 1
+#insert into t1 values(1,-99,'a'),(2,-99,'a'),(3,-99,'a'),(4,-99,'a'),(5,-99,'a'),(6,-99,'a'),(7,-99,'a'),(8,-99,'a'),(9,-99,'a'),(10,-99,'a');
+#update t1 set age=nextval for seq1 where id=1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1 where id=1;
+#select * from t1;
+#update t1 set age=-98 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+prevval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=prevval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#update t1 set age=nextval for seq1+nextval for seq1 where id=prevval for seq1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+#select prevval for seq1 from t1;
+#select * from t1;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

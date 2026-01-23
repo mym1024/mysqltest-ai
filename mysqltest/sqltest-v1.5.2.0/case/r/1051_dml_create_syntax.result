@@ -1,0 +1,54 @@
+drop table if exists t1,t2,t3,t4;
+create table if not exists t1
+(
+c1 tinyint not null default 0 auto_increment primary key,
+c2 smallint not null default 0,
+c3 mediumint not null default 0,
+c4 int not null default 0,
+c5 integer not null default 0,
+c6 bigint not null default 0,
+c7 real not null default 1.5,
+c8 double,
+c9 float,
+c10 timestamp,
+c11 datetime,
+c12 char(30),
+c13 varchar(30),
+c14 binary(30),
+c15 varbinary(30),
+c16 createtime,
+c17 modifytime
+)REPLICA_NUM=3,TABLET_MAX_SIZE=100000000,COMPRESS_METHOD='lzo_1_0',USE_BLOOM_FILTER=TRUE,EXPIRE_INFO='c8=0',TABLET_BLOCK_SIZE=4096,CONSISTENT_MODE=STATIC,COMMENT='this is comment';
+create table if not exists t1
+(
+c1 tinyint primary key,
+c2 int
+);
+show create table t1;
+Table	Create Table
+test.t1	CREATE TABLE t1 (
+c16 CREATETIME,
+c17 MODIFYTIME,
+c1 INT(3) DEFAULT 0 NOT NULL AUTO_INCREMENT,
+c2 INT(5) DEFAULT 0 NOT NULL,
+c3 INT(8) DEFAULT 0 NOT NULL,
+c4 INT(10) DEFAULT 0 NOT NULL,
+c5 INT(10) DEFAULT 0 NOT NULL,
+c6 BIGINT DEFAULT 0 NOT NULL,
+c7 DOUBLE DEFAULT 1.5 NOT NULL,
+c8 DOUBLE,
+c9 FLOAT,
+c10 DATETIME,
+c11 DATETIME,
+c12 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c13 VARCHAR (30) COLLATE 'utf8mb4_general_ci',
+c14 VARCHAR (30) COLLATE 'binary',
+c15 VARCHAR (30) COLLATE 'binary',
+ PRIMARY KEY(c1)
+) EXPIRE_INFO = 'c8=0', COMMENT = 'this is comment', COLLATE = 'utf8mb4_general_ci', COMPRESS_METHOD = 'lzo_1_0', REPLICA_NUM = 3 ;
+select table_name,table_id,table_type,load_type,table_def_type,rowkey_column_num,column_num,max_used_column_id,create_mem_version,max_rowkey_length,compress_func_name,is_use_bloomfilter,merge_write_sstable_version,is_pure_update_table,rowkey_split,expire_condition,tablet_block_size,is_read_static from __first_tablet_entry where table_id=3001;
+table_name	table_id	table_type	load_type	table_def_type	rowkey_column_num	column_num	max_used_column_id	create_mem_version	max_rowkey_length	compress_func_name	is_use_bloomfilter	merge_write_sstable_version	is_pure_update_table	rowkey_split	expire_condition	tablet_block_size	is_read_static
+t1	3001	1	1	2	1	NULL	30	1	0	lzo_1_0	1	2	0	0	c8=0	4096	1
+drop table t1;
+create table t1(f1 int primary key);
+create table t2(f1 int, f2 varchar(30),primary key(f1,f2));

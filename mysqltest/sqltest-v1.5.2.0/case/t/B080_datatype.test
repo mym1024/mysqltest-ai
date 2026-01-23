@@ -1,0 +1,84 @@
+####################################必填######################################################
+###1.测试功能点：数据类型
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1：varchar2
+#do sql
+drop table if exists t;
+create table if not exists t(id1 int primary key, id2 varchar2(30));
+insert into t values(1,'aaa');
+insert into t values(2,'12345');
+insert into t values(3,'数据类型');
+update t set id2='abcdefg' where id1=2;
+delete from t where id1=1;
+select * from t;
+drop table if exists t;
+
+
+###2-2：nvarchar2
+#do sql
+create table if not exists t(id1 nvarchar2(30) primary key, id2 int);
+insert into t values('aaa',1);
+insert into t values('12345',2);
+insert into t values('数据类型',3);
+update t set id1='数据' where id1='aaa';
+delete from t where id1='12345';
+select * from t;
+drop table if exists t;
+
+
+###2-3：datetime(6)
+#do sql
+create table if not exists t(id1 int primary key, id2 datetime(6));
+insert into t values(1,'2022-04-11 15:36:01');
+insert into t values(2,'2019-09-11 09:28:34');
+insert into t values(3,'2021-05-30 13:26:14');
+update t set id2='2021-06-30 13:26:33' where id1=1;
+delete from t where id1=3;
+select * from t;
+drop table if exists t;
+
+
+###2-4：number()
+#do sql
+create table if not exists t(id1 int primary key, id2 number(6,3));
+insert into t values(1,123.4578);
+insert into t values(2,13.24645);
+insert into t values(3,5.12);
+update t set id2=256.78215 where id1=1;
+delete from t where id1=3;
+select * from t;
+drop table if exists t;
+
+
+###2-5：number
+#do sql
+create table if not exists t(id1 number primary key, id2 number);
+insert into t values(1,12);
+insert into t values(2,45798);
+insert into t values(3,512);
+update t set id2=5348 where id1=1;
+delete from t where id1=3;
+select * from t;
+drop table if exists t;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

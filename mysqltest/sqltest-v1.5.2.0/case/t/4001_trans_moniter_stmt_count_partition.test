@@ -1,0 +1,121 @@
+#######################################################
+###1.测试功能点：在指定不同分区规则的表中执行事务并统计事务中的事务数和sql数；
+#######################################################
+
+###2-1:在指定list分区规则的表中统计事务数和sql数量
+drop table if exists t1;
+create table t1 (c1 int primary key, c2 int) partition by list(c1)(partition w1 values in(1,3,5,7,9), partition w2 values in (2,4,6,8,10));
+
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+set autocommit = 0;
+--real_sleep 5
+insert into t1 values (1,2);
+insert into t1 values (2,3);
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+insert into t1 values (3,4);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+commit;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+drop table t1;
+
+###2-2:在指定hash分区规则的表中统计事务数和sql数量
+drop table if exists t1;
+create hash partition function h11(x)'x*4-3';
+create table t1 (c1 int primary key, c2 int) partition by(h1t,h11,c1);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+--real_sleep 5
+insert into t1 values (1,2);
+insert into t1 values (2,3);
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+insert into t1 values (3,4);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+commit;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+drop table t1;
+
+###2-3:在指定enum分区规则的表中统计事务数和sql数量
+drop table if exists t1;
+create enum partition function e1(x)'[(1)],[(2)],[(3)],[(4)],[(5)],[(6)],[(7)],[(8)],[(9)],[(10)]';
+create table t1 (c1 int primary key, c2 int) partition by(e1t,e1,c1);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+--real_sleep 5
+insert into t1 values (1,2);
+insert into t1 values (2,3);
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+insert into t1 values (3,4);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+commit;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+drop table t1;
+
+###2-4:在指定range分区规则的表中统计事务数和sql数量
+drop table if exists t1;
+create table t1 (c1 int primary key, c2 int) partition by range(c1)(partition a1 values less than(3),partition a2 values less than(6),partition a3 values less than(10),partition a4 values less than maxvalue);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+--real_sleep 5
+insert into t1 values (1,2);
+insert into t1 values (2,3);
+set autocommit = 1;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+insert into t1 values (3,4);
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+rollback;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+set autocommit = 0;
+insert into t1 values (5,2);
+insert into t1 values (6,3);
+commit;
+select name,sum(value) from (select * from __all_server_stat where svr_type='yaosqlsvr')  where name in ('multi_stmt_trans_count', 'multi_stmt_trans_stmt_count') group by name;
+
+drop table t1;

@@ -1,0 +1,256 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210120
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+###2-1:两张表join，仅有一个连接条件，等值连接
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1;
+select * from v2 order by c1;
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 order by t1.c1;
+select * from v3;
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1;
+select * from v4 order by c1;
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 order by t1.c1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+
+
+###2-2:两张表join，一个或者多个连接条件，等值连接
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 and t1.c1>=t2.c1;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 and t1.c1<0;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 and t1.c1>0;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 and t1.c1<=12213123123123123;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 and t1.c1>=t2.c1;
+select * from v2 order by c1;
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 and t1.c1<0 order by t1.c1;
+select * from v3;
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 and t1.c1>0;
+select * from v4 order by c1;
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 and t1.c1<=12213123123123123 order by t1.c1;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+
+
+
+###2-3:两张表join，多个连接条件，其中一表的主键有和常量的等值或者不等值比较，筛选条件在where后
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true;
+select * from v2;
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10;
+select * from v3;
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10;
+select * from v4;
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+
+
+###2-4:在join使用聚集函数如group by,having等[having 子句有错误]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+create table t2(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+insert into t2 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true);
+create view v1 as select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true group by t1.c1 having sum(t1.c1)<=0;
+create view v2 as select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10 group by t1.c1 having sum(t1.c1)<=0;
+create view v3 as select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10 group by t1.c1 having sum(t1.c1)<=0;
+create view v4 as select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11  group by t1.c1 having sum(t1.c1)<=0;
+desc v1;
+desc v2;
+desc v3;
+desc v4;
+select * from v1;
+select t1.c1,t1.c2,t1.c3 from t1 inner join t2 on t1.c1 =t2.c1 where t1.c7 is true group by t1.c1 having sum(t1.c1)<=0;
+select * from v2;
+select t1.c1,t1.c2,t1.c3 from t1 left join t2 on t1.c1 =t2.c1 where t1.c1>10 group by t1.c1 having sum(t1.c1)<=0;
+select * from v3;
+select t1.c1,t1.c2,t1.c3 from t1 right join t2 on t1.c1 =t2.c1 where t1.c1<10 group by t1.c1 having sum(t1.c1)<=0;
+select * from v4;
+select t1.c1,t1.c2,t1.c3 from t1 full join t2 on t1.c1 =t2.c1 where t1.c1<11 group by t1.c1 having sum(t1.c1)<=0;
+select * from __all_view;
+show create view v1;
+show create view v2;
+show create view v3;
+show create view v4;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+
+
+###2-5:三张表join,筛选条件在where后
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+create table t3(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t3 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6,c7,c8,c9) as select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 =6;
+create view v2(c1,c2,c3,c4,c5,c6,c7,c8,c9) as select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in (1,2,3,4);
+desc v1;
+desc v2;
+select * from v1;
+select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 =6;
+select * from v2;
+select * from t1 full join t2 on t1.c1=t2.c1 full join t3 on t2.c1=t3.c1 where t1.c1 in (1,2,3,4);
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-6:子查询的结果作为左表和另一张表join,筛选条件在where后
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from (select * from t1) a inner join t2 b on a.c1=b.c1;
+create view v2(c1,c2,c3,c4,c5,c6) as select * from (select * from t1) a inner join t2 b on a.c1=b.c1 where b.c1<6;
+desc v1;
+desc v2;
+select * from v1;
+select * from (select * from t1) a inner join t2 b on a.c1=b.c1;
+select * from v2;
+select * from (select * from t1) a inner join t2 b on a.c1=b.c1 where b.c1<6;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-7:子查询的结果作为右表和另一张表join,筛选条件在where后
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join (select * from t2) b on a.c1=b.c1;
+create view v2(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join (select * from t2) b on a.c1=b.c1 where a.c1 in(1,2,3,4);
+desc v1;
+desc v2;
+select * from v1;
+select * from t1 a inner join (select * from t2) b on a.c1=b.c1;
+select * from v2;
+select * from t1 a inner join (select * from t2) b on a.c1=b.c1 where a.c1 in(1,2,3,4);
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-8:join语句中，where条件含有子查询[where子句中重写为了t1.c1 as a.c1]
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 int primary key,c2 int,c3 varchar(30));
+create table t2(c1 int primary key,c2 int,c3 varchar(30));
+insert into t1 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+insert into t2 values(1,1,'aaa'),(2,2,'bbb'),(3,3,'ccc'),(5,5,'eee');
+create view v1(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 =(select c1 from t2 where c2=6);
+create view v2(c1,c2,c3,c4,c5,c6) as select * from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+desc v1;
+desc v2;
+select * from v1;
+select * from t1 a inner join t2 b on a.c1=b.c1 where t1.c1 =(select c1 from t2 where c2=6);
+select * from v2;
+select * from t1 a inner join t2 b on a.c1=b.c1 where t2.c1 in(select c1 from t1 where c2 between 1 and 6);
+select * from __all_view;
+show create view v1;
+show create view v2;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-9:多个表关联查询，包括left join,right join,full join
+drop table if exists t1,t2,t3,t4;
+drop view if exists v1,v2,v3,v4;
+create table t1(id int ,c1 int,c2 int,c3 int,c4 int,primary key(id,c1,c2));
+create table t2(id int primary key,c1 int,c2 int,c3 int,c4 int);
+create table t3(id int primary key,c1 int,c2 int,c3 int,c4 int,c5 int,c6 int);
+create table t4(id int primary key,c1 int,c2 int);
+insert into t1 values(1,2,3,4,5),(2,5,6,2,1),(3,4,8,2,3),(4,1,2,6,8);
+insert into t2 values(2,5,2,4,4),(5,5,2,5,4),(6,5,2,5,9);
+insert into t3 values(1,5,2,4,4,3,22),(2,5,2,4,4,9,13);
+insert into t4 values(3,5,2),(7,4,5);
+create view v1 (c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20) as select * from t1 inner join t2 on t1.id=t2.id and t1.c1 = t2.id join t3 on t3.id >=1 join t4 on t4.id is not null;
+desc v1;
+select * from v1;
+select * from t1 inner join t2 on t1.id=t2.id and t1.c1 = t2.id join t3 on t3.id >=1 join t4 on t4.id is not null;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3,t4;
+drop view if exists v1,v2,v3;
+
+
+
+

@@ -1,0 +1,284 @@
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int,c3 date,c4 bool,c5 createtime,c6 timestamp,c7 datetime,c8 time,c9 double,c10 real,c11 float,c12 modifytime,c13 binary);
+create view v1 as select * from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c5	createtime	YES		NULL	
+c12	modifytime	YES		NULL	
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	date	YES		NULL	
+c4	int(1)	YES		NULL	
+c6	timestamp	YES		NULL	
+c7	timestamp	YES		NULL	
+c8	time	YES		NULL	
+c9	double	YES		NULL	
+c10	double	YES		NULL	
+c11	float	YES		NULL	
+c13	varchar(1)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 varchar(64),c3 varchar(65535));
+create view v1 as select * from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	varchar(64)	YES		NULL	
+c3	varchar(65535)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 decimal(1,0),c3 decimal(38,0),c4 decimal(10,5));
+create view v1 as select * from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	decimal(1,0)	YES		NULL	
+c3	decimal(38,0)	YES		NULL	
+c4	decimal(10,5)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select not c1,c1 and c2,c1 or c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+not c1	int(1)	NO		NULL	
+c1 and c2	int(1)	NO		NULL	
+c1 or c2	int(1)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1+c2,c1*c2 ,c1/ c2,c1^c2,c1%c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1+c2	bigint	NO		NULL	
+c1*c2	bigint	NO		NULL	
+c1/ c2	decimal(65,0)	NO		NULL	
+c1^c2	bigint	NO		NULL	
+c1%c2	bigint	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1<c2,c1<=c2,c1>=c2,c1>c2,c1!=c2,c1 in(1,3,5,7,9) ,c1 between 1 and 7,c1 is null,c1 is unknown from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1<c2	int(1)	NO		NULL	
+c1<=c2	int(1)	NO		NULL	
+c1>=c2	int(1)	NO		NULL	
+c1>c2	int(1)	NO		NULL	
+c1!=c2	int(1)	NO		NULL	
+c1 in(1,3,5,7,9)	int(1)	NO		NULL	
+c1 between 1 and 7	int(1)	NO		NULL	
+c1 is null	int(1)	NO		NULL	
+c1 is unknown	int(1)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1 || c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1 || c2	int(1)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select sum(c1), avg(c1),min(c1),max(c1),count(c1),listagg(c1,','),row_number() over (partition by c1) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+sum(c1)	bigint	NO		NULL	
+avg(c1)	decimal(38,0)	NO		NULL	
+min(c1)	bigint	NO		NULL	
+max(c1)	bigint	NO		NULL	
+count(c1)	bigint	NO		NULL	
+listagg(c1,',')	varchar(65536)	NO		NULL	
+row_number() over (partition by c1)	bigint	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 date);
+create view v1 as select cast(c1 as int),concat(c1,c2),current_date(),current_time(),year('2021-02-01'),month('2021-02-01'),day('2021-02-01'),days('2021-02-01'),hour('12:12:12'),minute('12:12:12'),second('12:12:12') from t1;
+create view v2 as select date_add(date '2021-02-01',interval 1 days),date_sub(date '2021-02-01',interval 1 days),hex(c1),unhex('65535') from t1;
+create view v3 as select int2ip(2555555555),ip2int('192.168.0.1'),length('cbase'),'ab' like 'ab_',now(),nvl(null,'cbase'),round(c1,0),strict_current_timestamp() from t1;
+create view v4 as select substr('cbase',1,2),trim(both ' ' from '  cbase  '),upper('cbase'),lower('CBASE'),decode(c1,1,'a',2,'b','c'),floor(c1),ceil(c1) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+cast(c1 as int)	int	NO		NULL	
+concat(c1,c2)	varchar(31)	NO		NULL	
+current_date()	date	NO		NULL	
+current_time()	time	NO		NULL	
+year('2021-02-01')	int	NO		NULL	
+month('2021-02-01')	int	NO		NULL	
+day('2021-02-01')	int	NO		NULL	
+days('2021-02-01')	int	NO		NULL	
+hour('12:12:12')	int	NO		NULL	
+minute('12:12:12')	int	NO		NULL	
+second('12:12:12')	int	NO		NULL	
+desc v2;
+Field	Type	Null	Key	Default	Extra
+date_add(date '2021-02-01',interval 1 days)	date	NO		NULL	
+date_sub(date '2021-02-01',interval 1 days)	date	NO		NULL	
+hex(c1)	varchar(16)	NO		NULL	
+unhex('65535')	varchar(65536)	NO		NULL	
+desc v3;
+Field	Type	Null	Key	Default	Extra
+int2ip(2555555555)	varchar(15)	NO		NULL	
+ip2int('192.168.0.1')	bigint	NO		NULL	
+length('cbase')	bigint	NO		NULL	
+'ab' like 'ab_'	int(1)	NO		NULL	
+now()	timestamp	NO		NULL	
+nvl(null,'cbase')	varchar(65536)	NO		NULL	
+round(c1,0)	decimal(38,0)	NO		NULL	
+strict_current_timestamp()	timestamp	NO		NULL	
+desc v4;
+Field	Type	Null	Key	Default	Extra
+substr('cbase',1,2)	varchar(2)	NO		NULL	
+trim(both ' ' from '  cbase  ')	varchar(9)	NO		NULL	
+upper('cbase')	varchar(5)	NO		NULL	
+lower('CBASE')	varchar(5)	NO		NULL	
+decode(c1,1,'a',2,'b','c')	decimal(38,0)	NO		NULL	
+floor(c1)	decimal(38,0)	NO		NULL	
+ceil(c1)	decimal(38,0)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1,v2,v3,v4;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select length(sum(c1)), count(1.268*2.3569),hex(89+29*count(c1)) from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+length(sum(c1))	bigint	NO		NULL	
+count(1.268*2.3569)	bigint	NO		NULL	
+hex(89+29*count(c1))	varchar(16)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select a.c1 from t1 a join t1 as b on a.c1>0;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create view v1 as select 15*13+27*3.159 from dual;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+15*13+27*3.159	decimal(15,3)	NO		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select a.c1 from t1 a union select c2 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select c1 from t1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select * from (select * from (select * from v1));
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2(c1,c2,c3,c4) as select t1.c1,t1.c2,v1.c1,v1.c2 from t1 join v1 on v1.c1>=1;
+desc v2;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+c3	bigint	YES		NULL	
+c4	int(10)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select c1 from t1 union select c2 from v1;
+desc v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+drop table if exists t1;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1,v2;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2 as select c1 from t1 union select c2 from v1;
+create view v3 (c1,c2) as select v1.c1 ,v2.c1 from v1 join v2 on v2.c1>0;
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	bigint	YES		NULL	
+drop table if exists t1;
+drop view if exists v1,v2;
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+create view v2(c1) as select c1 from t1 union select c2 from v1;
+create view v3 (c1) as select c1 from v1 union select c1 from v2;
+desc v3;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+drop table if exists t1;
+drop view if exists v1,v2,v3;
+create database db;
+using database db;
+create table t1(c1 bigint primary key,c2 int);
+create view v1 as select * from (select * from (select * from t1));
+using database "yao";
+desc db.v1;
+Field	Type	Null	Key	Default	Extra
+c1	bigint	YES		NULL	
+c2	int(10)	YES		NULL	
+drop table if exists db.t1;
+drop view if exists db.v1;
+drop database db;

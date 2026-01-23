@@ -1,0 +1,119 @@
+--source merge.sql
+####################################必填######################################################
+###1.测试功能点：to_date函数和to_timestamp
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：0.097772 s
+###6.编写/修改人：pantong
+###7.编写/修改日期：2019-10-15
+###8.其他（选填）：新编case
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1,t2,t3,t4,t5;
+--enable_warnings
+
+###2-1 to_date函数的第二个参数为'yyyy-mm-dd'
+select to_date('2019-09-18', 'yyyy-mm-dd');
+select to_date('2019.09-18', 'yyyy-mm-dd');
+select to_date('2019/09-18', 'yyyy-mm-dd');
+select to_date('2019,09-18', 'yyyy-mm-dd');
+select to_date('2019;09-18', 'yyyy-mm-dd');
+select to_date('2019;9-18', 'yyyy-mm-dd');
+--error 5663
+select to_date('2019-  /  10-  11', 'yyyy-mm-dd');
+--error 4190
+select to_date('2019-10-11 12:12:23', 'yyyy-mm-dd');
+--error 5667
+select to_date('2019;87-18', 'yyyy-mm-dd');
+select to_date('19;11-18', 'yyyy-mm-dd');
+select to_date('1;01-18', 'yyyy-mm-dd'); #月份
+--error 5667
+select to_date('1;001-18', 'yyyy-mm-dd'); #月份只能是1位或两位非0数字，日期同样
+select to_date('20190918', 'yyyy-mm-dd'); #没有分隔符只能是7位或8位
+--error 4219
+select to_date('20191318', 'yyyy-mm-dd');
+--error 4190
+select to_date('201909181', 'yyyy-mm-dd');
+--error 5667
+select to_date('201991', 'yyyy-mm-dd');
+--error 5663
+select to_date('qqq', 'yyyy-mm-dd');
+--error 5663
+select to_date('sasdghyu', 'yyyy-mm-dd');
+
+--error 4219
+select to_date('19-123', 'yyyy-mm-dd'); #只有一个分隔符，且分隔符之前有小于4位数字，分隔符之后有超过2位数字但小于4位
+--error 5639
+select to_date('0-123', 'yyyy-mm-dd'); #年份不能为0
+--error 4219
+select to_date('11-123', 'yyyy-mm-dd');
+--error 5638
+select to_date('9999-12', 'yyyy-mm-dd'); #分隔符之后有小于等于2位数字
+--error 5667
+select to_date('9999-1234', 'yyyy-mm-dd'); #分隔符之后的位数正确但不在合理的日期范围之内
+--error 4219
+select to_date('9999-1409', 'yyyy-mm-dd'); #分隔符之后的位数正确但不在合理的日期范围之内
+--error 4190
+select to_date('9999-140911', 'yyyy-mm-dd');
+
+###2 -2 to_date函数的第二个参数为'dd-mon-yy'
+select to_date('19-dec-12','dd-mon-yy'); #其他月份已测
+--error 5641
+select to_date('131-dec-12','dd-mon-yy'); #日期不符合
+--error 4190
+select to_date('19-dec-122','dd-mon-yy'); #年份超过两位
+select to_date('19-dec-2','dd-mon-yy');
+
+
+###2-3 to_date函数的第二个参数为'yyyy-mm-dd hh24:mi:ss'
+select to_date('2019-08-07','yyyy-mm-dd hh24:mi:ss');
+select to_date('2019-08-07 12:23:1','yyyy-mm-dd hh24:mi:ss');
+select to_date('2019-08-07 ','yyyy-mm-dd hh24:mi:ss');
+
+
+###2-4 to_date函数的第二个参数为'dd-mm-yy'
+select to_date('12-12-12','dd-mm-yy');
+--error 5667
+select to_date('33-12-12','dd-mm-yy'); #日期不符
+--error 4219
+select to_date('29-2-19','dd-mm-yy'); #不符合常规
+--error 4219
+select to_date('29-13-19','dd-mm-yy'); #月份不符
+--error 4190
+select to_date('29-2-123','dd-mm-yy'); #年份超过两位
+
+
+###2-5 to_date函数的第二个参数为'dd-mm-yyyy hh24:mi:ss'
+
+select to_date('12-2-12','dd-mm-yyyy hh24:mi:ss');
+select to_date('12-3-1234 12:23:1','dd-mm-yyyy hh24:mi:ss');
+select to_date('12-3-1234      ','dd/mm/yyyy hh24:mi:ss');
+
+
+###2-6 to_timestamp函数
+select to_timestamp('12-apr-23 12:2:1.4 pm','dd-mon-yy hh.mm.ss.ssssss pp');
+--error 2
+select to_timestamp('1234-2-3 12:2:1.4 pm','yyyy-mm-dd hh.mm.ss.ssssss');
+select to_timestamp('1234-2-3 12:2:1.4 ','yyyy-mm-dd hh.mm.ss.ssssss');
+--error 2
+select to_timestamp('1234-2-3 12:23:34.12','yyyy-mm-dd hh:mm:ss');
+select to_timestamp('1234-2-3 12:23:34','yyyy-mm-dd hh:mm:ss');
+--error 5106
+select to_timestamp('1234-2-3 12:67:34','yyyy-mm-dd hh:mm:ss');
+--error 5105
+select to_timestamp('1234-13-3 12:23:34','yyyy-mm-dd hh:mm:ss');
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

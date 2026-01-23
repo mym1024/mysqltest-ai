@@ -1,0 +1,206 @@
+##############################################################################################
+###1.测试功能点：指定hash分区规则,创建表
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--disable_warnings
+--sleep 10
+###2-1:正常系与异常创建表
+drop table if exists t1;
+--error 5077
+drop partition function h;
+create hash partition function h(x) 'x+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h;
+create hash partition function h(x,y) 'x+y';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h,c1,c2);insert into t1 values(1,1,1,'a');
+--real_sleep 5
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+--error 5077
+drop partition function h_func;
+create hash partition function h_func(x) 'x+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x+y+z+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x+y+z+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) 'a1+a2';
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 varchar(20),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15);
+--real_sleep 5
+insert into t1 values(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) 'a1+a2';
+create table t1(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 varchar(20),primary key(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)) partition by (hs,h_func,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16);
+--real_sleep 5
+insert into t1 values(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+#--error 65535
+create hash partition function h_func(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17) 'a1+a2';
+drop table if exists t1;
+#--error 5077
+drop partition function h_func;
+create hash partition function h_func(x) '1+2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x) '10*2-3+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x) '(10*2-3)/2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x) '1/0';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x) '13%5';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x*y+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '(x*y-y)/2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '(x*y-y)%2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '+x';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x+y+z+1';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) 'x*y+z';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '(x*y-z)/2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '(x*y-z)%2';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+drop table if exists t1;
+drop partition function h_func;
+create hash partition function h_func(x,y,z) '+x+y-z';
+create table t1(c1 int,c2 int,c3 int,c4 varchar(20),primary key(c1,c2,c3)) partition by(hs,h_func,c1,c2,c3);
+--real_sleep 5
+insert into t1 values(1,1,1,'a');
+--replace_column 3 0
+show partition groups;
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

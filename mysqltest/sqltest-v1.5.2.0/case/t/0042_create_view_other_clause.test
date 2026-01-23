@@ -1,0 +1,282 @@
+##############################################################################################
+###1.测试功能点：create view:select_stmt
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：wangjuntao
+###7.编写/修改日期：20210201
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+###2-1:创建视图v1,使用or replace子句重新创建视图v1
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+select * from v1;
+select c1 from t1;
+create or replace view v1 as select c2 from t1;
+desc v1;
+select * from v1;
+select c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-2:直接使用or replace子句创建视图v1
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-3:使用or replace子句创建多个视图
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+create or replace view v2 as select c1 from t1;
+create or replace view v3 as select c3 from t1;
+desc v1;
+desc v2;
+desc v3;
+select * from v1;
+select c1 from t1;
+select * from v2;
+select c1 from t1;
+select * from v3;
+select c3 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+
+###2-4:创建视图v1，删除视图v1，使用or replace子句重新创建视图v1
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+drop view v1;
+create or replace view v1 as select c1 from t1;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-5:自定义列数量和select语句数量一致
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1(a,b,c) as select c1,c1,c2 from t1;
+desc v1;
+select * from v1;
+select c1,c1,c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-6:自定义列名称使用双引号，包含大小写字符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("NAME1","Name1","NaMe1") as select c1,c1,c2 from t1;
+desc v1;
+select * from v1;
+select c1,c1,c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-7:自定义列名使用汉字，希腊字母等
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("列1","β","A") as select c1,c1,c2 from t1;
+desc v1;
+select * from v1;
+select c1,c1,c2 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-8:自定义列名长度为边界值
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1("列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列列") as select c1 from t1;
+desc v1;
+select * from v1;
+select c1,c1,c2 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-9:创建视图不带check option子句
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-10:创建视图带with local check option子句
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with local check option;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-11:创建视图带with cascaded check option子句
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with cascaded check option;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+show create view v1;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-12:创建视图带with  check option子句
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1 with check option;
+desc v1;
+select * from v1;
+select c1 from t1;
+select * from __all_view;
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+
+###2-13:视图名称带有数据库名
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "yao".v1 as select c1 from t1 with check option;
+desc "yao".v1;
+select * from "yao".v1;
+select c1 from t1;
+select * from __all_view;
+show create view "yao".v1;
+drop table if exists t1,t2,t3;
+drop view if exists "yao".v1;
+
+###2-14:视图名称长度为边界值、普通值
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view v1 as select c1 from t1;
+create or replace view "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名" as select c2 from t1 with check option;
+desc v1;
+desc "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+select * from v1;
+select c1 from t1;
+select * from "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+select c2 from t1;
+select * from __all_view;
+show create view v1;
+show create view "名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+
+###2-15:视图名称使用双引号，包含大写字符，小写字符
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,v4;
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "V1_Name" as select c1 from t1;
+desc "V1_Name";
+select * from "V1_Name";
+select c1 from t1;
+select * from __all_view;
+show create view "V1_Name";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name";
+
+
+###2-16:视图名称使用双引号，包含汉字，希腊字母等
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name","V1_名_βα","名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+create table t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+create or replace view "V1_名_βα" as select c1 from t1;
+desc "V1_名_βα";
+select * from "V1_名_βα";
+select c1 from t1;
+select * from __all_view;
+show create view "V1_名_βα";
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3,"V1_Name","V1_名_βα","名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名名";
+
+###2-17:视图名称带有其他数据库的名称
+drop table if exists t1,t2,t3;
+drop view if exists v1,v2,v3;
+create database db;
+using database db;
+create table db.t1(c1 bigint primary key,c2 int,c3 float,c4 double,c5 decimal(10,5),c6 varchar(100),c7 bool);
+insert into t1 values(12321112147483647,2,3.15,5.57,77777.97687,'12321321.123123',true),(-12321112147483647,-2,-3.15,-5.5656,-77777.77777,'-7878787.3569',false);
+using database "yao";
+create or replace view db.v1 as select c1 from db.t1;
+desc db.t1;
+select * from db.t1;
+select c1 from db.t1;
+select * from __all_view;
+show create view db.v1;
+drop table if exists t1,t2,t3,db.t1;
+drop view if exists v1,v2,v3,db.v1;
+drop database db;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

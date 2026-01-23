@@ -1,0 +1,77 @@
+####################################必填######################################################
+###1.测试功能点：主键更新的decimal相关测试
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：张二宝
+###7.编写/修改日期：2019-11-04
+###8.其他（选填）：
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+create database rowkey_database;
+using database rowkey_database;
+sleep 5;
+
+
+###2-1：主键为varchar类型，非主键为decimal，更新部分主键列+非主键列，纯数值，单行更新
+#do sql
+create table if not exists t1(id1 varchar(24),id2 varchar(2), id3 varchar(2), id4 varchar(40), id5 varchar(3), dec1 decimal(15,2), dec2 decimal(15,2), dec3 decimal(15,2), dec4 decimal(8,0), primary key(id1,id2,id3,id4,id5));
+replace into t1 values('1', '01', '01', 'zhang', 'CNY', 1.11, 1.11, 1.11, 1);
+update t1 set id2='02',id3='88',id4='',id5='ABC',dec1=0.00,dec2=0.00,dec4=0.00 where id1='1' and id2='01' and id3='01' and id4='zhang' and id5='CNY';
+select * from t1;
+drop table if exists t1;
+
+
+###2-2：主键为decimal类型，非主键为varchar，更新部分主键列+非主键列，纯数值，单行更新
+#do sql
+create table if not exists t2(id1 decimal(15,2), id2 decimal(15,2), id3 decimal(15,2), id4 decimal(8,0), col1 varchar(24), col2 varchar(2), col3 varchar(2), col4 varchar(40), col5 varchar(3), primary key(id1,id2,id3,id4));
+replace into t2 values(1.11, 1.11, 1.11, 1, '1', '01', '01', 'zhang', 'CNY');
+update t2 set id1=0.00,id2=0.00,id4=0,col1='ABC' where id1=1.11 and id2=1.11 and id3=1.11 and id4=1;
+select * from t2;
+drop table if exists t2;
+
+
+###2-3：主键为varchar类型，非主键为decimal，更新部分主键列+非主键列，纯数值，多行更新，主键冲突
+#do sql
+create table if not exists t3(id1 varchar(24),id2 varchar(2), id3 varchar(2), id4 varchar(40), id5 varchar(3), dec1 decimal(15,2), dec2 decimal(15,2), dec3 decimal(15,2), dec4 decimal(8,0), primary key(id1,id2,id3,id4,id5));
+replace into t3 values('1', '01', '01', 'zhang', 'CNY', 1.11, 1.11, 1.11, 1);
+replace into t3 values('1', '02', '02', 'zhang', 'CNY', 2.22, 2.22, 2.22, 2);
+replace into t3 values('1', '03', '03', 'zhang', 'CNY', 3.33, 3.33, 3.33, 3);
+--error 119
+update t3 set id2='02',id3='88',id4='',id5='ABC',dec1=0.00,dec2=0.00,dec4=0.00 where id1='1';
+select * from t3;
+drop table if exists t3;
+
+
+###2-4：主键为decimal类型，非主键为varchar，更新部分主键列+非主键列，纯数值，多行更新，主键冲突
+#do sql
+create table if not exists t4(id1 decimal(15,2), id2 decimal(15,2), id3 decimal(15,2), id4 decimal(8,0), col1 varchar(24), col2 varchar(2), col3 varchar(2), col4 varchar(40), col5 varchar(3), primary key(id1,id2,id3,id4));
+replace into t4 values(1.11, 1.11, 1.11, 1, '1', '01', '01', 'zhang', 'CNY');
+replace into t4 values(1.11, 2.22, 2.22, 2, '2', '02', '02', 'zhang', 'CNY');
+replace into t4 values(1.11, 3.33, 3.33, 3, '3', '03', '03', 'zhang', 'CNY');
+--error 119
+update t4 set id2=0.00,id3=0.00,id4=0,col1='ABC' where id1=1.11;
+select * from t4;
+drop table if exists t4;
+
+
+###2-5：全部列为decimal类型，更新全部列，纯数值，单行更新
+#do sql
+create table if not exists t5(id decimal(8,0) primary key, dec1 decimal(15,2));
+replace into t5 values(1, 1.11);
+update t5 set id=2, dec1=2.22 where id=1;
+select * from t5;
+drop table if exists t5;
+
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

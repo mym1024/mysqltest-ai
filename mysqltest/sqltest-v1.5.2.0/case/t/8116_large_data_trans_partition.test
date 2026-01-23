@@ -1,0 +1,84 @@
+##############################################################################################
+###1.测试功能点：在range分区规则下，在一个事务中进行大批量读写操作
+##
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：xxx
+###4.问题号：xxx
+###5.预计运行时间：xxx
+###6.编写/修改人：zhuyinying
+###7.编写/修改日期：2019-12-23
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+
+--disable_warnings
+drop table if exists t1;
+--enable_warnings
+
+create table t1(i int primary key,c1 char(20),c256 char(256),dt datetime,d datetime) partition by range(i) (partition r0 values less than (5),partition r2 values less than (3000),partition r3 values less than maxvalue);
+
+###2-1:在一个事务中大量执行insert操作
+begin;
+--real_sleep 5
+let $i=0;
+while($i < 3000)
+{
+   eval insert into t1(i,c1,c256,dt,d) values($i,'1','$i','2012-10-10 12:00:00','2012-10-10');
+   inc $i;
+}
+commit;
+
+
+###2-2:在一个事务中大量执行replace操作
+begin;
+let $i=0;
+while($i < 3000)
+{
+   eval replace into t1(i,c1,c256,dt,d) values($i,'1','$i','2012-10-10 12:00:00','2012-10-10');
+   inc $i;
+}
+commit;
+
+
+###2-3:在同一个事务中大量update操作
+begin;
+let $i=0;
+while($i < 3000)
+{
+   eval update t1 set c1='update_$i' where i=$i;
+   inc $i;
+}
+commit;
+
+
+###2-4:在同一个事务中大量select操作
+begin;
+let $i=0;
+while($i < 3000)
+{
+   eval select * from t1 where i=$i for update;
+   inc $i;
+}
+commit;
+
+
+###2-5:在同一个事务中大量delete操作
+begin;
+let $i=0;
+while($i < 3000)
+{
+   eval delete from t1 where i=$i;
+   inc $i;
+}
+commit;
+drop table t1;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

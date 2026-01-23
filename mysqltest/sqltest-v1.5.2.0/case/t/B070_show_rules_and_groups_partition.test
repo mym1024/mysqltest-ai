@@ -1,0 +1,88 @@
+##############################################################################################
+###1.测试功能点:show table rule
+##                  
+#                                     
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：xxx
+###6.编写/修改人： zhuyinying
+###7.编写/修改日期：2020-1-14
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+--sleep 10
+--error 5019
+drop table test1;
+--error 5019
+drop table t1;
+--error 5077
+drop partition function h1;
+--error 5077
+drop partition function h2;
+create hash partition function h1(x,y) 'x+y+1';
+create hash partition function h2(x) 'x+1';
+create table test1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h2,h2,c1);
+--real_sleep 5
+show table rules;
+show table rules like 't1';
+show table rules like 't_';
+show table rules like 't%';
+show table rules like '_es%';
+show table rules where table_name='test1';
+show table rules where rule_name='h1';
+show table rules where partition_type=1;
+select table_id,start_version,table_name,partition_type,prefix_name,rule_name,par_list from __all_table_rules;
+
+show table rules like 'a';
+show table rules like 'a_';
+show table rules like 'a%';
+show table rules like '%a_';
+show table rules where table_name='a';
+show table rules where rule_name='h0';
+
+drop table test1;
+drop table t1;
+drop partition function h1;
+drop partition function h2;
+create hash partition function h1(x,y) 'x+y+1';
+create hash partition function h2(x) 'x+1';
+create table test1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+create table t1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h2,h2,c1);
+show table rules;
+--real_sleep 5
+insert into test1 values(1,1,1),(2,2,2),(3,3,3);
+insert into t1 values(1,1,1),(2,2,2),(3,3,3);
+--replace_column 3 0
+show partition groups;
+--replace_column 3 0
+show partition groups like 'h1#3';
+--replace_column 3 0
+show partition groups like 'h1__';
+--replace_column 3 0
+show partition groups like 'h1%';
+--replace_column 3 0
+show partition groups like '%#%';
+--replace_column 3 0
+show partition groups where group_name='h1#3';
+--replace_column 3 0
+show partition groups where start_version=2;
+--replace_column 3 0
+select group_name,start_version,paxos_id from __all_all_group;
+
+show partition groups like 'aa';
+show partition groups like 'z_';
+show partition groups like 'z%';
+show partition groups like '_z%';
+show partition groups where group_name='z';
+show partition groups where paxos_id=10;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

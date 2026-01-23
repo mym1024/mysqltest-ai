@@ -1,0 +1,142 @@
+drop table if exists t1,t2;
+drop partition function h;
+ERROR HY000: YAO-5077: partition function 'h' doesn't exist
+create hash partition function h(x) 'x+1';
+create table t1(c1 int primary key,c2 varchar(30),c3 datetime,c4 float,c5 decimal(5,4),c6 bool)partition by(hs,h,c1);
+create table t2(c1 int primary key,c2 varchar(30),c3 datetime,c4 float,c5 decimal(5,4),c6 bool)partition by(hs,h,c1);
+insert into t2 values(1,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(2,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(3,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(4,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(5,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(6,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(7,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(8,'jiomn','2019-06-07 17:25:28',1.256,2.568,0),(9,'jiomn','2019-06-07 17:25:28',1.256,2.568,0);
+insert into t2(c1,c2,c5) values(10.25,11.28,5.26);
+insert into t1(c1,c5) select c1,c5 from t2 where c1>10;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	11.28	NULL	NULL	5.26	NULL
+insert into t1(c1,c2,c3) values(11,14,5.2634);
+ERROR HY000: YAO-2: Invalid argument
+select * from t1;
+c1	c2	c3	c4	c5	c6
+insert into t2(c1,c2,c5) select c1,c2,c3 from t1 where c1=11;
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	11.28	NULL	NULL	5.26	NULL
+insert into t2(c1,c2,c6) values(15.345,16.35,'2015-07-09 12:45:56');
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+2	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+3	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+4	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+5	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+6	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+7	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+8	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+9	jiomn	2019-06-07 17:25:28.000000	1.256	2.568	0
+10	11.28	NULL	NULL	5.26	NULL
+15	16.35	NULL	NULL	NULL	0
+insert into t1(c1,c5) select c1,c6 from t2 where c1>15;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+insert into t1(c1,c2) select c6,c6 from t2 where c1>16;
+select * from t1;
+c1	c2	c3	c4	c5	c6
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+drop table if exists t1,t2;
+drop partition function g;
+ERROR HY000: YAO-5077: partition function 'g' doesn't exist
+create hash partition function  g(x)'x+2';
+create table t1(c1 int primary key,c2 int,c3 decimal(5,4),c4 bool,c5 varchar(30));
+create table t2(c1 float,c2 int,c3 bool,c4 int,c5 decimal(3,2),c6 datetime,primary key(c1,c2))partition by(hs,g,c2);
+insert into t2(c1,c2,c3,c4) values(1.56,2.87,2,55);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2	1	55	NULL	NULL
+insert into t1(c1,c2) select c1,c2 from t2;
+select * from t1;
+c1	c2	c3	c4	c5
+1	2	NULL	NULL	NULL
+insert into t2(c1,c2) values(5.36,6.46);
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2	1	55	NULL	NULL
+5.36	6	NULL	NULL	NULL	NULL
+insert into t1(c1,c3) select c1,c2 from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5
+1	2	NULL	NULL	NULL
+5	NULL	6	NULL	NULL
+insert into t1(c1,c3) select c2,c1 from t2 where c1>2;
+select * from t1;
+c1	c2	c3	c4	c5
+1	2	NULL	NULL	NULL
+5	NULL	6	NULL	NULL
+6	NULL	5.36	NULL	NULL
+insert into t2(c1,c2,c5) values(8.65,9.123,4.25);
+insert into t1(c1,c2) select c1,c5 from t2 where c1>6;
+select * from t1;
+c1	c2	c3	c4	c5
+1	2	NULL	NULL	NULL
+5	NULL	6	NULL	NULL
+6	NULL	5.36	NULL	NULL
+8	4	NULL	NULL	NULL
+select * from t2;
+c1	c2	c3	c4	c5	c6
+1.56	2	1	55	NULL	NULL
+5.36	6	NULL	NULL	NULL	NULL
+8.65	9	NULL	NULL	4.25	NULL
+insert into t1(c1,c3) select c2,c5 from t2 where c1>6;
+select * from t1;
+c1	c2	c3	c4	c5
+1	2	NULL	NULL	NULL
+5	NULL	6	NULL	NULL
+6	NULL	5.36	NULL	NULL
+8	4	NULL	NULL	NULL
+9	NULL	4.25	NULL	NULL
+show partition groups;
+group_name	start_version	paxos_id	reserver_field1
+hs#0	2	0	NULL
+hs#1	2	1	NULL
+hs#10	2	0	NULL
+hs#11	2	1	NULL
+hs#12	2	0	NULL
+hs#2	2	0	NULL
+hs#3	2	1	NULL
+hs#4	2	0	NULL
+hs#5	2	1	NULL
+hs#6	2	0	NULL
+hs#7	2	1	NULL
+hs#8	2	0	NULL
+hs#9	2	1	NULL
+__user_default_group	2	0	NULL

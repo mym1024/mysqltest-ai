@@ -1,0 +1,112 @@
+drop table if exists t1;
+drop table if exists t2;
+create table t1 (c1 int primary key,c2 int);
+create table t2 (c1 int primary key,c2 int);
+show current paxos_idx;
+paxos_id
+-1
+insert into t1 values(1,1);
+insert into t2 values(1,1);
+show current paxos_idx;
+paxos_id
+-1
+update t1 set c2 = 10 where c1 = 1;
+delete from t2 where c1 = 1;
+show current paxos_idx;
+paxos_id
+-1
+replace into t1 values(1,100);
+show current paxos_idx;
+paxos_id
+-1
+select * from t1;
+c1	c2
+1	100
+select * from t2;
+c1	c2
+show current paxos_idx;
+paxos_id
+-1
+start transaction;
+select * from t1;
+c1	c2
+1	100
+show current paxos_idx;
+paxos_id
+-1
+select * from t2;
+c1	c2
+show current paxos_idx;
+paxos_id
+-1
+commit;
+begin;
+replace into t1 values(1,1);
+delete from t2 where c1 = 1;
+show current paxos_idx;
+paxos_id
+0
+insert into t2 values(1,1);
+update t1 set c1 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+0
+commit;
+set autocommit = 0;
+select * from t1;
+c1	c2
+10	1
+select * from t2;
+c1	c2
+1	1
+show current paxos_idx;
+paxos_id
+-1
+insert into t1 values(1,1);
+replace into t2 values(10,10);
+show current paxos_idx;
+paxos_id
+0
+commit;
+set autocommit = 1;
+start transaction;
+update t1 set c2 = 10 where c1 = 1;
+show current paxos_idx;
+paxos_id
+0
+replace into t2 values(1,100);
+show current paxos_idx;
+paxos_id
+0
+select * from t2;
+c1	c2
+1	100
+10	10
+select * from t1;
+c1	c2
+1	10
+10	1
+show current paxos_idx;
+paxos_id
+0
+commit;
+begin;
+replace into t1 values(100,100);
+replace into t2 values(100,100);
+show current paxos_idx;
+paxos_id
+0
+commit;
+show current paxos_idx;
+paxos_id
+-1
+start transaction;
+replace into t1 values(10,10);
+replace into t2 values(10,10);
+show current paxos_idx;
+paxos_id
+0
+rollback;
+show current paxos_idx;
+paxos_id
+-1

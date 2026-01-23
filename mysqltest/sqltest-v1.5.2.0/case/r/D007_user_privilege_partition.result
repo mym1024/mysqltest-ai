@@ -1,0 +1,6 @@
+create user 'u1' identified by 'password1*';
+grant create on * to 'u1';
+create table t3(a int primary key, b int)partition by list(a) (partition q0 values in(1,3),partition q1 values in(2,4,5));
+revoke drop on * from 'u1';
+drop table t3;
+ERROR HY000: YAO-5036: no privilege

@@ -1,0 +1,42 @@
+ALTER SYSTEM SET merge_delay_interval='6s' server_type=yaodatasvr;
+ALTER SYSTEM SET major_freeze_wait_time='6s' server_type=yaoadminsvr;
+ALTER SYSTEM SET  min_major_freeze_interval='5s' server_type=yaotxnsvr;
+ALTER SYSTEM SET min_merge_interval='5s' server_type=yaodatasvr;
+ALTER SYSTEM SET  max_merge_thread_num='20' server_type=yaodatasvr;
+drop table if exists c;
+drop table if exists t1;
+create table c(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than maxvalue);
+"refresh"
+Okay
+set autocommit = 0;
+insert into c values(1,1);
+select * from c where c1=1;
+c1	c2
+1	1
+select * from c;
+c1	c2
+1	1
+rollback;
+select * from c where c1=1;
+c1	c2
+select * from c;
+c1	c2
+commit;
+create table t1(c1 int primary key,c2 varchar(8))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(15),partition r3 values less than maxvalue);
+"refresh"
+Okay
+set autocommit = 0;
+insert into t1 values(1,1);
+select * from t1 where c1=1;
+c1	c2
+1	1
+select * from t1;
+c1	c2
+1	1
+commit;
+select * from t1 where c1=1;
+c1	c2
+1	1
+select * from t1;
+c1	c2
+1	1

@@ -1,0 +1,417 @@
+drop table test1;
+ERROR 42S02: YAO-5019: table 'test.test1' does not exist
+drop partition function h1;
+ERROR HY000: YAO-5077: partition function 'h1' doesn't exist
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	1	h1	h1	c1
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3001	2	test1	1	h1	h1	c1
+3001	3	test1	1	h2	h2	c1
+drop table test1;
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5)]';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3002	2	test1	1	h1	h1	c1
+3002	3	test1	1	h2	h2	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	test1	1	test1#q0,test1#q1	__list@3003	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3003	2	test1	1	test1#q0,test1#q1	__list@3003	c1
+3003	3	test1	1	h2	h2	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(MAXVALUE));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3004	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3004	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3004	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3004	c1
+3004	3	test1	1	h2	h2	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	2	test1	1	h1	h1	c1
+alter table test1 partition rule to();
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3005	2	test1	1	h1	h1	c1
+3005	3	test1	0	__user_default_group	NULL	NULL
+drop table test1;
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5)]';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3006	2	test1	1	h1	h1	c1
+alter table test1 partition rule to();
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3006	2	test1	1	h1	h1	c1
+3006	3	test1	0	__user_default_group	NULL	NULL
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	2	test1	1	test1#q0,test1#q1	__list@3007	c1
+alter table test1 partition rule to();
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3007	2	test1	1	test1#q0,test1#q1	__list@3007	c1
+3007	3	test1	0	__user_default_group	NULL	NULL
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(MAXVALUE));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3008	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3008	c1
+alter table test1 partition rule to();
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3008	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3008	c1
+3008	3	test1	0	__user_default_group	NULL	NULL
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3009	2	test1	1	h1	h1	c1
+alter table test1 partition rule to(a);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3009	2	test1	1	h1	h1	c1
+3009	3	test1	0	a	NULL	NULL
+drop table test1;
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5)]';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3010	2	test1	1	h1	h1	c1
+alter table test1 partition rule to(a);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3010	2	test1	1	h1	h1	c1
+3010	3	test1	0	a	NULL	NULL
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	test1	1	test1#q0,test1#q1	__list@3011	c1
+alter table test1 partition rule to(a);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3011	2	test1	1	test1#q0,test1#q1	__list@3011	c1
+3011	3	test1	0	a	NULL	NULL
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(MAXVALUE));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3012	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3012	c1
+alter table test1 partition rule to(a);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3012	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3012	c1
+3012	3	test1	0	a	NULL	NULL
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3013	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3013	2	test1	1	h1	h1	c1
+3013	3	test1	1	test1	h2	c1
+drop table test1;
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5)]';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3014	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3014	2	test1	1	h1	h1	c1
+3014	3	test1	1	test1	h2	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3015	2	test1	1	test1#q0,test1#q1	__list@3015	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3015	2	test1	1	test1#q0,test1#q1	__list@3015	c1
+3015	3	test1	1	test1	h2	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(MAXVALUE));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3016	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3016	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3016	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3016	c1
+3016	3	test1	1	test1	h2	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3017	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+drop partition function h3;
+ERROR HY000: YAO-5077: partition function 'h3' doesn't exist
+create hash partition function h3(x) 'x-1';
+alter table test1 partition rule to(a,h3,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3017	2	test1	1	h1	h1	c1
+3017	3	test1	1	a	h3	c1
+drop table test1;
+drop partition function h1;
+create enum partition function h1(x) '[(1),(2)],[(3),(4),(5)]';
+create table test1(c1 int primary key,c2 int)partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3018	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+drop partition function h3;
+create hash partition function h3(x) 'x-1';
+alter table test1 partition rule to(a,h3,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3018	2	test1	1	h1	h1	c1
+3018	3	test1	1	a	h3	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3019	2	test1	1	test1#q0,test1#q1	__list@3019	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+drop partition function h3;
+create hash partition function h3(x) 'x-1';
+alter table test1 partition rule to(a,h3,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3019	2	test1	1	test1#q0,test1#q1	__list@3019	c1
+3019	3	test1	1	a	h3	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by range(c1)(partition r0 values less than(5),partition r1 values less than(10),partition r2 values less than(MAXVALUE));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3020	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3020	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,h2,c1);
+drop partition function h3;
+create hash partition function h3(x) 'x-1';
+alter table test1 partition rule to(a,h3,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3020	2	test1	1	test1#r0,test1#r1,test1#r2	__range@3020	c1
+3020	3	test1	1	a	h3	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3021	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3021	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3022	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(,,c1);
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3022	2	test1	1	h1	h1	c1
+drop table test3;
+ERROR 42S02: YAO-5019: table 'test.test3' does not exist
+alter table test3 partition rule to(a);
+ERROR 42S02: YAO-5019: Table 'test3' doesn't exist
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3022	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3023	2	test1	1	h1	h1	c1
+drop partition function h2;
+alter table test1 partition rule to(h2,h2,c1);
+ERROR HY000: YAO-4001: partition function 'h2' doesn't exist
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3023	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3024	2	test1	1	h1	h1	c1
+drop partition function h2;
+ERROR HY000: YAO-5077: partition function 'h2' doesn't exist
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+alter table test1 partition rule to(h2,h2,c1);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3024	2	test1	1	h1	h1	c1
+drop table test1;
+create table test1(c1 int,c2 varchar(20),c3 int,primary key(c1,c2))partition by list(c1)(partition q0 values in(1,3),partition q1 values in(2,4,5));
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3025	2	test1	1	test1#q0,test1#q1	__list@3025	c1
+drop partition function h2;
+create enum partition function h2(x) '[(1),(2)],[(3)]';
+alter table test1 partition rule to(h2,h2,c1);
+ERROR HY000: YAO-4001: Can't alter table rule to enum function.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3025	2	test1	1	test1#q0,test1#q1	__list@3025	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3026	2	test1	1	h1	h1	c1
+alter table test1 partition rule to(h2,__h2,c1);
+ERROR HY000: YAO--1: Invalid partition function name.
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3026	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3027	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c0);
+ERROR 42S22: YAO-5009: Column 'c0' doesn't exist
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3027	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x) 'x+1';
+create table test1(c1 int primary key,c2 int) partition by(h1,h1,c1);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3028	2	test1	1	h1	h1	c1
+drop partition function h2;
+create hash partition function h2(x) 'x+2';
+alter table test1 partition rule to(h2,h2,c2);
+ERROR HY000: YAO-5081: parameter[c2] is not rowkey
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3028	2	test1	1	h1	h1	c1
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x,y) 'x+y+1';
+create table test1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3029	2	test1	1	h1	h1	c1,c2
+drop partition function h2;
+create hash partition function h2(x,y) 'x+y+2';
+alter table test1 partition rule to(h2,h2,c1,c3);
+ERROR HY000: YAO-5081: parameter[c3] is not rowkey
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3029	2	test1	1	h1	h1	c1,c2
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x,y) 'x+y+1';
+create table test1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3030	2	test1	1	h1	h1	c1,c2
+drop partition function h2;
+create hash partition function h2(x,y) 'x+y+2';
+alter table test1 partition rule to(h2,h2,c1);
+ERROR HY000: YAO-4001: Wrong number of parameters
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3030	2	test1	1	h1	h1	c1,c2
+drop table test1;
+drop partition function h1;
+create hash partition function h1(x,y) 'x+y+1';
+create table test1(c1 int,c2 int,c3 int,primary key(c1,c2)) partition by(h1,h1,c1,c2);
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3031	2	test1	1	h1	h1	c1,c2
+drop partition function h2;
+create hash partition function h2(x,y) 'x+y+2';
+alter table test1 partition rule to(h2,h2,c1,c1);
+ERROR 42S01: YAO-5025: duplicate partition column 'c1' 
+show table rules;
+table_id	start_version	table_name	partition_type	prefix_name	rule_name	par_list
+3031	2	test1	1	h1	h1	c1,c2

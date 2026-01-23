@@ -1,0 +1,3476 @@
+drop table if exists t1,t2;
+set yao_enable_query_optimizer=true;
+create table t1 (c1 int primary key, c2 int)partition by list(c1)(partition r1 values in(1,2),partition r2 values in(3,4));
+insert into t1 values(1,0),(2,0),(3,0);
+check get
+explain select * from t1 where c1=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c1=2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,16>|int:2|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2 > 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|GT<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2 < 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|LT<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2 != 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|NE<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2 >= 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|GE<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2 <= 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|],expr<NULL,65516>=[COL<3001,17>|int:0|LE<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+check multiget
+explain select * from t1 where c1=1 or c1=2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|EQ<2>|COL<3001,16>|int:2|EQ<2>|OR<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1=1 in (1,2,3);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|ROW<1>|LEFT_PARAM_END<2>|int:1|ROW<1>|int:2|ROW<1>|int:3|ROW<1>|ROW<3>|IN<2>|EQ<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1=1 in (1);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|ROW<1>|LEFT_PARAM_END<2>|int:1|ROW<1>|ROW<1>|IN<2>|EQ<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where (c1,c2) in ((1,0));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|COL<3001,17>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:0|ROW<2>|ROW<1>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c1,c2) in ((1,0),(1,1));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,16>|COL<3001,17>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:0|ROW<2>|int:1|int:1|ROW<2>|ROW<2>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c2,c1) in ((0,1),(1,1));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,17>|COL<3001,16>|ROW<2>|LEFT_PARAM_END<2>|int:0|int:1|ROW<2>|int:1|int:1|ROW<2>|ROW<2>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c2,c1) in ((0,1));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65517>=[COL<3001,17>|COL<3001,16>|ROW<2>|LEFT_PARAM_END<2>|int:0|int:1|ROW<2>|ROW<1>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+check scan
+explain select * from t1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 > 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GT<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 > 0 and c1 < 2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GT<2>|],expr<NULL,65516>=[COL<3001,16>|int:2|LT<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 != 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|NE<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 between 0 and 2;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|int:2|BTW<3>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 between 0 and 200;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|int:200|BTW<3>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 > 0 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GT<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 > 0 and c1 < 2 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|GT<2>|],expr<NULL,65516>=[COL<3001,16>|int:2|LT<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 != 1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:1|NE<2>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 between 0 and 2 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|int:2|BTW<3>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 between 0 and 200 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[COL<3001,16>|int:0|int:200|BTW<3>|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65517>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65517>=[int:1|], offset=expr<0,0>=*)Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1,1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65517>=[int:1|], offset=expr<NULL,65516>=[int:1|]>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=[int:1|int:1|ADD<2>|], offset=expr<0,0>=*)Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1000;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65517>=[int:1000|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65517>=[int:1000|], offset=expr<0,0>=*)Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1000,10;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65517>=[int:10|], offset=expr<NULL,65516>=[int:1000|]>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=[int:10|int:1000|ADD<2>|], offset=expr<0,0>=*)Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where 1 = 0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[bool:N|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+explain select * from t1 where false;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,16>|],expr<NULL,65518>=[COL<3001,17>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65517>=[bool:N|],])Project(columns=[expr<3001,16>=[COL<3001,16>|],expr<3001,17>=[COL<3001,17>|]])(sequence_values_=[])>)
+
+check join
+create table t2 (c1 int primary key, c2 int);
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"c1","TableRef":3002},
+                    {"Num":3,"ColumnId":16,"ColumnName":"c1","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,17>|],expr<NULL,65518>=[COL<3002,17>|]])(sequence_values_=[])
+HashJoinSingle Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65517>=[COL<3002,16>|COL<3001,16>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+right Join Table:
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|]])(sequence_values_=[])>)
+)
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c2=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"c1","TableRef":3002},
+                    {"Num":3,"ColumnId":16,"ColumnName":"c1","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,17>|],expr<NULL,65518>=[COL<3002,17>|]])(sequence_values_=[])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65517>=[COL<3001,16>|COL<3002,16>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,16,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3001,17>|int:0|EQ<2>|],])Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3002,16,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c2=0 and t2.c2=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"c1","TableRef":3002},
+                    {"Num":3,"ColumnId":16,"ColumnName":"c1","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,17>|],expr<NULL,65518>=[COL<3002,17>|]])(sequence_values_=[])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65517>=[COL<3002,16>|COL<3001,16>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3002,16,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65515>=[COL<3002,17>|int:0|EQ<2>|],])Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+right Join Table:
+Sort(columns=[<3001,16,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3001,17>|int:0|EQ<2>|],])Project(columns=[expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|]])(sequence_values_=[])>)
+)
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c1=0 and t2.c1=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"c1","TableRef":3002},
+                    {"Num":3,"ColumnId":16,"ColumnName":"c1","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,17>|],expr<NULL,65518>=[COL<3002,17>|]])(sequence_values_=[])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65517>=[COL<3002,16>|COL<3001,16>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3002,16,ASC>])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65515>=[COL<3002,16>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+right Join Table:
+Sort(columns=[<3001,16,ASC>])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3001,16>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+)
+explain select t1.c2, t2.c2 from t1,t2 where t2.c1 = t1.c1 and t1.c1=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3001,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3001},
+                    {"Num":1,"TableId":3002,"TableName":"test.t2","AliasName":"NULL","Type":"BASE_TABLE","RefId":3002}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":17,"ColumnName":"c2","TableRef":3001},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3002},
+                    {"Num":2,"ColumnId":16,"ColumnName":"c1","TableRef":3002},
+                    {"Num":3,"ColumnId":16,"ColumnName":"c1","TableRef":3001}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3002, "RefColumnId":16}
+               ,
+               {"RefTableId":3001, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3001, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3001,17>|],expr<NULL,65518>=[COL<3002,17>|]])(sequence_values_=[])
+Semi Join(Join Type: INNER JOIN: (equal_join_conds=[expr<NULL,65517>=[COL<3001,16>|COL<3002,16>|EQ<2>|]], other_join_conds=[])
+Left Join Table:
+Sort(columns=[<3001,16,ASC>])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3001,16>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3001,17>=[COL<3001,17>|],expr<3001,16>=[COL<3001,16>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+right Join Table:
+Sort(columns=[<3002,16,ASC>])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Project(columns=[expr<3002,17>=[COL<3002,17>|],expr<3002,16>=[COL<3002,16>|]])(sequence_values_=[])>)
+)
+drop table t1;
+create enum partition function e1(x,y)'[(1,1)],[(2,2)],[(3,3)]';
+create hash partition function h1(x,y)'x+y+1';
+create table t1 (c1 int, c2 int, c3 int, primary key(c1,c2)) partition by(ta1,e1,c1,c2);
+insert into t1 values(1,1,0),(2,2,0),(3,3,0);
+check get
+explain select * from t1 where c1=1 and c2=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,17>|int:1|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c2=1 and c1=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,16>|int:1|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=1 and c3=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65514>=[COL<3003,18>|int:0|EQ<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=1 and c3>0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65514>=[COL<3003,18>|int:0|GT<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=1 and c3<0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65514>=[COL<3003,18>|int:0|LT<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where c1=1 and c2=1 and c3!=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":6,"TableId":"NULL","ColumnId":65514,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65514>=[COL<3003,18>|int:0|NE<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+check multiget
+explain select * from t1 where (c1,c2) in ((1,1));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|COL<3003,17>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:1|ROW<2>|ROW<1>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c1,c2) in ((1,1),(2,2));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,16>|COL<3003,17>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:1|ROW<2>|int:2|int:2|ROW<2>|ROW<2>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c2,c1) in ((1,1));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,17>|COL<3003,16>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:1|ROW<2>|ROW<1>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c2,c1) in ((1,1),(2,2));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=GET, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; rpc_scan=<RpcScan(Hint=<max_parallel_count=20, is_get_skip_empty_row_=true, read_method_=2, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Filter(filters=[expr<NULL,65516>=[COL<3003,17>|COL<3003,16>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:1|ROW<2>|int:2|int:2|ROW<2>|ROW<2>|IN<2>|],])Project(columns=[expr<NULL,65520>=[COL<NULL,65520>|],expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])[Get RowNum:0]:
+>)
+
+explain select * from t1 where (c1=1 and c2=1) or (c1=2 and c2=2);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+               ,
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+               ,
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+               ,
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|COL<3003,17>|int:1|EQ<2>|AND<2>|COL<3003,16>|int:2|EQ<2>|COL<3003,17>|int:2|EQ<2>|AND<2>|OR<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+check scan
+explain select * from t1 where c1=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c2=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,17>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c3=1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,18>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1=1 and c3=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,18>|int:0|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c2=1 and c3=0;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,17>|int:1|EQ<2>|],expr<NULL,65515>=[COL<3003,18>|int:0|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1=1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c2=1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,17>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c3=1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65515>=[int:1|], offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,18>|int:1|EQ<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<NULL,65516>=[int:1|], offset=expr<0,0>=*)Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1,10;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:10|], offset=expr<NULL,65515>=[int:1|]>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=[int:10|int:1|ADD<2>|], offset=expr<0,0>=*)Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 limit 1000,10;
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+            ]
+         },
+         {
+            "ExprId":5,"TableId":"NULL","ColumnId":65515,
+            "RawExprs":[
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<NULL,65516>=[int:10|], offset=expr<NULL,65515>=[int:1000|]>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=[int:10|int:1000|ADD<2>|], offset=expr<0,0>=*)Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c1 in (1,2,3);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|ROW<1>|LEFT_PARAM_END<2>|int:1|ROW<1>|int:2|ROW<1>|int:3|ROW<1>|ROW<3>|IN<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c2 in (1,2,3);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,17>|ROW<1>|LEFT_PARAM_END<2>|int:1|ROW<1>|int:2|ROW<1>|int:3|ROW<1>|ROW<3>|IN<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where c3 in (1,2,3);
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,18>|ROW<1>|LEFT_PARAM_END<2>|int:1|ROW<1>|int:2|ROW<1>|int:3|ROW<1>|ROW<3>|IN<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+
+explain select * from t1 where (c1,c3) in ((1,0),(2,0));
+Query Plan
+
+{
+    "LogicalPlan":{
+        "StmtList":[
+            {
+                "QueryId":2,
+                "TableItemList":[
+                    {"Num":0,"TableId":3003,"TableName":"test.t1","AliasName":"NULL","Type":"BASE_TABLE","RefId":3003}
+                ],
+                "ColumnItemList":[
+                    {"Num":0,"ColumnId":16,"ColumnName":"c1","TableRef":3003},
+                    {"Num":1,"ColumnId":17,"ColumnName":"c2","TableRef":3003},
+                    {"Num":2,"ColumnId":18,"ColumnName":"c3","TableRef":3003}
+                ]
+            }
+        ],
+        "ExprList":[
+         {
+            "ExprId":1,"TableId":"NULL","ColumnId":65519,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":16}
+            ]
+         },
+         {
+            "ExprId":2,"TableId":"NULL","ColumnId":65518,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":17}
+            ]
+         },
+         {
+            "ExprId":3,"TableId":"NULL","ColumnId":65517,
+            "RawExprs":[
+               {"RefTableId":3003, "RefColumnId":18}
+            ]
+         },
+         {
+            "ExprId":4,"TableId":"NULL","ColumnId":65516,
+            "RawExprs":[
+               {}
+               ,
+               {}
+            ]
+         }
+        ]
+    }
+}
+Explain()
+Project(columns=[expr<NULL,65519>=[COL<3003,16>|],expr<NULL,65518>=[COL<3003,17>|],expr<NULL,65517>=[COL<3003,18>|]])(sequence_values_=[])
+TableRpcScan(read_method=SCAN, is use index for storing=0,index tid=-1; is use index without storing=0,index tid=-1;is_indexed_group_=0; limit=<Limit(limit=expr<0,0>=*, offset=expr<0,0>=*>, rpc_scan=<RpcScan(Hint=<max_parallel_count=1, is_get_skip_empty_row_=true, read_method_=1, read_consistency=WEAK>read_atomic_level=NO_READ_ATOMIC_LEVEL>, tid=NULL, is_indexed_group_=0, Limit(limit=expr<0,0>=*, offset=expr<0,0>=*)Filter(filters=[expr<NULL,65516>=[COL<3003,16>|COL<3003,18>|ROW<2>|LEFT_PARAM_END<2>|int:1|int:0|ROW<2>|int:2|int:0|ROW<2>|ROW<2>|IN<2>|],])Project(columns=[expr<3003,16>=[COL<3003,16>|],expr<3003,17>=[COL<3003,17>|],expr<3003,18>=[COL<3003,18>|]])(sequence_values_=[])>)
+

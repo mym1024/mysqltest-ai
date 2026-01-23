@@ -1,0 +1,766 @@
+--disable_query_log
+set sql_quote_show_create=0;
+--enable_query_log
+##############################################################################################
+###1.测试功能点：测试大对象
+#                         
+#                 
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：15s
+###6.编写/修改人：zhangt
+###7.编写/修改日期：2024-06
+###8.其他（选填）：1.4.0.0新增
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+set names utf8mb4;
+###2-1:Text类型(TinyText类型,Text类型,MediumText类型,LongText类型)
+##无主键表
+create table t1(b TinyText);
+create table t2(b Text);
+create table t3(b MediumText);
+create table t4(b LongText);
+create table t5(a int,b TinyText,c varchar(20));
+create table t6(a int,b Text,c varchar(20));
+create table t7(a int,b MediumText,c varchar(20));
+create table t8(a int,b LongText,c varchar(20));
+create table t9(a TinyText, b TinyText, c Text,d Text,e MediumText,f LongText);
+drop table t1,t2,t3,t4,t5,t6,t7,t8,t9;
+
+##无主键表 大对象列指定长度
+--error 5001
+create table t1(a int,b TinyText(20),c varchar(20));
+--error 5001
+create table t1(a int,b TinyText(0),c varchar(20));
+--error 5001
+create table t1(a int,b TinyText(9999999999),c varchar(20));
+
+create table t1(a int,b Text(20),c varchar(20));
+create table t2(a int,b Text(0),c varchar(20));
+--error 19
+create table t3(a int,b Text(9999999999),c varchar(20));
+drop table t1,t2;
+
+--error 5001
+create table t1(a int,b MediumText(20),c varchar(20));
+--error 5001
+create table t1(a int,b MediumText(0),c varchar(20));
+--error 5001
+create table t1(a int,b MediumText(9999999999),c varchar(20));
+
+--error 5001
+create table t1(a int,b LongText(20),c varchar(20));
+--error 5001
+create table t1(a int,b LongText(0),c varchar(20));
+--error 5001
+create table t1(a int,b LongText(9999999999),c varchar(20));
+
+##大对象列上有默认值
+--error 6003
+create table t1(b TinyText default '1');
+--error 6003
+create table t2(b Text default '1');
+--error 6003
+create table t3(b MediumText default '1');
+--error 6003
+create table t4(b LongText default '1');
+
+##大对象列NOT NULL
+create table t1(a int primary key,b TinyText not null,c varchar(20));
+create table t2(a int primary key,b Text not null,c varchar(20));
+create table t3(a int primary key,b MediumText not null,c varchar(20));
+create table t4(a int primary key,b LongText not null,c varchar(20));
+
+CREATE TABLE t5 (i int(11) NOT NULL default '0', c text NOT NULL, d varchar(1) NOT NULL DEFAULT ' ', PRIMARY KEY  (i), KEY (c,d));
+INSERT into t5 (i, c) VALUES (1,''),(2,''),(3,'asdfh'),(4,'');
+select max(i) from t5 where c = '';
+drop table t1,t2,t3,t4,t5;
+
+##有主键表 大对象列不是主键
+create table t1(a int primary key,b TinyText,c varchar(20));
+create table t2(a int primary key,b Text,c varchar(20));
+create table t3(a int primary key,b MediumText,c varchar(20));
+create table t4(a int primary key,b LongText,c varchar(20));
+drop table t1,t2,t3,t4;
+
+##有主键表 大对象列是主键 指定长度/不指定长度（都报错）
+--error 5006
+create table t1(a int ,b TinyText primary key,c varchar(20));
+--error 5006
+create table t2(a int ,b Text primary key,c varchar(20));
+--error 5006
+create table t3(a int ,b MediumText primary key,c varchar(20));
+--error 5006
+create table t4(a int ,b LongText primary key,c varchar(20));
+--error 5001
+create table t1(a int ,b TinyText(20) primary key,c varchar(20));
+--error 5006
+create table t2(a int ,b Text(0) primary key,c varchar(20));
+--error 5001
+create table t3(a int ,b MediumText(99999999999) primary key,c varchar(20));
+--error 5006
+create table t4(a int ,b LongText primary key,c varchar(20));
+
+##无主键表创建普通索引和唯一索引(大对象列暂不支持加索引,无主键表不可创建唯一索引)
+create table t1(a int,b TinyText,c varchar(20),d Text,e MediumText,f LongText,j json,h bit(1));
+create index idx1 on t1(a);
+--error 6001
+create index idx2 on t1(a,b);
+--error 6001
+create index idx2 on t1(a,b(20));
+--error 6001
+create index idx3 on t1(d(20));
+--error 6001
+create index idx4 on t1(e);
+--error 6001
+create index idx5 on t1(f);
+--error 6001
+create unique index idx6 on t1(a,b);
+create unique index idx7 on t1(c);
+--error 6001
+create unique index idx8 on t1(f(20));
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1');
+drop table t1;
+
+##主键表创建普通索引和唯一索引(大对象列暂不支持加索引)
+create table t1(a int primary key,b tinytext,c varchar(20),d Text,e MediumText,f LongText,j json,h bit(1),k tinytext);
+create index idx1 on t1(a);
+--error 6001
+create index idx2 on t1(a,b(20));
+--error 6001
+create index idx2 on t1(a,b);
+--error 6001
+create index idx3 on t1(d(20));
+--error 6001
+create index idx4 on t1(e);
+--error 6001
+create unique index idx5 on t1(a,b);
+create unique index idx6 on t1(c);
+--error 6001
+create unique index idx7 on t1(f(20));
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1','testaaa');
+update t1 set b='a' where a =1;
+select * from t1;
+select * from t1 where b='a';
+delete from t1 where b='a';
+select * from t1;
+
+## Alter操作
+alter table t1 drop d;
+alter table t1 drop e;
+alter table t1 drop f;
+alter table t1 drop k;
+desc t1;
+alter table t1 add dd Text;
+alter table t1 add ee MediumText;
+alter table t1 add ff MediumText;
+alter table t1 add kk tinytext;
+desc t1;
+show create table t1;
+show full columns from t1;
+drop table t1;
+
+## Insert操作
+create table t1(a tinytext,b mediumtext,c longtext,d text,e text(20));
+insert into t1 values(null,null,null,null,null);
+insert into t1 values('','','','','');
+insert into t1 values('a','a','a','a','a');
+insert into t1 values('1','1','1','1','1');
+insert into t1 values('1.1','1.1','1.1','1.1','1.1');
+insert into t1 values(cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double));
+#insert into t1 values (cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time));
+
+## update操作
+--sleep 2
+update t1 set b=null where a ='1';
+select * from t1;
+update t1 set b=1;
+update t1 set b=1.1;
+update t1 set b=cast(1.1 as double);
+update t1 set b=cast(1.1 as float);
+update t1 set b=cast('2024-07-15' as date);
+update t1 set c='' where a ='1.1';
+select * from t1;
+update t1 set d='a' where a ='1';
+select * from t1;
+drop table t1;
+
+create table t1 (b tinytext,c tinytext);
+insert into t1 values('a','b');
+update t1 set c='a' where b ='a';
+--real_sleep 2
+insert into t1 values('aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc','kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc');
+--real_sleep 2
+select * from t1;
+
+create table t2 (b text,c text);
+insert into t2 values('a','b');
+update t2 set c='a' where b ='a';
+--real_sleep 2
+insert into t2 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+--real_sleep 2
+select * from t2;
+
+create table t3 (b mediumtext,c mediumtext);
+insert into t3 values('a','b');
+update t3 set c='a' where b ='a';
+--real_sleep 2
+insert into t3 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+--real_sleep 2
+select * from t3;
+
+create table t4 (b longtext,c longtext);
+insert into t4 values('a','b');
+update t4 set c='a' where b ='a';
+--real_sleep 2
+insert into t4 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+--real_sleep 2
+select * from t4;
+
+## 边界测试
+#最大：tinytext:256 bytes  text:64K mediumtext:16M longtext:512MB
+--error 119
+update t1 set c=concat(b,c);
+#JDBC外部应用程序进行图片、文本、视频、音频测试
+#--error 119
+#update t2 set c=concat(b,c);
+#--error 119
+#update t3 set c=concat(b,c);
+#--error 119
+#update t4 set c=concat(b,c);
+
+## delete操作
+delete from t1 where b='a';
+delete from t2 where b='a';
+delete from t3 where b='a';
+delete from t4 where b='a';
+drop table t1,t2,t3,t4;
+
+## select查询
+# where条件
+create table t1 (a int primary key,b tinytext);
+insert into t1 (a,b) values(1,'abc');
+select * from t1 where b='abc';
+
+create table t2 (a int primary key,b text);
+insert into t2 (a,b) values(1,'abc');
+select * from t2 where b='abc';
+
+create table t3 (a int primary key,b mediumtext);
+insert into t3 (a,b) values(1,'abc');
+select * from t3 where b='abc';
+
+create table t4 (a int primary key,b longtext);
+insert into t4 (a,b) values(1,'abc');
+select * from t4 where b='abc';
+select b from t4 order by b desc ;
+
+# in/not in 单表、多表查询
+insert into t1 values(2,'1'),(3,'abc');
+select b from t1 where b not in (select b from t1 where b='1');
+
+insert into t2 values(2,'1'),(3,'abc');
+select b from t2 where b not in (select b from t2 where b='1');
+insert into t2 values(4,'1'),(5,'abc');
+select 2 from t2 where b in(select b from t2) ;
+
+drop table t3,t4;
+create table t3(b mediumtext);
+insert into t3 values('abc'),('def');
+select count(*)from t3 where b in (select b  from t3 bb where bb.b='abc');
+
+create table t4(b longtext);
+insert into t4 values('abc'),('def');
+select count(*)from t4 where b in (select b  from t4 bb where bb.b='abc');
+
+create table t5(a int primary key,b tinytext);
+create table t5_1(a int primary key,b tinytext);
+insert into t5(a,b) values(1,'1'),(2,'abc');
+insert into t5_1(a,b) values(1,'abc');
+select count(*)from t5 where b in (select b from t5_1);
+
+create table t6(a int primary key,b text);
+create table t6_1(a int primary key,b text);
+insert into t6(a,b) values(1,'1'),(2,'abc');
+insert into t6_1(a,b) values(1,'abc');
+select count(*)from t6 where b in (select b from t6_1);
+
+create table t7(a int primary key,b mediumtext);
+create table t7_1(a int primary key,b mediumtext);
+insert into t7(a,b) values(1,'1'),(2,'abc');
+insert into t7_1(a,b) values(1,'abc');
+select count(*)from t7 where b in (select b from t7_1);
+
+create table t8(a int primary key,b longtext);
+create table t8_1(a int primary key,b longtext);
+insert into t8(a,b) values(1,'1'),(2,'abc');
+insert into t8_1(a,b) values(1,'abc');
+select count(*)from t8 where b in (select b from t8_1);
+
+#子查询带函数、聚集函数
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+create table t1(a int primary key,b tinytext,c text,d mediumtext,e longtext);
+insert into t1 values(1,'abc','abc','abc','abc');
+select count(*)from t1 where b in (select ord(b) from t1);
+select count(*)from t1 where b in (select ord(c) from t1);
+select count(*)from t1 where b in (select ord(d) from t1);
+select count(*)from t1 where b in (select ord(e) from t1);
+insert into t1 values(2,'testaaa','testaaa','testaaa','testaaa');
+insert into t1 values(3,'testaaa','testaaa','testaaa','testaaa');
+select b,c,ord(b),ord(c) from t1;
+select max(b),max(c),max(d),max(e) from t1;
+select min(b),min(c),min(d),min(e) from t1 ;
+select sum(b) from t1;
+select avg(b) from t1 ;
+select b,instr(b, 'a') from t1;
+select b,left(b, 3),c,right(c,2) from t1;
+select b,c,substr(b,2),substr(c,2,3) from t1;
+select b,c,concat(b,c),concat(b,' qwe'),concat('ghy ',c) from t1;
+
+# group by分组、having sum
+select b from t1 group by b;
+select b from t1 having sum(b)<4;
+
+# or 、union 、except 、左连接、右连接、between
+drop table t1;
+create table t1(b tinytext);
+insert into t1(b) values('1'),('abc'),('def');
+select * from t1 where b='1' or b = 'abc' ;
+
+create table t2(b text);
+insert into t2(b) values('1'),('abc'),('def');
+select * from t2 where b='2' or b = 'abc' ;
+
+create table t3(b text ,c mediumtext);
+create table t4(a text, b tinytext,c longtext);
+insert into t3 values(1,'1'),(2,'abc');
+insert into t4 values(1,'abc','abc');
+select b from t3  union select a from t4;
+select b from t3  except select a from t4;
+select count(*)  from t3 right join t4 on t3.b = t4.b;
+select count(*)  from t3 left join t4 on t3.b = t4.b;
+select b from t3 where b between '1' and 'abc';
+# is not null
+select b from t1 where b is not null;
+select b from t2 where b is not null;
+select b is not null from t3;
+select b is not null from t4;
+drop table t1,t2,t3,t4;
+
+###2-2:Blob类型(TinyBlob类型,Blob类型,MeduimBlob类型,LongBlob类型)
+##无主键表
+create table t1(b TinyBlob);
+create table t2(b Blob);
+create table t3(b MediumBlob);
+create table t4(b LongBlob);
+create table t5(a int,b TinyBlob,c varchar(20));
+create table t6(a int,b Blob,c varchar(20));
+create table t7(a int,b MediumBlob,c varchar(20));
+create table t8(a int,b LongBlob,c varchar(20));
+create table t9(b TinyBlob, c TinyBlob, d Blob,e MediumBlob,f LongBlob);
+drop table t1,t2,t3,t4,t5,t6,t7,t8,t9;
+
+##无主键表 大对象列指定长度
+--error 5001
+create table t1(a int,b TinyBlob(20),c varchar(20));
+--error 5001
+create table t1(a int,b MediumBlob(0),c varchar(20));
+--error 5001
+create table t1(a int,b LongBlob(9999999999),c varchar(20));
+--error 19
+create table t1(a int,b Blob(20),c Blob(0),d Blob(9999999999));
+
+##大对象列上有默认值
+--error 6003
+create table t1(b TinyBlob default '1');
+--error 6003
+create table t1(b Blob default '1');
+--error 6003
+create table t1(b MediumBlob default '1');
+--error 6003
+create table t1(b LongBlob default '1');
+
+##大对象列NOT NULL
+create table t1(a int primary key,b TinyBlob not null,c varchar(20));
+create table t2(a int primary key,b Blob not null,c varchar(20));
+create table t3(a int primary key,b MediumBlob not null,c varchar(20));
+create table t4(a int primary key,b LongBlob not null,c varchar(20));
+
+##有主键表 大对象列不是主键
+create table t5(a int primary key,b TinyBlob,c varchar(20));
+create table t6(a int primary key,b Blob,c varchar(20));
+create table t7(a int primary key,b LongBlob,c varchar(20));
+create table t8(a int primary key,b MediumBlob,c varchar(20));
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+
+##有主键表 大对象列是主键 指定长度/不指定长度（都报错）
+--error 5006
+create table t1(a int ,b TinyBlob primary key,c varchar(20));
+--error 5006
+create table t1(a int ,b Blob primary key,c varchar(20));
+--error 5006
+create table t1(a int ,b MediumBlob primary key,c varchar(20));
+--error 5006
+create table t1(a int ,b LongBlob primary key,c varchar(20));
+--error 5001
+create table t1(a int ,b TinyBlob(20) primary key,c varchar(20));
+--error 5006
+create table t1(a int ,b Blob(0) primary key,c varchar(20));
+--error 5001
+create table t1(a int ,b MediumBlob(99999999999) primary key,c varchar(20));
+--error 5006
+create table t1(a int ,b LongBlob primary key,c varchar(20));
+
+##无主键表创建普通索引和唯一索引(大对象列暂不支持加索引)
+create table t1(a int,b TinyBlob,c varchar(20),d Blob,e MediumBlob,f LongBlob,j json,h bit(1));
+create index idx1 on t1(a);
+--error 6001
+create index idx2 on t1(a,b);
+--error 6001
+create index idx2 on t1(a,b(20));
+--error 6001
+create index idx3 on t1(d(20));
+--error 6001
+create index idx4 on t1(e);
+--error 6001
+create index idx5 on t1(f);
+--error 6001
+create unique index idx6 on t1(a,b(20));
+create unique index idx7 on t1(c);
+--error 6001
+create unique index idx8 on t1(f);
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1');
+drop table t1;
+
+##主键表创建普通索引和唯一索引(大对象列暂不支持加索引)
+create table t1(a int primary key,b tinyblob,c varchar(20),d blob,e mediumblob,f longblob,j json,h bit(1),k tinytext);
+create index idx1 on t1(a);
+--error 6001
+create index idx2 on t1(a,b(20));
+--error 6001
+create index idx3 on t1(d);
+--error 6001
+create index idx4 on t1(e(20));
+--error 6001
+create unique index idx5 on t1(a,b);
+create unique index idx6 on t1(c);
+--error 6001
+create unique index idx7 on t1(f(20));
+insert into t1 values(1,'abc','abc','abc','abc','abc','{"abc":1,"def":null,"hig":"aaa","bool":false}',b'1','testaaa');
+update t1 set b='a' where a =1;
+show create index on t1;
+select * from t1;
+select * from t1 where b='a';
+delete from t1 where b='a';
+select * from t1;
+
+## Alter操作
+alter table t1 drop d;
+alter table t1 drop e;
+alter table t1 drop f;
+alter table t1 drop k;
+desc t1;
+alter table t1 add dd Blob;
+alter table t1 add ee MediumBlob;
+alter table t1 add ff LongBlob;
+alter table t1 add kk TinyBlob;
+desc t1;
+show create table t1;
+show full columns from t1;
+drop table t1;
+
+## Insert操作
+create table t1(a tinyblob,b mediumblob,c longblob,d blob,e blob(20));
+insert into t1 values(null,null,null,null,null);
+insert into t1 values('','','','','');
+insert into t1 values('a','a','a','a','a');
+insert into t1 values('1','1','1','1','1');
+insert into t1 values('1.1','1.1','1.1','1.1','1.1');
+insert into t1 values(cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double),cast(1.1 as double));
+
+#insert into t1 values (cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time),cast(current_timestamp() as time));
+
+## update操作
+--sleep 2
+update t1 set b=null where a ='1';
+select * from t1;
+update t1 set c='' where a ='1.1';
+select * from t1;
+update t1 set d='a' where a ='1';
+select * from t1;
+drop table t1;
+
+create table t1 (b tinyblob,c tinyblob);
+insert into t1 values('a','b');
+update t1 set c='a' where b ='a';
+insert into t1 values('aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkc','kkkkkkkkkkkkkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddcc');
+select * from t1;
+
+create table t2 (b blob,c blob);
+insert into t2 values('a','b');
+update t2 set c='a' where b ='a';
+insert into t2 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t2;
+
+create table t3 (b mediumblob,c mediumblob);
+insert into t3 values('a','b');
+update t3 set c='a' where b ='a';
+insert into t3 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t3;
+
+create table t4 (b mediumblob,c mediumblob);
+insert into t4 values('a','b');
+update t4 set c='a' where b ='a';
+insert into t4 values('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+select * from t4;
+
+##边界值
+#最大：TinyBlob:256 bytes  Blob:64K MediumBlob:16M longBlob:512MB
+--error 119
+update t1 set c=concat(b,c);
+#JDBC外部应用程序进行图片、文本、视频、音频测试
+#--error 119
+#update t2 set c=concact(b,c) where b ='a';
+#--error 119
+#update t3 set c=concact(b,c) where b ='a';
+#--error 119
+#update t4 set c=concact(b,c) where b ='a';
+
+## delete操作
+delete from t1 where b='a';
+delete from t2 where b='a';
+delete from t3 where b='a';
+delete from t4 where b='a';
+drop table t1,t2,t3,t4;
+
+## select查询
+# where条件
+create table t1 (a int primary key,b tinyblob);
+insert into t1 (a,b) values(1,'abc');
+select * from t1 where b='abc';
+select b from t1 order by b desc ;
+
+create table t2 (a int primary key,b blob);
+insert into t2 (a,b) values(1,'abc');
+select * from t2 where b='abc';
+select b from t2 order by b desc ;
+
+create table t3 (a int primary key,b mediumblob);
+insert into t3 (a,b) values(1,'abc');
+select * from t3 where b='abc';
+select b from t3 order by b desc ;
+
+create table t4 (a int primary key,b longblob);
+insert into t4 (a,b) values(1,'abc');
+select * from t4 where b='abc';
+select b from t4 order by b desc ;
+
+# in/not in 单表、多表查询
+insert into t1 values(2,'1'),(3,'abc');
+select b from t1 where b not in (select b from t1 where b='1');
+
+insert into t2 values(2,'1'),(3,'abc');
+select b from t2 where b not in (select b from t2 where b='1');
+insert into t2 values(4,'1'),(5,'abc');
+select 2 from t2 where b in(select b from t2) ;
+
+drop table t3,t4;
+create table t3(b mediumtext);
+insert into t3 values('abc'),('def');
+select count(*)from t3 where b in (select b  from t3 bb where bb.b='abc');
+
+create table t4(b longtext);
+insert into t4 values('abc'),('def');
+select count(*)from t4 where b in (select b  from t4 bb where bb.b='abc');
+
+drop table t5_1,t6_1,t7_1,t8_1;
+create table t5(a int primary key,b tinyblob);
+create table t5_1(a int primary key,b tinyblob);
+insert into t5(a,b) values(1,'1'),(2,'abc');
+insert into t5_1(a,b) values(1,'abc');
+select count(*)from t5 where b in (select b from t5_1);
+
+create table t6(a int primary key,b blob);
+create table t6_1(a int primary key,b blob);
+insert into t6(a,b) values(1,'1'),(2,'abc');
+insert into t6_1(a,b) values(1,'abc');
+select count(*)from t6 where b in (select b from t6_1);
+
+create table t7(a int primary key,b mediumblob);
+create table t7_1(a int primary key,b mediumblob);
+insert into t7(a,b) values(1,'1'),(2,'abc');
+insert into t7_1(a,b) values(1,'abc');
+select count(*)from t7 where b in (select b from t7_1);
+
+create table t8(a int primary key,b longblob);
+create table t8_1(a int primary key,b longblob);
+insert into t8(a,b) values(1,'1'),(2,'abc');
+insert into t8_1(a,b) values(1,'abc');
+select count(*)from t8 where b in (select b from t8_1);
+
+#子查询带函数、聚集函数
+drop table t1,t2,t3,t4,t5,t6,t7,t8;
+create table t1(a int primary key,b tinyblob,c blob,d mediumblob,e longblob);
+insert into t1 values(1,'abc','abc','abc','abc');
+select count(*)from t1 where b in (select ord(b) from t1);
+select count(*)from t1 where b in (select ord(c) from t1);
+select count(*)from t1 where b in (select ord(d) from t1);
+select count(*)from t1 where b in (select ord(e) from t1);
+insert into t1 values(2,'testaaa','testaaa','testaaa','testaaa');
+insert into t1 values(3,'testaaa','testaaa','testaaa','testaaa');
+select b,c,ord(b),ord(c) from t1;
+select max(b),max(c),max(d),max(e) from t1;
+select min(b),min(c),min(d),min(e) from t1 ;
+select sum(b) from t1;
+select avg(b) from t1 ;
+select b,instr(b, 'a') from t1;
+select b,left(b, 3),c,right(c,2) from t1;
+select b,c,substr(b,2),substr(c,2,3) from t1;
+select b,c,concat(b,c),concat(b,' qwe'),concat('ghy ',c) from t1;
+select 2 from t1 where b in(select b from t1) ;
+
+# group by分组、having sum
+select b from t1 group by b;
+select b from t1 having sum(b)<4;
+
+# or 、union 、except 、左连接、右连接、between
+drop table t1;
+create table t1(b tinyblob);
+insert into t1(b) values('1'),('abc'),('def');
+select * from t1 where b='5' or b = 'abc' ;
+
+create table t2(b blob);
+insert into t2(b) values('1'),('abc'),('def');
+select * from t2 where b='6' or b = 'abc' ;
+
+create table t3(b text ,c mediumblob);
+create table t4(a text,b tinytext,c longblob);
+insert into t3 values(1,'1'),(2,'abc');
+insert into t4 values(1,'abc','abc');
+select b from t3  union select a from t4;
+select b from t3  except select a from t4;
+select count(*) from t3 right join t4 on t3.b = t4.b;
+select count(*) from t3 left join t4 on t3.b = t4.b;
+select b from t3 where b between '1' and 'abc';
+select * from t3 where c like 'a%';
+
+# is not null
+select b from t1 where b is not null;
+select b from t2 where b is not null;
+select b is not null from t3;
+select b is not null from t4;
+drop table t1,t2,t3,t4;
+
+###2-3:结合其它功能
+##结合外键
+CREATE TABLE t1 (c1 INT PRIMARY KEY,c2 TEXT);
+CREATE TABLE tt1 (article_id INT PRIMARY KEY,title VARCHAR(255),c1 INT,FOREIGN KEY (c1) REFERENCES t1(c1));
+INSERT INTO t1 (c1, c2) VALUES (1, 'This is the c2 of Article 1.');
+INSERT INTO tt1 (article_id, title, c1) VALUES (1, 'Article 1 Title', 1);
+SELECT ac.c2, am.title FROM t1 ac JOIN tt1 am ON ac.c1 = am.c1 WHERE am.article_id = 1;
+DELETE FROM tt1 WHERE article_id = 1;
+drop table tt1,t1;
+
+##结合视图
+CREATE TABLE t1 (c1 INT PRIMARY KEY,c2 VARCHAR(100),c3 INT);
+CREATE TABLE t2 (c1 INT PRIMARY KEY,c2 TEXT);
+insert into  t1 values(1,'aaaaa',1),(2,'bbbbb',2);
+insert into  t2 values(1,'ccccc'),(2,'dddddd'),(3,'eeeee');
+CREATE VIEW v AS SELECT am.c1,ac.c2 FROM t1 am JOIN t2 ac ON am.c3 = ac.c1;
+SELECT * FROM v;
+UPDATE t2 SET c2 = 'Updated c2 for Article 1' WHERE c1 = 1;
+SELECT * FROM v;
+
+##有自增列
+CREATE TABLE t3 (
+  t1_id int NOT NULL auto_increment,
+  _field_72 varchar(128) NOT NULL,
+  _field_95 varchar(32),
+  _field_115 text NOT NULL,
+  _field_122 text NOT NULL,
+  _field_126 text,
+  _field_134 text,
+  PRIMARY KEY (t1_id),
+  UNIQUE _field_72 (_field_72),
+  KEY _field_115 (_field_115),
+  KEY _field_122 (_field_122)
+);
+INSERT INTO t3 VALUES (1,'admin','21232f297a57a5a743894a0e4a801fc3','1111111111111','1111111111111','1111111111111','1111111111111');
+INSERT INTO t3 VALUES (2,'hroberts','7415275a8c95952901e42b13a6b78566','1111111111111','1111111111111','1111111111111','1111111111111');
+INSERT INTO t3 VALUES (3,'guest','d41d8cd98f00b204e9800998ecf8427e','1111111111111','1111111111111','1111111111111','1111111111111');
+select count(*) from t3 where _field_72='admin';
+drop table t1,t2,t3;
+
+##设置字符集字符序
+create table t1(
+	c1 TinyText character set utf8 comment 'TinyText',
+	c2 Text comment 'Text',
+	c3 MediumText charset 'gbk' collate 'gbk_bin'  NOT NULL COMMENT 'MediumText',
+	c4 LongText  comment 'LongText',
+	c5 TinyBlob comment 'TinyBlob',
+	c6 Blob NULL comment '二进制',
+	c7 MediumBlob comment 'MediumBlob',
+	c8 LongBlob comment 'LongBlob',
+	c9 json comment 'json', 
+	c10 bit(1) DEFAULT b'0' comment 'bit',
+	c11 date comment '时间',
+	c12 varchar(30) comment '字符串',
+	c13 float comment '浮点类型')CHARACTER SET gbk comment = 'table comment';
+show create table t1;
+
+create table t2 (a tinytext character set latin1);
+alter table t2 convert to character set utf8;
+show create table t2;
+
+create table t3 (a mediumtext character set latin1);
+alter table t3 convert to character set utf8;
+show create table t3;
+drop table t1,t2,t3;
+
+#不同数据类型
+#-- 日期类型
+DROP TABLE IF EXISTS date_table;
+CREATE TABLE date_table (
+    id INT  PRIMARY KEY COMMENT '主键',
+    datetime_value DATETIME COMMENT '日期和时间类型',
+    timestamp_value TIMESTAMP COMMENT '时间戳类型，自动更新',
+    date_value DATE DEFAULT '1970-01-01' COMMENT '日期类型'
+) COMMENT='包含日期和时间类型的示例表';
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (1, '2014-11-17 12:43:26', '2001-04-02 07:12:47', '2011-10-08');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (2, '2012-09-28 02:15:34', '2022-10-20 21:26:18', '2014-03-15');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (3, '2007-11-20 22:14:07', '2008-12-26 17:33:32', '2008-05-14');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (4, '2021-05-12 13:17:37', '2007-08-30 05:21:12', '2012-05-26');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (5, '2016-06-13 11:49:08', '2009-10-28 05:58:49', '2022-05-06');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (6, '2019-08-27 22:41:17', '2003-12-29 23:09:51', '2015-10-01');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (7, '2018-12-18 14:03:42', '2005-03-21 10:21:57', '2017-05-02');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (8, '2006-08-12 08:25:25', '2010-07-20 14:36:27', '2005-07-25');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (9, '2011-12-12 06:02:31', '2003-07-03 17:42:13', '2001-04-02');
+INSERT INTO date_table (id, datetime_value, timestamp_value, date_value) VALUES (10, '2012-10-30 06:43:14', '2017-05-17 06:16:27', '2003-08-18');
+show create table date_table;
+
+##自定义函数
+delimiter //;
+CREATE FUNCTION f1() RETURNS TINYBLOB 
+BEGIN
+	RETURN 1;
+end//
+
+CREATE FUNCTION merge_blobs(blob1 BLOB, blob2 BLOB)RETURNS BLOB
+BEGIN
+	DECLARE aaa BLOB;
+    SELECT CONCAT(blob1, blob2) INTO aaa;
+    RETURN aaa;
+END;//
+#--error 7
+select merge_blobs('aaa','bbb')//
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

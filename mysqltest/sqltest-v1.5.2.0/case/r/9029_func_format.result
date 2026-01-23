@@ -1,0 +1,219 @@
+set character_set_results='utf8mb4';
+set character_set_connection='utf8mb4';
+set character_set_client='utf8mb4';
+create database d1;
+using database d1;
+drop table if exists t1,t2,t3,t4,t5,t6;
+create table
+create table t1(c1 int primary key,c2 double,c3 float,c4 datetime,c5 decimal(10,5),c6 varchar(10),c7 bool);
+create table t2(c1 int primary key,c2 float);
+create table t3(c1 int primary key,c2 varchar(10));
+create table t4(c1 int primary key,c2 double,c3 varchar(10));
+create table t5(c1 int primary key,c2 int,c3 double,c4 float,c5 varchar(10));
+create table t6(c1 int primary key,c2 varchar(10),c3 varchar(10));
+insert data
+insert into t1 values(1001,12.345678,1234.56,'2022-10-27',77777.97678,'1,001',true);
+insert into t2 values(1,2.34);
+insert into t2 values(2,1.0);
+insert into t3 values(1,'de_DE');
+insert into t3 values(2,'en_US');
+insert into t4 values(1,123456.789,'de_DE');
+insert into t4 values(2,1234.1234,'en_US');
+insert into t5 values(1,2,1234.1234,2345.678,'en_US');
+insert into t6 values(1,'345.67','L1');
+insert into t6 values(2,'123.456','L2');
+insert into t6 values(3,'123.456','L3');
+insert into t6 values(4,'345.67','L4');
+insert into t6 values(5,format(123456.789,1),'L5');
+select format(12345.678);
+ERROR HY000: YAO-5054: Param num of function 'format' can not be less than 2 or more than 3, ret=-5054
+select format(12345.678,2);
+format(12345.678,2)
+12,345.68
+select format(12345.678,2,'de_DE');
+format(12345.678,2,'de_DE')
+12.345,68
+select format(12345.678,2,'de_DE',5);
+ERROR HY000: YAO-5054: Param num of function 'format' can not be less than 2 or more than 3, ret=-5054
+select format(null,3);
+format(null,3)
+NULL
+select format(1234567.6789,null);
+ERROR HY000: YAO-2: the second argument is invalid type is 0
+select format(null,null);
+ERROR HY000: YAO-2: the second argument is invalid type is 0
+select format(12345.673,2,null);
+ERROR HY000: YAO-2: the third argument is invalid type is 0
+select format(null,null,'de_DE');
+ERROR HY000: YAO-2: the second argument is invalid type is 0
+select format(null,3,null);
+ERROR HY000: YAO-2: the third argument is invalid type is 0
+select format(12345.678,null,null);
+ERROR HY000: YAO-2: the second argument is invalid type is 0
+select format(null,null,null);
+ERROR HY000: YAO-2: the second argument is invalid type is 0
+select format(c1,1,'en_US') from t1;
+format(c1,1,'en_US')
+1,001
+select format(c2,2,'de_DE') from t1;
+format(c2,2,'de_DE')
+12,35
+select format(c3,1) from t1;
+format(c3,1)
+1,234.6
+select format(c4,2,'de_DE') from t1;
+ERROR HY000: YAO-2: the first argument is invalid type is 6
+select format(c5,3,'de_DE') from t1;
+format(c5,3,'de_DE')
+77.777,977
+select format(c6,3) from t1;
+ERROR HY000: YAO-2: the first argument is invalid type is 6
+select format(c7,2) from t1;
+ERROR HY000: YAO-2: the first argument is invalid type is 6
+select format(1234.45,c1,'de_DE') from t2;
+format(1234.45,c1,'de_DE')
+1.234,5
+1.234,45
+select format(1234.45,c2,'de_DE') from t2;
+format(1234.45,c2,'de_DE')
+1.234,45
+1.234,5
+select format(1234.4567,2,c2) from t3;
+format(1234.4567,2,c2)
+1.234,46
+1,234.46
+select format(1234.4567,2,c1) from t3;
+ERROR HY000: YAO-2: the third argument is invalid type is 16
+select format(c2,c1,c3) from t4;
+format(c2,c1,c3)
+123.456,8
+1,234.12
+select format(c3*c2,c1*c2,c5) from t5;
+format(c3*c2,c1*c2,c5)
+2,468.25
+select format(c4/c2,c2/c1,c5) from t5;
+format(c4/c2,c2/c1,c5)
+1,172.84
+select format(c3+c4,c2+c1,c5) from t5;
+format(c3+c4,c2+c1,c5)
+3,579.801
+select format(c3-c4,c1-c2,c5) from t5;
+format(c3-c4,c1-c2,c5)
+-1,110
+select format(c4 mod(c3),c2 mod(c1),c5) from t5;
+format(c4 mod(c3),c2 mod(c1),c5)
+1,111
+select format(c4*c3/c2,c2 mod(c1)+c2,c5) from t5;
+format(c4*c3/c2,c2 mod(c1)+c2,c5)
+1,447,428.04
+select format(12345.6782*2,2*1,'en_US');
+format(12345.6782*2,2*1,'en_US')
+24,691.36
+select format(12345.6782/2,6/2,'en_US');
+format(12345.6782/2,6/2,'en_US')
+6,172.839
+select format(12345.6782+248.34,1+1,'de_DE');
+format(12345.6782+248.34,1+1,'de_DE')
+12.594,02
+select format(12345.6782-248.34,3-2,'de_DE');
+format(12345.6782-248.34,3-2,'de_DE')
+12.097,3
+select format(12345.6782,5 mod(2),'de_DE');
+format(12345.6782,5 mod(2),'de_DE')
+12.345,7
+select format(12345.6782/2,(1+8*9/4)%2,'en_US');
+format(12345.6782/2,(1+8*9/4)%2,'en_US')
+6,172.8
+select format(round(1234.4567,2),1);
+format(round(1234.4567,2),1)
+1,234.5
+select format(c2,1,lower(c3)) from t4;
+format(c2,1,lower(c3))
+123.456,8
+1,234.1
+select format(12345.6782,count(*)) from t4;
+format(12345.6782,count(*))
+12,345.68
+select format(avg(c2),3) from t4;
+format(avg(c2),3)
+62,345.456
+select c1,c3 from t6 where c2 like format(123.4556,3);
+c1	c3
+2	L2
+3	L3
+select c1,c3 from t6 where c2 like format(345.672,2) order by c1;
+c1	c3
+1	L1
+4	L4
+update t6 set c3 = 'LTest' where c2 like format(345.672,2);
+update t6 set c2 = format(5.789123,4) where c1 < 2;
+delete from t6 where c1 > 2 and c2 like format(345.67,2);
+select t6.c1,format(t4.c2,t6.c1) from t4,t6;
+c1	format(t4.c2,t6.c1)
+1	123,456.8
+2	123,456.79
+3	123,456.789
+5	123,456.78900
+1	1,234.1
+2	1,234.12
+3	1,234.123
+5	1,234.12340
+select distinct t4.c1,t6.c1,t6.c3 from t4,t6 where t6.c2 like format(123.4562,3);
+c1	c1	c3
+1	2	L2
+1	3	L3
+2	2	L2
+2	3	L3
+select format(0,0);
+format(0,0)
+0
+select format(1.1,0);
+format(1.1,0)
+1
+select format(0,1.1);
+format(0,1.1)
+0
+select format(1,0);
+format(1,0)
+1
+select format(0,1);
+format(0,1)
+0
+select format(-1,-1);
+format(-1,-1)
+0
+select format(-1,0);
+format(-1,0)
+-1
+select format(-1,1);
+format(-1,1)
+-1
+select format(null,0);
+format(null,0)
+NULL
+select format(null,-1);
+format(null,-1)
+NULL
+select format(null,1);
+format(null,1)
+NULL
+select format(12345.678,-2);
+format(12345.678,-2)
+12,300
+select format(-12345.678,2);
+format(-12345.678,2)
+-12,345.68
+select format(12345.678,2,'de_de');
+format(12345.678,2,'de_de')
+12.345,68
+select FORMAT(null,3);
+FORMAT(null,3)
+NULL
+select format(null,3) AS test;
+test
+NULL
+select format(format(null,3),3);
+format(format(null,3),3)
+NULL
+drop table t1,t2,t3,t4,t5,t6;
+drop database d1;

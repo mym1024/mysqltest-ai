@@ -1,0 +1,56 @@
+create table t1(id int primary key, col1 int, col2 int, col3 int);
+create table t2(id int primary key, col1 int);
+insert into t1 values(1, 2, 3, 4);
+insert into t1 values(2, 3, 4, 5);
+insert into t2 values(1, 2);
+insert into t2 values(2, 3);
+select * from t1 semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 left semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 right semi join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 merge join t2 on t1.col1 = t2.col1;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+select * from t1 bloomfilter join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 hash join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 inner join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 left join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 right join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 full join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 a join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select * from t1 a join t2 on a.col1 = t2.col1;
+id	col1	col2	col3	id	col1
+1	2	3	4	1	2
+2	3	4	5	2	3
+select a.* from t1 a join t2 on t1.col1 = t2.col1;
+id	col1	col2	col3
+1	2	3	4
+2	3	4	5
+drop table if exists t1;
+drop table if exists t2;

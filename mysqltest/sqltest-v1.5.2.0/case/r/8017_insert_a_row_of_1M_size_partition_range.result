@@ -1,0 +1,7 @@
+drop table if exists t1;
+select pk , f12 varchar(70000) , f11 varchar(70000) , f10 varchar(70000) , f9 varchar(70000) , f8 varchar(70000) , f7 varchar(70000) , f6 varchar(70000) , f5 varchar(70000) , f4 varchar(70000) , f3 varchar(70000) , f2 varchar(70000) , f1 varchar(70000) ) partition by range(pk)(partition z1 values less than(5),partition z2 values less than(10),partition z3 values less than maxvalue);;
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+Okay
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist
+ERROR 42000: YAO-5001: You have an error in your SQL syntax; check the manual that corresponds to your YaoBase version for the right syntax 
+ERROR 42S02: YAO-5019: table 'test.t1' does not exist

@@ -1,0 +1,211 @@
+##############################################################################################
+###1.测试功能点：测试日期时间函数unix_timestamp、time_to_sec
+#
+###2.测试项：(每新添一测试项，需在添加前注明测试项，注释填写在新添sq1前，不填在此处，如下样例）
+###3.问题网址：
+###4.问题号：
+###5.预计运行时间：
+###6.编写/修改人：
+###7.编写/修改日期：
+###8.其他（选填）：case格式规范化修改
+###
+##
+#
+##############################################################################################
+
+#####################################Do sql###################################################
+###2-1：测试unix_timestamp函数
+create table t1(c1 int, c2 int);
+create table t2(c1 int, c2 int);
+insert into t1 values(1, unix_timestamp(990909));
+insert into t1 values(2, unix_timestamp(910909));
+insert into t2 values(1, unix_timestamp(990909));
+alter table t1 add c3 int;
+update t1 set c3=980909;
+
+##参数不同
+select unix_timestamp(null);
+--replace_column 1 '1700467530'
+select unix_timestamp();
+--error 5054
+select unix_timestamp(19990909,19990909);
+select unix_timestamp(9999);
+select unix_timestamp(19990909080808);
+select unix_timestamp('');
+select unix_timestamp('99-09-09');
+select unix_timestamp('1999-09-09');
+select unix_timestamp('1999-13-01');
+select unix_timestamp('1999/09/09');
+select unix_timestamp('990909.08');
+select unix_timestamp(convert(19990909.9, float));
+select unix_timestamp(true);
+select unix_timestamp(to_timestamp('1999-09-09 08:08:08','yyyy-mm-dd hh:mm:ss'));
+--replace_column 1 '1700467530.153995'
+select unix_timestamp(now());
+select unix_timestamp(to_date('1999-09-09','yyyy-mm-dd'));
+--replace_column 1 '1700467530'
+select unix_timestamp(current_time());
+select unix_timestamp(19990909.1234567);
+select unix_timestamp(19990909.12345678910);
+select unix_timestamp(1.2345e3);
+
+##函数位置不同
+update t1 set c1=3 where c2=unix_timestamp(990909);
+update t1 set c2=unix_timestamp(980909) where c1=3;
+select c1, c2 from t1 where c2=unix_timestamp(980909);
+select c1,c2 from t1 having c2=unix_timestamp(980909);
+select unix_timestamp(c1),c2 from t1 order by c1 desc;
+insert into t1 values(4, unix_timestamp(970909), 120909);
+delete from t1 where c2=unix_timestamp(970909);
+(select c1,unix_timestamp(c1),c2 from t1 where c1=2) union (select c1,unix_timestamp(c1),c2 from t1 where c1=3);
+select c1,c2 from t1 where c2 between unix_timestamp(970808) and unix_timestamp(991010);
+select unix_timestamp(unix_timestamp(990909));
+#函数嵌套
+select length('yaobase_test'),unix_timestamp(length('yaobase_test'));
+select round(1234.567,1),unix_timestamp(round(1234.567,1));
+select ceil(990909.99),unix_timestamp(ceil(990909.99));
+select floor(990909.99),unix_timestamp(floor(990909.99));
+#算数运算
+select c1+c3, unix_timestamp(c1+c3) from t1;
+select c3-c1,unix_timestamp(c3-c1) from t1;
+select c3*(c1/c1),unix_timestamp(c3*(c1/c1)) from t1;
+select c3/(c1/c1),unix_timestamp(c3/(c1/c1)) from t1;
+select c3%(c1/c1),unix_timestamp(c3%(c1/c1)) from t1;
+select c3*(c1-1),unix_timestamp(c3*(c1-2)) from t1;
+
+select c1, c2 from t1 where c2 in (unix_timestamp(980909));
+select tb1.c1,tb2.c2, unix_timestamp(t1.c3) from t1 as tb1, t1 as tb2 where tb1.c1<tb2.c1;
+drop table if exists t1,t2;
+
+###2-2：测试time_to_sec函数
+create table t1(c1 date,c2 time,c3 datetime,c4 timestamp);
+create table t2(c1 int,c2 int,c3 int);
+create table t3(c1 int,c2 int,c3 int);
+insert into t1 values('2015-07-07','00:00:15','2015-07-07 00:00:15','2015-07-07 00:00:15.000000'),('2017-07-07','00:50:15','2017-07-07 00:50:15','2017-07-07 00:50:15.000000'),('2023-07-07','09:50:15','2017-07-07 09:50:15','2017-07-07 09:50:15.000000');
+insert into t2 values(1,100,21),(2,200,31),(3,300,41),(5,500,51);
+insert into t3 values(1,100,21),(2,200,31),(3,300,41),(6,600,61);
+
+#参数不同
+select time_to_sec('2023-10');
+select time_to_sec('2023-1-28');
+select time_to_sec('2023-10-10 12');
+select time_to_sec('2023-10-10 12-43');
+select time_to_sec('2020-02-29 11:11:11.123456567');
+select time_to_sec('2021-02-29 11:11:11.123456');
+select time_to_sec('2023-07-24 09:14:20');
+select time_to_sec('2023-13-24 09:14:20.123456');
+select time_to_sec('2023-07-24 09:60:20.123456');
+select time_to_sec('00:39:38');
+select time_to_sec('900:00:00');
+select time_to_sec('12:34:56 PM');
+select time_to_sec('2023/07/11 12:34:56');
+select time_to_sec(null);
+select time_to_sec('abc');
+select time_to_sec(true);
+select time_to_sec(false);
+select time_to_sec(cast('2023-09-01 12:12:12'as datetime));
+select time_to_sec(cast('2023-07-24 09:14:20.123456'as datetime));
+#--error 5105
+select time_to_sec(cast('2023-13-24 09:14:20.123456'as datetime));
+#--error 5106
+select time_to_sec(cast('2023-09-24 24:14:20.123456'as datetime));
+select time_to_sec(cast('2023-07-24'as date));
+select time_to_sec(cast('11:11:11'as time));
+select time_to_sec(0);
+select time_to_sec(-11);
+select time_to_sec(61);
+select time_to_sec(101);
+select time_to_sec(-1111);
+select time_to_sec(-98765432111111);
+select time_to_sec(98765432601111);
+select time_to_sec(cast(11.12 as float));
+select time_to_sec(cast(415123e-3 as float));
+select time_to_sec(cast(0.0 as double));
+select time_to_sec(cast(8391234.5678 as double));
+select time_to_sec(cast(0.0 as decimal(2,1)));
+select time_to_sec(cast(415123e-3 as decimal(6,3)));
+select time_to_sec(' \n \r \t 20230320124356.123456');
+select time_to_sec('.-/20230320124356.123456');
+select time_to_sec('111160');
+select time_to_sec('010303111111');
+select time_to_sec('20230320124356. gcd!@#$%^&*12');
+select time_to_sec('20230320124356 ');
+select time_to_sec('2010303111111');
+select time_to_sec('0303111111');
+select time_to_sec('12341234');
+select time_to_sec('11:11:');
+select time_to_sec('11::');
+select time_to_sec(':11:11');
+select time_to_sec('11:');
+#嵌套查询
+select time_to_sec(current_date());
+--replace_column 1 '57935'
+select time_to_sec(current_time());
+--replace_column 1 '57935'
+select time_to_sec(current_timestamp());
+--replace_column 1 '57935'
+select time_to_sec(strict_current_timestamp());
+
+##参数不同
+--error 5054
+select time_to_sec(current_timestamp(),1);
+select time_to_sec(cast('9999-12-31 23:59:59.999999' as timestamp));
+#--error 5102
+select time_to_sec(cast('10000-12-31 23:59:59.999999' as timestamp));
+select time_to_sec(cast('0001-01-01 00:00:00.000000' as timestamp));
+#--error 5102
+select time_to_sec(cast('-0001-01-01 00:00:00.000001' as timestamp));
+select time_to_sec(111111111.12345678912345678912345678912);
+select time_to_sec(20000101010101.123456+10101010102/1*1-1+0.123456);
+
+##函数位置不同
+update t2 set c1 = 3 where c1 = time_to_sec(1);
+select * from t2;
+update t2 set c1 = 1 where c2 = time_to_sec(':1:');
+select * from t2;
+update t2 set c3 = time_to_sec('2001-02-26 11:11:') where c1 = 2;
+select * from t2;
+select * from t2 where c1 < time_to_sec(2);
+select * from t2;
+select * from t2 group by c2 having c3 > time_to_sec(1);
+select * from t2 order by time_to_sec(c1);
+insert into t2 values(1,60,time_to_sec(1));
+select * from t2;
+delete from t2 where c1 = time_to_sec(3);
+select * from t2;
+--real_sleep 2
+#使用集合
+(select c1,time_to_sec(c2-30) from t2) union (select c1,time_to_sec(c2-20) from t2);
+(select c1,time_to_sec(c2-30) from t2) intersect (select c1,time_to_sec(c2-30) from t2);
+(select c1,time_to_sec(c2-30) from t2) except (select c1,time_to_sec(c2-20) from t2);
+select * from t2 where c1 between time_to_sec(1) and time_to_sec(4);
+#函数嵌套
+select time_to_sec(time_to_sec('2001-02-26 11:10:11'));
+select round(c2-20),time_to_sec(round(c2-20)) from t2;
+select concat('2001-02-26 ','11:11:11'),time_to_sec(concat('2001-02-26 ','11:11:11'));
+select max(time_to_sec(c1)),time_to_sec(min(c1)),sum(time_to_sec(c3)),time_to_sec(count(c1)) from t2;
+select * from t2 where c1 in (select time_to_sec(c1) from t2);
+#函数为列
+create table t4(c1_int int,c2_varchar varchar(10),c3_float float,c4_double double,c5_bool bool,c6_timestamp timestamp,c7_date date,c8_time time,c9_decimal decimal(5,3));
+insert into t4 values(1,'aaa',1.1,1.111,false,'2023-01-28 14:24:34.865411','2023-01-29','2023-02-28 14:24:34.865411',12.123),(2,'bbb',2.1,2.111,true,'2023-09-28 14:24:34.865411','2023-09-29','2023-09-28 14:24:34.865411',12.123);
+--real_sleep 3
+select c5_bool,time_to_sec(c5_bool) from t4;
+select time_to_sec(c1_int),time_to_sec(c2_varchar),time_to_sec(c3_float),time_to_sec(c4_double) from t4;
+select time_to_sec(c6_timestamp),time_to_sec(c7_date),time_to_sec(c8_time),time_to_sec(c9_decimal) from t4;
+#运算
+select time_to_sec(12+11*10/20%10 mod(3));
+SELECT TIME_TO_SEC('01:30:00') + TIME_TO_SEC('00:45:00');
+SELECT TIME_TO_SEC('00:15:00') * 3;
+##从表中获取
+select time_to_sec(c1) from t1;
+select time_to_sec(c2) from t1;
+select time_to_sec(c3) from t1;
+select time_to_sec(c4) as timestamp_column  from t1;
+select c1 from t1 where time_to_sec(c2) > 3600;
+select t2.c1,t3.c1,time_to_sec(t2.c2),time_to_sec(t3.c3) from t2,t3;
+drop table t1,t2,t3,t4;
+
+###///新添测试项///###
+###2-x:(新增测试项说明)
+#do sql
+########################################################################################################

@@ -1,0 +1,140 @@
+drop table if exists t1,t2,t3,t4 purge;
+alter system set major_freeze_wait_time='6s' server_type=yaoadminsvr;
+alter system set merge_delay_interval='5s' server_type=yaodatasvr;
+alter system set min_major_freeze_interval='5s' server_type=yaotxnsvr;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('timestamp','yyyy-mm-dd');
+c1	c2
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('2021-05-20' ,'yyyy-mm-dd');
+c1	c2
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+1	1
+2	2
+3	3
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+2	5
+3	3
+drop table t1 purge;
+merge
+major_freeze...
+merge: DONE
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp1' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5099: query timestamp is not allowed less than frozen time
+select * from t1 as_of timestamp to timestamp ('timestamp3' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+1	1
+2	2
+3	3
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp4' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+2	5
+3	3
+drop table t1 purge;
+merge
+minor_freeze...
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp1' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+select * from t1 as_of timestamp to timestamp ('timestamp2' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+select * from t1 as_of timestamp to timestamp ('timestamp3' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+1	1
+2	2
+3	3
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+delete from t1 where c1 = 1;
+update t1 set c2=5 where c1 =2;
+select * from t1 as_of timestamp to timestamp ('timestamp4' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+2	5
+3	3
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('2032-05-25 00:00:00.123131','yyyy-mm-dd hh24:mi:ss');
+c1	c2
+1	1
+2	2
+3	3
+drop table t1 purge;
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('2032-05-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+c1	c2
+1	1
+2	2
+3	3
+select * from t1 as_of timestamp to timestamp ('2021-13-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp('2021-05-33 00:00:00' , 'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-05-25 25:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-05-25 00:61:00' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp('2021-05-25 00:00:61' , 'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-05-25 00:00:00' ,'yyyy-mm-dd');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-5-25 00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-5-25 -00:00:00' ,'yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('2032-05-25','yyyy-mm-dd');
+c1	c2
+1	1
+2	2
+3	3
+select * from t1 as_of timestamp to timestamp('2021-05-25','yyyy-mm-dd hh24:mi:ss');
+ERROR HY000: YAO-5097: query format not existed or not matched
+select * from t1 as_of timestamp to timestamp ('2021-5-25' ,'yyyy-mm-dd');
+ERROR HY000: YAO-5097: query format not existed or not matched
+drop table if exists t1;
+create table t1 (c1 int primary key,c2 int);
+insert into t1 values (1,1),(2,2),(3,3);
+select * from t1 as_of timestamp to timestamp ('2021-05' ,'yyyy-mm');
+ERROR HY000: YAO-5097: query format not existed or not matched
