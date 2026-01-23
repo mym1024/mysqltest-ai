@@ -1,0 +1,34 @@
+{
+    "paths": {
+        "yao_test_dir": "/home/yaotest/tool0",
+        "yao_base_src": "/home/fan/tools/yaobase",
+        "mysqltest_src": "/home/yaotest/base/sqltest"
+    },
+    "database": {
+        "host": "127.0.0.1",
+        "port": 2881
+    },
+    "cluster": {
+        "app_name": "yaotest",
+        "services": {
+            "admin": {
+                "bin": "bin/yaoadminsvr",
+                "port": 49500
+            },
+            "txn": {
+                "bin": "bin/yaotxnsvr",
+                "port": 49700,
+                "manage_port": 49701
+            },
+            "data": {
+                "bin": "bin/yaodatasvr",
+                "port": 49600
+            },
+            "sql": {
+                "bin": "bin/yaosqlsvr",
+                "port": 49800,
+                "mysql_port": 49880
+            }
+        }
+    }
+}
